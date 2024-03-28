@@ -1,0 +1,155 @@
+
+/* Default Settings */
+
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+a, li {
+    display: inline-block;
+    margin-bottom: 0;
+}
+
+a, span, div, p, em, b, c, ul, li, h1, h2, h3, h4, h5, h6, small, td, input, button, select, textarea {
+    list-style: none;
+}
+
+a, button {
+    cursor: pointer;
+}
+
+/* Keywords */
+
+.important {
+    z-index: 999;
+    position: relative;
+}
+*:not(.important) {
+    z-index: 0;
+    position: relative;
+}
+
+.noscroll {
+    user-select: none;
+    cursor: default;
+}
+
+[class*=list] {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    align-items: stretch;
+    flex-flow: row wrap;
+}
+.hard {
+    flex-wrap: nowrap;
+}
+.vlist {
+    flex-direction: column;
+}
+.hlist div, .vlist div, .mlist div {
+    flex: 1 0 auto;
+}
+.stretch {
+    align-self: stretch;
+}
+.around {
+    justify-content: space-around;
+}
+.break {
+    width: 100%;
+}
+
+
+.spacer, .header-spacer, .footer-spacer {
+    -ms-flex: 999 1 auto !important;
+    flex: 999 0 auto !important;
+}
+
+i {
+    width: 100%;
+    height: 100%;
+    position: relative;
+} /* thanks fa (why are they using italics for icons) */
+
+/* Positions */
+
+.main {
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
+}
+
+.left {
+    float: left;
+    left: 0;
+    text-align: left;
+    margin: 0;
+    justify-content: left;
+}
+
+.right {
+    float: right;
+    right: 0;
+    text-align: right;
+    margin: 0;
+    justify-content: right;
+}
+
+.center {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: center;
+}
+
+.top {
+    top: 0;
+}
+
+.bottom {
+    bottom: 0;
+}
+
+.middle {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.circle, .circle i {
+    border-radius: 50%;
+}
+
+.box, .box i {
+    border-radius: 5%;
+}
+
+.inline > * {
+    display: inline-block;
+}
+
+/* Mobile Compats */
+
+.pc {
+    display: block !important;
+}
+
+.mobile {
+    display: none !important;
+}
+
+@media screen and (max-width: 750px) {
+    .mlist {
+        flex-direction: column !important;
+    }
+
+    .pc {
+        display: none !important;
+    }
+    
+    .mobile {
+        display: block !important;
+    }
+}

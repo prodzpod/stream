@@ -1,0 +1,54 @@
+doctype html
+html 
+    head
+        a(rel="me" href="https://mastodon.gamedev.place/@prod" style="display: none;") Mastodon
+        meta(charset='utf-8')
+        meta(name='author' content='prodzpod')
+        meta(name='robots' content='nosnippet')
+        meta(property='og:url' content='prod.kr/')
+        meta(property='og:type' content='Personal Website')
+        block meta
+        title prod
+        link(href='https://prod.kr/css/reset.css' rel='stylesheet')
+        link(href='https://prod.kr/css/base.css' rel='stylesheet')
+        link(href='https://prod.kr/css/style/dark.css' rel='stylesheet' id='theme-dark')
+        link(href='https://prod.kr/css/style/light.css' rel='stylesheet' id='theme-light')
+        link(href='https://prod.kr/css/style.css' rel='stylesheet')
+        script(src='https://prod.kr/js/base.js')
+        script. 
+            !{client}
+        script(src='https://prod.kr/js/common.js')
+    body
+        .main.vlist
+            header.hlist
+                .vlist.middle: b: a.center(href='https://prod.kr' style='font-size: 150%;') pr<span id='title-random' class='random'>o</span>d
+                .vlist.middle: a.center(href='https://prod.kr/v') livestream
+                .vlist.middle: a.center(href='https://prod.kr/folio') portfolio 
+                .vlist.middle: a.center(href='https://prod.kr/link') links
+                .vlist.middle: a.center(href='https://prod.kr/contact') contact
+            block body-outer
+                .body
+                    block body 
+                .spacer
+            footer.vlist 
+                .hlist.center
+                    .vlist
+                        .spacer
+                        p pr<span class='random'>o</span>dzp<span class='random'>o</span>d 2024
+                        .spacer
+                    .vlist
+                        .spacer
+                        span &nbsp;|&nbsp;
+                        .spacer
+                    button(onclick='toggleDark(this)' id='footer-dark') dark
+                    .vlist
+                        .spacer
+                        span &nbsp;|&nbsp;
+                        .spacer
+                    button(onclick='toggleColorful(this)' id='footer-colorful') colorful
+                    .vlist
+                        .spacer
+                        span &nbsp;|&nbsp;
+                        .spacer
+                    button(onclick='toggleFlashy(this)' id='footer-flashy') flashy
+        block postbody

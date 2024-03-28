@@ -1,0 +1,192 @@
+import bpy
+from bpy import context
+from pathlib import Path
+import json
+import builtins as __builtin__
+
+# blender print dumb
+
+def console_print(*args, **kwargs):
+    for a in context.screen.areas:
+        if a.type == 'CONSOLE':
+            c = {}
+            c['area'] = a
+            c['space_data'] = a.spaces.active
+            c['region'] = a.regions[-1]
+            c['window'] = context.window
+            c['screen'] = context.screen
+            s = " ".join([str(arg) for arg in args])
+            for line in s.split("\n"):
+                bpy.ops.console.scrollback_append(c, text=line)
+
+def print(*args, **kwargs):
+    """Console print() function."""
+
+    console_print(*args, **kwargs) # to py consoles
+    __builtin__.print(*args, **kwargs) # to system console
+    
+# real script starts here
+
+COLLECTIONS = list(bpy.data.collections)
+OBJECTS = list(bpy.data.objects)
+MESHES = list(bpy.data.meshes)
+
+def find(arr, fn):
+    return next(iter([x for x in arr if fn(x)]), None)
+
+def unentry(kv):
+    ret = dict()
+    for x in kv:
+        ret[x[0]] = x[1]
+    return ret
+
+def operateArr(a, b, fn):
+    ret = []
+    l = min(len(a), len(b))
+    for i in range(l):
+        ret.append(fn(a[i], b[i]))
+    return ret
+
+def get_center(bbox):
+    ret = [0, 0, 0]
+    for pos in bbox:
+        ret = operateArr(pos, ret, lambda a, b: a + b)
+    return [x/len(bbox) for x in ret]
+
+def get_relations(obj):
+    ret = dict()
+    ret['name'] = obj.name
+    ret['parent'] = obj.parent
+    if (obj.parent != None and obj.parent.name[0] == '_'):
+        ret['parent'] = obj.parent.parent
+        ret['pivot'] = get_center(obj.parent.bound_box)
+        ret['pivot'] = operateArr(ret['pivot'], get_center(obj.parent.parent.bound_box), lambda a, b: a - b)
+    else:
+        ret['pivot'] = get_center(obj.bound_box)
+        if obj.parent != None:
+            ret['pivot'] = operateArr(ret['pivot'], get_center(obj.parent.bound_box), lambda a, b: a - b)
+    ret['children'] = [x.name[1:] if x.name[0] == '_' else x.name for x in obj.children]
+    mas = list()
+    for x in ret['children']:
+        nobj = find(OBJECTS, lambda y: y.name == x)
+        if nobj != None:
+            mas.extend(get_relations(nobj))
+    mas.append(ret)
+    return mas
+
+c_model = find(COLLECTIONS, lambda x: x.name == 'prod')
+c_default = find(COLLECTIONS, lambda x: x.name == 'default')
+c_deco = find(COLLECTIONS, lambda x: x.name == 'decoration')
+
+# retrieve start points
+o_prod = find([x for x in OBJECTS if x.parent == None], lambda x: x.users_collection[0] == c_model)
+o_decoration = [x for x in OBJECTS if x.users_collection[0] == c_deco]
+
+# retrieve mesh data
+meshes = unentry([[x.name, x] for x in MESHES])
+    
+# retrieve pivot point info
+relations = dict()
+for x in get_relations(o_prod):
+    relations[x['name']] = x
+
+# retrieve color
+for k in relations:
+    if len(meshes[k].materials) == 0:
+        relations[k]['color'] = tuple([0, 0, 0, 0])
+        continue
+    color = tuple(next(n for n in meshes[k].materials[0].node_tree.nodes if n.type == 'BSDF_PRINCIPLED').inputs['Base Color'].default_value)
+    relations[k]['color'] = color
+
+# RELATIONS data: describes full mesh with only joints processed, use intermediary here
+    
+def make_pose(rotations, acc = ['skirt_default'], expr = [None, None, None]):
+    ret = dict()
+    ret['model'] = rotations
+    ret['accessories'] = list(acc)
+    ret['expression'] = list(expr) 
+    return ret    
+
+# build model pose object
+model = dict()
+for k in relations:
+    model[k] = dict()
+    model[k]['pivot'] = relations[k]['pivot']
+    model[k]['v'] = [tuple(x.co) for x in meshes[k].vertices]
+    model[k]['f'] = [tuple(x.vertices) for x in meshes[k].polygons]
+    model[k]['color'] = relations[k]['color']
+    model[k]['children'] = relations[k]['children']
+
+def initialize_meta():
+    print("Creating Fresh Metafile")
+    meta = dict()
+    meta['prod'] = o_prod.name
+    meta['accessories'] = list([x.name for x in o_decoration])
+    meta['model'] = model
+    meta['poses'] = dict()
+    meta['poses']['DEFAULT'] = dict()
+    meta['poses']['DEFAULT']['accessories'] = list(['skirt_default'])
+    meta['poses']['DEFAULT']['expression'] = list([None, None, None])
+    meta['poses']['DEFAULT']['rotation'] = dict()
+    for k in model:
+        tk = find(OBJECTS, lambda x: x.name == '_' + k)
+        if tk == None:
+            tk = find(OBJECTS, lambda x: x.name == k)
+        meta['poses']['DEFAULT']['rotation'][k] = tuple(tk.rotation_euler)
+    return meta
+    
+def load_meta(path):
+    print("Reading Metafile from " + path)
+    meta = ""
+    with open(bpy.path.abspath('//' + path), 'r', encoding='utf-8') as f:
+        meta = json.loads(f.read())
+    new_meta = initialize_meta()
+    meta['prod'] = new_meta['prod']
+    meta['accessories'] = new_meta['accessories']
+    for k in [x for x in model if x not in meta['model']]:
+        print("Updating DEFAULT with part " + k)
+        meta['model'][k] = new_meta['model'][k]
+        meta['poses']['DEFAULT']['rotation'][k] = new_meta['poses']['DEFAULT']['rotation'][k]
+    return meta
+
+OUTPUT_FNAME = 'model_data.json'
+def get_meta():
+    print("Fetching Metafile")
+    if Path(bpy.path.abspath('//' + OUTPUT_FNAME)).is_file():
+        return load_meta(OUTPUT_FNAME)
+    else:
+        print("No Metafile on Disk, Creating New Metafile")
+        return initialize_meta()
+
+def make_new_pose(meta, acc=None, expr=None):
+    pose = dict()
+    pose['accessories'] = acc if acc != None else meta['poses']['DEFAULT']['accessories']
+    pose['expression'] = expr if expr != None else meta['poses']['DEFAULT']['expression']
+    pose['rotation'] = dict()
+    for k in model:
+        tk = find(OBJECTS, lambda x: x.name == '_' + k)
+        if tk == None:
+            tk = find(OBJECTS, lambda x: x.name == k)
+        rotation = tuple(tk.rotation_euler)
+        if tuple(meta['poses']['DEFAULT']['rotation'][k]) != rotation:
+            pose['rotation'][k] = rotation
+    return pose
+
+print("\nWorseVRM v1.0 loaded")
+
+RESET = False
+meta = initialize_meta() if RESET else get_meta()
+print("Metafile Created")
+
+POSENAME = 'PROON'
+ACCESSORIES = None
+EXPRESSION = None
+if POSENAME != None:
+    meta['poses'][POSENAME] = make_new_pose(meta, ACCESSORIES, EXPRESSION)
+    print("Created new pose " + POSENAME)
+
+with open(bpy.path.abspath('//' + OUTPUT_FNAME), 'w', encoding='utf-8') as f:
+    f.write(json.dumps(meta))
+print("Metafile Written to Disk")
+
+print("Execution Successful\n")

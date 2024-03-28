@@ -1,0 +1,39 @@
+extends ../template/base.pugtemplate
+
+block body 
+    p Status: 
+    p(id='code')
+    script.
+        const perms = "channel:manage:broadcast channel:manage:redemptions channel:manage:predictions channel:manage:polls channel:manage:raids channel:manage:ads clips:edit moderator:read:followers user:read:subscriptions channel:manage:moderators channel:manage:vips moderator:manage:chat_messages moderator:manage:banned_users user:manage:whispers bits:read chat:read chat:edit";
+        window.onload = async () => {
+            if (isNullish(query)) { // fetch
+                let s = await send('get', 'https://prod.kr/api/oauth');
+                if (!s) { 
+                    await send('post', 'https://id.twitch.tv/oauth2/token');
+                    e('code').innerText = 'Reactivated with Existing Token';
+                    return;
+                } else {
+                    let { key, state } = s;
+                    window.location.href = 'https://id.twitch.tv/oauth2/authorize?' + encodeQuery({
+                        response_type: 'code',
+                        client_id: key,
+                        redirect_uri: 'https://prod.kr/v/oauth',
+                        scope: perms,
+                        state: state
+                    });
+                }
+            } else { // handle
+                let { match, secret, key } = await send('get', 'https://prod.kr/api/oauth', { state: query.state });
+                if (match) {
+                    let res = await send('post', 'https://id.twitch.tv/oauth2/token', {
+                        client_id: key,
+                        client_secret: secret,
+                        code: query.code,
+                        grant_type: 'authorization_code',
+                        redirect_uri: 'https://prod.kr/v/oauth'
+                    });
+                    if (await send('post', 'https://prod.kr/api/oauth', { token: res.access_token })) e('code').innerText = 'Token Sent and Stored';
+                    else e('code').innerText = 'Please Try Again';
+                } else e('code').innerText = 'Error';
+            }
+        }

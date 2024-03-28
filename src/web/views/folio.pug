@@ -1,0 +1,147 @@
+extends ./template/base.pugtemplate
+block body 
+    h1 Portfolio 
+    p I'm prodzpod. My ultimate goal for now is to become a game designer. This is also why I picked up so many different kinds of skill.
+    p Video games are an art that joins so much diverse fields together, from programming, graphics, music to leadership.
+    p I believe a designer, and moreover a leader's role is to understand and harmonize each wings of the complex process so that the entire project moves smoothly and produce great works.
+    p I'm open for any jobs at the moment, I wish to hone my skills further and truly understand every part of the game making process.
+    br
+    .vlist
+        .hlist
+            input.spacer#search(placeholder='Search...')
+            button(onclick='search()') Go
+        .hlist 
+            .filter-group
+                span Date
+                input#date-from(type='date', placeholder='From...')
+                span  ~ 
+                input#date-from(type='date', placeholder='To...')
+            .spacer
+        .hlist
+            .filter-group: button.active#design(onclick='toggleCheckbox(this)')
+                .checkbox
+                span  Game Design
+            .filter-group: button.active#code(onclick='toggleCheckbox(this)')
+                .checkbox
+                span  Programming
+            .filter-group: button.active#mod(onclick='toggleCheckbox(this)')
+                .checkbox
+                span  Modding
+            .filter-group: button.active#manage(onclick='toggleCheckbox(this)')
+                .checkbox
+                span  Management
+            .filter-group: button.active#art(onclick='toggleCheckbox(this)')
+                .checkbox
+                span  Art
+            .filter-group: button.active#model(onclick='toggleCheckbox(this)')
+                .checkbox
+                span  Modeling
+            .filter-group: button.active#music(onclick='toggleCheckbox(this)')
+                .checkbox
+                span  Music
+            .filter-group: button.active#video(onclick='toggleCheckbox(this)')
+                .checkbox
+                span  Video
+            .filter-group: button.active#wip(onclick='toggleCheckbox(this)')
+                .checkbox
+                span  Show WIPs
+    #result
+block postbody
+    style.
+        .card .thumb, .card img, .card iframe {
+            width: 240px;
+        }
+        .card .content {
+            width: calc(100vw - 240px - 240px - 32px);
+        }
+        @media screen and (max-width: 750px) {
+            .card .content, .card .thumb, .card img, .card iframe {
+                width: calc(100vw - 240px);
+            }
+        }
+    script.
+        class Entry {
+            constructor(name, thumb, url, desc, tag, start, end) {
+                this.name = name;
+                if (thumb) this.thumb = thumb;
+                if (url) this.url = url;
+                this.desc = desc;
+                if (typeof tag === 'string') tag = tag.split(',');
+                this.tag = tag.map(x => x.trim().toLowerCase());
+                if (start !== undefined) this.start = new Date(start);
+                if (end !== undefined) this.end = new Date(end);
+            }
+
+            render() {
+                let card = insertElement('div', 'result', 'card mlist');
+                if (this.thumb) {
+                    let thumb = insertElement('div', card, 'thumb vlist');
+                    insertElement('div', thumb, 'spacer');
+                    if (['youtube.com', 'youtu.be'].some(x => this.thumb.includes(x))) { // yt embed
+                        let idx = this.thumb.indexOf(/\b\/\b/);
+                        this.thumb = `https://www.youtube.com/embed/${this.thumb.slice(idx, idx + 11)}`;
+                        insertElement('iframe', thumb).with('src', this.thumb).with('frameborder', 0).with('allow', 'web-share').with('allowfullscreen', true);
+                    } else // if (['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.webp', '.avif'].some(x => this.thumb.includes(x))) // image
+                        insertElement('img', thumb).with('src', this.thumb);
+                    insertElement('div', thumb, 'spacer');
+                }
+                let content = insertElement('div', card, 'vlist spacer content');
+                if (this.url) insertElement('a', insertElement('h2', content), null, this.name).with('href', this.url);
+                else insertElement('h2', content, null, this.name);
+                if (this.start) {
+                    let txt = toJSDate(this.start);
+                    if (this.end) txt += ' ~ ' + toJSDate(this.end);
+                    insertElement('c', content, null, txt);
+                }
+                insertElement('p', content, null, this.desc.replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g, `<a href='$2'>$1</a>`));
+                insertElement('c', content, null, 'Tags: ' + this.tag.join(', '));
+            }
+        };
+
+        let ENTRIES = [
+            /*
+            new Entry(
+                'Shapez Infinity', 'https://camo.githubusercontent.com/e813ec6b906a5b98c660ad2277208443ce62339f621e59ed2b5dc5edb82223d4/68747470733a2f2f692e696d6775722e636f6d2f72456a744954612e706e67', 'https://github.com/prodzpod/shapez.io/tree/shapez-infinity-prototype', 
+                'a [shapez.io](https://store.steampowered.com/app/1318690/shapez/) mod that aimed to expand the overall game through different methods of transportation, logistics, and new objectives. [A Spreadsheet](https://docs.google.com/spreadsheets/d/1ODLpB3Hg9pf7-ZFkKVQBCMyUlop6Qf0nfbkUR3Vf0x4/edit?usp=sharing) exists, but no code has been written and the project never really got anywhere since the announcement of [Shapez 2](https://store.steampowered.com/app/2162800/shapez_2/).', 
+                'design,mod,wip', '2020-12-04', '2020-12-07'
+            ),
+            new Entry(
+                'Multichested', 'https://github.com/prodzpod/multichested/raw/main/icon.png', 'https://github.com/prodzpod/multichested', 
+                'a [Risk of Rain 1](https://store.steampowered.com/app/248820/Risk_of_Rain/) quality-of-life mod that scales number of chests and enemies based on the player count.', 
+                'code,mod,wip', '2021-01-16', '2021-01-16'
+            ),
+            new Entry(
+                'TSU-classmanager', 'https://prod.kr/images/folio/tsu.png', 'https://github.com/prodzpod/tsu-classmanager-issues', 
+                'custom university scheduling and alert webapp system commissioned by TSU. this was done on a set deadline and client consulting. Contains filtering and displaying data from SQL database by different views, login and permissions system, auto scheduling and conflict resolution and excel export system.', 
+                'code,manage', '2021-12-20', '2022-01-10'
+            ),
+            new Entry(
+                'Planar Artifice: Continuation', 'https://media.forgecdn.net/avatars/490/878/637798774798297534.gif', 'https://www.curseforge.com/minecraft/mc-mods/planar-artifice/', 
+                'a Minecraft addon for [Thaumcraft 6](https://www.curseforge.com/minecraft/mc-mods/thaumcraft) that adds glassworking and dimension-related contents. Overhauled all textures and added mechanics.', 
+                'code,art', '2022-02-07', '2022-03-01'
+            ),
+            */
+        ];
+
+        addEvent('onload', () => {
+            onEnter('search', search);
+            search();
+        });
+
+        function search() {
+            removeAllChildren('result');
+            let tags = [];
+            for (let tag of ['design', 'code', 'mod', 'manage', 'art', 'model', 'music', 'video']) if (e(tag).classList.contains('active')) tags.push(tag);
+            let allowWIPs = e('wip').classList.contains('active');
+            ENTRIES
+                .filter(x => (allowWIPs || !x.tag.includes('wip')) && intersects(x.tag, tags))
+                .filter(x => x.name.includes(e('search').value) || x.url?.includes(e('search').value))
+                .sort((a, b) => b.start?.getTime() - a.start?.getTime())
+                .map(x => x.render());
+        }
+
+        function toggleCheckbox(self) {
+            if (self.classList.contains('active')) self.classList.remove('active');
+            else self.classList.add('active');
+        }
+        

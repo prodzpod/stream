@@ -1,0 +1,132 @@
+extends ../template/base.pugtemplate
+
+block body 
+    h1 The Screen 
+    .screen-wrapper
+        .hlist 
+            button(onclick='flip()') flip
+            p#point
+        div(style='margin: 16px;')
+        .screen#screen-wrapper
+            canvas#screen
+        .screen#twitch-embed(style='display: none;') 
+        div(style='margin: 16px;')
+        .hlist.center
+            button point(1) 
+            button fling(25)
+            button spawn window(100)
+        .vlist#window-setting(style='display: none;')
+            .hlist
+                input#title.spacer
+                span title
+            .hlist
+                input#content.spacer
+                span content
+            button submit
+    h2 how to gain points 
+    p - none
+    h2 how to spend points
+    p - none
+
+block postbody
+    style.
+        .screen, .screen iframe {
+            width: calc(100vw - 128px);
+            height: calc((100vw - 128px) * 0.5625);
+        }
+    script.
+        let flipped = false;
+        function flip() {
+            flipped = !flipped;
+            e('screen-wrapper').style.display = flipped ? 'none' : 'block';
+            e('twitch-embed').style.display = flipped ? 'block' : 'none';
+        }
+        let point = 0;
+        let state = {};
+        const Images = {
+            activatewindows: new Image(),
+            bg: new Image(),
+            prod: new Image(),
+        }
+        addEvent('onload', async () => {
+            let proms = [];
+            for (k in Images) {
+                Images[k].src = 'https://prod.kr/images/screen/' + k + '.png';
+                proms.push(new Promise(resolve => Images[k].addEventListener("load", resolve)));
+            }
+            await Promise.all(proms);
+            const socket = new WebSocket("wss://prod.kr/screen");
+            socket.addEventListener("open", (event) => { 
+                console.log("Websocket Opened");
+            });
+            socket.addEventListener("message", (event) => {
+                let [cmd, msg] = takeWord(event.data);
+                switch (cmd) {
+                    case "auth":
+                        e('point').innerHTML = `type <em>!login ${msg}</em> to log in`;
+                        break;
+                    case "points":
+                        point = Math.prec(Number(msg));
+                        e('point').innerHTML = `<em>${point}</em>iu`;
+                        break;
+                    case "obj":
+                        state = JSON.parse(msg);
+                        rebuild();
+                        break;
+                }
+            });
+            rebuild();
+        });
+
+        function rebuild() {
+            const ctx = e("screen").getContext("2d");
+            ctx.canvas.width = e('screen-wrapper').clientWidth;
+            ctx.canvas.height = e('screen-wrapper').clientHeight;
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            ctx.fillStyle = "#396ba5";
+            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            drawObj(ctx, Images.prod, 'prod2d');
+            ctx.drawImage(Images.bg, 0, 0, ctx.canvas.width, ctx.canvas.height);
+            for (let k of Object.keys(state).filter(x => x.startsWith("chat_"))) drawChat(ctx, state[k]);
+            for (let k of Object.keys(state).filter(x => x.startsWith("window_"))) drawWindow(ctx, state[k]);
+        }
+
+        function drawChat(ctx, o) {
+            let w = o.w * ctx.canvas.width / 1920;
+            let h = o.h * ctx.canvas.height / 1080;
+            let x = (o.x * ctx.canvas.width / 1920) - (w / 2);
+            let y = (o.y * ctx.canvas.height / 1080) - (h / 2);
+            ctx.fillStyle = "#000000";
+            ctx.fillText(o.author, x + 8, y + 12);
+            ctx.fillText(o.message, x + 8, y + 24);
+        }
+
+
+        function drawWindow(ctx, o) {
+            let w = o.w * ctx.canvas.width / 1920;
+            let h = o.h * ctx.canvas.height / 1080;
+            let x = (o.x * ctx.canvas.width / 1920) - (w / 2);
+            let y = (o.y * ctx.canvas.height / 1080) - (h / 2);
+            ctx.fillStyle = "#000080";
+            ctx.fillRect(x, y, w, h);
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(x + 4, y + 24, w - 8, h - 28);
+            ctx.fillText(o.title, x + 8, y + 12);
+            ctx.fillStyle = "#000000";
+            ctx.fillText(o.content, x + 8, y + 36);
+        }
+
+        function drawObj(ctx, img, str) {
+            if (!state[str]) return;
+            let {x, y, w, h, a} = state[str];
+            x *= ctx.canvas.width / 1920;
+            y *= ctx.canvas.height / 1080;
+            ctx.save();
+            ctx.setTransform(ctx.canvas.width / 1920, 0, 0, ctx.canvas.height / 1080, x, y);
+            ctx.rotate(a);
+            ctx.drawImage(img, -w / 2, -h / 2);
+            ctx.restore();
+        }
+    script(src="https://player.twitch.tv/js/embed/v1.js")
+    script(type="text/javascript").
+        new Twitch.Player("twitch-embed", { channel: "prodzpod" });

@@ -1,0 +1,11 @@
+src/.vs/
+node_modules/
+src/@main/log/*.log
+src/@main/data/user/*.json
+secret/*.*
+external/
+src/model/lib/icons_win2k_sp4_en/
+src/model/bin/
+src/model/obj/
+src/model/Content/obj/
+src/model/Content/bin/

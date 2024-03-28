@@ -1,0 +1,6 @@
+extends ./template/base.pugtemplate
+block body
+    h1 Not Found
+    p No subpage <span id="subpage"></span> found.
+    script.
+        addEvent('onload', () => { e('subpage').innerText = `'${window.location.pathname}'`; });
