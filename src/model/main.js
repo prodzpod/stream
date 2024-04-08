@@ -2,6 +2,7 @@ const dgram = require('node:dgram');
 const { ID } = require('./include');
 const { getSocketsServer } = require('../@main/include');
 let server;
+module.exports.server = () => server;
 module.exports.init = async () => {
     if (server) await server[Symbol.asyncDispose]();
     server = dgram.createSocket('udp4');
@@ -12,6 +13,7 @@ module.exports.init = async () => {
             return ret;
     }
     server.on('message', (msg, _) => { 
+        console.log("msg");
         let arr = Array.from(new Uint8Array(msg.buffer));
         arr = new Uint8Array([t(arr, 0, 1, 8), t(arr, 20, 2), t(arr, 33, 4+3+3), t(arr, 1753, 3+3), t(arr, 1777, 2)].flat());
         getSocketsServer(ID)?.send('void 0 tracker ' + Buffer.from(arr).toString('base64')); 

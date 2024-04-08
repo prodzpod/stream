@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using ProdModel.Utils;
-using System;
+using NotGMS.Util;
 
 namespace ProdModel.Object
 {
@@ -9,10 +8,12 @@ namespace ProdModel.Object
     {
         public Texture2D Texture;
         public Vector2 FlipDependence = Vector2.One; // whether to flip the image itself upon flip
+        public Color Color = Color.White;
 
-        public ImageSprite(string Path)
+        public ImageSprite(string Path) : this(Texture2D.FromFile(ProdModel.Instance._graphics.GraphicsDevice, ProdModel.ResolvePath(Path + ".png"))) { }
+        public ImageSprite(Texture2D Texture)
         {
-            Texture = Texture2D.FromFile(ProdModel.Instance._graphics.GraphicsDevice, ProdModel.ResolvePath(Path + ".png"));
+            this.Texture = Texture;
         }
 
         public static ImageSprite FromIcon(string Path)
@@ -25,9 +26,9 @@ namespace ProdModel.Object
             return new(Texture.Width, Texture.Height);
         }
 
-        public virtual void Render(Vector4 position, float rotation, float depth)
+        public virtual void Render(Vector4 position, float rotation)
         {
-            ProdModel.Instance._spriteBatch.Draw(Texture, position.XY(), null, Color.White, rotation, GetBoundingBox() / 2, Vector2.One, SpriteEffects.None, depth);
+            ProdModel.Instance._spriteBatch.Draw(Texture, position.XY(), null, Color, MathP.DegToRad(rotation), GetBoundingBox() / 2, Vector2.One, SpriteEffects.None, 0);
         }
     }
 }

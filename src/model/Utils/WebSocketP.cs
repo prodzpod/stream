@@ -16,7 +16,6 @@ namespace ProdModel.Utils
         public event Action<byte[]> OnReceive;
         public static Dictionary<int, Func<string, string>> waitList = new();
         private static int LastID = -1;
-        private bool locked = false;
 
         public WebSocketP(string uri, Action<WebSocketP> OnInit, Action<string> onRecieve) : this(uri, OnInit, (b) => onRecieve(Encoding.UTF8.GetString(b))) { }
         public WebSocketP(string uri, Action<WebSocketP> OnInit, Action<byte[]> onRecieve)
@@ -62,6 +61,7 @@ namespace ProdModel.Utils
             while (WebSocket.State == WebSocketState.Open)
             {
                 var result = await WebSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                if (WebSocket.State == WebSocketState.Closed) break;
                 if (result.MessageType == WebSocketMessageType.Close) await WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
                 else
                 {

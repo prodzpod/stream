@@ -13,14 +13,16 @@ let objects = {};
 module.exports.init = async () => {
     objects = {};
     setInterval(() => {
+        // this.log(require('../web/api_client/WS/screen').allSockets().map(x => x?.readyState));
+        let o = {...objects}
+        for (let k in o) {
+            o[k] = {...o[k]};
+            delete o[k].ws;
+        }
+        let s = JSON.stringify(o);
         for (let d of require('../web/api_client/WS/screen').allSockets()) {
-            // this.log("Sending object data to d: ", Object.keys(objects).length, require('../web/api_client/WS/screen').allSockets().length)
-            let o = {...objects}
-            for (let k in o) {
-                o[k] = {...o[k]};
-                delete o[k].ws;
-            }
-            // d?.send(`obj ${JSON.stringify(o)}`);
+            if (d.ws?.readyState !== 1) continue;
+            d.ws.send(`obj ${s}`);
         }
         objects = {};
     }, 100);
@@ -65,7 +67,7 @@ module.exports.endOverlay = () => {
 module.exports.startTracker = async () => {
     this.log("Loading Face Tracker");
     capture = spawn('python', [path.join(__dirname, 'lib/OpenSeeFace/facetracker.py')]);
-    // capture.stdout.on('data', this.log);
+    capture.stdout.on('data', x => this.log('' + x));
     capture.on('close', x => this.error('Face Tracker Closed', x));
     this.log("Loaded Face Tracker");
     return 0;

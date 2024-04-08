@@ -24,6 +24,7 @@ module.exports.init = async () => {
     let _u = data().user;
     for (let k in _u) if (_u[k].discord) users[_u[k].discord] = k;
     if (app) await app.destroy();
+    // return 0; // disable bot
     return new Promise(async resolve => {
         app = new Client(OPTIONS);
         app.on('ready', async () => {

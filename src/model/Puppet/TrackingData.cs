@@ -1,17 +1,17 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 
-namespace ProdModel.Model
+namespace ProdModel.Puppet
 {
     public struct TrackingData
     {
-        double Time;
-        float[] Blink = new float[2];
-        Vector4 Quaternion;
-        Vector3 Euler;
-        Vector3 Translation;
-        Vector3[] Eyebrow = new Vector3[2];
-        Vector2 Mouth;
+        public double Time;
+        public float[] Blink = new float[2];
+        public Vector4 Quaternion;
+        public Vector3 Euler;
+        public Vector3 Translation;
+        public Vector3[] Eyebrow = new Vector3[2];
+        public Vector2 Mouth;
 
         public TrackingData(string data) : this(Convert.FromBase64String(data)) { }
         public TrackingData(byte[] data)

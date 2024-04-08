@@ -10,12 +10,13 @@ module.exports.log = (...stuff) => console.log('[OBS]', ...stuff);
 module.exports.warn = (...stuff) => console.warn('[OBS]', ...stuff);
 module.exports.error = (...stuff) => console.error('[OBS]', ...stuff);
 module.exports.init = async () => 0;
-module.exports.startOBS = async () => {
-    this.log("Loading OBS");
-    obs = spawn(process.env.OBS_PATH, { cwd: path.dirname(process.env.OBS_PATH) });
-    obs.stdout.on('data', x => this.log(x.toString()));
-    obs.stderr.on('data', x => this.error(x.toString()));
-    
+module.exports.startOBS = async (spawn = false) => {
+    if (spawn) {
+        this.log("Loading OBS");
+        obs = spawn(process.env.OBS_PATH, { cwd: path.dirname(process.env.OBS_PATH) });
+        obs.stdout.on('data', x => this.log(x.toString()));
+        obs.stderr.on('data', x => this.error(x.toString()));
+    }    
     let connected = false;
     this.log('WS Connecting Attempt Begin');
     while (!connected) {

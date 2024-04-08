@@ -8,6 +8,6 @@ const TODO_TESTSTREAM_ICONS = ["WINNT/explorer.exe_14_107", "WINNT/explorer.exe_
 module.exports.execute = async (message, user, data) => {
     send(`\`@${user}\`: ${message}`);
     incrementData(`user.${user}.point`, message.length / 10);
-    getSocketsServer('model')?.send(`twitch 0 chat lib/icons_win2k_sp4_en/${TODO_TESTSTREAM_ICONS[String.hashCode(user) % TODO_TESTSTREAM_ICONS.length]} ${(data.color ?? '#000000').slice(1)} ${user} ${message}`);
+    getSocketsServer('model')?.send(`twitch 0 chat lib/icons_win2k_sp4_en/${TODO_TESTSTREAM_ICONS[Math.abs(String.hashCode(user) % TODO_TESTSTREAM_ICONS.length)]} ${(data.color ?? '#000000').slice(1)} ${user} ${message}`);
     return 0;
 }

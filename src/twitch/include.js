@@ -13,6 +13,7 @@ let ws = undefined, eventsub = undefined;
 let token = undefined;
 module.exports.init = async (t) => { 
     token = t; 
+    if (eventsub) eventsub.terminate();
     eventsub = new WebSocket('wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds=60');
     eventsub.on('message', str => {
         let req = JSON.parse(str.toString());

@@ -1,5 +1,5 @@
 import bpy
-from bpy import context
+import mathutils
 from pathlib import Path
 import json
 import builtins as __builtin__
@@ -7,14 +7,14 @@ import builtins as __builtin__
 # blender print dumb
 
 def console_print(*args, **kwargs):
-    for a in context.screen.areas:
+    for a in bpy.context.screen.areas:
         if a.type == 'CONSOLE':
             c = {}
             c['area'] = a
             c['space_data'] = a.spaces.active
             c['region'] = a.regions[-1]
-            c['window'] = context.window
-            c['screen'] = context.screen
+            c['window'] = bpy.context.window
+            c['screen'] = bpy.context.screen
             s = " ".join([str(arg) for arg in args])
             for line in s.split("\n"):
                 bpy.ops.console.scrollback_append(c, text=line)
@@ -56,15 +56,12 @@ def get_center(bbox):
 def get_relations(obj):
     ret = dict()
     ret['name'] = obj.name
-    ret['parent'] = obj.parent
     if (obj.parent != None and obj.parent.name[0] == '_'):
         ret['parent'] = obj.parent.parent
-        ret['pivot'] = get_center(obj.parent.bound_box)
-        ret['pivot'] = operateArr(ret['pivot'], get_center(obj.parent.parent.bound_box), lambda a, b: a - b)
+        ret['pivot'] = list(obj.parent.location)
     else:
-        ret['pivot'] = get_center(obj.bound_box)
-        if obj.parent != None:
-            ret['pivot'] = operateArr(ret['pivot'], get_center(obj.parent.bound_box), lambda a, b: a - b)
+        ret['parent'] = obj.parent
+        ret['pivot'] = list(obj.location)
     ret['children'] = [x.name[1:] if x.name[0] == '_' else x.name for x in obj.children]
     mas = list()
     for x in ret['children']:
@@ -74,20 +71,22 @@ def get_relations(obj):
     mas.append(ret)
     return mas
 
-c_model = find(COLLECTIONS, lambda x: x.name == 'prod')
-c_default = find(COLLECTIONS, lambda x: x.name == 'default')
+c_model = find(COLLECTIONS, lambda x: x.name == 'base')
 c_deco = find(COLLECTIONS, lambda x: x.name == 'decoration')
+c_expr = find(COLLECTIONS, lambda x: x.name == 'expression')
 
 # retrieve start points
-o_prod = find([x for x in OBJECTS if x.parent == None], lambda x: x.users_collection[0] == c_model)
+o_root = find([x for x in OBJECTS if x.parent == None], lambda x: x.users_collection[0] == c_model)
 o_decoration = [x for x in OBJECTS if x.users_collection[0] == c_deco]
+o_expression = [x for x in OBJECTS if x.users_collection[0] == c_expr]
 
 # retrieve mesh data
+objects = unentry([[x.name, x] for x in OBJECTS])
 meshes = unentry([[x.name, x] for x in MESHES])
     
 # retrieve pivot point info
 relations = dict()
-for x in get_relations(o_prod):
+for x in get_relations(o_root):
     relations[x['name']] = x
 
 # retrieve color
@@ -112,7 +111,7 @@ model = dict()
 for k in relations:
     model[k] = dict()
     model[k]['pivot'] = relations[k]['pivot']
-    model[k]['v'] = [tuple(x.co) for x in meshes[k].vertices]
+    model[k]['v'] = [tuple(objects[k].matrix_world @ x.co) for x in meshes[k].vertices]
     model[k]['f'] = [tuple(x.vertices) for x in meshes[k].polygons]
     model[k]['color'] = relations[k]['color']
     model[k]['children'] = relations[k]['children']
@@ -120,19 +119,26 @@ for k in relations:
 def initialize_meta():
     print("Creating Fresh Metafile")
     meta = dict()
-    meta['prod'] = o_prod.name
+    meta['root'] = o_root.name
     meta['accessories'] = list([x.name for x in o_decoration])
-    meta['model'] = model
+    meta['expressions'] = list()
+    _idx = 0
+    while find(OBJECTS, lambda x: x.users_collection[0] == c_expr and x.name.startswith(str(_idx) + "_")) != None:
+        meta['expressions'].append([x.name[2:] for x in OBJECTS if x.users_collection[0] == c_expr and x.name.startswith(str(_idx) + "_")])
+        _idx += 1
+    meta['model'] = model   
     meta['poses'] = dict()
     meta['poses']['DEFAULT'] = dict()
+    meta['poses']['DEFAULT']['time'] = 0
     meta['poses']['DEFAULT']['accessories'] = list(['skirt_default'])
-    meta['poses']['DEFAULT']['expression'] = list([None, None, None])
-    meta['poses']['DEFAULT']['rotation'] = dict()
+    meta['poses']['DEFAULT']['expression'] = [None for _ in meta['expressions']]
+    meta['poses']['DEFAULT']['pose'] = dict()
+    meta['poses']['DEFAULT']['pose']['default'] = dict()
     for k in model:
         tk = find(OBJECTS, lambda x: x.name == '_' + k)
         if tk == None:
             tk = find(OBJECTS, lambda x: x.name == k)
-        meta['poses']['DEFAULT']['rotation'][k] = tuple(tk.rotation_euler)
+        meta['poses']['DEFAULT']['pose']['default'][k] = tuple(tk.rotation_euler)
     return meta
     
 def load_meta(path):
@@ -141,12 +147,12 @@ def load_meta(path):
     with open(bpy.path.abspath('//' + path), 'r', encoding='utf-8') as f:
         meta = json.loads(f.read())
     new_meta = initialize_meta()
-    meta['prod'] = new_meta['prod']
+    meta['root'] = new_meta['root']
     meta['accessories'] = new_meta['accessories']
-    for k in [x for x in model if x not in meta['model']]:
+    for k in [x for x in model if x not in meta['model']]: #TODO: fix this
         print("Updating DEFAULT with part " + k)
         meta['model'][k] = new_meta['model'][k]
-        meta['poses']['DEFAULT']['rotation'][k] = new_meta['poses']['DEFAULT']['rotation'][k]
+        meta['poses']['DEFAULT']['pose']['default'][k] = new_meta['poses']['DEFAULT']['pose']['default'][k]
     return meta
 
 OUTPUT_FNAME = 'model_data.json'
@@ -158,18 +164,23 @@ def get_meta():
         print("No Metafile on Disk, Creating New Metafile")
         return initialize_meta()
 
-def make_new_pose(meta, acc=None, expr=None):
+def make_new_pose(meta, name, progress, acc=None, expr=None):
     pose = dict()
     pose['accessories'] = acc if acc != None else meta['poses']['DEFAULT']['accessories']
     pose['expression'] = expr if expr != None else meta['poses']['DEFAULT']['expression']
-    pose['rotation'] = dict()
+    if 'pose' not in meta['poses'][name]:
+        pose['time'] = 0
+        pose['pose'] = dict()
+    else:
+        pose['pose'] = meta['poses'][name]['pose']
+    pose['pose'][progress] = dict()
     for k in model:
         tk = find(OBJECTS, lambda x: x.name == '_' + k)
         if tk == None:
             tk = find(OBJECTS, lambda x: x.name == k)
         rotation = tuple(tk.rotation_euler)
-        if tuple(meta['poses']['DEFAULT']['rotation'][k]) != rotation:
-            pose['rotation'][k] = rotation
+        if tuple(meta['poses']['DEFAULT']['pose']['default'][k]) != rotation:
+            pose['pose'][progress][k] = tuple([list(tk.rotation_euler)[0] - meta['poses']['DEFAULT']['pose']['default'][k][0], list(tk.rotation_euler)[1] - meta['poses']['DEFAULT']['pose']['default'][k][1], list(tk.rotation_euler)[2] - meta['poses']['DEFAULT']['pose']['default'][k][2]])
     return pose
 
 print("\nWorseVRM v1.0 loaded")
@@ -178,11 +189,12 @@ RESET = False
 meta = initialize_meta() if RESET else get_meta()
 print("Metafile Created")
 
-POSENAME = 'PROON'
+POSENAME = 'HI'
+PROGRESS = 'default'; # 0 ~ 1 or default
 ACCESSORIES = None
-EXPRESSION = None
-if POSENAME != None:
-    meta['poses'][POSENAME] = make_new_pose(meta, ACCESSORIES, EXPRESSION)
+EXPRESSION = ["x", "x", None]
+if not RESET and POSENAME != None:
+    meta['poses'][POSENAME] = make_new_pose(meta, POSENAME, PROGRESS, ACCESSORIES, EXPRESSION)
     print("Created new pose " + POSENAME)
 
 with open(bpy.path.abspath('//' + OUTPUT_FNAME), 'w', encoding='utf-8') as f:

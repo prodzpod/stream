@@ -13,6 +13,24 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin audio/chat.ogg
+/copy:audio/chat.ogg
+
+#begin audio/click_me.ogg
+/copy:audio/click_me.ogg
+
+#begin audio/click.ogg
+/copy:audio/click.ogg
+
+#begin audio/fling.ogg
+/copy:audio/fling.ogg
+
+#begin audio/point.ogg
+/copy:audio/point.ogg
+
+#begin audio/window.ogg
+/copy:audio/window.ogg
+
 #begin fonts/alagard.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor

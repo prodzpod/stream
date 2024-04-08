@@ -1,5 +1,9 @@
 extends ../template/base.pugtemplate
 
+block meta
+    - v = true
+    - title = 'the screen'
+    - description = 'the gizmo interaction panel'
 block body 
     h1 The Screen 
     .screen-wrapper
@@ -8,25 +12,22 @@ block body
             p#point
         div(style='margin: 16px;')
         .screen#screen-wrapper
-            canvas#screen
+            canvas#screen(onclick='screen(event)')
         .screen#twitch-embed(style='display: none;') 
         div(style='margin: 16px;')
-        .hlist.center
-            button point(1) 
-            button fling(25)
-            button spawn window(100)
+        .hlist.center#buttons(style='display: none;')
+            button(onclick='pointButton()') point 
+            button(onclick='clickButton()') click
+            button(onclick='flingButton()') fling
+            button(onclick='spawnButton()') spawn window
+        p#status
         .vlist#window-setting(style='display: none;')
             .hlist
-                input#title.spacer
+                input#window-title.spacer
                 span title
             .hlist
-                input#content.spacer
+                textarea#window-content.spacer
                 span content
-            button submit
-    h2 how to gain points 
-    p - none
-    h2 how to spend points
-    p - none
 
 block postbody
     style.
@@ -36,13 +37,15 @@ block postbody
         }
     script.
         let flipped = false;
+        let socket;
         function flip() {
             flipped = !flipped;
             e('screen-wrapper').style.display = flipped ? 'none' : 'block';
             e('twitch-embed').style.display = flipped ? 'block' : 'none';
         }
-        let point = 0;
-        let state = {};
+        let iu = 0;
+        let objects = {};
+        let objectsPrevious = {};
         const Images = {
             activatewindows: new Image(),
             bg: new Image(),
@@ -55,7 +58,7 @@ block postbody
                 proms.push(new Promise(resolve => Images[k].addEventListener("load", resolve)));
             }
             await Promise.all(proms);
-            const socket = new WebSocket("wss://prod.kr/screen");
+            socket = new WebSocket("wss://prod.kr/screen");
             socket.addEventListener("open", (event) => { 
                 console.log("Websocket Opened");
             });
@@ -66,12 +69,18 @@ block postbody
                         e('point').innerHTML = `type <em>!login ${msg}</em> to log in`;
                         break;
                     case "points":
-                        point = Math.prec(Number(msg));
-                        e('point').innerHTML = `<em>${point}</em>iu`;
+                        e('buttons').style.display = 'flex';
+                        iu = Math.prec(Number(msg));
+                        e('point').innerHTML = `<em>${iu}</em>iu`;
                         break;
                     case "obj":
-                        state = JSON.parse(msg);
+                        objectsPrevious = objects;
+                        objects = JSON.parse(msg);
                         rebuild();
+                        break;
+                    case "respond":
+                        e('status').innerText = msg;
+                        state = "idle";
                         break;
                 }
             });
@@ -82,50 +91,115 @@ block postbody
             const ctx = e("screen").getContext("2d");
             ctx.canvas.width = e('screen-wrapper').clientWidth;
             ctx.canvas.height = e('screen-wrapper').clientHeight;
-            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            ctx.setTransform(ctx.canvas.width / 1920, 0, 0, ctx.canvas.height / 1080, 0, 0);
+            ctx.clearRect(0, 0, 1920, 1080);
             ctx.fillStyle = "#396ba5";
-            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-            drawObj(ctx, Images.prod, 'prod2d');
-            ctx.drawImage(Images.bg, 0, 0, ctx.canvas.width, ctx.canvas.height);
-            for (let k of Object.keys(state).filter(x => x.startsWith("chat_"))) drawChat(ctx, state[k]);
-            for (let k of Object.keys(state).filter(x => x.startsWith("window_"))) drawWindow(ctx, state[k]);
+            ctx.fillRect(0, 0, 1920, 1080);
+            draw(ctx, 'prod2d', (ctx, _, x, y) => ctx.drawImage(Images.prod, x, y));
+            ctx.drawImage(Images.bg, 0, 0, 1920, 1080);
+            for (let k of Object.keys(objects).filter(x => x.startsWith("chat_"))) draw(ctx, k, drawChat);
+            for (let k of Object.keys(objectsPrevious).filter(x => x.startsWith("chat_"))) draw(ctx, k, drawChat);
+            for (let k of Object.keys(objects).filter(x => x.startsWith("window_"))) draw(ctx, k, drawWindow);
+            for (let k of Object.keys(objectsPrevious).filter(x => x.startsWith("window_"))) draw(ctx, k, drawWindow);
         }
 
-        function drawChat(ctx, o) {
-            let w = o.w * ctx.canvas.width / 1920;
-            let h = o.h * ctx.canvas.height / 1080;
-            let x = (o.x * ctx.canvas.width / 1920) - (w / 2);
-            let y = (o.y * ctx.canvas.height / 1080) - (h / 2);
-            ctx.fillStyle = "#000000";
+        function drawChat(ctx, o, x, y) {
+            o.w = Number(o.w);
+            o.h = Number(o.h);
+            ctx.fillStyle = "#d7d0c8";
+            ctx.fillRect(x, y, o.w, o.h);
+            ctx.fillStyle = o.color;
             ctx.fillText(o.author, x + 8, y + 12);
+            ctx.fillStyle = "#000000";
             ctx.fillText(o.message, x + 8, y + 24);
         }
 
-
-        function drawWindow(ctx, o) {
-            let w = o.w * ctx.canvas.width / 1920;
-            let h = o.h * ctx.canvas.height / 1080;
-            let x = (o.x * ctx.canvas.width / 1920) - (w / 2);
-            let y = (o.y * ctx.canvas.height / 1080) - (h / 2);
+        function drawWindow(ctx, o, x, y) {
+            o.w = Number(o.w);
+            o.h = Number(o.h);
             ctx.fillStyle = "#000080";
-            ctx.fillRect(x, y, w, h);
+            ctx.fillRect(x, y, o.w, o.h);
             ctx.fillStyle = "#ffffff";
-            ctx.fillRect(x + 4, y + 24, w - 8, h - 28);
+            ctx.fillRect(x + 4, y + 24, o.w - 8, o.h - 28);
+            ctx.fillRect(x + o.w - 24, y + 4, 20, 20);
             ctx.fillText(o.title, x + 8, y + 12);
             ctx.fillStyle = "#000000";
+            ctx.fillText("X", x + o.w - 16, y + 16);
             ctx.fillText(o.content, x + 8, y + 36);
         }
 
-        function drawObj(ctx, img, str) {
-            if (!state[str]) return;
-            let {x, y, w, h, a} = state[str];
-            x *= ctx.canvas.width / 1920;
-            y *= ctx.canvas.height / 1080;
+        function draw(ctx, k, fn) {
+            if (!objects[k] && !objectsPrevious[k]) return;
+            let {x, y, w, h, a} = objects[k] ?? objectsPrevious[k];
             ctx.save();
-            ctx.setTransform(ctx.canvas.width / 1920, 0, 0, ctx.canvas.height / 1080, x, y);
-            ctx.rotate(a);
-            ctx.drawImage(img, -w / 2, -h / 2);
+            ctx.setTransform(ctx.canvas.width / 1920, 0, 0, ctx.canvas.height / 1080, x * ctx.canvas.width / 1920, y * ctx.canvas.height / 1080);
+            ctx.rotate(a / 180 * Math.PI);
+            fn(ctx, objects[k] ?? objectsPrevious[k], -w / 2, -h / 2, k);
             ctx.restore();
+        }
+
+        let state = "idle";
+        let temp = {};
+        function screen(event) {
+            let r = e('screen').getBoundingClientRect()
+            let x = Math.clamp((event.clientX - r.x) * (1920 / r.width), 0, 1920);
+            let y = Math.clamp((event.clientY - r.y) * (1080 / r.height), 0, 1024);
+            switch (state) {
+                case "point":
+                case "click":
+                    socket?.send(`${state} ${x} ${y}`);
+                    e('status').innerText = "";
+                    state = "waiting";
+                    break;
+                case "fling1":
+                    e('status').innerText = "select a destination";
+                    temp.x = x; temp.y = y;
+                    state = "fling2";
+                    break;
+                case "fling2":
+                    socket?.send(`fling ${temp.x} ${temp.y} ${x} ${y}`);
+                    e('status').innerText = "";
+                    state = "waiting";
+                    break;
+                case "spawn":
+                {
+                    let title = e('window-title').value;
+                    let content = e('window-content').value;
+                    if (isNullOrWhitespace(title) || isNullOrWhitespace(content)) e('status').innerText = "one of the thing is empty";
+                    else {
+                        socket?.send(`spawn ${x} ${y} ${title} ${content}`);
+                        e('window-setting').style.display = 'none';
+                        e('status').innerText = "";
+                        state = "waiting";
+                    }
+                    break;
+                }
+            }
+        }
+
+        function pointButton() {
+            if (state == "waiting") return;
+            state = "point";
+            e('window-setting').style.display = 'none';
+            e('status').innerText = "select a position to point";
+        }
+        function clickButton() {
+            if (state == "waiting") return;
+            state = "click";
+            e('window-setting').style.display = 'none';
+            e('status').innerText = "select a position to click";
+        }
+        function flingButton() {
+            if (state == "waiting") return;
+            state = "fling1";
+            e('window-setting').style.display = 'none';
+            e('status').innerText = "select an object";
+        }
+        function spawnButton() {
+            if (state == "waiting") return;
+            state = "spawn";
+            e('window-setting').style.display = 'flex';
+            e('status').innerText = "put in fields and click on a screen (where to place it)";
         }
     script(src="https://player.twitch.tv/js/embed/v1.js")
     script(type="text/javascript").

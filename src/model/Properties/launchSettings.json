@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ProdModel": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

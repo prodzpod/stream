@@ -7,6 +7,7 @@ module.exports.permission = false
 module.exports.execute = async (message, user, data) => {
     let x = await require('../../@main/features/reload').reload(__dirname, takeWord(message)[1]).catch(console.error);
     if (!isNullish(x)) safeAssign(commands, x); 
+    await require('../include').init(await cmpAuth());
     await require('../main').init(await cmpAuth());
     return 0;
 }

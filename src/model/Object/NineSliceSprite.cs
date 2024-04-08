@@ -1,9 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using ProdModel.Utils;
 using System;
-using System.Diagnostics;
 using System.Linq;
+using NotGMS.Util;
 
 namespace ProdModel.Object
 {
@@ -12,6 +11,7 @@ namespace ProdModel.Object
         public Texture2D[] Textures = new Texture2D[9];
         public Vector2 Tile = Vector2.One;
         public Vector2 FlipDependence = Vector2.Zero; // whether to flip the image itself upon flip
+        public Color Color = Color.White;
         public NineSliceSprite(string Path, bool TileX, bool TileY) : this(Path, new(TileX ? 1 : 0, TileY ? 1 : 0)) { }
         public NineSliceSprite(string Path, Vector2 tile)
         {
@@ -50,7 +50,7 @@ namespace ProdModel.Object
                 Tile.X > 0 ? (Textures[3].Width + Textures[4].Width + Textures[5].Width) : Textures[4].Width,
                 Tile.Y > 0 ? (Textures[1].Height + Textures[4].Height + Textures[7].Height) : Textures[4].Height);
         }
-        public void Render(Vector4 position, float rotation, float depth)
+        public void Render(Vector4 position, float rotation)
         {
             Vector4 size = new(-(position.Z / 2), +(position.Z / 2), -(position.W / 2), +(position.W / 2));
             Vector4 middle = new(size.X, size.Y, size.Z, size.W);
@@ -68,29 +68,29 @@ namespace ProdModel.Object
             middle += new Vector4(position.X, position.X, position.Y, position.Y);
             if (Tile.X != 0 && Tile.Y != 0)
             {
-                Draw(Textures[0], new(size.X, middle.X, size.Z, middle.Z), position.XY(), rotation, depth);
-                Draw(Textures[2], new(middle.Y, size.Y, size.Z, middle.Z), position.XY(), rotation, depth);
-                Draw(Textures[6], new(size.X, middle.X, middle.W, size.W), position.XY(), rotation, depth);
-                Draw(Textures[8], new(middle.Y, size.Y, middle.W, size.W), position.XY(), rotation, depth);
+                Draw(Textures[0], new(size.X, middle.X, size.Z, middle.Z), position.XY(), rotation, Color);
+                Draw(Textures[2], new(middle.Y, size.Y, size.Z, middle.Z), position.XY(), rotation, Color);
+                Draw(Textures[6], new(size.X, middle.X, middle.W, size.W), position.XY(), rotation, Color);
+                Draw(Textures[8], new(middle.Y, size.Y, middle.W, size.W), position.XY(), rotation, Color);
             }
             if (Tile.X != 0)
             {
-                Draw(Textures[3], new(size.X, middle.X, middle.Z, middle.W), position.XY(), rotation, depth);
-                Draw(Textures[5], new(middle.Y, size.Y, middle.Z, middle.W), position.XY(), rotation, depth);
+                Draw(Textures[3], new(size.X, middle.X, middle.Z, middle.W), position.XY(), rotation, Color);
+                Draw(Textures[5], new(middle.Y, size.Y, middle.Z, middle.W), position.XY(), rotation, Color);
             }
             if (Tile.Y != 0)
             {
-                Draw(Textures[1], new(middle.X, middle.Y, size.Z, middle.Z), position.XY(), rotation, depth);
-                Draw(Textures[7], new(middle.X, middle.Y, middle.W, size.W), position.XY(), rotation, depth);
+                Draw(Textures[1], new(middle.X, middle.Y, size.Z, middle.Z), position.XY(), rotation, Color);
+                Draw(Textures[7], new(middle.X, middle.Y, middle.W, size.W), position.XY(), rotation, Color);
             }
-            Draw(Textures[4], new(middle.X, middle.Y, middle.Z, middle.W), position.XY(), rotation, depth);
+            Draw(Textures[4], new(middle.X, middle.Y, middle.Z, middle.W), position.XY(), rotation, Color);
         }
-        public static void Draw(Texture2D texture, Vector4 lrtb, Vector2 center, float rotation, float depth) => Draw(texture, new Vector2(lrtb.X + lrtb.Y, lrtb.Z + lrtb.W) / 2, new Vector2(lrtb.Y - lrtb.X, lrtb.W - lrtb.Z), center, rotation, depth);
-        public static void Draw(Texture2D texture, Vector2 position, Vector2 size, Vector2 center, float rotation, float depth)
+        public static void Draw(Texture2D texture, Vector4 lrtb, Vector2 center, float rotation, Color color) => Draw(texture, new Vector2(lrtb.X + lrtb.Y, lrtb.Z + lrtb.W) / 2, new Vector2(lrtb.Y - lrtb.X, lrtb.W - lrtb.Z), center, rotation, color);
+        public static void Draw(Texture2D texture, Vector2 position, Vector2 size, Vector2 center, float rotation, Color color)
         {
             if (size.X == 0 || size.Y == 0) return;
             var imageSize = new Vector2(texture.Width, texture.Height);
-            ProdModel.Instance._spriteBatch.Draw(texture, position, null, Color.White, rotation, imageSize / 2, size / imageSize, SpriteEffects.None, depth);
+            ProdModel.Instance._spriteBatch.Draw(texture, MathP.Rotate(position, center, rotation), null, color, MathP.DegToRad(rotation), imageSize / 2, size / imageSize, SpriteEffects.None, 0);
         }
 
         public Vector2 ImageSize(int idx) => new(Textures[idx].Width, Textures[idx].Height);

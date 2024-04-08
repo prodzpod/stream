@@ -9,3 +9,4 @@ src/model/bin/
 src/model/obj/
 src/model/Content/obj/
 src/model/Content/bin/
+src/model/*.dll

@@ -1,23 +1,71 @@
 doctype html
 html 
     head
-        a(rel="me" href="https://mastodon.gamedev.place/@prod" style="display: none;") Mastodon
-        meta(charset='utf-8')
+        // meta
+        meta(http-equiv="Content-Type" content="text/html; charset=utf-8")
         meta(name='author' content='prodzpod')
         meta(name='robots' content='nosnippet')
-        meta(property='og:url' content='prod.kr/')
-        meta(property='og:type' content='Personal Website')
+        meta(property='og:type' content='website')
+        meta(property='og:url' content='https://prod.kr/')
+        meta(property="og:image:type" content="image/png")
+        //- vars
+        - var author = ''
+        - var title = ''
+        - var color = ''
+        - var description = ''
+        - var icon = ''
+        - var thumbnail = ''
+        - var image = ''
+        - var v = false
         block meta
-        title prod
+        if title == ''
+            - title = v ? 'prvd 🌙' : 'prod.kr'
+        if author == ''
+            - author = title 
+        if color == ''
+            - color = v ? '#FFA300' : '#FFB0FF'
+        if description == ''
+            - description = v ? 'prod vt real?? what?? huh??' : 'making all kinds of wired things'
+        if icon == ''
+            - icon = v ? 'https://prod.kr/images/icon/v.png' : 'https://prod.kr/images/icon/logo.png'
+        if title != author 
+            // author
+            meta(property='og:site_name' content=author)
+            meta(name='twitter:site' content=author)
+        // title
+        title #{title}
+        meta(property='og:title' content=title)
+        meta(name='twitter:title' content=title)
+        // color
+        meta(name='theme-color' content=color)
+        // description
+        meta(property='og:description' content=description)
+        meta(name='twitter:description' content=description)
+        if icon != ""
+            // icon
+            link(rel="icon" href=icon)
+            if thumbnail == ""
+                meta(property="og:image" content=icon)
+        if thumbnail != "" && image == ""
+            // thumbnail
+            meta(property="og:image" content=thumbnail)
+        if image != ""
+            // image
+            meta(name="twitter:card" content="summary_large_image")
+            meta(name="twitter:image:src" content=image)
+            meta(property="og:image" content=image)
+        // css
         link(href='https://prod.kr/css/reset.css' rel='stylesheet')
         link(href='https://prod.kr/css/base.css' rel='stylesheet')
         link(href='https://prod.kr/css/style/dark.css' rel='stylesheet' id='theme-dark')
         link(href='https://prod.kr/css/style/light.css' rel='stylesheet' id='theme-light')
         link(href='https://prod.kr/css/style.css' rel='stylesheet')
-        script(src='https://prod.kr/js/base.js')
+        // js
         script. 
             !{client}
+        script(src='https://prod.kr/js/base.js')
         script(src='https://prod.kr/js/common.js')
+        
     body
         .main.vlist
             header.hlist
@@ -52,3 +100,5 @@ html
                         .spacer
                     button(onclick='toggleFlashy(this)' id='footer-flashy') flashy
         block postbody
+        <a rel="me" href="https://mastodon.gamedev.place/@prod" style="display: none;">Mastodon</a>
+        <a rel="me" href="https://mas.to/@prod" style="display: none;">Mastodon 2</a>

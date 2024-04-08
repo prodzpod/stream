@@ -1,4 +1,5 @@
 const WebSocket = require('ws');
+const fs = require('fs');
 const path = require('path');
 const { isNullish, safeAssign, takeWord } = require('../@main/util_client');
 const { log, warn, error, onMessage, register, id, channel, commands } = require('./include');
@@ -63,7 +64,11 @@ module.exports.init = (pw) => {
                 }
             });
         });
-        ws.on('close', () => warn('WebSocket Disconnected'));
+        ws.on('close', () => {
+            warn('WebSocket Disconnected, Reauthing');
+            fs.rmSync(path.join(__dirname, '../../../secret/stream_session.json'));
+            require('./commands/restart').execute('prodzpod');
+        });
     });
 }
 

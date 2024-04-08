@@ -7,7 +7,7 @@ namespace ProdModel.Utils
 {
     public static class InputP
     {
-        public static bool InputEnabled = false;
+        public static bool InputEnabled = true;
         public static KeyboardState statePrevious = new();
         public static KeyboardState stateCurrent = new();
         public static MouseState stateMousePrevious = new();
@@ -31,8 +31,8 @@ namespace ProdModel.Utils
         public static bool KeyPressed(Keys k, bool force = false) => (force || InputEnabled) && statePrevious.IsKeyUp(k) && stateCurrent.IsKeyDown(k);
         public static bool KeyReleased(Keys k) => InputEnabled && statePrevious.IsKeyDown(k) && stateCurrent.IsKeyUp(k);
         public static Keys[] HeldKeys() => InputEnabled ? stateCurrent.GetPressedKeys() : Array.Empty<Keys>();
-        public static Keys[] PressedKeys() => InputEnabled ? stateCurrent.GetPressedKeys().Where(x => statePrevious.GetPressedKeys().Contains(x)).ToArray() : Array.Empty<Keys>();
-        public static Keys[] ReleasedKeys() => InputEnabled ? statePrevious.GetPressedKeys().Where(x => stateCurrent.GetPressedKeys().Contains(x)).ToArray() : Array.Empty<Keys>();
+        public static Keys[] PressedKeys() => InputEnabled ? stateCurrent.GetPressedKeys().Except(statePrevious.GetPressedKeys()).ToArray() : Array.Empty<Keys>();
+        public static Keys[] ReleasedKeys() => InputEnabled ? statePrevious.GetPressedKeys().Except(stateCurrent.GetPressedKeys()).ToArray() : Array.Empty<Keys>();
         public static Vector2 MousePosition => stateMouseCurrent.Position.ToVector2();
         public static bool MouseGet(MouseState state, Mouses k)
         {

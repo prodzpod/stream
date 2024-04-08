@@ -1,2 +1,9 @@
-script.
-    window.location.href = 'https://www.youtube.com/@prodzpod';
+extends ./template/base.pugtemplate
+block meta
+    - v = true
+    - title = 'youtube'
+    - description = 'prodzpod youtube'
+    - thumbnail = 'https://prod.kr/images/icon/discord_old.png'
+block postbody
+    script.
+        window.location.href = 'https://www.youtube.com/@prodzpod';

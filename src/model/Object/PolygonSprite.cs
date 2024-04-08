@@ -24,7 +24,7 @@ namespace ProdModel.Object
             }
             return new(Minmax.Z - Minmax.X, Minmax.W - Minmax.Y);
         }
-        public void Render(Vector4 position, float rotation, float depth)
+        public void Render(Vector4 position, float rotation)
         {
             throw new NotImplementedException();
         }

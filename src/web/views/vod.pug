@@ -1,2 +1,9 @@
-script.
-    window.location.href = 'https://www.youtube.com/@prodzvod';
+extends ./template/base.pugtemplate
+block meta
+    - v = true
+    - title = 'prod z vods'
+    - description = 'the archives of v, @prodzvod on youtube'
+    - thumbnail = 'https://prod.kr/images/icon/vod.png'
+block postbody
+    script.
+        window.location.href = 'https://www.youtube.com/@prodzvod';

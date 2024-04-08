@@ -1,7 +1,9 @@
 ﻿#nullable enable
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using NotGMS.Util;
 using ProdModel.Utils;
+using SharpDX.MediaFoundation;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -27,12 +29,12 @@ namespace ProdModel.Object
 
         public Vector2 Speed = Vector2.Zero;
         public float Rotation = 0;
-        public Vector2 Gravity = new(0, 0.2f);
+        public Vector2 Gravity = new(0, 1f);
         public float Drag = 0; // speed is multiplied to this at the end
 
         public Vector2? HeldPosition = null;
-        public float Bounce = 0.7f;
-        public float Slide = 0.99f;
+        public float Bounce = 0.9f;
+        public float Slide = 0.95f;
         public float Rotatability = 0.02f;
 
         // drawing
@@ -43,7 +45,7 @@ namespace ProdModel.Object
         public float Lifetime = 0;
         public Vector2 FlipDependence = Vector2.One; // flip global position based on flip
 
-        public Object(string name) { Name = name; }
+        public Object(string name) { Name = name; OnInit(); }
         public Object AddChild(ISprite Sprite) => AddChild(Sprite, new Vector4(0, 0, -1, -1));
         public Object AddChild(ISprite Sprite, float x, float y) => AddChild(Sprite, new Vector4(x, y, -1, -1));
         public Object AddChild(ISprite Sprite, Vector2 Position) => AddChild(Sprite, new Vector4(Position.X, Position.Y, -1, -1));
@@ -51,7 +53,6 @@ namespace ProdModel.Object
         public Object AddChild(ISprite Sprite, Vector4 BoundingBox)
         {
             Children.Add(new(this, Sprite, BoundingBox));
-            OnInit();
             return this;
         }
         public Object SetBoundingBoxes(int index) => SetBoundingBoxes(index, Vector2.Zero);
@@ -65,7 +66,7 @@ namespace ProdModel.Object
             Position = new Vector2(960, 540) + new Vector2(MathF.Sign(position.X) * (960 - MathF.Abs(position.X) - (BoundingBoxSize.X / 2)), MathF.Sign(position.Y) * (540 - MathF.Abs(position.Y) - (BoundingBoxSize.Y / 2)));
             return this;
         }
-        public Object MakeTopdown() { Gravity = Vector2.Zero; Drag = 0.2f; return this; }
+        public Object MakeTopdown() { Gravity = Vector2.Zero; Drag = 0.01f; return this; }
         public Object Physics() { EnablePhysics = true; Speed = Vector2.Zero; Rotation = 0; return this; }
         public Object Listen() { WebSocket = new("ws://localhost:449", ws => { ws.Send("449", "register " + Name); }, OnWSRecieve); return this; }
         public Object SetDepth(float depth) { Depth = depth; return this;}
@@ -77,7 +78,7 @@ namespace ProdModel.Object
             corners[1] = new(Position.X + (BoundingBoxSize.X / 2), Position.Y - (BoundingBoxSize.Y / 2));
             corners[2] = new(Position.X + (BoundingBoxSize.X / 2), Position.Y + (BoundingBoxSize.Y / 2));
             corners[3] = new(Position.X - (BoundingBoxSize.X / 2), Position.Y + (BoundingBoxSize.Y / 2));
-            return corners.Select(x => MathP.RotateAround(x, Position, Angle)).ToArray();
+            return corners.Select(x => MathP.Rotate(x, Position, Angle)).ToArray();
         }
         public Vector2[][] GetEdges()
         {
@@ -99,25 +100,26 @@ namespace ProdModel.Object
         {
             OBJECTS.Remove(this);
             onDestroy?.Invoke();
-            WebSocket?.WebSocket.CloseAsync(System.Net.WebSockets.WebSocketCloseStatus.NormalClosure, null, System.Threading.CancellationToken.None);
             Destroyed = true;
         }
 
         public event Action<Object, GameTime> onUpdate;
+        public event Action<Object, Vector2> onBounce;
         public virtual void OnUpdate(GameTime gameTime)
         {
             Lifetime += (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (EnablePhysics)
             {
-                AddMoment(Vector2.Zero, Gravity);
                 Position += Speed;
-                Angle += Rotation / 180 * (float)Math.PI;
-                var lrtb = new Vector4(BoundingBoxSize.X, 1920 * 2 - BoundingBoxSize.X, BoundingBoxSize.Y, 1080 * 2 - BoundingBoxSize.Y) / 2;
-                if (Position.X < lrtb.X) { Position.X = lrtb.X; Speed.X = Math.Abs(Speed.X) * Bounce; Speed.Y *= Slide; }
-                if (Position.X > lrtb.Y) { Position.X = lrtb.Y; Speed.X = -Math.Abs(Speed.X) * Bounce; Speed.Y *= Slide; }
-                if (Position.Y < lrtb.Z) { Position.Y = lrtb.Z; Speed.Y = Math.Abs(Speed.Y) * Bounce; Speed.X *= Slide; }
-                if (Position.Y > lrtb.W) { Position.Y = lrtb.W; Speed.Y = -Math.Abs(Speed.Y) * Bounce; Speed.X *= Slide; }
+                Angle += Rotation;
+                Angle %= 360;
+                var lrtb = new Vector4(BoundingBoxSize.X, ProdModel.SCREEN_WIDTH * 2 - BoundingBoxSize.X, BoundingBoxSize.Y, ProdModel.SCREEN_HEIGHT * 2 - BoundingBoxSize.Y) / 2;
+                if (Position.X < lrtb.X) { Position.X = lrtb.X; Speed.X = Math.Abs(Speed.X) * Bounce; Speed.Y *= Slide; Rotation *= Slide; onBounce?.Invoke(this, new(-1, 0)); }
+                if (Position.X > lrtb.Y) { Position.X = lrtb.Y; Speed.X = -Math.Abs(Speed.X) * Bounce; Speed.Y *= Slide; Rotation *= Slide; onBounce?.Invoke(this, new(1, 0)); }
+                if (Position.Y < lrtb.Z) { Position.Y = lrtb.Z; Speed.Y = Math.Abs(Speed.Y) * Bounce; Speed.X *= Slide; Rotation *= Slide; onBounce?.Invoke(this, new(0, -1)); }
+                if (Position.Y > lrtb.W) { Position.Y = lrtb.W; Speed.Y = -Math.Abs(Speed.Y) * Bounce; Speed.X *= Slide; Rotation *= Slide; onBounce?.Invoke(this, new(0, 1)); }
                 Speed *= Drag * -1 + 1;
+                Speed += Gravity;
             }
             if (WebSocket != null && Lifetime - LastWSSend > 0.1f) {
 
@@ -128,7 +130,7 @@ namespace ProdModel.Object
                 AddWSData("w", BoundingBoxSize.X);
                 AddWSData("h", BoundingBoxSize.Y);
                 AddWSData("a", Angle);
-                if (onWSSend != null) onWSSend(this);
+                onWSSend?.Invoke(this);
                 WebSocket.Send("449", "update " + _txt);
                 LastWSSend = Lifetime;
             }
@@ -151,13 +153,13 @@ namespace ProdModel.Object
                 var fs = str.Split(" ").Skip(1).Select(float.Parse).ToArray();
                 OnMouse(InputP.Mouses.Left, new Vector2(fs[0], fs[1]) - Position);
             }
-            if (onWSRecieve != null) onWSRecieve(this, str);
+            onWSRecieve?.Invoke(this, str);
         }
 
         public void SetState(string state)
         {
-            State = state;
             OnState(state);
+            State = state;
         }
         public event Action<Object, string> onState;
         public virtual void OnState(string state)
@@ -168,7 +170,7 @@ namespace ProdModel.Object
         public event Action<Object, GameTime> onDraw;
         public virtual void OnDraw(GameTime gameTime)
         {
-            Children.ForEach(x => x.Render(Position, Angle, Depth));
+            Children.ForEach(x => x.Render(Position, Angle));
             onDraw?.Invoke(this, gameTime);
         }
 
@@ -178,16 +180,28 @@ namespace ProdModel.Object
             onKey?.Invoke(this, key);
         }
 
+        public event Action<Object, Keys> onKeyDown;
+        public virtual void OnKeyDown(Keys key)
+        {
+            onKeyDown?.Invoke(this, key);
+        }
+
+        public event Action<Object, Keys> onKeyUp;
+        public virtual void OnKeyUp(Keys key)
+        {
+            onKeyUp?.Invoke(this, key);
+        }
+
         public event Action<Object, InputP.Mouses, Vector2> onMouse;
         public virtual void OnMouse(InputP.Mouses button, Vector2 position)
         {
-            if (Name != "bg" && button == InputP.Mouses.Middle) OnDestroy();
+            if (button == InputP.Mouses.Left) Audio.Play("audio/click_me");
+            if (!Name.StartsWith("_") && button == InputP.Mouses.Middle) OnDestroy();
             onMouse?.Invoke(this, button, position);
         }
         public event Action<Object, Vector2, Vector2> onDrag;
         public virtual void OnDrag(Vector2 position, Vector2 drag)
         {
-            // TODO: if drag, apply physics
             if (EnablePhysics) AddMoment(position, drag);
             onDrag?.Invoke(this, position, drag);
         }
@@ -214,8 +228,6 @@ namespace ProdModel.Object
             public Object Parent;
             public Vector4 BoundingBox; // fix center, -1 w/h (adaptive)
             public float Angle = 0;
-            public Vector2 Speed = Vector2.Zero;
-            public float Rotation = 0;
             public Vector2 FlipDependence = Vector2.One; // flip delta position based on flip
 
             public Drawable(Object Parent, ISprite Sprite, Vector4 BoundingBox) { this.Parent = Parent; this.Sprite = Sprite; this.BoundingBox = BoundingBox; }
@@ -228,10 +240,11 @@ namespace ProdModel.Object
                 return size;
             }
 
-            public void Render(Vector2 position, float angle, float depth)
+            public void Render(Vector2 position, float angle)
             {
                 var bbox = GetBoundingBox();
-                Sprite.Render(new(position.X + bbox.X, position.Y + bbox.Y, bbox.Z, bbox.W), angle + Angle, depth);
+                var pos = MathP.Rotate(position.X + bbox.X, position.Y + bbox.Y, position.X, position.Y, angle);
+                Sprite.Render(new(pos.X, pos.Y, bbox.Z, bbox.W), angle + Angle);
             }
         }
 
@@ -243,10 +256,16 @@ namespace ProdModel.Object
 
         public void AddMoment(Vector2 position, Vector2 force)
         {
-            Speed += force;
+            Speed = MathP.Lerp(Speed, force, 1 - Drag) * 10;
             var dist = Vector2.Distance(force, Vector2.Zero);
             if (dist == 0) return;
-            Rotation = Math.Clamp(MathP.Cross(force, position) * Rotatability / dist, -90, 90);
+            Vector2 positionRA = new(Vector2.Distance(position, Vector2.Zero), MathP.Atan2(position.X, position.Y));
+            Vector2 pSpeed = Speed + MathP.Rotate(position, Rotation) - position;
+            Vector2 pSpeedRA = new(Vector2.Distance(pSpeed, Vector2.Zero), MathP.Atan2(pSpeed.X, pSpeed.Y));
+            float adiff = MathP.AngleBetween(pSpeedRA.Y + 180, positionRA.Y);
+            // TODO: compare speed and force, if speed >> force pointer at back, if force >> speed pointer in front
+            Rotation = MathP.Lerp(Rotation * -1f, adiff * (positionRA.X / Vector2.Distance(BoundingBoxSize, Vector2.Zero)) * (1 + MathF.Log10(pSpeedRA.X + 1)), 0.1f);
+            // MathP.Lerp(1f, pra.X * sra.X * Drag, Rotatability)
         }
     }
 }

@@ -1,10 +1,12 @@
 extends ../template/base.pugtemplate
 
+block meta
+    - v = true
 block body 
     p Status: 
     p(id='code')
     script.
-        const perms = "channel:manage:broadcast channel:manage:redemptions channel:manage:predictions channel:manage:polls channel:manage:raids channel:manage:ads clips:edit moderator:read:followers user:read:subscriptions channel:manage:moderators channel:manage:vips moderator:manage:chat_messages moderator:manage:banned_users user:manage:whispers bits:read chat:read chat:edit";
+        const perms = "channel:manage:broadcast channel:manage:redemptions channel:manage:predictions channel:manage:polls channel:manage:raids channel:manage:ads clips:edit moderator:read:followers moderator:read:chatters user:read:subscriptions channel:manage:moderators channel:manage:vips moderator:manage:chat_messages moderator:manage:banned_users user:manage:whispers bits:read chat:read chat:edit";
         window.onload = async () => {
             if (isNullish(query)) { // fetch
                 let s = await send('get', 'https://prod.kr/api/oauth');

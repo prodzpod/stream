@@ -1,5 +1,27 @@
 extends ../template/base.pugtemplate
 
+block meta
+    - v = true
+    - title = 'the lore'
+    - description = 'the archives of prodzpod'
 block body 
     h1 The Lore 
-    p not found, please check back after the first stream
+    c Testing in Prod 0
+    h2 the incident
+    p: b VOD unrecoverable - sorry!
+    p since prod is korea, Twitch Korea doesnt save VODs despite the setting being on and therefore it is gone. i will recap as detailed as possible to compensate.
+    br
+    p after 1(+5/7) week of unhealthy gamer development, prod finally goes live for the first* time. and then everything goes to shit after.
+    br
+    p chat stops working after the 10th message, everyone shows up as "prodzpod" (this is technically lore accurate maybe), prod haven't finished making the 3d model thing so its just a png (that doesnt move, worse than a pngtuber), everythings messed up.
+    br
+    img(src="https://prod.kr/images/lore/0-1.png")
+    p most of the discussions remains as part of the twitch-discord bridge that thankfully mostly worked.
+    br
+    p prod complains about how they "planned everything and its all fucked up", then tries to showcase the gizmo, and then the stream dies upon !login. they boot it back up only for it to go off again when someone else tries logging in.
+    br
+    p they fix like 1 minor issue and then the voice gives in because they were singing vocaloid songs while coding that entire week. they get sleeby and end stream like 90 minutes in. we raided <a href="https://twitch.tv/tyumici">tyumici</a>.
+block postbody 
+    style.
+        h2 { margin-top: 0; }
+        c { margin-top: 2.33em; display: block; }

@@ -1,5 +1,5 @@
 const { isNullOrWhitespace, takeWord } = require('../../util_client');
-const { ID, log, warn, error, getCategory, updateLive, sendClient, getSocketsServer } = require("../../include");
+const { ID, log, warn, error, getCategory, updateLive, sendClient } = require("../../include");
 
 module.exports.condition = 'startstream'
 module.exports.execute = async message => {

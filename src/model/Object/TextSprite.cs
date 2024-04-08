@@ -1,9 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using ProdModel.Utils;
-using System;
-using System.Diagnostics;
-using System.Reflection.Metadata;
+using NotGMS.Util;
+using System.Text.RegularExpressions;
 
 namespace ProdModel.Object
 {
@@ -19,7 +17,7 @@ namespace ProdModel.Object
         public Vector2 FlipDependence = Vector2.Zero; // whether to flip the image itself upon flip
 
         public TextSprite(string font) : this(font, "") { }
-        public TextSprite(string font, string content) { Font = ProdModel.FONTS[font]; Content = content; }
+        public TextSprite(string font, string content) { Font = ProdModel.FONTS[font]; Content = Regex.Replace(content, "[^\x20-\x7E]", ""); }
         public TextSprite SetSize(float size) { Size = size; return this; }
         public TextSprite SetColor(Color color) { Fill = color; return this; }
         public TextSprite SetOutline(float size) => SetOutline(size, Fill == Color.Black ? Color.White : Color.Black);
@@ -51,11 +49,12 @@ namespace ProdModel.Object
         }
         public float GetWidth() => Font.MeasureString(Content).X * Size + (2 * Thickness);
         public Vector2 GetBoundingBox() => Font.MeasureString(Content) * Size + new Vector2(2 * Thickness, 2 * Thickness);
-        public void Render(Vector4 position, float rotation, float depth)
+        public void Render(Vector4 position, float rotation)
         {
             var size = GetBoundingBox();
             ProdModel.Instance._spriteBatch.DrawString(Font, Content,
-                position.XY() + (Align * (position.ZW() - size) / 2), Fill, rotation, size / (2 * Size), Size, SpriteEffects.None, depth);
+                MathP.Rotate(position.XY() + (Align * (position.ZW() - size) / 2), position.XY(), rotation), 
+                Fill, MathP.DegToRad(rotation), size / (2 * Size), Size, SpriteEffects.None, 0);
         }
     }
 }

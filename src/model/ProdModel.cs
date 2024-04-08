@@ -1,9 +1,13 @@
-﻿using Microsoft.Xna.Framework;
+﻿using FmodForFoxes;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using NotGMS.Util;
 using ProdModel.Gizmo;
 using ProdModel.Object;
+using ProdModel.Puppet;
 using ProdModel.Utils;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,12 +21,16 @@ namespace ProdModel
     {
         public GraphicsDeviceManager _graphics;
         public SpriteBatch _spriteBatch;
+        public INativeFmodLibrary _nativeLibrary = new DesktopNativeFmodLibrary();
         public static WebSocketP WebSocketModel;
         public static WebSocketP WebSocket;
         public static ProdModel Instance;
         public static Dictionary<string, SpriteFont> FONTS = new();
         public System.Windows.Forms.Form Form;
         public static Texture2D PIXEL;
+
+        public const int SCREEN_WIDTH = 1920;
+        public const int SCREEN_HEIGHT = 1024;
 
         public ProdModel()
         {
@@ -54,6 +62,8 @@ namespace ProdModel
                     return "";
                 });
             }, Server.HandleData);
+            Audio.Init();
+            ModelHandler.ModelWVRM = new("Content/blend/model_data");
             base.Initialize();
         }
 
@@ -62,9 +72,9 @@ namespace ProdModel
         public void ToggleClickthrough()
         {
             Clickthrough = !Clickthrough;
-            InputP.InputEnabled = !InputP.InputEnabled;
+            // InputP.InputEnabled = !InputP.InputEnabled;
             SetWindowLongFlags flag = (SetWindowLongFlags)(Clickthrough ? (initialKey | 0x80020) : initialKey);
-            SetWindowLong(Window.Handle, WindowLongIndexFlags.GWL_EXSTYLE, flag);
+            _ = SetWindowLong(Window.Handle, WindowLongIndexFlags.GWL_EXSTYLE, flag);
         }
 
         protected override void LoadContent()
@@ -73,12 +83,12 @@ namespace ProdModel
             foreach (var k in new string[] { "alagard", "arcaoblique", "comfortaa", "comfortaa_bold", "iosevka_comfy", "iosevka_comfy_bold", "iosevka_comfy_italic", "iosevka_comfy_bold_italic" })
                 FONTS[k] = Content.Load<SpriteFont>("fonts/" + k);
             PIXEL = Texture2D.FromFile(Instance._graphics.GraphicsDevice, ResolvePath("Content/white.png"));
-            var prod2d = new Object.Object("prod2d")
-                .AddChild(new ImageSprite("Content/sprites/prod5")).SetBoundingBoxes(0).SetPosition(-4, 600).Physics().MakeTopdown().Listen();
-            prod2d.Drag = 0.01f;
-            new Object.Object("bg").AddChild(new ImageSprite("Content/layout/bg")).SetBoundingBoxes(0).SetPosition(0, 0);
-            new Object.Object("phase").AddChild(new ImageSprite("Content/layout/status")).SetBoundingBoxes(0).SetPosition(-4, 4);
-            var phase = new Object.Object("phase")
+            ModelHandler.InitTextures();
+            ModelSprite.Init();
+            new Object.Object("_bg").AddChild(new ImageSprite("Content/layout/bg")).SetBoundingBoxes(0).SetPosition(0, 0);
+            Screens.AddStartingSoon();
+            new Object.Object("_status").AddChild(new ImageSprite("Content/layout/status")).SetBoundingBoxes(0).SetPosition(-4, 4);
+            var phase = new Object.Object("_phase")
                 .AddChild(new ImageSprite("Content/layout/phase"))
                 .AddChild(new TextSprite("arcaoblique", "00").SetAlign(1, 0), -8, 4)
                 .SetBoundingBoxes(0).SetPosition(4, 4).Listen();
@@ -87,10 +97,10 @@ namespace ProdModel
                 string[] args = WebSocketP.TakeWord(str);
                 if (args[0] == "set") ((TextSprite)self.Children[1].Sprite).Content = args[1];
             };
-            new Object.Object("tasks").AddChild(new ImageSprite("Content/layout/tasks")).SetBoundingBoxes(0).SetPosition(-212, 4);
-            var theme = new Object.Object("theme")
+            new Object.Object("_tasks").AddChild(new ImageSprite("Content/layout/tasks")).SetBoundingBoxes(0).SetPosition(-212, 4);
+            var theme = new Object.Object("_theme")
                 .AddChild(new NineSliceSprite("Content/layout/making", true, false))
-                .AddChild(new TextSprite("arcaoblique", "\"obs filters\"").SetAlign(-1, 0), 138 - 14, 0)
+                .AddChild(new TextSprite("arcaoblique", "\"economy\"").SetAlign(-1, 0), 138 - 14, 0)
                 .SetBoundingBoxes(1, 138, 10).SetBoundingBoxes(-1, 44).SetPosition(-1050, 4).Listen();
             theme.onWSRecieve += (self, str) =>
             {
@@ -98,31 +108,124 @@ namespace ProdModel
                 if (args[0] == "set") ((TextSprite)self.Children[1].Sprite).Content = args[1];
                 self.SetBoundingBoxes(1, 138, 10).SetBoundingBoxes(-1, 44);
             };
-            var window = new Object.Object("window_test")
-                .AddChild(new NineSliceSprite("Content/layout/window", true, true))
-                .AddChild(new TextSprite("arcaoblique", "imagine i actually\nhooked up openseeface\non a 3d model here").SetAlign(-1, -1), 8, 50)
-                .AddChild(new TextSprite("arcaoblique", "big shoe lmfao").SetColor(Color.White).SetAlign(-1, -1), 8, 12)
-                .SetBoundingBoxes(1, 20, 54).SetPosition(0, 0).Physics().MakeTopdown().Listen();
-            window.Rotatability = 0;
-            window.onWSSend += (self) =>
+            var prod = new Object.Object("_prod")
+                .AddChild(new ImageSprite(ModelHandler.Prod2D[4]))
+                .AddChild(new ModelSprite()).SetBoundingBoxes(0).SetPosition(-4, 600).Physics().MakeTopdown().SetDepth(-100).Listen();
+            ((ImageSprite)prod.Children[0].Sprite).Texture = PIXEL;
+            prod.onDrag += (self, pos, drag) =>
             {
-                self.AddWSData("title", ((TextSprite)self.Children[2].Sprite).Content);
-                self.AddWSData("content", ((TextSprite)self.Children[1].Sprite).Content);
+                if (self.State == "DEFAULT")
+                {
+                    ModelHandler.AddExplosion();
+                    self.Gravity = new(0, 1);
+                }
+                self.SetState("FLING");
+            };
+            prod.onUpdate += (self, time) =>
+            {
+                if (self.State == "DEFAULT") self.Position = MathP.Lerp(self.Position, new(4, 240), 0.1f);
+                if (self.State == "FLING") ((ImageSprite)self.Children[0].Sprite).Texture = ModelHandler.Prod2D[self.Lifetime % 0.25f > 0.125f ? 0 : 1];
+                if (self.State == "BUMP" && self.Lifetime > 0.25f) self.SetState("FLING");
+                if (self.State == "CONFUSED" && self.Speed.Y < 0) self.SetState("FLING");
+            };
+            prod.onState += (self, state) =>
+            {
+                ModelSprite.ShowModel = state == "DEFAULT";
+                if (state == "DEFAULT")
+                {
+                    ModelHandler.AddExplosion();
+                    self.Gravity = new(0, 0);
+                    self.Speed = Vector2.Zero;
+                    self.Rotation = 0;
+                    self.Angle = 0;
+                    self.Position.X = 4;
+                    ((ImageSprite)self.Children[0].Sprite).Texture = PIXEL;
+                }
+                if (state == "BUMP")
+                {
+                    ((ImageSprite)self.Children[0].Sprite).Texture = ModelHandler.Prod2D[2];
+                    self.Lifetime = 0;
+                }
+                if (state == "CONFUSED") ((ImageSprite)self.Children[0].Sprite).Texture = ModelHandler.Prod2D[3];
+                if (state == "CALM") ((ImageSprite)self.Children[0].Sprite).Texture = ModelHandler.Prod2D[4];
+            };
+            prod.onMouse += (self, mouse, pos) =>
+            {
+                if (mouse == InputP.Mouses.Right) self.SetState("CALM");
+            };
+            prod.onBounce += (self, wall) =>
+            {
+                if (self.State == "BUMP" && wall.Y == 1) self.SetState("CONFUSED");
+                if (self.State != "FLING") return;
+                else self.SetState("BUMP");
+            };
+            prod.onRelease += (self, mouse) =>
+            {
+                if (self.State != "DEFAULT" && 
+                mouse == InputP.Mouses.Left && 
+                self.HeldPosition != null &&
+                InputP.MousePosition.X < 410 && 
+                InputP.MousePosition.X < 346) // size of chatzone
+                    self.SetState("DEFAULT");
+            };
+            prod.onKeyDown += (self, key) =>
+            {
+                switch (key)
+                {
+                    case Keys.NumPad7:
+                        ModelHandler.Pose = "HI";
+                        break;
+                    case Keys.NumPad8:
+                        ModelHandler.Pose = "VV";
+                        break;
+                    case Keys.NumPad9:
+                        ModelHandler.Pose = "PROON";
+                        break;
+                    case Keys.NumPad6:
+                        ModelHandler.Pose = "PREAT";
+                        break;
+                    case Keys.NumPad4:
+                        ModelHandler.Pose = "TPOSE";
+                        break;
+                }
+            };
+            prod.onKeyUp += (self, key) =>
+            {
+                switch (key)
+                {
+                    case Keys.NumPad7:
+                        if (ModelHandler.Pose == "HI") ModelHandler.Pose = "IDLE";
+                        break;
+                    case Keys.NumPad8:
+                        if (ModelHandler.Pose == "VV") ModelHandler.Pose = "IDLE";
+                        break;
+                    case Keys.NumPad9:
+                        if (ModelHandler.Pose == "PROON") ModelHandler.Pose = "IDLE";
+                        break;
+                    case Keys.NumPad6:
+                        if (ModelHandler.Pose == "PREAT") ModelHandler.Pose = "IDLE";
+                        break;
+                    case Keys.NumPad4:
+                        if (ModelHandler.Pose == "TPOSE") ModelHandler.Pose = "IDLE";
+                        break;
+                }
             };
         }
 
         protected override void Update(GameTime gameTime)
         {
             InputP.OnUpdate();
-            if (InputP.KeyPressed(Keys.NumPad0, true)) ToggleClickthrough();
+            Object.Object.OBJECTS.Sort((a, b) => MathF.Sign(a.Depth - b.Depth));
             for (int i = Object.Object.OBJECTS.Count - 1; i >= 0; i--) // in reverse order so backmost item gets selected
             {
                 var o = Object.Object.OBJECTS[i];
                 o.OnUpdate(gameTime);
-                foreach (var k in InputP.PressedKeys()) o.OnKey(k);
+                foreach (var k in InputP.HeldKeys()) o.OnKey(k);
+                foreach (var k in InputP.PressedKeys()) o.OnKeyDown(k);
+                foreach (var k in InputP.ReleasedKeys()) o.OnKeyUp(k);
                 if (MathP.PositionInBoundingBox(o, InputP.MousePosition))
                 {
-                    var positionRelative = MathP.RotateAround(InputP.MousePosition - o.Position, -o.Angle);
+                    var positionRelative = MathP.Rotate(InputP.MousePosition - o.Position, -o.Angle);
                     o.OnHover(positionRelative);
                     if (InputP.MousePressed(InputP.Mouses.Left))
                     {
@@ -131,22 +234,33 @@ namespace ProdModel
                     }
                     if (InputP.MousePressed(InputP.Mouses.Right)) o.OnMouse(InputP.Mouses.Right, positionRelative);
                     if (InputP.MousePressed(InputP.Mouses.Middle)) o.OnMouse(InputP.Mouses.Middle, positionRelative);
+                    if (InputP.MouseHeld(InputP.Mouses.Right))
+                    {
+                        o.Rotation -= o.Angle * 0.1f;
+                        o.Angle *= 0.8f;
+                    }
                 }
                 if (InputP.MouseReleased(InputP.Mouses.Left))
                 {
-                    o.HeldPosition = null;
                     o.OnRelease(InputP.Mouses.Left);
+                    o.HeldPosition = null;
                 }
                 if (InputP.MouseReleased(InputP.Mouses.Right)) o.OnRelease(InputP.Mouses.Right);
                 if (InputP.MouseReleased(InputP.Mouses.Middle)) o.OnRelease(InputP.Mouses.Middle);
                 if (o.HeldPosition != null)
                 {
-                    var point = MathP.RotateAround((Vector2)o.HeldPosition, o.Angle);
+                    var point = MathP.Rotate((Vector2)o.HeldPosition, o.Angle);
                     o.OnDrag(point, (InputP.MousePosition - point - o.Position) * (float)gameTime.ElapsedGameTime.TotalSeconds);
-                    o.Speed = (InputP.MousePosition - point - o.Position) * (float)gameTime.ElapsedGameTime.TotalSeconds / 0.01f;
+                    // o.Speed = (InputP.MousePosition - point - o.Position) * (float)gameTime.ElapsedGameTime.TotalSeconds / 0.01f;
                 }
             }
+            Audio.Update();
+            ModelHandler.Time += (float)gameTime.ElapsedGameTime.TotalSeconds;
             base.Update(gameTime);
+        }
+        protected override void UnloadContent()
+        {
+            Audio.Unload();
         }
 
         protected override void Draw(GameTime gameTime)

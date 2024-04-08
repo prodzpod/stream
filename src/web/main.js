@@ -70,13 +70,13 @@ module.exports.init = async (extern) => {
         });
     }
     files = await listFiles(__dirname, 'api_client', 'WS');
-    files.map(vr => {
-        if (vr.endsWith('.js')) vr = vr.slice(0, -('.js'.length));
-        v = vr;
-        if (v.startsWith('index')) v = '/'; else v = '/' + v;
-        log('Registering api method WS subpage', v, `(${v})`);
-        app.ws(v, (ws, req) => {
-            let api = require(`./api_client/WS${v}`);
+    files.map(subpager => {
+        if (subpager.endsWith('.js')) subpager = subpager.slice(0, -('.js'.length));
+        subpage = subpager;
+        if (subpage.startsWith('index')) subpage = '/'; else subpage = '/' + subpage;
+        log('Registering api method WS subpage', subpage, `(${subpage})`);
+        app.ws(subpage, (ws, req) => {
+            let api = require(`./api_client/WS${subpage}`);
             log('WebSocket Connected');
             ws.on('open', _ => ws.send(`register ${sockets.length}`));
             sockets.push(ws);
@@ -141,7 +141,7 @@ module.exports.cmpAuth = async () => {
 }
 
 function render(page, req, res) {
-    res.set({ 'Access-Control-Allow-Origin': '*' });
+    res.set({ 'Content-Type': 'text/html; charset=UTF-8', 'Access-Control-Allow-Origin': '*' });
     let params = { client: clientFunctions };
     try { let data = require(path.join(__dirname, 'api_client/RENDER', page)).execute(req, res); Object.assign(params, data); } catch {}
     res.render(page, params);
