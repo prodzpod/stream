@@ -1,5 +1,5 @@
 const { Client, GatewayIntentBits, Partials } = require('discord.js');
-const { getIdentifier } = require('../@main/util_client');
+const { getIdentifier, WASD } = require('../@main/util_client');
 const { listFiles } = require('../@main/util_server');
 const { sendClient, data } = require('../@main/include');
 const OPTIONS = { intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildMembers, GatewayIntentBits.MessageContent], partials: [Partials.Message, Partials.Channel, Partials.Reaction] };
@@ -7,7 +7,7 @@ module.exports.ID = 'discord';
 module.exports.log = (...stuff) => console.log('[DISCORD]', ...stuff);
 module.exports.warn = (...stuff) => console.warn('[DISCORD]', ...stuff);
 module.exports.error = (...stuff) => console.error('[DISCORD]', ...stuff);
-let app, server, general;
+let app, server, general, announcements;
 let logins = {};
 let users = {};
 let messages = {};
@@ -31,6 +31,7 @@ module.exports.init = async () => {
             this.log(`Logged in as ${app.user.tag}!`);
             server = await app.guilds.fetch('1219954701726912583');
             general = await server.channels.fetch('1219954701726912586');
+            announcements = await server.channels.fetch('1219958741495975936');
             resolve(0);
         });
         listFiles(__dirname, 'events').then(events => app.on(events.slice(0, -('.js'.length)), (...x) => require('./events/' + events.slice(0, -('.js'.length))).execute(...x)));
@@ -43,9 +44,12 @@ module.exports.init = async () => {
                     return;                 
                 }
                 messages[message.id] = message;
-                sendClient('twitch', 'twitch', `#${user}@id=${message.id} ${message.content}`);
+                sendClient('twitch', 'twitch', `#${user}@id=${message.id}`, message.content);
                 setTimeout(() => { delete messages[message.id]; }, 60000);
-            } else if (message.channel === general) sendClient(this.ID, 'twitch', `prodzpod !!discord ${user} ${message.content}`);
+            } else if (message.channel === general) {
+                sendClient(this.ID, 'twitch', WASD.pack('!discord', user, message.content + 
+                    Array.from(message.attachments.values()).map(x => "\n" + x.url).join(""))); // convert images to urls
+            }
         });
         app.on('interactionCreate', async interaction => {
             if (!interaction.isChatInputCommand()) return;
@@ -56,7 +60,7 @@ module.exports.init = async () => {
                     interaction.reply({ content: `Send \`!login ${id}\` on the Twitch Chat to connect your account.`, ephemeral: true });
                     break;
                 case 'reboottwitchbot':
-                    sendClient(this.ID, 'twitch', 'prodzpod !restart');
+                    sendClient(this.ID, 'twitch', 'restart');
                     interaction.reply('Reload Completed!');
                     break;
             }
@@ -78,5 +82,9 @@ module.exports.reply = (msg, id) => {
         messages[id].reply(msg);
         delete messages[id];
     } else this.warn('Cannot find message id', id, 'to reply');
+}
+module.exports.announce = (msg) => {
+    if (!app) return;
+    announcements.send(`@everyone\n${msg}\n\nhttps://prod.kr/live\nhttps://prod.kr/v/screen`);
 }
 module.exports.commands = {}

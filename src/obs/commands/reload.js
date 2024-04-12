@@ -1,10 +1,9 @@
-const { takeWord, safeAssign } = require('../../@main/util_client');
+const { safeAssign } = require('../../@main/util_client');
 const { commands, log, warn, error } = require('../include');
 module.exports.condition = 'reload'
-module.exports.execute = async str => {
+module.exports.execute = async args => {
     log('Restarting OBS commands');
-    let [_, k] = takeWord(str);
-    let res = await require('../../@main/features/reload').reload([__dirname], k);
+    let res = await require('../../@main/features/reload').reload([__dirname], args[1]);
     if (res) safeAssign(commands, res);
     return 0;
 }

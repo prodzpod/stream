@@ -39,15 +39,17 @@ namespace ProdModel.Utils
             finally { WebSocket?.Dispose(); }
         }
 
-        public int Send(string destination, string msg)
+        public int Send(string destination, params string[] msg)
         {
             if (WebSocket.State != WebSocketState.Open) return 0;
-            string txt = destination + ' ' + LastID + ' ' + msg;
+            List<object> args = new() { destination, LastID };
+            args.AddRange(msg);
+            string txt = WASD.Pack(args.ToArray());
             LastID -= 1;
             WebSocket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(txt)), WebSocketMessageType.Text, true, CancellationToken.None);
             return LastID + 1;
         }
-        public int Send(string destination, string msg, Func<string, string> callback)
+        public int Send(string destination, Func<string, string> callback, params string[] msg)
         {
             if (WebSocket.State != WebSocketState.Open) return 0;
             int id = Send(destination, msg);
@@ -63,20 +65,7 @@ namespace ProdModel.Utils
                 var result = await WebSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
                 if (WebSocket.State == WebSocketState.Closed) break;
                 if (result.MessageType == WebSocketMessageType.Close) await WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
-                else
-                {
-                    try
-                    {
-                        string[] txts = TakeWord(Encoding.UTF8.GetString(buffer), 4);
-                        if (txts[2] == "respond" && waitList.ContainsKey(int.Parse(txts[1])))
-                        {
-                            string ret = waitList[int.Parse(txts[1])](txts[3]);
-                            if (!string.IsNullOrWhiteSpace(ret)) Send(txts[0], ret);
-                        }
-                    }
-                    catch { }
-                    OnReceive(buffer);
-                }
+                else OnReceive(buffer);
                 buffer = new byte[chunkSize];
             }
         }

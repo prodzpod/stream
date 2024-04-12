@@ -22,7 +22,6 @@ namespace ProdModel
         public GraphicsDeviceManager _graphics;
         public SpriteBatch _spriteBatch;
         public INativeFmodLibrary _nativeLibrary = new DesktopNativeFmodLibrary();
-        public static WebSocketP WebSocketModel;
         public static WebSocketP WebSocket;
         public static ProdModel Instance;
         public static Dictionary<string, SpriteFont> FONTS = new();
@@ -56,11 +55,11 @@ namespace ProdModel
             Form.TopMost = true;
             // TODO: Add your initialization logic here
             WebSocket = new("ws://localhost:339", ws => {
-                ws.Send("model", "register model", msg =>
+                ws.Send("model", msg =>
                 {
                     Log("Model Module Set Up.");
                     return "";
-                });
+                }, "register", "model");
             }, Server.HandleData);
             Audio.Init();
             ModelHandler.ModelWVRM = new("Content/blend/model_data");
@@ -86,15 +85,14 @@ namespace ProdModel
             ModelHandler.InitTextures();
             ModelSprite.Init();
             new Object.Object("_bg").AddChild(new ImageSprite("Content/layout/bg")).SetBoundingBoxes(0).SetPosition(0, 0);
-            Screens.AddStartingSoon();
             new Object.Object("_status").AddChild(new ImageSprite("Content/layout/status")).SetBoundingBoxes(0).SetPosition(-4, 4);
             var phase = new Object.Object("_phase")
                 .AddChild(new ImageSprite("Content/layout/phase"))
-                .AddChild(new TextSprite("arcaoblique", "00").SetAlign(1, 0), -8, 4)
+                .AddChild(new TextSprite("arcaoblique", "00").SetAlign(1, 0), -4, 4)
                 .SetBoundingBoxes(0).SetPosition(4, 4).Listen();
             phase.onWSRecieve += (self, str) =>
             {
-                string[] args = WebSocketP.TakeWord(str);
+                string[] args = WASD.Unpack(str);
                 if (args[0] == "set") ((TextSprite)self.Children[1].Sprite).Content = args[1];
             };
             new Object.Object("_tasks").AddChild(new ImageSprite("Content/layout/tasks")).SetBoundingBoxes(0).SetPosition(-212, 4);
@@ -104,9 +102,12 @@ namespace ProdModel
                 .SetBoundingBoxes(1, 138, 10).SetBoundingBoxes(-1, 44).SetPosition(-1050, 4).Listen();
             theme.onWSRecieve += (self, str) =>
             {
-                string[] args = WebSocketP.TakeWord(str);
-                if (args[0] == "set") ((TextSprite)self.Children[1].Sprite).Content = args[1];
-                self.SetBoundingBoxes(1, 138, 10).SetBoundingBoxes(-1, 44);
+                string[] args = WASD.Unpack(str);
+                if (args[0] == "set")
+                {
+                    ((TextSprite)self.Children[1].Sprite).Content = $"\"{args[1]}\"";
+                    self.SetBoundingBoxes(1, 138, 10).SetBoundingBoxes(-1, 44).SetPosition(-1050, 4);
+                }
             };
             var prod = new Object.Object("_prod")
                 .AddChild(new ImageSprite(ModelHandler.Prod2D[4]))
@@ -124,8 +125,8 @@ namespace ProdModel
             prod.onUpdate += (self, time) =>
             {
                 if (self.State == "DEFAULT") self.Position = MathP.Lerp(self.Position, new(4, 240), 0.1f);
-                if (self.State == "FLING") ((ImageSprite)self.Children[0].Sprite).Texture = ModelHandler.Prod2D[self.Lifetime % 0.25f > 0.125f ? 0 : 1];
-                if (self.State == "BUMP" && self.Lifetime > 0.25f) self.SetState("FLING");
+                if (self.State == "FLING") ((ImageSprite)self.Children[0].Sprite).Texture = ModelHandler.Prod2D[self.Statetime % 0.25f > 0.125f ? 0 : 1];
+                if (self.State == "BUMP" && self.Statetime > 0.25f) self.SetState("FLING");
                 if (self.State == "CONFUSED" && self.Speed.Y < 0) self.SetState("FLING");
             };
             prod.onState += (self, state) =>
@@ -141,11 +142,7 @@ namespace ProdModel
                     self.Position.X = 4;
                     ((ImageSprite)self.Children[0].Sprite).Texture = PIXEL;
                 }
-                if (state == "BUMP")
-                {
-                    ((ImageSprite)self.Children[0].Sprite).Texture = ModelHandler.Prod2D[2];
-                    self.Lifetime = 0;
-                }
+                if (state == "BUMP") ((ImageSprite)self.Children[0].Sprite).Texture = ModelHandler.Prod2D[2];
                 if (state == "CONFUSED") ((ImageSprite)self.Children[0].Sprite).Texture = ModelHandler.Prod2D[3];
                 if (state == "CALM") ((ImageSprite)self.Children[0].Sprite).Texture = ModelHandler.Prod2D[4];
             };
@@ -261,6 +258,8 @@ namespace ProdModel
         protected override void UnloadContent()
         {
             Audio.Unload();
+            WebSocket.Send("main", "modeloff");
+            base.UnloadContent();
         }
 
         protected override void Draw(GameTime gameTime)
@@ -274,7 +273,7 @@ namespace ProdModel
         public static void Log(params object[] args)
         {
             string txt = string.Join(" ", args.Select(x => x.ToString()));
-            WebSocket.Send("main", "log " + txt);
+            WebSocket.Send("main", "log", txt);
         }
 
         public static string ResolvePath(params string[] path)

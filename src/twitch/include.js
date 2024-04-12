@@ -1,5 +1,5 @@
 const WebSocket = require('ws')
-const { isNullish, takeWord, safeAssign, encodeQuery, isNullOrWhitespace } = require('../@main/util_client');
+const { isNullish, safeAssign, encodeQuery, isNullOrWhitespace, WASD } = require('../@main/util_client');
 const { reply, send } = require('../discord/include');
 const fetch = require('node-fetch');
 module.exports.channel = '#prodzpod';
@@ -23,16 +23,16 @@ module.exports.init = async (t) => {
 };
 module.exports.register = (w) => { ws = w; }
 module.exports.onMessage = (user, tagReal, message) => {
+    let args = WASD.unpack(message);
     return new Promise(resolve => {
         let tag = {...tagReal};
         delete tag['first-msg']; delete tag.fromDiscord; delete tag.emotes;
-        require('../@main/features/pipe/update_user').execute(`!!update_user ${user} ${JSON.stringify(tag)} ${message}`).then(data => {
+        require('../@main/features/pipe/update_user').execute(['update_user', user, JSON.stringify(tag), ...args]).then(data => {
             data = safeAssign(data, tagReal);
             Object.values(this.commands).filter(x => {
-                if (typeof x.condition === 'string') {
-                    let [k, _] = takeWord(message);
-                    return k.toLowerCase() === x.condition;
-                } else return x.condition(message, user, data);
+                if (typeof x.condition === 'string')
+                    return args[0].toLowerCase() === x.condition;
+                else return x.condition(args, user, data);
             }).map(async cmd => {
                 let perms = cmd.permission;
                 if (perms === true || perms === false) perms = () => perms;
@@ -44,9 +44,9 @@ module.exports.onMessage = (user, tagReal, message) => {
                 }
                 else if (String(perms) === perms) perms = [perms];
                 else if (Array.isArray(perms)) perms = perms.includes(user);
-                else perms = perms(message, user, data);
+                else perms = perms(args, user, data);
                 if (this.id === user || perms) {
-                    let ret = await cmd.execute(message, user, data);
+                    let ret = await cmd.execute(args, user, data, message);
                     if (ret !== undefined) resolve(ret);
                 }
                 else {
@@ -81,13 +81,15 @@ module.exports._sendInternal = str => {
 module.exports.sendAPICall = async (method, subdir = '', query, body) => {
     let options = {
         method: method,
+        mode: 'cors',
         headers: {
             'Authorization': 'Bearer ' + token,
-            'Client-Id': this.clientKey
+            'Client-Id': this.clientKey,
+            'Content-Type': 'application/json'
         }
     };
-    if (!['HEAD', 'GET'].includes(method) && body) options.body = body;
-    try { return (await fetch('https://api.twitch.tv/helix/' + subdir + (isNullOrWhitespace(query) ? '?' : '') + encodeQuery(query), options)).json();
-    } catch { return {}; };
+    if (!['HEAD', 'GET'].includes(method) && body) options.body = JSON.stringify(body);
+    try { return await (await fetch('https://api.twitch.tv/helix/' + subdir + (isNullOrWhitespace(query) ? '' : '?') + encodeQuery(query), options)).json(); } 
+    catch { return {}; };
 }
 module.exports.commands = {};

@@ -2,12 +2,13 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using NotGMS.Util;
+using ProdModel.Gizmo;
 using ProdModel.Utils;
-using SharpDX.MediaFoundation;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.WebSockets;
 
 namespace ProdModel.Object
 {
@@ -18,7 +19,9 @@ namespace ProdModel.Object
         // ws
         public string Name = "";
         public WebSocketP? WebSocket = null;
+        public Dictionary<string, string> LastWSSent;
         public float LastWSSend = 0;
+        public bool WSSendForce = true;
         public bool Destroyed = false;
 
         // physics
@@ -43,6 +46,7 @@ namespace ProdModel.Object
         public Vector2 BoundingBoxSize = new(-1, -1);
         public string State = "DEFAULT";
         public float Lifetime = 0;
+        public float Statetime = 0;
         public Vector2 FlipDependence = Vector2.One; // flip global position based on flip
 
         public Object(string name) { Name = name; OnInit(); }
@@ -68,8 +72,8 @@ namespace ProdModel.Object
         }
         public Object MakeTopdown() { Gravity = Vector2.Zero; Drag = 0.01f; return this; }
         public Object Physics() { EnablePhysics = true; Speed = Vector2.Zero; Rotation = 0; return this; }
-        public Object Listen() { WebSocket = new("ws://localhost:449", ws => { ws.Send("449", "register " + Name); }, OnWSRecieve); return this; }
-        public Object SetDepth(float depth) { Depth = depth; return this;}
+        public Object Listen() { LastWSSent = new(); WebSocket = new("ws://localhost:449", ws => { ws.Send("449", "register", Name); }, OnWSRecieve); return this; }
+        public Object SetDepth(float depth) { Depth = depth; return this; }
 
         public Vector2[] GetCorners()
         {
@@ -99,8 +103,10 @@ namespace ProdModel.Object
         public virtual void OnDestroy()
         {
             OBJECTS.Remove(this);
+            WebSocket = null; 
             onDestroy?.Invoke();
             Destroyed = true;
+            Server.Sync();
         }
 
         public event Action<Object, GameTime> onUpdate;
@@ -108,6 +114,7 @@ namespace ProdModel.Object
         public virtual void OnUpdate(GameTime gameTime)
         {
             Lifetime += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            Statetime += (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (EnablePhysics)
             {
                 Position += Speed;
@@ -122,23 +129,37 @@ namespace ProdModel.Object
                 Speed += Gravity;
             }
             if (WebSocket != null && Lifetime - LastWSSend > 0.1f) {
-
                 _txt = "";
-                AddWSData("name", Name);
-                AddWSData("x", Position.X);
-                AddWSData("y", Position.Y);
-                AddWSData("w", BoundingBoxSize.X);
-                AddWSData("h", BoundingBoxSize.Y);
-                AddWSData("a", Angle);
+                AddWSData("x", Position.X, trunc);
+                AddWSData("y", Position.Y, trunc);
+                AddWSData("w", BoundingBoxSize.X, trunc);
+                AddWSData("h", BoundingBoxSize.Y, trunc);
+                AddWSData("a", Angle, writeAngle);
                 onWSSend?.Invoke(this);
-                WebSocket.Send("449", "update " + _txt);
+                if (_txt != "")
+                {
+                    AddWSData("name", Name, true);
+                    WebSocket.Send("449", "update", _txt);
+                }
                 LastWSSend = Lifetime;
+                WSSendForce = false;
             }
             onUpdate?.Invoke(this, gameTime);
         }
         public event Action<Object> onWSSend;
         private string _txt = "";
-        public void AddWSData(string k, object v) { if (!string.IsNullOrWhiteSpace(_txt)) _txt += "&"; _txt += k + "=" + v.ToString(); }
+        public static string trunc(object x) => ((int)(float)x).ToString() ?? ""; // this is stupid lmfao
+        public static string writeAngle(object x) => ((int)((float)x * 256f) / 256f).ToString() ?? "";
+        public void AddWSData(string k, object v, bool force = false) => AddWSData(k, v, _v => _v?.ToString() ?? "", force);
+        public void AddWSData(string k, object _v, Func<object, string> fn, bool force = false)
+        {
+            bool isnew = false;
+            string v = fn(_v);
+            if (!LastWSSent.ContainsKey(k)) { isnew = true; LastWSSent.Add(k, v); }
+            if (!force && !WSSendForce && !isnew && LastWSSent[k] == v) return; // data sent already
+            if (!string.IsNullOrWhiteSpace(_txt)) _txt += "&"; _txt += k + "=" + v;
+            LastWSSent[k] = v;
+        }
 
         public event Action<Object, string> onWSRecieve;
         public void OnWSRecieve(string str)
@@ -160,6 +181,7 @@ namespace ProdModel.Object
         {
             OnState(state);
             State = state;
+            Statetime = 0;
         }
         public event Action<Object, string> onState;
         public virtual void OnState(string state)

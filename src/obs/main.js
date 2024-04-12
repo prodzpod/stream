@@ -9,7 +9,7 @@ module.exports.init = async () => {
         require('../@main/features/reload').reload(path.join(__dirname, 'commands')).then(x => { if (!isNullish(x)) safeAssign(commands, x); });
         if (ws) ws.terminate();
         ws = new WebSocket('ws://localhost:339');
-        ws.on('open', () => { log('WebSocket Connected'); sendClient(ws, ID, 'register ' + ID, () => {
+        ws.on('open', () => { log('WebSocket Connected'); sendClient(ws, ID, 'register', ID, () => {
             log('OBS Module Loaded');
             socketsClient.obs = ws;
             resolve(0);

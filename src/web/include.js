@@ -2,11 +2,7 @@ module.exports.ID = 'web';
 module.exports.log = (...stuff) => console.log('[WEB]', ...stuff);
 module.exports.warn = (...stuff) => console.warn('[WEB]', ...stuff);
 module.exports.error = (...stuff) => console.error('[WEB]', ...stuff);
-module.exports.init = () => {
-    return new Promise(resolve => {
-        resolve(0);
-    });
-}
+module.exports.init = async () => 0;
 module.exports.commands = {};
 module.exports.sockets = [];
 module.exports.sendClientWS = (data, filter) => {

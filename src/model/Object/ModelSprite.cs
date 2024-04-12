@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using NotGMS.Util;
+using ProdModel.Gizmo;
 using ProdModel.Puppet;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Windows.Forms;
 
 namespace ProdModel.Object
 {
@@ -18,6 +20,7 @@ namespace ProdModel.Object
         public const int Width = 200;
         public const int Height = 200;
         public static Graphics graphic;
+        public static int TriangleRemoved = 0;
 
         public static bool ShowModel = true;
         public static Bitmap image;
@@ -199,6 +202,17 @@ namespace ProdModel.Object
             // draw triangles
             List<Triangle> triangles = new();
             foreach (var k in wvrm.model.Keys) triangles.AddRange(GetTriangles(wvrm.model[k]));
+            for (int i = 0; i < TriangleRemoved; i++)
+            {
+                if (triangles.Count == 0)
+                {
+                    TriangleRemoved = 0;
+                    Object.OBJECTS.Find(x => x.Name == "_prod").SetState("CALM");
+                    ModelHandler.AddExplosion();
+                    break;
+                }
+                triangles.RemoveAt(MathP.Random(0, triangles.Count));
+            }
             DrawTriangles(triangles);
 
             // render onto spritebatch

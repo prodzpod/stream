@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
+using Newtonsoft.Json;
 using NotGMS.Util;
 using ProdModel.Object;
 using ProdModel.Utils;
-using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace ProdModel.Gizmo
 {
@@ -12,8 +12,17 @@ namespace ProdModel.Gizmo
         public static void HandleData(string data)
         {
             // Debug.WriteLine("\nResponse: " + data);
-            string[] args = WebSocketP.TakeWord(data, 4); // to, id, cmd, args
-            args[3] = args[3].TrimEnd('\0');
+            string[] args = WASD.Unpack(data); // to, id, cmd, args
+            if (args.Length < 2) return; 
+            try
+            {
+                if (args[2] == "respond" && WebSocketP.waitList.ContainsKey(int.Parse(args[1])))
+                {
+                    string ret = WebSocketP.waitList[int.Parse(args[1])](args.Length < 4 ? "" : args[3]);
+                    if (!string.IsNullOrWhiteSpace(ret)) ProdModel.WebSocket.Send(args[0], ret);
+                }
+            }
+            catch { }
             switch (args[2])
             {
                 case "tracker":
@@ -21,24 +30,24 @@ namespace ProdModel.Gizmo
                     break;
                 case "chat":
                     {
-                        string[] msg = WebSocketP.TakeWord(args[3], 4); // icon, color, author, message
-                        Chat.AddChat(msg[0], ColorP.RGBA(ColorP.Hex(msg[1])), msg[2], msg[3]);
+                        if (args.Length < 7) return;
+                        Chat.AddChat(args[3], ColorP.RGBA(ColorP.Hex(args[4])), args[5], args[6]); // icon, color, author, message
                         Audio.Play("audio/chat");
                     }
                     break;
                 case "point":
                     {
-                        string[] msg = WebSocketP.TakeWord(args[3], 4); // x, y, color, author
-                        Vector2 pos = new(float.Parse(msg[0]), float.Parse(msg[1]));
-                        Chat.AddPointer("point", pos, pos, ColorP.RGBA(ColorP.Hex(msg[2])), msg[3]);
+                        if (args.Length < 7) return;
+                        Vector2 pos = new(float.Parse(args[3]), float.Parse(args[4]));
+                        Chat.AddPointer("point", pos, pos, ColorP.RGBA(ColorP.Hex(args[5])), args[6]);
                         Audio.Play("audio/point");
                     }
                     break;
                 case "click":
                     {
-                        string[] msg = WebSocketP.TakeWord(args[3], 4); // x, y, color, author
-                        Vector2 pos = new(float.Parse(msg[0]), float.Parse(msg[1]));
-                        Chat.AddPointer("click", pos, pos, ColorP.RGBA(ColorP.Hex(msg[2])), msg[3]);
+                        if (args.Length < 7) return;
+                        Vector2 pos = new(float.Parse(args[3]), float.Parse(args[4]));
+                        Chat.AddPointer("click", pos, pos, ColorP.RGBA(ColorP.Hex(args[5])), args[6]);
                         Audio.Play("audio/click");
                         for (var i = Object.Object.OBJECTS.Count - 1; i >= 0; i--)
                         {
@@ -55,10 +64,10 @@ namespace ProdModel.Gizmo
                     break;
                 case "drag":
                     {
-                        string[] msg = WebSocketP.TakeWord(args[3], 6); // x, y, x2, y2, color, author
-                        Vector2 pos = new(float.Parse(msg[0]), float.Parse(msg[1]));
-                        Vector2 pos2 = new(float.Parse(msg[2]), float.Parse(msg[3]));
-                        Chat.AddPointer("click", pos, pos2, ColorP.RGBA(ColorP.Hex(msg[4])), msg[5]);
+                        if (args.Length < 9) return;
+                        Vector2 pos = new(float.Parse(args[3]), float.Parse(args[4]));
+                        Vector2 pos2 = new(float.Parse(args[5]), float.Parse(args[6]));
+                        Chat.AddPointer("click", pos, pos2, ColorP.RGBA(ColorP.Hex(args[7])), args[8]);
                         Audio.Play("audio/fling");
                         for (var i = Object.Object.OBJECTS.Count - 1; i >= 0; i--)
                         {
@@ -75,13 +84,40 @@ namespace ProdModel.Gizmo
                     break;
                 case "window":
                     {
-                        string[] msg = WebSocketP.TakeWord(args[3], 4); // x, y, title, content
-                        Vector2 pos = new(float.Parse(msg[0]), float.Parse(msg[1]));
-                        Chat.AddTextWindow(pos, msg[2], msg[3]);
+                        if (args.Length < 7) return;
+                        Vector2 pos = new(float.Parse(args[3]), float.Parse(args[4]));
+                        Chat.AddTextWindow(pos, args[5], args[6]);
                         Audio.Play("audio/window");
                     }
                     break;
+                case "removetriangle":
+                    {
+                        int trianglesToRemove = args.Length < 4 ? 1 : (int)float.Parse(args[3]);
+                        ModelSprite.TriangleRemoved += trianglesToRemove;
+                    }
+                    break;
+                case "startingsoon":
+                    Screens.AddStartingSoon();
+                    break;
+                case "brb":
+                    Screens.AddBRB();
+                    break;
+                case "sync":
+                    Sync();
+                    break;
             }
+        }
+
+        public static void Sync()
+        {
+            List<string> ret = new();
+            foreach (var o in Object.Object.OBJECTS)
+            {
+                if (o.WebSocket == null) continue;
+                o.WSSendForce = true;
+                ret.Add(o.Name);
+            }
+            ProdModel.WebSocket.Send("main", "modelobjects", JsonConvert.SerializeObject(ret));
         }
     }
 }

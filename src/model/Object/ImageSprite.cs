@@ -6,11 +6,12 @@ namespace ProdModel.Object
 {
     public class ImageSprite : ISprite
     {
+        public string Path = "";
         public Texture2D Texture;
         public Vector2 FlipDependence = Vector2.One; // whether to flip the image itself upon flip
         public Color Color = Color.White;
 
-        public ImageSprite(string Path) : this(Texture2D.FromFile(ProdModel.Instance._graphics.GraphicsDevice, ProdModel.ResolvePath(Path + ".png"))) { }
+        public ImageSprite(string Path) : this(Texture2D.FromFile(ProdModel.Instance._graphics.GraphicsDevice, ProdModel.ResolvePath(Path + ".png"))) { this.Path = Path; }
         public ImageSprite(Texture2D Texture)
         {
             this.Texture = Texture;

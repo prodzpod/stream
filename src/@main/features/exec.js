@@ -1,9 +1,6 @@
-const { takeWord } = require("../util_client");
-
-module.exports.condition = 'send' // main (id) exec location fn args (separated by comma)
-module.exports.execute = async str => {
-    [_, location, fn, args] = takeWord(str, 4);
-    console.log('[API]', 'Executing', fn, 'on', location, 'with', args);
-    let ret = await require(location).fn(...args.split(',').map(x => x.trim()));
+module.exports.condition = 'send' // main (id) exec location fn args
+module.exports.execute = async args => {
+    console.log('[API]', 'Executing', args[2], 'on', args[1], 'with', args.slice(3));
+    let ret = await require(args[1]).args[2](...args.slice(3));
     return ret;
 }

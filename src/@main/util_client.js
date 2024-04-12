@@ -80,6 +80,52 @@ module.exports.String = {
     hashCode: function (_this) { let hash = 0, i, chr; if (_this.length === 0) return hash; for (i = 0; i < 32; i++) { chr = _this.charCodeAt(i % _this.length); hash = ((hash << 5) - hash) + chr; hash |= 0; } return hash; }
 }
 module.exports.isNullOrWhitespace = str => !(str && str.trim?.().length);
+module.exports.WASD = {
+    pack: (...words) => {
+        return words.map(x => {
+            x = x?.toString().trim() ?? '';
+            if (x == "") return '""';
+            if (/\s/.test(x) || x.startsWith('"')) 
+                return `"${x.replaceAll('"', '""')}"`;
+            else return x;
+        }).join(" ");
+    },
+    unpack: (str) => {
+        if (typeof str !== 'string') str = str.toString();
+        let ret = [];
+        let newWord = true;
+        let currentWord = null;
+        let parseQuoted = false;
+        for (let i = 0; i < str.length; i++) {
+            let c = str[i];
+            if (newWord) {
+                if (/\s/.test(c)) continue; 
+                newWord = false;
+                parseQuoted = (c == '"');
+                currentWord = parseQuoted ? "" : c;
+            } else if (parseQuoted) {
+                if (c == '"') {
+                    if (i + 1 < str.length && str[i + 1] == '"') {
+                        currentWord += c;
+                        i++;
+                    } else {
+                        ret.push(currentWord);
+                        newWord = true;
+                        currentWord = null;
+                    }
+                } else currentWord += c;
+            } else {
+                if (/\s/.test(c)) {
+                    ret.push(currentWord);
+                    newWord = true;
+                    currentWord = null;
+                } else currentWord += c;
+            }
+        }
+        if (currentWord !== null) ret.push(currentWord);
+        return ret;
+    }
+}
 module.exports.takeWord = (raw, len=2) => {
     let ret = [];
     let str = String(raw).trim();
@@ -114,7 +160,7 @@ module.exports.unstringify = str => {
             return false;
         default:
             if (str[0] == '{' || str[0] == '[') try { return JSON.parse(str); } catch (_) { return str; }
-            if (!isNaN(Number(str))) return Number(str);
+            if (!Number.isNaN(Number(str))) return Number(str);
             return str;
     }
 }
@@ -157,7 +203,7 @@ module.exports.unentry = kvpair => {
     return ret;
 }
 module.exports.traverse = (o, k) => {
-    if (typeof k === 'string') k = k.replace(/\[(\d+)\]/g, '.$1').split(/[\/\\\.]/g).map(x => isNaN(x) ? x : Number(x));
+    if (typeof k === 'string') k = k.replace(/\[(\d+)\]/g, '.$1').split(/[\/\\\.]/g).map(x => Number.isNaN(x) ? x : Number(x));
     let target = o;
     for (let i = 0; i < k.length - 1; i++) {
         target[k[i]] ??= {};
@@ -191,7 +237,7 @@ module.exports.isFunction = o => {
 // date
 module.exports.toJSDate = (num) => {
     if (typeof(num) == 'string') {
-        if (isNaN(num)) num = new Date(num);
+        if (Number.isNaN(num)) num = new Date(num);
         else num = Number(num);
     }
     if (typeof(num) == 'number') num = new Date(num);
@@ -207,7 +253,7 @@ module.exports.Color = {
         }
         switch (typeof o) {
             case 'number':
-                if (isNaN(o)) o = '';
+                if (Number.isNaN(o)) o = '';
                 else if (o < 0) o = 'FF00FF00';
                 else o = o.toString(16); // passthrough to string
             case 'string':
@@ -475,7 +521,7 @@ module.exports.idn = o => {
             break;
         case 'string':
             let ret = "";
-            for (let i = 0; i < o.length; i += 2) { ret += idnChar((isNaN(o.charCodeAt(i)) ? 0 : o.charCodeAt(i) << 8) + (isNaN(o.charCodeAt(i + 1)) ? 0 : o.charCodeAt(i + 1))); }
+            for (let i = 0; i < o.length; i += 2) { ret += idnChar((Number.isNaN(o.charCodeAt(i)) ? 0 : o.charCodeAt(i) << 8) + (Number.isNaN(o.charCodeAt(i + 1)) ? 0 : o.charCodeAt(i + 1))); }
             return ret;
     }
     return req.map(this.idnChar).join('');

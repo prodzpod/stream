@@ -53,7 +53,7 @@ namespace ProdModel.Gizmo
             ((ImageSprite)pointer.Children[0].Sprite).Color = color;
             pointer.onUpdate += (self, time) =>
             {
-                if (self.Lifetime < 2)
+                if (self.Statetime < 2)
                 {
                     self.Position = MathP.Lerp(self.Position, dest, 0.1f);
                     if (pos == dest) for (var i = Object.Object.OBJECTS.Count - 1; i >= 0; i--)
@@ -80,6 +80,7 @@ namespace ProdModel.Gizmo
             };
             pointer.onWSSend += (self) =>
             {
+                self.AddWSData("sprite", ((ImageSprite)self.Children[0].Sprite).Path);
                 self.AddWSData("author", ((TextSprite)self.Children[1].Sprite).Content);
                 self.AddWSData("color", ((ImageSprite)self.Children[0].Sprite).Color);
             };

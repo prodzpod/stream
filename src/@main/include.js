@@ -2,7 +2,7 @@ const WebSocket = require('ws');
 const fs = require('fs');
 const path = require('path');
 const { waitList, listFiles, measureStart, measureEnd } = require('./util_server');
-const { takeWord, safeAssign, traverse } = require('./util_client');
+const { safeAssign, traverse, WASD, unentry } = require('./util_client');
 module.exports.ID = 'main';
 module.exports.log = (...stuff) => console.log('[MAIN]', ...stuff);
 module.exports.warn = (...stuff) => console.warn('[MAIN]', ...stuff);
@@ -33,12 +33,17 @@ module.exports.init = () => {
         this.initializeData().then(() => {
             this.wss.on('connection', ws => {
                 this.log('WebSocket Connected');
-                ws.on('message', str => {
-                    if (typeof str !== 'string') str = str.toString();
-                    let [k, id, v] = takeWord(str, 3);
-                    let [vn, vc] = takeWord(v);
-                    if (vn.toLowerCase() === 'register') { this.socketsServer[vc] = ws; this.log('Module Recognized', vc); this.socketsServer[vc].send(`void ${id} respond Acknowledged`); }
-                    else this.getSocketsServer(k)?.send(`${Object.keys(this.socketsServer).find(x => this.socketsServer[x] == ws)} ${id} ${v}`);
+                ws.on('message', args => {
+                    args = WASD.unpack(args);
+                    // this.log("message recieved:", args, waitList);
+                    if (args[2].toLowerCase() == 'register') { 
+                        this.socketsServer[args[3]] = ws; 
+                        this.log('Module Recognized', args[3]); 
+                        this.socketsServer[args[3]].send(WASD.pack('void', args[1], 'respond', 'Acknowledged')); 
+                    }
+                    else this.getSocketsServer(args[0])?.send(WASD.pack(
+                        Object.keys(this.socketsServer).find(x => this.socketsServer[x] == ws), 
+                        args[1], ...args.slice(2)));
                 });
             });
             const test = new WebSocket('ws://localhost:339');
@@ -58,49 +63,56 @@ module.exports.init = () => {
 module.exports.commands = {};
 let id = 0;
 module.exports.getID = () => { id = (id + 1) % 0x100000000; return id; };
-module.exports.sendServer = (source, target, data, callback) => {
+module.exports.sendServer = (source, target, ...data) => {
+    if (source != 'twitch' && target == 'twitch') { data[0] = '!' + data[0]; data.splice(0, 0, 'prodzpod'); }
     let id = this.getID().toString();
-    if (typeof source === 'string') source = this.socketsServer[source];
-    if (source?.readyState === 1) {
-        source.send(`${target} ${id} ${data}`);
-        if (waitList[source] && callback) waitList[source][id] = callback;
+    if (typeof target == 'string') target = this.socketsServer[target];
+    if (target?.readyState === 1) {
+        if (waitList[target] && typeof data[data.length - 1] == 'function') {
+            waitList[target][id] = data[data.length - 1];
+            data = data.slice(0, -1);
+        }
+        target.send(WASD.pack(source, id, ...data));
     }
 }
-module.exports.sendClient = (source, target, data, callback) => {
+module.exports.sendClient = (source, target, ...data) => {
     let id = this.getID().toString();
-    let socket = typeof source === 'string' ? this.socketsClient[source] : source;
-    let sourceID = typeof source === 'string' ? source : target;
+    let socket = typeof source == 'string' ? this.socketsClient[source] : source;
+    let sourceID = typeof source == 'string' ? source : target;
+    if (sourceID != 'twitch' && target == 'twitch') { data[0] = '!' + data[0]; data.splice(0, 0, 'prodzpod'); }
     if (socket?.readyState === 1) {
-        socket.send(`${target} ${id} ${data}`);
-        if (waitList[sourceID] && callback) waitList[sourceID][id] = callback;
+        if (waitList[sourceID] && typeof data[data.length - 1] == 'function') {
+            waitList[sourceID][id] = data[data.length - 1];
+            data = data.slice(0, -1);
+        }
+        socket.send(WASD.pack(target, id, ...data));
     }
 }
 module.exports.onCommand = (key, cmds) => {
-    return (str) => {
-        //* "${to} ${id} ${command} ${data}"
-        let [destination, id, respond, msg] = takeWord(str, 4);
-        if (respond.toLowerCase() === 'respond') {
-            if (waitList[key]?.[id]) {
-                console.log(`[API: ${id}]`, 'Fulfilling Callback');
-                waitList[key][id](msg);
-                delete waitList[key][id];
-            } else console.warn(`[API: ${id}]`, 'Callback is Missing, skipping');
+    return message => {
+        args = WASD.unpack(message);
+        if (args[2].toLowerCase() == 'respond') {
+            if (waitList[key]?.[args[1]]) {
+                console.log(`[API: ${args[1]}]`, 'Fulfilling Callback');
+                waitList[key][args[1]](args.slice(3));
+                delete waitList[key][args[1]];
+            } else console.warn(`[API: ${args[1]}]`, 'Callback is Missing, skipping');
         }
-        else if (respond.toLowerCase() === 'log') console.log(`[API: ${id}]`, msg);
+        else if (args[2].toLowerCase() == 'log') console.log(`[API: ${args[1]}]`, args.slice(3));
         else {
             //* send ${to} ${id} respond ${x}
-            let message = takeWord(str, 3)[2];
             Object.values(cmds).filter(x => {
-                if (typeof x.condition === 'string') {
-                    let [k, _] = takeWord(message);
-                    return k.toLowerCase() === x.condition;
-                } else return x.condition(message);
-            }).map(x => x.execute(message).then(x => {
-                if (destination.toLowerCase() === 'void' || x === undefined) {
-                    delete waitList[destination]?.[id];
+                if (typeof x.condition == 'string') 
+                    return args[2].toLowerCase() === x.condition;
+                else return x.condition(args.slice(2));
+            }).map(x => x.execute(args.slice(2), message).then(x => {
+                if (args[0].toLowerCase() == 'void' || x === undefined) {
+                    delete waitList[args[0]]?.[args[1]];
                     return;
                 }
-                this.sendClient(key, destination, 'respond ' + x);
+                if (Array.isArray(x)) x = WASD.pack(x);
+                else if (typeof x == 'object') x = JSON.stringify(x);
+                this.getSocketsServer(args[0])?.send(WASD.pack(key, args[1], 'respond', x));
             }))
         }
         return;
@@ -120,12 +132,12 @@ module.exports.initializeData = async () => {
     return data;
 }
 module.exports.writeData = (k, obj, force=false) => {
-    if (typeof k === 'string') k = k.replace(/\[(\d+)\]/g, '.$1').split(/[\/\\\.]/g).map(x => isNaN(x) ? x : Number(x));
+    if (typeof k === 'string') k = k.replace(/\[(\d+)\]/g, '.$1').split(/[\/\\\.]/g).map(x => Number.isNaN(x) ? x : Number(x));
     let t = traverse(data, k);
     // check for identical (no writes needed)
     if ((typeof obj !== 'object' && t[0][t[1]] == obj) || (typeof obj === 'object' && JSON.stringify(t[0][t[1]]) == JSON.stringify(obj))) return t[0][t[1]];
     t[0][t[1]] = safeAssign(t[0][t[1]], obj);
-    if (k[0] == 'user' && t[1] == 'point') require('../web/api_client/WS/screen').sockets()[k[1]]?.ws.send(`points ${obj}`);
+    if (k[0] == 'user' && t[1] == 'point') require('../web/api_client/WS/screen').sockets()[k[1]]?.ws.send(WASD.pack('points', obj));
     let tname = [];
     let found = false;
     for (let ks of k) {
@@ -139,7 +151,7 @@ module.exports.writeData = (k, obj, force=false) => {
     return t[0][t[1]];
 }
 module.exports.incrementData = (k, n) => {
-    if (typeof k === 'string') k = k.replace(/\[(\d+)\]/g, '.$1').split(/[\/\\\.]/g).map(x => isNaN(x) ? x : Number(x));
+    if (typeof k === 'string') k = k.replace(/\[(\d+)\]/g, '.$1').split(/[\/\\\.]/g).map(x => Number.isNaN(x) ? x : Number(x));
     let t = traverse(data, k);
     t[0][t[1]] ??= 0;
     this.writeData(k, t[0][t[1]] + n);
@@ -179,7 +191,7 @@ module.exports.updateLive = async o => {
         if (o.phase >= 0) fs.writeFileSync(path.join(__dirname, '../../../secret/stream_info.json'), JSON.stringify(streamInfo));
         else fs.rmSync(path.join(__dirname, '../../../secret/stream_info.json'));
     }
-    if (this.getSocketsServer('twitch')) {
+    if (this.getSocketsServer('twitch') != null) {
         const prodID = data.user?.[require('../twitch/include').id]?.['user-id'] ?? '140410053';
         let body = {};
         for (let k in o) switch (k) {
@@ -188,18 +200,19 @@ module.exports.updateLive = async o => {
                 break;
             case 'category':
                 try {
-                    let catData = JSON.parse(await new Promise(resolve, () => { this.sendServer('void', 'twitch', `api GET games?name=${o.category}`, resolve); }));
+                    let catData = JSON.parse(await new Promise(resolve => { this.sendClient(this.ID, 'twitch', 'api', 'GET', `games?name=${o.category}`, resolve); }));
+                    this.log('Found Twitch Category:', catData?.data[0].id);
                     if (catData.data.length) body.game_id = catData.data[0].id
-                } catch {}
+                } catch (e) { this.error(e); }
                 break;
         }
-        if (Object.keys(body).length) this.sendServer('void', 'twitch', `api PATCH channels?broadcaster_id=${prodID} ${JSON.stringify(body)}`);
+        if (Object.keys(body).length) this.sendClient(this.ID, 'twitch', 'api', 'PATCH', `channels?broadcaster_id=${prodID}`, JSON.stringify(body));
     } else this.warn('updateLive() called without Twitch Module loaded');
-    let obj = require('../model/include').objects();
-    if (obj.phase) obj.phase.ws.send(`set ${streamInfo.phase.toString().padStart(2, '0')}`);
-    if (obj.theme) obj.theme.ws.send(`set "${streamInfo.theme.toString()}"`);
+    let obj = require('../model/include').sockets();
+    if (obj._phase) obj._phase.send(WASD.pack('set', streamInfo.phase?.toString().padStart(2, '0')));
+    if (obj._theme) obj._theme.send(WASD.pack('set', streamInfo.subject?.toString()));
 }
 module.exports.rejoinInfo = () => {
-    streamInfo = fs.readFileSync(path.join(__dirname, '../../../secret/stream_info.json'));
+    streamInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../../../secret/stream_info.json')));
     return 0;
 }

@@ -5,11 +5,12 @@ const fs = require('fs');
 const path = require('path');
 const expressWS = require('express-ws');
 const bodyParser = require('body-parser');
-const { takeWord, superstringify, delay } = require('../@main/util_client');
+const { takeWord, superstringify, delay, remove, WASD } = require('../@main/util_client');
 const { listFiles, fileExists } = require('../@main/util_server');
 const { sockets, log, warn, error } = require('./include');
 let serverHTTP, serverHTTPS, clientFunctions;
 let previous_auth = '';
+let busy = [];
 module.exports.init = async (extern) => {
     log('Web Module Loaded');
     await require('./api_server/reload_client').execute();
@@ -85,11 +86,20 @@ module.exports.init = async (extern) => {
                 if (ret !== undefined) ws.send(ret);
             }
             ws.on('message', msg => {
+                if (busy.includes(ws)) {
+                    ws.send(WASD.pack("respond", "too many requests"));
+                    return;
+                }
                 [k, v] = takeWord(msg);
-                if (!api[k]) warn(`Webclient WS hook ${k} does not exist, skipping`);
+                if (!api[k]) {
+                    warn(`Webclient WS hook ${k} does not exist, skipping`);
+                    ws.send(WASD.pack("respond", "invalid method"));
+                }
                 else {
-                    let ret = api[k](ws, v);
+                    busy.push(ws);
+                    let ret = api[k](ws, WASD.unpack(v));
                     if (ret !== undefined) ws.send(ret);
+                    busy = remove(busy, ws);
                 }
             });
         });
@@ -127,11 +137,11 @@ module.exports.init = async (extern) => {
     return 0;
 }
 const AUTH_FNAME = path.join(__dirname, '../../../secret/stream_session.json');
-module.exports.cmpAuth = async () => {
+module.exports.cmpAuth = async (force = false) => {
     let auth = '';
     try {auth = JSON.parse(fs.readFileSync(AUTH_FNAME))?.token;}
     catch {}
-    if (auth != previous_auth) {
+    if (force || auth != previous_auth) {
         try {fs.rmSync(AUTH_FNAME)} catch {}
         import('open').then(open => { open.default('https://prod.kr/v/oauth') });
         while (!fileExists(__dirname, '../../../secret/stream_session.json')) await delay();

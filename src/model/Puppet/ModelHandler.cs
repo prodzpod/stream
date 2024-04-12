@@ -70,7 +70,7 @@ namespace ProdModel.Puppet
                 .SetBoundingBoxes(0).SetPosition(-1, -1).SetDepth(120);
             o.onUpdate += (self, time) =>
             {
-                var frame = self.Lifetime / 0.05f;
+                var frame = self.Statetime / 0.05f;
                 if (frame >= 17) self.OnDestroy();
                 else ((ImageSprite)self.Children[0].Sprite).Texture = Explosions[(int)frame];
             };

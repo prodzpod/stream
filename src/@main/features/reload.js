@@ -1,6 +1,6 @@
 const { listFiles, reload, fileExists, measureStart, measureEnd } = require("../util_server");
 const { commands, log, warn, error } = require("../include");
-const { unstringify, safeAssign, isNullish, takeWord } = require('../util_client');
+const { unstringify, safeAssign, isNullish } = require('../util_client');
 
 module.exports.reload = async (path, str) => {
     if (Array.isArray(path)) path = require('path').join(...path);
@@ -32,9 +32,8 @@ module.exports.reload = async (path, str) => {
     }
 }
 module.exports.condition = 'reload';
-module.exports.execute = async str => {
-    if (str?.startsWith('reload')) str = takeWord(str)[1];
-    let files = await this.reload(__dirname, str);
+module.exports.execute = async args => {
+    let files = await this.reload(__dirname, args?.[1]);
     if (!isNullish(files)) safeAssign(commands, files);
     return isNullish(files);
 }

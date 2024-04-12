@@ -18,7 +18,7 @@ module.exports.init = (_extern) => {
         require('./features/reload').execute();
         if (ws) ws.terminate();
         ws = new WebSocket('ws://localhost:339');
-        ws.on('open', () => { log('WebSocket Connected'); sendClient(ws, ID, 'register ' + ID, () => {
+        ws.on('open', () => { log('WebSocket Connected'); sendClient(ws, ID, 'register', ID, () => {
             socketsClient.main = ws;
             log('Main WebSocket Set Up, Booting up Modules...');
             let promises = [];

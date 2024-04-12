@@ -13,6 +13,6 @@ module.exports.execute = async _ => {
         phase: -1
     });
     require('../../../model/commands/end').execute();
-    sendClient(ID, 'obs', 'end');
+    sendClient(ID, 'obs', 'endstream');
     return 0;
 }

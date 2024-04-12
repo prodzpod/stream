@@ -11,6 +11,7 @@ module.exports.init = (pw) => {
         ws = new WebSocket('ws://irc-ws.chat.twitch.tv:80');
         ws.on('open', () => { 
             log('Connected with IRC');
+            require('../@main/features/reload').reload(path.join(__dirname, 'commands')).then(x => { if (!isNullish(x)) safeAssign(commands, x); });
             ws.send(`PASS oauth:${pw}`);
             ws.send(`NICK ${id}`);
             ws.send(`CAP REQ :twitch.tv/tags twitch.tv/commands`);
@@ -22,7 +23,6 @@ module.exports.init = (pw) => {
                     case '001':
                         ws.send(`JOIN ${channel}`);
                         register(ws);
-                        require('../@main/features/reload').reload(path.join(__dirname, 'commands')).then(x => { if (!isNullish(x)) safeAssign(commands, x); });
                         log('Connected with', channel);
                         log('Twitch Module Loaded');
                         resolve(0);
@@ -38,6 +38,7 @@ module.exports.init = (pw) => {
                         {
                         let [_, subject] = takeWord(msg).map(x => x.slice(1));
                         let user = src.slice(1, src.indexOf('!'));
+                        log("usernotice called:", tag, subject, user);
                         onMessage(user, tag, `!!${tag['msg-id']} ${subject}`);
                         }
                         break;
@@ -65,9 +66,7 @@ module.exports.init = (pw) => {
             });
         });
         ws.on('close', () => {
-            warn('WebSocket Disconnected, Reauthing');
-            fs.rmSync(path.join(__dirname, '../../../secret/stream_session.json'));
-            require('./commands/restart').execute('prodzpod');
+            warn('WebSocket Disconnected');
         });
     });
 }

@@ -1,37 +1,36 @@
 const WebSocket = require('ws');
 const { ID, log, warn, error, onMessage } = require('./include');
-const { sendClient, socketsClient } = require('../@main/include')
+const { sendClient, socketsClient, getSocketsServer } = require('../@main/include')
 const { waitList } = require('../@main/util_server')
-const { takeWord, unentry } = require('../@main/util_client');
+const { takeWord, unentry, WASD } = require('../@main/util_client');
 let ws;
 module.exports.init = () => {
     return new Promise(resolve => {
         if (ws) ws.terminate();
         ws = new WebSocket('ws://localhost:339');
-        ws.on('open', () => { log('WebSocket Connected'); sendClient(ws, ID, 'register ' + ID, () => {
+        ws.on('open', () => { log('WebSocket Connected'); sendClient(ws, ID, 'register', ID, () => {
             log('Twitch WebSocket Set Up.');
             socketsClient.twitch = ws;
             resolve(0);
         }); });
-        ws.on('message', str => { // to id user@s=3;a=z;s=g cmd args
-            let [destination, id, respond, msg] = takeWord(str, 4);
-            if (respond.toLowerCase() === 'respond') {
-                log(waitList);
-                if (waitList[ID][id]) {
-                    console.log(`[API: ${id}]`, 'Fulfilling Callback');
-                    waitList[ID][id](msg);
-                    delete waitList[ID][id];
-                } else console.warn(`[API: ${id}]`, 'Callback is Missing, skipping');
+        ws.on('message', message => { // to id user@s=3;a=z;s=g cmd args
+            let args = WASD.unpack(message);
+            if (args[2].toLowerCase() === 'respond') {
+                if (waitList[ID][args[1]]) {
+                    console.log(`[API: ${args[1]}]`, 'Fulfilling Callback');
+                    waitList[ID][args[1]](args[3]);
+                    delete waitList[ID][args[1]];
+                } else console.warn(`[API: ${args[1]}]`, 'Callback is Missing, skipping');
             }
-            else if (respond.toLowerCase() === 'log') console.log(`[API: ${id}]`, msg);
+            else if (args[2].toLowerCase() === 'log') console.log(`[API: ${args[1]}]`, takeWord(message, 4)[3]);
             else {
-                let [username, tags] = respond.split("@");
+                let [username, tags] = args[2].split("@");
                 if (tags) tags = unentry(tags.split(';').map(x => x.split('='))); else tags = {};
                 if (username.startsWith('#')) tags.fromDiscord = true;
                 if (!username.startsWith('##')) tags.logged = true;
-                onMessage(username, tags, msg).then(ret => {
-                    if (ret !== undefined) sendClient(ID, destination, 'respond ' + id + ' ' + ret);
-                    else delete waitList[destination]?.[id];
+                onMessage(username, tags, args[3]).then(ret => {
+                    if (ret !== undefined) getSocketsServer(args[0])?.send(WASD.pack(ID, args[1], 'respond', ret));
+                    else delete waitList[args[0]]?.[args[1]];
                 });
             }
         });

@@ -1,13 +1,8 @@
 const { send, ID, sendAPICall, log } = require('../include');
-const { takeWord, unentry } = require('../../@main/util_client');
 module.exports.condition = '!api'
 module.exports.permission = false
-module.exports.execute = async (message, user, data) => {
-    let [_, method, url, body] = takeWord(message, 4);
-    let [sub, query] = url.split('?');
-    query = query ? unentry(query.split('&').map(x => x.split('='))) : {};
-    try { body = JSON.parse(body); } catch { body = undefined; };
-    let ret = await sendAPICall(method, sub, query, body);
-    send(JSON.stringify(ret), user, data);
+module.exports.execute = async (args, user, data) => {
+    try { args[3] = JSON.parse(args[3]); } catch { args[3] = undefined; };
+    let ret = await sendAPICall(args[1], args[2], {}, args[3]);
     return JSON.stringify(ret);
 }

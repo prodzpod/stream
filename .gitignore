@@ -10,3 +10,4 @@ src/model/obj/
 src/model/Content/obj/
 src/model/Content/bin/
 src/model/*.dll
+src/@main/programs/*.*

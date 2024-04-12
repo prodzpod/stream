@@ -1,49 +1,91 @@
 const WebSocket = require('ws');
 const path = require('path');
-const { spawn } = require('node:child_process');
-const { socketsServer } = require('../@main/include');
-const { delay, unentry, takeWord, safeAssign } = require('../@main/util_client');
+const { spawn, exec } = require('node:child_process');
+const { unentry, safeAssign, WASD } = require('../@main/util_client');
+const { streamInfo, sendClient, getSocketsServer } = require('../@main/include');
 module.exports.ID = "model"
 module.exports.log = (...stuff) => console.log('[MODEL]', ...stuff);
 module.exports.warn = (...stuff) => console.warn('[MODEL]', ...stuff);
 module.exports.error = (...stuff) => console.error('[MODEL]', ...stuff);
 module.exports.wss = new WebSocket.Server({ port: 449 }); 
 let overlay, capture;
-let objects = {};
+let sockets = {}, objects = {}, newObjects = {};
 module.exports.init = async () => {
     objects = {};
     setInterval(() => {
-        // this.log(require('../web/api_client/WS/screen').allSockets().map(x => x?.readyState));
-        let o = {...objects}
-        for (let k in o) {
-            o[k] = {...o[k]};
-            delete o[k].ws;
-        }
-        let s = JSON.stringify(o);
+        if (Object.keys(newObjects).length === 0) return;
         for (let d of require('../web/api_client/WS/screen').allSockets()) {
             if (d.ws?.readyState !== 1) continue;
-            d.ws.send(`obj ${s}`);
+            d.ws.send(WASD.pack('update', JSON.stringify(newObjects)));
         }
-        objects = {};
+        for (let k in newObjects) objects[k] = safeAssign(objects[k], newObjects[k]);
+        newObjects = {};
     }, 100);
+    setInterval(() => { getSocketsServer('model')?.send(WASD.pack('model', 0, 'sync')); }, 60000);
     this.wss.on('connection', ws => {
-        ws.on('message', str => {
-            if (typeof str !== 'string') str = str.toString();
-            [_, __, cmd, raw] = takeWord(str, 4);
-            switch (cmd) {
+        ws.on('message', messages => {
+            let args = WASD.unpack(messages);
+            switch (args[2]) {
                 case "register":
-                    this.log("Spawned " + raw);
+                    onSpawned(args[3], ws);
                     break;
                 case "update":
-                    let data = unentry(raw.split('&').map(x => x.split('=')));
-                    data.ws = ws;
-                    objects[data.name] = safeAssign(objects[data.name], data);
+                    let data = unentry(args[3].split('&').map(x => x.split('=')));
+                    onUpdate(data.name, data.ws, data);
+                    break;
+                case "destroy":
+                    onDestroyed(args[3], ws);
                     break;
             }
         });
     });
 };
+module.exports.sync = l => {
+    let toAdd = l.filter(x => !Object.keys(objects).includes(x));
+    let toRemove = Object.keys(objects).filter(x => !l.includes(x));
+    for (let k of toAdd) onSpawned(k, null);
+    for (let k of toRemove) onDestroyed(k, null);
+    for (let d of require('../web/api_client/WS/screen').allSockets()) {
+        if (d.ws?.readyState !== 1) continue;
+        d.ws.send(WASD.pack('sync', JSON.stringify(Object.keys(objects))));
+    }
+}
+module.exports.off = () => {
+    this.log("Model is Off");
+    for (let k in objects) onDestroyed(k, sockets[k]);
+}
+
+function onSpawned(name, ws) {
+    module.exports.log("Spawned " + name);
+    if (ws) sockets[name] = ws;
+    switch (name) {
+        case "_phase":
+            ws?.send(WASD.pack('set', streamInfo().phase?.toString().padStart(2, '0')));
+            break;
+        case "_theme":
+            ws?.send(WASD.pack('set', streamInfo().subject?.toString()));
+            break;
+    }
+}
+function onUpdate(name, ws, data) {
+    if (ws) sockets[name] = ws;
+    newObjects[name] = safeAssign(newObjects[name], data);
+}
+function onDestroyed(name, ws) {
+    module.exports.log("Destroyed " + name);
+    switch (name) {
+        case "startingsoon":
+        case "brb":
+            sendClient(ID, 'obs', 'unbrb');
+            break;
+    }
+    delete sockets[name];
+    delete objects[name];
+    delete newObjects[name];
+}
+
 module.exports.objects = () => objects;
+module.exports.sockets = () => sockets;
 module.exports.send = (name, str) => {
     if (!objects[name]) return false;
     objects[name].ws.send(str);
@@ -51,18 +93,11 @@ module.exports.send = (name, str) => {
 }
 module.exports.startOverlay = async () => {
     this.log("Loading Stream Overlay");
-    overlay = spawn(path.join(__dirname, 'bin/Debug/net7.0-windows/ProdModel.exe'));
-    overlay.stdout.on('data', this.log);
-    overlay.stderr.on('data', this.error);
-    while (socketsServer.model === undefined) await delay();
+    this.log(path.join(__dirname, '../ProdModel.sln'));
+    overlay = exec(path.join(__dirname, '../ProdModel.sln'));
+    overlay.unref();
     this.log("Loaded Stream Overlay");
     return 0;
-}
-module.exports.endOverlay = () => { 
-    if (overlay === undefined) return;
-    if (!overlay?.killed) overlay.kill();
-    overlay = undefined; 
-    socketsServer.model = undefined; 
 }
 module.exports.startTracker = async () => {
     this.log("Loading Face Tracker");

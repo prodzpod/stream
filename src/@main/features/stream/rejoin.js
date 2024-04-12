@@ -6,7 +6,7 @@ module.exports.execute = async _ => {
     log('REJOINING STREAM');
     log('================');
     rejoinInfo();
-    require('../../../model/commands/start').execute();
+    require('../../../model/commands/start').execute('start tracker');
     sendClient(ID, 'obs', 'start');
     return 0;
 }

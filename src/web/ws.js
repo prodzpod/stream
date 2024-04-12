@@ -9,7 +9,7 @@ module.exports.init = () => {
         require('../@main/features/reload').reload(path.join(__dirname, 'api_server')).then(x => { if (!isNullish(x)) safeAssign(commands, x); });
         if (ws) ws.terminate();
         ws = new WebSocket('ws://localhost:339');
-        ws.on('open', () => { log('WebSocket Connected'); sendClient(ws, ID, 'register ' + ID, () => {
+        ws.on('open', () => { log('WebSocket Connected'); sendClient(ws, ID, 'register', ID, () => {
             log('Web WebSocket Set Up.');
             socketsClient.web = ws;
             resolve(0);

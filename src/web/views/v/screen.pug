@@ -45,11 +45,12 @@ block postbody
         }
         let iu = 0;
         let objects = {};
-        let objectsPrevious = {};
         const Images = {
             activatewindows: new Image(),
             bg: new Image(),
             prod: new Image(),
+            cursor_click: new Image(),
+            cursor_point: new Image(),
         }
         addEvent('onload', async () => {
             let proms = [];
@@ -61,30 +62,38 @@ block postbody
             socket = new WebSocket("wss://prod.kr/screen");
             socket.addEventListener("open", (event) => { 
                 console.log("Websocket Opened");
+                setInterval(() => socket?.send('sync'), 60000);
             });
             socket.addEventListener("message", (event) => {
-                let [cmd, msg] = takeWord(event.data);
-                switch (cmd) {
+                let args = WASD.unpack(event.data);
+                console.log("Message recieved", args);
+                switch (args[0]) {
                     case "auth":
-                        e('point').innerHTML = `type <em>!login ${msg}</em> to log in`;
+                        e('point').innerHTML = `type <em>!login ${args[1]}</em> to log in`;
+                        objects = JSON.parse(args[2]);
+                        rebuild();
                         break;
                     case "points":
                         e('buttons').style.display = 'flex';
-                        iu = Math.prec(Number(msg));
+                        iu = Math.prec(Number(args[1]));
                         e('point').innerHTML = `<em>${iu}</em>iu`;
                         break;
-                    case "obj":
-                        objectsPrevious = objects;
-                        objects = JSON.parse(msg);
+                    case "update":
+                        let newObjects = JSON.parse(args[1]);
+                        for (let k in newObjects) objects[k] = safeAssign(objects[k], newObjects[k]);
                         rebuild();
                         break;
                     case "respond":
-                        e('status').innerText = msg;
+                        e('status').innerText = args[1];
                         state = "idle";
+                        break;
+                    case "sync":
+                        let names = JSON.parse(args[1]);
+                        for (let k of Object.keys(objects)) if (!names.includes(k)) delete objects[k];
+                        socket?.send(WASD.pack('request', JSON.stringify(names.filter(x => !!objects[x]))));
                         break;
                 }
             });
-            rebuild();
         });
 
         function rebuild() {
@@ -95,12 +104,20 @@ block postbody
             ctx.clearRect(0, 0, 1920, 1080);
             ctx.fillStyle = "#396ba5";
             ctx.fillRect(0, 0, 1920, 1080);
-            draw(ctx, 'prod2d', (ctx, _, x, y) => ctx.drawImage(Images.prod, x, y));
+            draw(ctx, '_prod', (ctx, _, x, y) => ctx.drawImage(Images.prod, x, y));
             ctx.drawImage(Images.bg, 0, 0, 1920, 1080);
             for (let k of Object.keys(objects).filter(x => x.startsWith("chat_"))) draw(ctx, k, drawChat);
-            for (let k of Object.keys(objectsPrevious).filter(x => x.startsWith("chat_"))) draw(ctx, k, drawChat);
             for (let k of Object.keys(objects).filter(x => x.startsWith("window_"))) draw(ctx, k, drawWindow);
-            for (let k of Object.keys(objectsPrevious).filter(x => x.startsWith("window_"))) draw(ctx, k, drawWindow);
+            for (let k of Object.keys(objects).filter(x => x.startsWith("pointer_"))) draw(ctx, k, drawPointer);
+            ctx.drawImage(Images.activatewindows, 1599, 988, 236, 39)
+        }
+
+        function drawPointer(ctx, o, x, y) {
+            o.w = Number(o.w);
+            o.h = Number(o.h);
+            ctx.drawImage(o.sprite?.endsWith("cursor_point") ? Images.cursor_point : Images.cursor_click, x, y, o.w, o.h);
+            ctx.fillStyle = o.color;
+            ctx.fillText(o.author, x + 48, y + 0);
         }
 
         function drawChat(ctx, o, x, y) {
@@ -129,12 +146,11 @@ block postbody
         }
 
         function draw(ctx, k, fn) {
-            if (!objects[k] && !objectsPrevious[k]) return;
-            let {x, y, w, h, a} = objects[k] ?? objectsPrevious[k];
+            let {x, y, w, h, a} = objects[k];
             ctx.save();
             ctx.setTransform(ctx.canvas.width / 1920, 0, 0, ctx.canvas.height / 1080, x * ctx.canvas.width / 1920, y * ctx.canvas.height / 1080);
             ctx.rotate(a / 180 * Math.PI);
-            fn(ctx, objects[k] ?? objectsPrevious[k], -w / 2, -h / 2, k);
+            fn(ctx, objects[k], -w / 2, -h / 2, k);
             ctx.restore();
         }
 
@@ -147,7 +163,7 @@ block postbody
             switch (state) {
                 case "point":
                 case "click":
-                    socket?.send(`${state} ${x} ${y}`);
+                    socket?.send(WASD.pack(state, x, y));
                     e('status').innerText = "";
                     state = "waiting";
                     break;
@@ -157,7 +173,7 @@ block postbody
                     state = "fling2";
                     break;
                 case "fling2":
-                    socket?.send(`fling ${temp.x} ${temp.y} ${x} ${y}`);
+                    socket?.send(WASD.pack('fling', temp.x, temp.y, x, y));
                     e('status').innerText = "";
                     state = "waiting";
                     break;
@@ -167,7 +183,7 @@ block postbody
                     let content = e('window-content').value;
                     if (isNullOrWhitespace(title) || isNullOrWhitespace(content)) e('status').innerText = "one of the thing is empty";
                     else {
-                        socket?.send(`spawn ${x} ${y} ${title} ${content}`);
+                        socket?.send(WASD.pack('spawn', x, y, title, content));
                         e('window-setting').style.display = 'none';
                         e('status').innerText = "";
                         state = "waiting";

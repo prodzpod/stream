@@ -1,10 +1,8 @@
-const { takeWord } = require('../../@main/util_client');
 const { log, warn, error } = require('../include');
 module.exports.condition = 'reload_client'
-module.exports.execute = async str => {
+module.exports.execute = async args => {
     log('Restarting Clientside')
-    let [_, k] = takeWord(str);
-    await require('../../@main/features/reload').reload([__dirname, '..', 'api_client'], k);
+    await require('../../@main/features/reload').reload([__dirname, '..', 'api_client'], args?.[1]);
     require('../../@main/util_server').reload(__dirname, '../../@main/util_client');
     return 0;
 }
