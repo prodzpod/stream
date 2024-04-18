@@ -149,10 +149,20 @@ def load_meta(path):
     new_meta = initialize_meta()
     meta['root'] = new_meta['root']
     meta['accessories'] = new_meta['accessories']
-    for k in [x for x in model if x not in meta['model']]: #TODO: fix this
-        print("Updating DEFAULT with part " + k)
-        meta['model'][k] = new_meta['model'][k]
-        meta['poses']['DEFAULT']['pose']['default'][k] = new_meta['poses']['DEFAULT']['pose']['default'][k]
+    todel = list()
+    for k in meta['model']:
+        if k not in new_meta['model']:
+            print("Removing Outdatad Asset " + k)
+            todel.append(k)
+    for k in todel:
+        del meta['model'][k]
+        for model in meta['model']:
+            if k in meta['model'][model]['children']:
+                meta['model'][model]['children'].remove(k)
+        for pose in meta['poses']:
+            for pose2 in meta['poses'][pose]['pose']:
+                if k in meta['poses'][pose]['pose'][pose2]:
+                    del meta['poses'][pose]['pose'][pose2][k]
     return meta
 
 OUTPUT_FNAME = 'model_data.json'
@@ -183,19 +193,37 @@ def make_new_pose(meta, name, progress, acc=None, expr=None):
             pose['pose'][progress][k] = tuple([list(tk.rotation_euler)[0] - meta['poses']['DEFAULT']['pose']['default'][k][0], list(tk.rotation_euler)[1] - meta['poses']['DEFAULT']['pose']['default'][k][1], list(tk.rotation_euler)[2] - meta['poses']['DEFAULT']['pose']['default'][k][2]])
     return pose
 
-print("\nWorseVRM v1.0 loaded")
+def reset_and_sync(meta):
+    for k in meta['poses']['DEFAULT']['pose']['default']:
+        v = meta['poses']['DEFAULT']['pose']['default'][k]
+        tk = find(OBJECTS, lambda x: x.name == '_' + k)
+        if tk == None:
+            tk = find(OBJECTS, lambda x: x.name == k)
+        tk.rotation_euler = mathutils.Euler((v[0], v[1], v[2]), 'XYZ')
+    new_meta = initialize_meta()
+    for k in [x for x in new_meta['model'] if x not in meta['model']]: 
+        print("Updating DEFAULT with part " + k)
+        meta['model'][k] = new_meta['model'][k]
+        parent = find(new_meta['model'], lambda x: k in new_meta['model'][x]['children'])
+        meta['model'][parent]['children'].append(k)
+        meta['poses']['DEFAULT']['pose']['default'][k] = new_meta['poses']['DEFAULT']['pose']['default'][k]
+    return meta
+
+print("\nWorseVRM v1.1 loaded")
 
 RESET = False
 meta = initialize_meta() if RESET else get_meta()
 print("Metafile Created")
 
-POSENAME = 'HI'
+POSENAME = None
 PROGRESS = 'default'; # 0 ~ 1 or default
 ACCESSORIES = None
 EXPRESSION = ["x", "x", None]
 if not RESET and POSENAME != None:
     meta['poses'][POSENAME] = make_new_pose(meta, POSENAME, PROGRESS, ACCESSORIES, EXPRESSION)
     print("Created new pose " + POSENAME)
+if not RESET and POSENAME == None:
+    meta = reset_and_sync(meta)
 
 with open(bpy.path.abspath('//' + OUTPUT_FNAME), 'w', encoding='utf-8') as f:
     f.write(json.dumps(meta))

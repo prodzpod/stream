@@ -1,7 +1,9 @@
-const WebSocket = require('ws')
+const WebSocket = require('ws');
+const path = require('path');
 const { isNullish, safeAssign, encodeQuery, isNullOrWhitespace, WASD } = require('../@main/util_client');
 const { reply, send } = require('../discord/include');
 const fetch = require('node-fetch');
+const { fileExists } = require('../@main/util_server');
 module.exports.channel = '#prodzpod';
 module.exports.id = 'prodzpod'
 module.exports.clientKey = 'g584kjzcj1tr15ouxg0fko2ybnckxh';
@@ -17,7 +19,8 @@ module.exports.init = async (t) => {
     eventsub = new WebSocket('wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds=60');
     eventsub.on('message', str => {
         let req = JSON.parse(str.toString());
-        require('./commands/events/' + req.metadata.message_type)?.execute(req);
+        if (fileExists(path.join(__dirname, './commands/events/' + req.metadata.message_type)))
+            require('./commands/events/' + req.metadata.message_type).execute(req);
     });
     return 0; 
 };
@@ -32,19 +35,29 @@ module.exports.onMessage = (user, tagReal, message) => {
             Object.values(this.commands).filter(x => {
                 if (typeof x.condition === 'string')
                     return args[0].toLowerCase() === x.condition;
+                else if (Array.isArray(x.condition)) return x.condition.some(y => args[0].toLowerCase() === y);
                 else return x.condition(args, user, data);
             }).map(async cmd => {
                 let perms = cmd.permission;
-                if (perms === true || perms === false) perms = () => perms;
-                if (Number(perms) === perms) switch (perms) {
-                    case 0: perms = (_, __, d) => d.logged; break; // must be logged in
-                    case 1: perms = (_, __, d) => d.mod; break;
-                    case 2: perms = (_, __, d) => d.trusted; break;
-                    case 3: perms = (_, __, d) => d.verified; break;
+                switch (typeof perms) {
+                    case 'string':
+                        perms = [perms];
+                    case 'object':
+                        if (!Array.isArray(perms)) perms = Object.values(perms);
+                        perms = perms.includes(user);
+                        break;
+                    case 'number':
+                        switch (perms) {
+                            case 0: perms = (_, __, d) => d.logged; break; // must be logged in
+                            case 1: perms = (_, __, d) => d.mod; break;
+                            case 2: perms = (_, __, d) => d.trusted; break;
+                            case 3: perms = (_, __, d) => d.verified; break;
+                        }
+                    case 'function':
+                        perms = perms(args, user, data);   
+                        break;
                 }
-                else if (String(perms) === perms) perms = [perms];
-                else if (Array.isArray(perms)) perms = perms.includes(user);
-                else perms = perms(args, user, data);
+                if (user.startsWith("#")) user = user.slice(1);
                 if (this.id === user || perms) {
                     let ret = await cmd.execute(args, user, data, message);
                     if (ret !== undefined) resolve(ret);
@@ -91,5 +104,12 @@ module.exports.sendAPICall = async (method, subdir = '', query, body) => {
     if (!['HEAD', 'GET'].includes(method) && body) options.body = JSON.stringify(body);
     try { return await (await fetch('https://api.twitch.tv/helix/' + subdir + (isNullOrWhitespace(query) ? '' : '?') + encodeQuery(query), options)).json(); } 
     catch { return {}; };
+}
+module.exports.validate = async () => {
+    try {
+        let z = (await (await fetch('https://id.twitch.tv/oauth2/validate', { method: 'GET', headers: { 'Authorization': 'OAuth ' + token, 'Client-Id': this.clientKey, 'Content-Type': 'application/json' } })).json())
+        // this.log(z);
+        return z.status != 401;
+    } catch { return false; }
 }
 module.exports.commands = {};

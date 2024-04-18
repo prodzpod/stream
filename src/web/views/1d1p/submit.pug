@@ -1,0 +1,43 @@
+extends ../template/1d1p.pugtemplate
+block body
+    h1 SUBMIT(or edit) PUZZLE
+    br
+    .hlist 
+        p author
+        input#author
+        p password 
+        input#password(type="password")
+        .spacer
+    .hlist 
+        p name 
+        input#name
+        p for week 
+        input#week(style="width: 10em;" type="number", min="0", step="1")
+        .spacer
+    .hlist 
+        p short description (optional)
+        input#desc(style="width: 100%;")
+        .spacer
+    .hlist 
+        p content
+        textarea#content(style="width: 100%; min-height: 50vh;")
+        .spacer
+    .hlist
+        p solutions (separated by comma)
+        input#sols
+        .spacer
+    .hlist
+        p tags (optional, separated by comma)
+        input#tags
+        .spacer
+    .hlist
+        p difficulty (optional, between 0~5) 
+        input#week(style="width: 5em;" type="number", min="0", max="5", step="1")
+        .spacer
+    .hlist 
+        p custom css (see source code for like variables n shit)
+        textarea#css(style="width: 100%; min-height: 25vh;")
+        .spacer
+    br
+    button(style="width: 100%") SUBMIT
+        

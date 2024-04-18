@@ -66,7 +66,7 @@ block postbody
             });
             socket.addEventListener("message", (event) => {
                 let args = WASD.unpack(event.data);
-                console.log("Message recieved", args);
+                // console.log("Message recieved", args);
                 switch (args[0]) {
                     case "auth":
                         e('point').innerHTML = `type <em>!login ${args[1]}</em> to log in`;
@@ -90,7 +90,8 @@ block postbody
                     case "sync":
                         let names = JSON.parse(args[1]);
                         for (let k of Object.keys(objects)) if (!names.includes(k)) delete objects[k];
-                        socket?.send(WASD.pack('request', JSON.stringify(names.filter(x => !!objects[x]))));
+                        let list = names.filter(x => objects[x] == (args[2] == "true"));
+                        if (list.length) socket?.send(WASD.pack('request', JSON.stringify(list)));
                         break;
                 }
             });

@@ -2,10 +2,8 @@
 using NotGMS.Util;
 using ProdModel.Object;
 using ProdModel.Utils;
-using SharpDX.Direct2D1;
 using System.Collections.Generic;
-using System.Diagnostics;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Linq;
 
 namespace ProdModel.Gizmo
 {
@@ -27,6 +25,7 @@ namespace ProdModel.Gizmo
                 p.Position.Y -= o.BoundingBoxSize.Y;
                 if (p.Position.Y - (p.BoundingBoxSize.Y / 2) < 352) p.OnDestroy();
             }
+            ChatObjects = ChatObjects.Where(p => p.Position.Y - (p.BoundingBoxSize.Y / 2) >= 352).ToList();
             o.onMouse += (self, m, p) =>
             {
                 if (m != InputP.Mouses.Left) return;
@@ -89,11 +88,38 @@ namespace ProdModel.Gizmo
         public static void AddTextWindow(Vector2 pos, string title, string content)
         {
             ID++;
-            var window = new Object.Object("window_" + ID.ToString())
+            var window = new Object.Object("window_" + ID.ToString()); window
                 .AddChild(new NineSliceSprite("Content/layout/window", true, true))
                 .AddChild(new TextSprite("arcaoblique", content).SetAlign(-1, -1), 8, 50)
                 .AddChild(new TextSprite("arcaoblique", title).SetColor(Color.White).SetAlign(-1, -1), 8, 12)
-                .SetBoundingBoxes(1, 20, 54).SetPosition(-pos.X, -pos.Y).Physics().MakeTopdown().SetDepth(100).Listen();
+                .SetBoundingBoxes(1, 20, 54).SetBoundingBoxes(MathP.Max(window.Children[1].Sprite.GetBoundingBox().X, window.Children[2].Sprite.GetBoundingBox().X + 42) + 12, -1).SetPosition(-pos.X, -pos.Y).Physics().MakeTopdown().SetDepth(100).Listen();
+            window.onUpdate += (self, time) =>
+            {
+                self.Rotation *= 0.99f;
+            };
+            window.onWSSend += (self) =>
+            {
+                self.AddWSData("title", ((TextSprite)self.Children[2].Sprite).Content);
+                self.AddWSData("content", ((TextSprite)self.Children[1].Sprite).Content);
+            };
+            window.onMouse += (self, button, pos) =>
+            {
+                if (button == InputP.Mouses.Left && pos.X >= (self.BoundingBoxSize.X / 2 - 48) && pos.Y <= 42)
+                    self.OnDestroy();
+            };
+        }
+        public static void AddJoel(Vector2 pos, string title = "Joel")
+        {
+            ID++;
+            var window = new Object.Object("window_" + ID.ToString()); window
+                .AddChild(new NineSliceSprite("Content/layout/window", true, true))
+                .AddChild(new AnimationSprite(window, "Content/sprites/joel", 7, 10), 0, 8)
+                .AddChild(new TextSprite("arcaoblique", title).SetColor(Color.White).SetAlign(-1, -1), 8, 12)
+                .SetBoundingBoxes(1, 20, 54).SetBoundingBoxes(MathP.Max(window.Children[1].Sprite.GetBoundingBox().X, window.Children[2].Sprite.GetBoundingBox().X + 42) + 12, -1).SetPosition(-pos.X, -pos.Y).Physics().MakeTopdown().SetDepth(100).Listen();
+            window.onUpdate += (self, time) =>
+            {
+                self.Rotation *= 0.99f;
+            };
             window.onWSSend += (self) =>
             {
                 self.AddWSData("title", ((TextSprite)self.Children[2].Sprite).Content);

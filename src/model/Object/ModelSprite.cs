@@ -5,12 +5,10 @@ using ProdModel.Gizmo;
 using ProdModel.Puppet;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Windows.Forms;
 
 namespace ProdModel.Object
 {
@@ -55,9 +53,9 @@ namespace ProdModel.Object
             {
                 // used to be premature optimization but turned out to be a good call
                 Triangle triangle = triangles[i];
-                int xa = Math.Clamp((int)MathP.Min(triangle.a.X, triangle.b.X, triangle.c.X) - 1, 0, Width);
+                int xa = Math.Clamp((int)MathP.Min(triangle.a.X, triangle.b.X, triangle.c.X) , 0, Width);
                 int xb = Math.Clamp((int)MathP.Max(triangle.a.X, triangle.b.X, triangle.c.X) + 1, 0, Width);
-                int ya = Math.Clamp((int)MathP.Min(triangle.a.Y, triangle.b.Y, triangle.c.Y) - 1, 0, Height);
+                int ya = Math.Clamp((int)MathP.Min(triangle.a.Y, triangle.b.Y, triangle.c.Y) , 0, Height);
                 int yb = Math.Clamp((int)MathP.Max(triangle.a.Y, triangle.b.Y, triangle.c.Y) + 1, 0, Height);
                 for (int x = xa; x < xb; x++) for (int y = ya; y < yb; y++)
                 {
@@ -66,13 +64,13 @@ namespace ProdModel.Object
                 }
             }
             // outline 
+            const float OUTLINE_DEPTH = .15f;
             for (int x = 0; x < Width; x++) for (int y = 0; y < Height; y++) {
-                if (pixels[x][y] == trans && (
-                        ((x > 0)            && (pixels[x - 1][y] != trans) && (pixels[x - 1][y] != black)) ||
-                        ((x < (Width - 1))  && (pixels[x + 1][y] != trans) && (pixels[x + 1][y] != black)) ||
-                        ((y > 0)            && (pixels[x][y - 1] != trans) && (pixels[x][y - 1] != black)) ||
-                        ((y < (Height - 1)) && (pixels[x][y + 1] != trans) && (pixels[x][y + 1] != black)))) 
-                        pixels[x][y] = black; // black
+                if (((x > 0)            && (z[x - 1][y] - z[x][y] > OUTLINE_DEPTH)) ||
+                    ((x < (Width - 1))  && (z[x + 1][y] - z[x][y] > OUTLINE_DEPTH)) ||
+                    ((y > 0)            && (z[x][y - 1] - z[x][y] > OUTLINE_DEPTH)) ||
+                    ((y < (Height - 1)) && (z[x][y + 1] - z[x][y] > OUTLINE_DEPTH))) 
+                        pixels[x][y] = black;
             }
             for (int x = 0; x < Width; x++) for (int y = 0; y < Height; y++) {
                 if (!Palette.ContainsKey(pixels[x][y])) Palette[pixels[x][y]] = System.Drawing.Color.FromArgb((int)pixels[x][y].W, (int)pixels[x][y].X, (int)pixels[x][y].Y, (int)pixels[x][y].Z);
@@ -202,16 +200,21 @@ namespace ProdModel.Object
             // draw triangles
             List<Triangle> triangles = new();
             foreach (var k in wvrm.model.Keys) triangles.AddRange(GetTriangles(wvrm.model[k]));
-            for (int i = 0; i < TriangleRemoved; i++)
+            if (TriangleRemoved >= triangles.Count)
             {
-                if (triangles.Count == 0)
+                TriangleRemoved = 0;
+                Object.OBJECTS.Find(x => x.Name == "_prod").SetState("CALM");
+                Screens.AddExplosion();
+            }
+            else if (TriangleRemoved > 0) // something about yates
+            {
+                Triangle[] trisArr = triangles.ToArray();
+                for (int i = trisArr.Length - 1; i > 0; i--)
                 {
-                    TriangleRemoved = 0;
-                    Object.OBJECTS.Find(x => x.Name == "_prod").SetState("CALM");
-                    ModelHandler.AddExplosion();
-                    break;
+                    int k = MathP.Random(0, i);
+                    (trisArr[i], trisArr[k]) = (trisArr[k], trisArr[i]);
                 }
-                triangles.RemoveAt(MathP.Random(0, triangles.Count));
+                triangles = trisArr[0..(triangles.Count - TriangleRemoved)].ToList();
             }
             DrawTriangles(triangles);
 

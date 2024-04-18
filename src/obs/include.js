@@ -1,10 +1,10 @@
 
 const WebSocket = require('ws');
 const path = require('path');
-const { spawn } = require('node:child_process');
+const { exec } = require('child_process');
 const { delay, randomHex } = require('../@main/util_client');
 const { getSocketsServer } = require('../@main/include');
-let obs, obsWS, messages = {};
+let obsWS, messages = {};
 module.exports.ID = 'obs';
 module.exports.log = (...stuff) => console.log('[OBS]', ...stuff);
 module.exports.warn = (...stuff) => console.warn('[OBS]', ...stuff);
@@ -13,7 +13,7 @@ module.exports.init = async () => 0;
 module.exports.startOBS = async (_spawn = false) => {
     if (_spawn) {
         this.log("Loading OBS");
-        obs = spawn(process.env.OBS_PATH, { cwd: path.dirname(process.env.OBS_PATH) });
+        let obs = exec(path.join(__dirname, "obs.lnk"));
         obs.unref();
     }    
     let connected = false;

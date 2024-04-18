@@ -25,13 +25,14 @@ module.exports.init = async () => {
     this.wss.on('connection', ws => {
         ws.on('message', messages => {
             let args = WASD.unpack(messages);
+            // this.log("Recieved 449:", args);
             switch (args[2]) {
                 case "register":
                     onSpawned(args[3], ws);
                     break;
                 case "update":
                     let data = unentry(args[3].split('&').map(x => x.split('=')));
-                    onUpdate(data.name, data.ws, data);
+                    onUpdate(data.name, data.ws, unentry(Object.entries(data).filter(x => x[0] != "name")));
                     break;
                 case "destroy":
                     onDestroyed(args[3], ws);
@@ -40,14 +41,14 @@ module.exports.init = async () => {
         });
     });
 };
-module.exports.sync = l => {
+module.exports.sync = (l, update = true) => {
     let toAdd = l.filter(x => !Object.keys(objects).includes(x));
     let toRemove = Object.keys(objects).filter(x => !l.includes(x));
     for (let k of toAdd) onSpawned(k, null);
     for (let k of toRemove) onDestroyed(k, null);
     for (let d of require('../web/api_client/WS/screen').allSockets()) {
         if (d.ws?.readyState !== 1) continue;
-        d.ws.send(WASD.pack('sync', JSON.stringify(Object.keys(objects))));
+        d.ws.send(WASD.pack('sync', JSON.stringify(Object.keys(objects)), update));
     }
 }
 module.exports.off = () => {
@@ -58,6 +59,7 @@ module.exports.off = () => {
 function onSpawned(name, ws) {
     module.exports.log("Spawned " + name);
     if (ws) sockets[name] = ws;
+    if (!objects[name]) objects[name] = { name: name, x: 0, y: 0, w: 0, h: 0, a: 0 };
     switch (name) {
         case "_phase":
             ws?.send(WASD.pack('set', streamInfo().phase?.toString().padStart(2, '0')));
@@ -99,10 +101,14 @@ module.exports.startOverlay = async () => {
     this.log("Loaded Stream Overlay");
     return 0;
 }
+let i = 0;
 module.exports.startTracker = async () => {
     this.log("Loading Face Tracker");
     capture = spawn('python', [path.join(__dirname, 'lib/OpenSeeFace/facetracker.py')]);
-    capture.stdout.on('data', x => this.log('' + x));
+    capture.stdout.on('data', x => {
+        i++;
+        if (i % 1000 == 0) this.log("Tracker Heartbeat", x.toString().slice(0, 10));
+    });
     capture.on('close', x => this.error('Face Tracker Closed', x));
     this.log("Loaded Face Tracker");
     return 0;

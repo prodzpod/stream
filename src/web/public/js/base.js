@@ -80,3 +80,6 @@ function openKeyboard() {
     }
 }
 function copy(str) { navigator.clipboard.writeText(str); }
+addEvent('onload', () => {
+    window.location.query = unentry(window.location.search.slice(1).split("&").map(x => x.split("=")).map(x => [x[0], unstringify(x[1])]));
+})

@@ -9,7 +9,7 @@ module.exports.execute = async args => {
     if (isNullOrWhitespace(args[1])) {
         log('PREPARING FOR STREAM');
         sendClient(ID, 'twitch', 'restart');
-        require('../../../model/commands/start').execute('start');
+        require('../../../model/commands/start').execute();
         sendClient(ID, 'obs', 'start', 'spawn');
         for (let fname of await listFiles(__dirname, '../../programs')) {
             log('Opening ' + fname);

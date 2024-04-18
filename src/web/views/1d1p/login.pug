@@ -1,0 +1,26 @@
+extends ../template/1d1p.pugtemplate
+block body
+    h1 LOGIN 
+    .hlist
+        .vlist
+            .hlist.left 
+                p USERNAME 
+                input#id
+            .hlist.left 
+                p PASSWORD
+                input#pw
+        .vlist 
+            .spacer
+            button(onclick="login()") CONFIRM
+            .spacer
+        .spacer
+    br
+    p * THIS ACTUALLY DOESNT DO ANYTHING
+    c IT DOESNT EVEN SEND ANYTHING TO THE SERVER - IT JUST STORES THE DATA IN LOCALSTORAGE AND FILLS BOXES IN FOR YOU
+block postbody 
+    script.
+        function login() {
+            localStorage.setItem("1d1p-id", e('id').value.trim());
+            localStorage.setItem("1d1p-pw", e('pw').value.trim());
+            location.href = "https://prod.kr/1d1p";
+        }

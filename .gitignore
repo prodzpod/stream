@@ -2,6 +2,7 @@ src/.vs/
 node_modules/
 src/@main/log/*.log
 src/@main/data/user/*.json
+src/@main/data/1d1p.json
 secret/*.*
 external/
 src/model/lib/icons_win2k_sp4_en/

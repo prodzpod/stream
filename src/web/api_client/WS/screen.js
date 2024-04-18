@@ -1,4 +1,4 @@
-const { getIdentifier, WASD, Math } = require('../../../@main/util_client');
+const { getIdentifier, WASD, Math, delay, unentry } = require('../../../@main/util_client');
 const { data, getSocketsServer } = require('../../../@main/include');
 const { log, error } = require('../../include');
 const { objects } = require('../../../model/include');
@@ -6,12 +6,12 @@ let logs = {};
 let sockets = {};
 module.exports.sockets = () => sockets;
 module.exports.allSockets = () => [...Object.values(sockets), ...Object.values(logs)];
-module.exports.init = (ws, _, __) => {
+module.exports.init = async (ws, _, __) => {
     let id = getIdentifier();
     logs[id] = {ws: ws};
     return WASD.pack("auth", id, JSON.stringify(objects()));
 }
-module.exports.attemptLogin = (str, user, color) => {
+module.exports.attemptLogin = async (str, user, color) => {
     if (!logs[str]) return false;
     if (user.startsWith("#")) user = user.slice(1);
     if (user.startsWith("#")) return false;
@@ -24,10 +24,10 @@ module.exports.attemptLogin = (str, user, color) => {
     delete logs[str];
     return true;
 }
-module.exports.sync = (ws, args) => {
+module.exports.sync = async (ws, args) => {
     return WASD.pack("sync", JSON.stringify(Object.keys(objects())));
 }
-module.exports.request = (ws, args) => {
+module.exports.request = async (ws, args) => {
     try {
         let r = JSON.parse(args[0]);
         if (!Array.isArray(r)) {
@@ -36,16 +36,17 @@ module.exports.request = (ws, args) => {
         }
         let ret = {}, os = objects();
         for (let s of r) {
-            if (!!os[s]) ret[s] = os[s];
+            if (!!os[s]) ret[s] = unentry(Object.entries(os[s]).filter(x => x[0] != "name"));
             else {
-                error(s, "is not in bobjects");
-                return WASD.pack("respond", "what???");
+                log("Desync occured, resyncing instance");
+                await delay(100);
+                return WASD.pack("sync", JSON.stringify(Object.keys(objects())));
             }
         }
         return WASD.pack("update", JSON.stringify(ret));
     } catch (e) { error(e); return WASD.pack("respond", "what???"); };
 }
-module.exports.point = (ws, args) => {
+module.exports.point = async (ws, args) => {
     let user = Object.values(sockets).find(x => x.ws == ws);
     if (!user) return WASD.pack("respond", "you are not logged in");
     args[0] = Math.clamp(Number(args[0]), 1, 1919);
@@ -54,7 +55,7 @@ module.exports.point = (ws, args) => {
     getSocketsServer('model')?.send(WASD.pack('web', 0, 'point', args[0], args[1], user.color, user.user));
     return WASD.pack("respond", "it worked");
 }
-module.exports.click = (ws, args) => {
+module.exports.click = async (ws, args) => {
     let user = Object.values(sockets).find(x => x.ws == ws);
     if (!user) return WASD.pack("respond", "you are not logged in");
     args[0] = Math.clamp(Number(args[0]), 1, 1919);
@@ -63,7 +64,7 @@ module.exports.click = (ws, args) => {
     getSocketsServer('model')?.send(WASD.pack('web', 0, 'click', args[0], args[1], user.color, user.user));
     return WASD.pack("respond", "it worked");
 }
-module.exports.fling = (ws, args) => {
+module.exports.fling = async (ws, args) => {
     let user = Object.values(sockets).find(x => x.ws == ws);
     if (!user) return WASD.pack("respond", "you are not logged in");
     args[0] = Math.clamp(Number(args[0]), 1, 1919);
@@ -74,7 +75,7 @@ module.exports.fling = (ws, args) => {
     getSocketsServer('model')?.send(WASD.pack('web', 0, 'drag', args[0], args[1], args[2], args[3], user.color, user.user));
     return WASD.pack("respond", "it worked");
 }
-module.exports.spawn = (ws, args) => {
+module.exports.spawn = async (ws, args) => {
     let user = Object.values(sockets).find(x => x.ws == ws);
     if (!user) return WASD.pack("respond", "you are not logged in");
     args[0] = Math.clamp(Number(args[0]), 1, 1919);

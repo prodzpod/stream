@@ -132,7 +132,7 @@ module.exports.initializeData = async () => {
     return data;
 }
 module.exports.writeData = (k, obj, force=false) => {
-    if (typeof k === 'string') k = k.replace(/\[(\d+)\]/g, '.$1').split(/[\/\\\.]/g).map(x => Number.isNaN(x) ? x : Number(x));
+    if (typeof k === 'string') k = k.replace(/\[(\d+)\]/g, '.$1').split(/[\/\\\.]/g).map(x => !Number.isNaN(x) ? x : Number(x));
     let t = traverse(data, k);
     // check for identical (no writes needed)
     if ((typeof obj !== 'object' && t[0][t[1]] == obj) || (typeof obj === 'object' && JSON.stringify(t[0][t[1]]) == JSON.stringify(obj))) return t[0][t[1]];

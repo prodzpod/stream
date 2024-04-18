@@ -1,5 +1,5 @@
 const { isNullish } = require("../../util_client");
-const { data, writeData } = require('../../include');
+const { data, writeData, log } = require('../../include');
 module.exports.condition = 'update_user' // main (id) | update_user user (tag)
 module.exports.execute = async args => {
     let tag = args[2];

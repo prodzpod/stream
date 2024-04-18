@@ -117,7 +117,7 @@ namespace ProdModel
             {
                 if (self.State == "DEFAULT")
                 {
-                    ModelHandler.AddExplosion();
+                    Screens.AddExplosion();
                     self.Gravity = new(0, 1);
                 }
                 self.SetState("FLING");
@@ -134,7 +134,7 @@ namespace ProdModel
                 ModelSprite.ShowModel = state == "DEFAULT";
                 if (state == "DEFAULT")
                 {
-                    ModelHandler.AddExplosion();
+                    Screens.AddExplosion();
                     self.Gravity = new(0, 0);
                     self.Speed = Vector2.Zero;
                     self.Rotation = 0;
@@ -183,6 +183,9 @@ namespace ProdModel
                         break;
                     case Keys.NumPad4:
                         ModelHandler.Pose = "TPOSE";
+                        break;
+                    case Keys.NumPad0:
+                        Chat.AddChat("lib/icons_win2k_sp4_en/WINNT/system32/ole2.dll_14_DEFICON", Color.Black, "test", "this is a test message");
                         break;
                 }
             };
@@ -252,6 +255,7 @@ namespace ProdModel
                 }
             }
             Audio.Update();
+            WindowTracker.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
             ModelHandler.Time += (float)gameTime.ElapsedGameTime.TotalSeconds;
             base.Update(gameTime);
         }

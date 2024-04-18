@@ -2,7 +2,7 @@ const { send, log } = require('../include');
 const { takeWord } = require('../../@main/util_client');
 const { writeData, data } = require('../../@main/include');
 module.exports.condition = '!login'
-module.exports.permission = false
+module.exports.permission = true
 module.exports.execute = async (_, user, _data, message) => {
     let [__, key] = takeWord(message);
     let id = require('../../discord/include').attemptLogin(key, user);

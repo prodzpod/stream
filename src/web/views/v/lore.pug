@@ -21,7 +21,34 @@ block body
     p prod complains about how they "planned everything and its all fucked up", then tries to showcase the gizmo, and then the stream dies upon !login. they boot it back up only for it to go off again when someone else tries logging in.
     br
     p they fix like 1 minor issue and then the voice gives in because they were singing vocaloid songs while coding that entire week. they get sleeby and end stream like 90 minutes in. we raided <a href="https://twitch.tv/tyumici">tyumici</a>.
+    c Testing in Prod 1
+    h2 prod z fighting 
+    yt mzi5EmdsbXU
+    yt 6xUubvDXpTc
+    p the debut stream happened. the model style appears, the gizmo is shown off, and some introduction happens.
+    p we also discover the modal of "z-fighting", which probably will be a core part of the broadcast.
+    p plenty of errors happen, and the creature gets sent to various inaccessible locations frequently. also the window title is broken. lol.
+    p we raid <a href="https://www.twitch.tv/exodrifter_">exodrifter_</a> after talking about how i was tired when i first joined her stream and was kinda annoying lol
+    c Testing in Prod 2
+    h2 being The Wired is a gender
+    yt Qv6LhbSdpS8
+    p today's accessory is a hastily put together "mushroom witch hat". the concept of a weekly accessory is brought up. the powerpoint docket becomes a regular thing after the positive reception from the first stream. 
+    p pose system is shown off as well. the "cyberspace graph mode" is shown off, describing each corners of the gayness scale and softwareline meter.
+    img(src="https://prod.kr/images/lore/2-1.png")
+    p we also create the first ever general redeem: <button>!removetriangle [number]</button>, that removes a random number of triangles from the creature. creature becomes shambles quickly.
+    p the websocket zone was bugged to hell though, spamming "what???" (also known as inaccessible code mode).
+    p we talk about the progenitors, john react to the -1st session of prodzpod v scenario (the serendipidous collab) within <a href="https://www.twitch.tv/imgeiser">imgeiser</a>, and raid <a href="https://www.twitch.tv/digi_shell">digi_shell</a> with lcolonq in the chat, completing the trifecta.
 block postbody 
     style.
         h2 { margin-top: 0; }
-        c { margin-top: 2.33em; display: block; }
+        c { margin-top: 3.33em; display: block; }
+        iframe {
+            width: min(720px, calc(100vw - 128px));
+            height: min(calc(720px * 9 / 16), calc((100vw - 128px) * 9 / 16));
+        }
+    script.
+        addEvent('onload', () => {
+            for (let yt of q('yt')) {
+                yt.innerHTML = `<iframe src="https://www.youtube.com/embed/${yt.innerText}" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`
+            }
+        });

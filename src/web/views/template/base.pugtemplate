@@ -17,6 +17,7 @@ html
         - var thumbnail = ''
         - var image = ''
         - var v = false
+        block premeta
         block meta
         if title == ''
             - title = v ? 'prvd 🌙' : 'prod.kr'
@@ -67,38 +68,42 @@ html
         script(src='https://prod.kr/js/common.js')
         
     body
-        .main.vlist
+        block prebody
+        .main.vlist 
             header.hlist
-                .vlist.middle: b: a.center(href='https://prod.kr' style='font-size: 150%;') pr<span id='title-random' class='random'>o</span>d
-                .vlist.middle: a.center(href='https://prod.kr/v') livestream
-                .vlist.middle: a.center(href='https://prod.kr/folio') portfolio 
-                .vlist.middle: a.center(href='https://prod.kr/link') links
-                .vlist.middle: a.center(href='https://prod.kr/contact') contact
+                block header
+                    .vlist.middle: b: a.center.title(href='https://prod.kr' style='font-size: 150%;') pr<span id='title-random' class='random'>o</span>d
+                    .vlist.middle: a.center(href='https://prod.kr/v') livestream
+                    .vlist.middle: a.center(href='https://prod.kr/folio') portfolio 
+                    .vlist.middle: a.center(href='https://prod.kr/link') links
+                    .vlist.middle: a.center(href='https://prod.kr/contact') contact
             block body-outer
                 .body
                     block body 
                 .spacer
+                block prefooter
             footer.vlist 
-                .hlist.center
-                    .vlist
-                        .spacer
-                        p pr<span class='random'>o</span>dzp<span class='random'>o</span>d 2024
-                        .spacer
-                    .vlist
-                        .spacer
-                        span &nbsp;|&nbsp;
-                        .spacer
-                    button(onclick='toggleDark(this)' id='footer-dark') dark
-                    .vlist
-                        .spacer
-                        span &nbsp;|&nbsp;
-                        .spacer
-                    button(onclick='toggleColorful(this)' id='footer-colorful') colorful
-                    .vlist
-                        .spacer
-                        span &nbsp;|&nbsp;
-                        .spacer
-                    button(onclick='toggleFlashy(this)' id='footer-flashy') flashy
+                block footer
+                    .hlist.center
+                        .vlist
+                            .spacer
+                            p pr<span class='random'>o</span>dzp<span class='random'>o</span>d 2024
+                            .spacer
+                        .vlist
+                            .spacer
+                            span &nbsp;|&nbsp;
+                            .spacer
+                        button(onclick='toggleDark(this)' id='footer-dark') dark
+                        .vlist
+                            .spacer
+                            span &nbsp;|&nbsp;
+                            .spacer
+                        button(onclick='toggleColorful(this)' id='footer-colorful') colorful
+                        .vlist
+                            .spacer
+                            span &nbsp;|&nbsp;
+                            .spacer
+                        button(onclick='toggleFlashy(this)' id='footer-flashy') flashy
         block postbody
         <a rel="me" href="https://mastodon.gamedev.place/@prod" style="display: none;">Mastodon</a>
         <a rel="me" href="https://mas.to/@prod" style="display: none;">Mastodon 2</a>

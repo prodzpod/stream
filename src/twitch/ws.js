@@ -1,10 +1,18 @@
 const WebSocket = require('ws');
-const { ID, log, warn, error, onMessage } = require('./include');
+const { ID, log, warn, error, onMessage, validate } = require('./include');
 const { sendClient, socketsClient, getSocketsServer } = require('../@main/include')
 const { waitList } = require('../@main/util_server')
 const { takeWord, unentry, WASD } = require('../@main/util_client');
-let ws;
+let ws, interval = undefined;
 module.exports.init = () => {
+    interval = setInterval(async () => {
+        log("Validation Attempt");
+        if (await validate()) return log("Validation Successful, Continuing");
+        else {
+            log("Validation Failed, Restarting Twitch");
+            require('./commands/restart').execute();
+        }
+    }, 300000);
     return new Promise(resolve => {
         if (ws) ws.terminate();
         ws = new WebSocket('ws://localhost:339');
@@ -36,4 +44,8 @@ module.exports.init = () => {
         });
         ws.on('close', (c, r) => warn('WebSocket Disconnected', c, r));
     });
+}
+
+module.exports.reset = () => {
+    if (interval) clearInterval(interval);
 }

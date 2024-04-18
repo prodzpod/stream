@@ -1,0 +1,71 @@
+extends ./template/1d1p.pugtemplate
+block meta
+    - title = query_week ? "Week " + query_week : "One Day One Puzzle"
+block body
+    h1 WEEK <em id="week">??</em> - <em id="theme">THEME</em>
+    p#description does this week even exist 
+    br
+    .hlist
+        .vlist.center.spacer
+            h2 PUZZLES
+            div(style="margin: 16px;")
+            #puzzles
+                c no puzzle?!! :bogbuh:
+block prefooter 
+    .hlist(style="width: 100vw; overflow: hidden;"): div: c.center(style="word-break: unset; word-wrap: unset; overflow-wrap: unset; hyphens: unset;") ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    .hlist(style="padding: 16px;")
+        a.center(href="https://prod.kr/1d1p?week=0" style="width: 20%"): button &lt;&lt; First
+        a.center#week-prev(style="width: 20%"): button &lt; Previous
+        p.center.middle(style="width: 20%") WEEK <em id="week2">??</em>
+        a.center#week-next(style="width: 20%"): button Next &gt;
+        a.center(href="https://prod.kr/1d1p" style="width: 20%"): button Last &gt;&gt;
+block postbody
+    #initial 
+        .vlist.center(style="height: 100%;")
+            .spacer
+            h1 [ 「」 ] <span class="o">O</span>NE DAY <span class="o">O</span>NE PUZZLE
+            .hlist 
+                .spacer
+                button(onclick="removeinitial()") """weekly""" puzzle─jam by witsc<span class="o">o</span>rd
+                .spacer
+            .spacer
+    style.
+        #initial {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: black;
+            padding: 64px;
+        }
+        body:has(#initial) {
+            overflow: hidden;
+        }
+    script.
+        addEvent('onload', async () => {
+            let week = location.query.week ?? '??';
+            e('week').innerText = week.toString().padStart(2, '0'); e('week2').innerText = week.toString().padStart(2, '0');
+            if (!Number.isNaN(week)) {
+                e('week-prev').with('href', `https://prod.kr/1d1p?week=${week-1}`);
+                e('week-next').with('href', `https://prod.kr/1d1p?week=${week+1}`);  
+            } 
+            if (week == 51) {
+                e('theme').innerHTML = "CHILL";
+                e('description').innerHTML = "temporary entry, 24/04/13";
+                e('puzzles').innerHTML = `
+                    <p><a href="https://mas.to/@witscord/112263050033180793">panic - Constellations</a></p>
+                    <p><a href="https://mas.to/@witscord/112264672585844479">octavia - Those who are chill Amongst Us</a></p>
+                    <p><a href="https://mas.to/@witscord/112263868027583100">thejonymyster - OhiII</a></p>
+                    <p><a href="https://mas.to/@witscord/112264254575988886">prod - Down Your Spine</a></p>
+                    <p><a href="https://mas.to/@witscord/112265211582776967">Seren☆ - 12x27 Ice Walk (variant)</a></p>
+                    <p><a href="https://mas.to/@witscord/112267818016951247">wells - Kakuro</a></p>
+                    `;
+            }
+            if (sessionStorage.getItem('1d1p-removeinitial')) removeElement('initial');
+        });
+
+        function removeinitial() {
+            sessionStorage.setItem('1d1p-removeinitial', true)
+            removeElement('initial');
+        }

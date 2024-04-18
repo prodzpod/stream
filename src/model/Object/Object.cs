@@ -17,7 +17,7 @@ namespace ProdModel.Object
         public static List<Object> OBJECTS = new();
 
         // ws
-        public string Name = "";
+        public string Name = "";    
         public WebSocketP? WebSocket = null;
         public Dictionary<string, string> LastWSSent;
         public float LastWSSend = 0;
@@ -106,7 +106,7 @@ namespace ProdModel.Object
             WebSocket = null; 
             onDestroy?.Invoke();
             Destroyed = true;
-            Server.Sync();
+            Server.Sync(false);
         }
 
         public event Action<Object, GameTime> onUpdate;
@@ -139,12 +139,14 @@ namespace ProdModel.Object
                 if (_txt != "")
                 {
                     AddWSData("name", Name, true);
+                    // Debug.WriteLine("Sending: " +  _txt);
                     WebSocket.Send("449", "update", _txt);
                 }
                 LastWSSend = Lifetime;
                 WSSendForce = false;
             }
             onUpdate?.Invoke(this, gameTime);
+            if (MathP.Between(-1 / 256f, Rotation, 1 / 256f)) Rotation = 0;
         }
         public event Action<Object> onWSSend;
         private string _txt = "";

@@ -40,6 +40,7 @@ namespace NotGMS.Util
 
         public static bool Intersects<T>(this IEnumerable<T> a, IEnumerable<T> b) => a.Intersect(b).Any();
 
+        public static int[] Iota(int r) { int[] ret = new int[r]; for (int i = 0; i < r; i++) ret[i] = i; return ret; }
         public static Vector2 Map(this Vector2 orig, Func<float, float> fn) => new(fn(orig.X), fn(orig.Y));
         public static Vector3 Map(this Vector3 orig, Func<float, float> fn) => new(fn(orig.X), fn(orig.Y), fn(orig.Z));
         public static Vector4 Map(this Vector4 orig, Func<float, float> fn) => new(fn(orig.X), fn(orig.Y), fn(orig.Z), fn(orig.W));

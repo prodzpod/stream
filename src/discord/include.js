@@ -40,7 +40,7 @@ module.exports.init = async () => {
             let user = users[message.author.id] ?? ('#' + message.author.tag);
             if (message.content.startsWith('!')) {
                 if (user.startsWith('#')) {
-                    interaction.reply('You are not logged in, please log in with `/login` first to connect your account to twitch.');
+                    message.reply('You are not logged in, please log in with `/login` first to connect your account to twitch.');
                     return;                 
                 }
                 messages[message.id] = message;
@@ -73,13 +73,13 @@ module.exports.init = async () => {
 module.exports.send = (msg, user=null) => {
     if (!app) return;
     if (user) server.members.fetch(user).then(x => {
-        general.send(`<@${x.id}> ` + msg);
+        general.send((`<@${x.id}> ` + msg.replace(/@everyone/g, "**@**everyone").replace(/@here/g, "**@**here")).slice(0, 2000));
     }).catch(_ => general.send(msg)); else general.send(msg);
 }
 module.exports.reply = (msg, id) => {
     if (!app) return;
     if (messages[id]) {
-        messages[id].reply(msg);
+        messages[id].reply(msg.slice(0, 2000));
         delete messages[id];
     } else this.warn('Cannot find message id', id, 'to reply');
 }

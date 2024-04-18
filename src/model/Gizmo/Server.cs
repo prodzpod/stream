@@ -4,6 +4,7 @@ using NotGMS.Util;
 using ProdModel.Object;
 using ProdModel.Utils;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace ProdModel.Gizmo
 {
@@ -31,6 +32,11 @@ namespace ProdModel.Gizmo
                 case "chat":
                     {
                         if (args.Length < 7) return;
+                        if (args[6] == "Joel")
+                        {
+                            Chat.AddJoel(new(MathP.Random(1, ProdModel.SCREEN_WIDTH), MathP.Random(1, ProdModel.SCREEN_HEIGHT)), args[5] + ": Joel");
+                            return;
+                        }
                         Chat.AddChat(args[3], ColorP.RGBA(ColorP.Hex(args[4])), args[5], args[6]); // icon, color, author, message
                         Audio.Play("audio/chat");
                     }
@@ -108,13 +114,13 @@ namespace ProdModel.Gizmo
             }
         }
 
-        public static void Sync()
+        public static void Sync(bool update = true)
         {
             List<string> ret = new();
             foreach (var o in Object.Object.OBJECTS)
             {
                 if (o.WebSocket == null) continue;
-                o.WSSendForce = true;
+                o.WSSendForce = update;
                 ret.Add(o.Name);
             }
             ProdModel.WebSocket.Send("main", "modelobjects", JsonConvert.SerializeObject(ret));

@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const expressWS = require('express-ws');
 const bodyParser = require('body-parser');
-const { takeWord, superstringify, delay, remove, WASD } = require('../@main/util_client');
+const { takeWord, superstringify, delay, remove, WASD, unentry } = require('../@main/util_client');
 const { listFiles, fileExists } = require('../@main/util_server');
 const { sockets, log, warn, error } = require('./include');
 let serverHTTP, serverHTTPS, clientFunctions;
@@ -82,8 +82,8 @@ module.exports.init = async (extern) => {
             ws.on('open', _ => ws.send(`register ${sockets.length}`));
             sockets.push(ws);
             if (api.init) {
-                let ret = api.init(ws, req.query ?? {}, req.body ?? {});
-                if (ret !== undefined) ws.send(ret);
+                api.init(ws, req.query ?? {}, req.body ?? {}).then(ret => { if (ret !== undefined) ws.send(ret); });
+                
             }
             ws.on('message', msg => {
                 if (busy.includes(ws)) {
@@ -97,9 +97,10 @@ module.exports.init = async (extern) => {
                 }
                 else {
                     busy.push(ws);
-                    let ret = api[k](ws, WASD.unpack(v));
-                    if (ret !== undefined) ws.send(ret);
-                    busy = remove(busy, ws);
+                    api[k](ws, WASD.unpack(v)).then(ret => {
+                        if (ret !== undefined) ws.send(ret);
+                        busy = remove(busy, ws);
+                    });
                 }
             });
         });
@@ -153,6 +154,10 @@ module.exports.cmpAuth = async (force = false) => {
 function render(page, req, res) {
     res.set({ 'Content-Type': 'text/html; charset=UTF-8', 'Access-Control-Allow-Origin': '*' });
     let params = { client: clientFunctions };
+    let base = req.originalUrl.slice(0, req.originalUrl.indexOf("?")).split("/");
+    for (let i = 0; i < base.length; i++) params['path_' + i] = base[i];
+    for (let k of req.originalUrl.slice(req.originalUrl.indexOf("?") + 1).split("&").map(x => x.split("="))) params['query_' + k[0]] = k[1];
+    // log(params);
     try { let data = require(path.join(__dirname, 'api_client/RENDER', page)).execute(req, res); Object.assign(params, data); } catch {}
     res.render(page, params);
     return 0;

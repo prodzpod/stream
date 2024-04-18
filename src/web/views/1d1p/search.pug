@@ -1,0 +1,46 @@
+extends ../template/1d1p.pugtemplate
+block body
+    h1 HUNT FOR D1PS
+    br
+    .hlist
+        input.spacer#query
+        button SEARCH
+        button +
+    .vlist#filters(style="display: none;")
+        .hlist
+            p by
+            input#author
+            .spacer
+        .hlist
+            p between 
+            input#solves-min(style="width: 15em;" type="number", min="0", step="1" value="0")
+            p and
+            input#solves-max(style="width: 15em;" type="number", min="0", step="1" value="123456789")
+            p solves
+            .spacer
+        .hlist
+            p between 
+            input#difficulty-min(style="width: 5em;" type="number", min="0", max="5", step="1" value="0")
+            p and
+            input#difficulty-max(style="width: 5em;" type="number", min="0", max="5", step="1" value="5")
+            p difficulty
+            .spacer
+        .hlist 
+            p tags
+            input#tags
+            .spacer
+        .hlist 
+            p sort by
+            select#sort
+                option DATE 
+                option NAME
+                option AUTHOR
+                option DIFFICULTY
+                option SOLVES 
+            select#order
+                option DESCENDING
+                option ASCENDING 
+            .spacer
+    p Results: <em id="hits">0</em>
+    #result
+    
