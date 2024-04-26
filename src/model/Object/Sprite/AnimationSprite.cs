@@ -5,7 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 
-namespace ProdModel.Object
+namespace ProdModel.Object.Sprite
 {
     public class AnimationSprite : ISprite
     {

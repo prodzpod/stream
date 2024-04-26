@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using NotGMS.Util;
 
-namespace ProdModel.Object
+namespace ProdModel.Object.Sprite
 {
     public class ImageSprite : ISprite
     {

@@ -181,7 +181,7 @@ block postbody
                 case "spawn":
                 {
                     let title = e('window-title').value;
-                    let content = e('window-content').value;
+                    let content = e('window-content').value
                     if (isNullOrWhitespace(title) || isNullOrWhitespace(content)) e('status').innerText = "one of the thing is empty";
                     else {
                         socket?.send(WASD.pack('spawn', x, y, title, content));

@@ -25,6 +25,48 @@
 #begin audio/fling.ogg
 /copy:audio/fling.ogg
 
+#begin audio/instruments/clap.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:audio/instruments/clap.ogg
+
+#begin audio/instruments/crash.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:audio/instruments/crash.ogg
+
+#begin audio/instruments/hat.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:audio/instruments/hat.ogg
+
+#begin audio/instruments/kick.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:audio/instruments/kick.ogg
+
+#begin audio/instruments/sine.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:audio/instruments/sine.ogg
+
+#begin audio/instruments/sq50.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:audio/instruments/sq50.ogg
+
+#begin audio/instruments/tri.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:audio/instruments/tri.ogg
+
 #begin audio/point.ogg
 /copy:audio/point.ogg
 

@@ -123,7 +123,7 @@ let files = [];
 module.exports.data = () => data;
 module.exports.initializeData = async () => {
     let m = measureStart();
-    files = (await listFiles(__dirname, 'data')).map(x => x.slice(0, -('.json'.length)));
+    files = (await listFiles(__dirname, 'data')).filter(x => x.endsWith('.json')).map(x => x.slice(0, -('.json'.length)));
     for (let p of files) {
         let t = traverse(data, p.split('/'));
         t[0][t[1]] = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', p + '.json')));
@@ -151,7 +151,7 @@ module.exports.writeData = (k, obj, force=false) => {
     return t[0][t[1]];
 }
 module.exports.incrementData = (k, n) => {
-    if (typeof k === 'string') k = k.replace(/\[(\d+)\]/g, '.$1').split(/[\/\\\.]/g).map(x => Number.isNaN(x) ? x : Number(x));
+    if (typeof k === 'string') k = k.replace(/\[(\d+)\]/g, '.$1').split(/[\/\\\.]/g).map(x => !Number.isNaN(x) ? x : Number(x));
     let t = traverse(data, k);
     t[0][t[1]] ??= 0;
     this.writeData(k, t[0][t[1]] + n);

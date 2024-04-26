@@ -4,7 +4,7 @@ using System;
 using System.Linq;
 using NotGMS.Util;
 
-namespace ProdModel.Object
+namespace ProdModel.Object.Sprite
 {
     public class NineSliceSprite : ISprite
     {
@@ -47,8 +47,8 @@ namespace ProdModel.Object
         public Vector2 GetBoundingBox()
         {
             return new(
-                Tile.X > 0 ? (Textures[3].Width + Textures[4].Width + Textures[5].Width) : Textures[4].Width,
-                Tile.Y > 0 ? (Textures[1].Height + Textures[4].Height + Textures[7].Height) : Textures[4].Height);
+                Tile.X > 0 ? Textures[3].Width + Textures[4].Width + Textures[5].Width : Textures[4].Width,
+                Tile.Y > 0 ? Textures[1].Height + Textures[4].Height + Textures[7].Height : Textures[4].Height);
         }
         public void Render(Vector4 position, float rotation)
         {

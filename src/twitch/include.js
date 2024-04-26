@@ -16,11 +16,19 @@ let token = undefined;
 module.exports.init = async (t) => { 
     token = t; 
     if (eventsub) eventsub.terminate();
-    eventsub = new WebSocket('wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds=60');
+    let subs = await this.sendAPICall("GET", "eventsub/subscriptions", {}, {});
+    for (let d of subs.data) await this.sendAPICall("DELETE", "eventsub/subscriptions", {id: d.id}, {});
+    eventsub = new WebSocket('wss://eventsub.wss.twitch.tv/ws');
     eventsub.on('message', str => {
         let req = JSON.parse(str.toString());
-        if (fileExists(path.join(__dirname, './commands/events/' + req.metadata.message_type)))
-            require('./commands/events/' + req.metadata.message_type).execute(req);
+        let cmd = req.metadata.message_type;
+        if (cmd == 'notification') cmd = req.metadata.subscription_type.replace(/\./g, "_");
+        if (fileExists(path.join(__dirname, `commands/events/${cmd}.js`)))
+            require('./commands/events/' + cmd).execute(req);
+    });
+    eventsub.on('close', e => {
+        this.warn("eventsub Websocket closed???");
+        this.warn(e);
     });
     return 0; 
 };
@@ -101,14 +109,14 @@ module.exports.sendAPICall = async (method, subdir = '', query, body) => {
             'Content-Type': 'application/json'
         }
     };
+    if (!subdir.startsWith("https://") && !subdir.startsWith("http://")) subdir = 'https://api.twitch.tv/helix/' + subdir;
     if (!['HEAD', 'GET'].includes(method) && body) options.body = JSON.stringify(body);
-    try { return await (await fetch('https://api.twitch.tv/helix/' + subdir + (isNullOrWhitespace(query) ? '' : '?') + encodeQuery(query), options)).json(); } 
+    try { return await (await fetch(subdir + (isNullOrWhitespace(query) ? '' : '?') + encodeQuery(query), options)).json(); } 
     catch { return {}; };
 }
 module.exports.validate = async () => {
     try {
         let z = (await (await fetch('https://id.twitch.tv/oauth2/validate', { method: 'GET', headers: { 'Authorization': 'OAuth ' + token, 'Client-Id': this.clientKey, 'Content-Type': 'application/json' } })).json())
-        // this.log(z);
         return z.status != 401;
     } catch { return false; }
 }

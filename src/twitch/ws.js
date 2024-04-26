@@ -6,10 +6,9 @@ const { takeWord, unentry, WASD } = require('../@main/util_client');
 let ws, interval = undefined;
 module.exports.init = () => {
     interval = setInterval(async () => {
-        log("Validation Attempt");
-        if (await validate()) return log("Validation Successful, Continuing");
+        if (await validate()) return;
         else {
-            log("Validation Failed, Restarting Twitch");
+            log("OAuth Outdatad, Restarting Twitch");
             require('./commands/restart').execute();
         }
     }, 300000);

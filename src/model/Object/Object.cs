@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using NotGMS.Util;
 using ProdModel.Gizmo;
+using ProdModel.Object.Sprite;
 using ProdModel.Utils;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace ProdModel.Object
     public class Object
     {
         public static List<Object> OBJECTS = new();
+        public static int ID = 0;
 
         // ws
         public string Name = "";    
@@ -23,6 +25,7 @@ namespace ProdModel.Object
         public float LastWSSend = 0;
         public bool WSSendForce = true;
         public bool Destroyed = false;
+        public Dictionary<string, object> Extra = new();
 
         // physics
         public bool EnablePhysics = false;
@@ -99,12 +102,12 @@ namespace ProdModel.Object
             onInit?.Invoke();
         }
 
-        public event Action onDestroy;
+        public event Action<Object> onDestroy;
         public virtual void OnDestroy()
         {
             OBJECTS.Remove(this);
             WebSocket = null; 
-            onDestroy?.Invoke();
+            onDestroy?.Invoke(this);
             Destroyed = true;
             Server.Sync(false);
         }
@@ -219,7 +222,7 @@ namespace ProdModel.Object
         public event Action<Object, InputP.Mouses, Vector2> onMouse;
         public virtual void OnMouse(InputP.Mouses button, Vector2 position)
         {
-            if (button == InputP.Mouses.Left) Audio.Play("audio/click_me");
+            if (button == InputP.Mouses.Left) Audio.Audio.Play("audio/click_me");
             if (!Name.StartsWith("_") && button == InputP.Mouses.Middle) OnDestroy();
             onMouse?.Invoke(this, button, position);
         }

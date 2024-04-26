@@ -10,6 +10,7 @@ module.exports.error = (...stuff) => console.error('[DISCORD]', ...stuff);
 let app, server, general, announcements;
 let logins = {};
 let users = {};
+let irc = {};
 let messages = {};
 module.exports.attemptLogin = (str, user) => {
     str = str.trim();
@@ -18,11 +19,16 @@ module.exports.attemptLogin = (str, user) => {
     users[k] = user;
     return k;
 }
+const THE_COMPUTER = "1117223939014410261";
 module.exports.init = async () => {
     users = {};
+    irc = {};
     messages = {};
     let _u = data().user;
-    for (let k in _u) if (_u[k].discord) users[_u[k].discord] = k;
+    for (let k in _u) {
+        if (_u[k].discord) users[_u[k].discord] = k;
+        if (_u[k].irc) irc[_u[k].irc] = k;
+    }
     if (app) await app.destroy();
     // return 0; // disable bot
     return new Promise(async resolve => {
@@ -36,18 +42,28 @@ module.exports.init = async () => {
         });
         listFiles(__dirname, 'events').then(events => app.on(events.slice(0, -('.js'.length)), (...x) => require('./events/' + events.slice(0, -('.js'.length))).execute(...x)));
         app.on('messageCreate', async message => {
-            if (message.author.bot) return;
-            let user = users[message.author.id] ?? ('#' + message.author.tag);
-            if (message.content.startsWith('!')) {
-                if (user.startsWith('#')) {
+            let __, user, content;
+            if (message.author.bot) switch (message.author.id) {
+                case THE_COMPUTER:
+                    [__, user, content] = message.content.match(/`<([^>]+)>` (.+)/);
+                    user = irc[user] ?? ('#' + user);
+                    break;
+                default:
+                    return;
+            } else {
+                user = users[message.author.id] ?? ('#' + message.author.tag);
+                content = message.content;
+            }
+            if (content.startsWith('!')) {
+                if (user.startsWith('#') && !content.startsWith("!login")) {
                     message.reply('You are not logged in, please log in with `/login` first to connect your account to twitch.');
-                    return;                 
+                    return;
                 }
                 messages[message.id] = message;
-                sendClient('twitch', 'twitch', `#${user}@id=${message.id}`, message.content);
+                sendClient('twitch', 'twitch', `#${user}@id=${message.id}`, content);
                 setTimeout(() => { delete messages[message.id]; }, 60000);
             } else if (message.channel === general) {
-                sendClient(this.ID, 'twitch', WASD.pack('!discord', user, message.content + 
+                sendClient(this.ID, 'twitch', WASD.pack('!discord', user, content + 
                     Array.from(message.attachments.values()).map(x => "\n" + x.url).join(""))); // convert images to urls
             }
         });
@@ -87,4 +103,5 @@ module.exports.announce = (msg) => {
     if (!app) return;
     announcements.send(`@everyone\n${msg}\n\nhttps://prod.kr/live\nhttps://prod.kr/v/screen`);
 }
+module.exports.addIRC = (twitch, user) => { irc[user] = twitch; return 0; }
 module.exports.commands = {}

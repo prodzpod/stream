@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using NotGMS.Util;
 using System;
 
-namespace ProdModel.Object
+namespace ProdModel.Object.Sprite
 {
     public class ColorSprite : ISprite
     {

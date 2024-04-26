@@ -1,10 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using NotGMS.Util;
-using ProdModel.Object;
-using System;
+using ProdModel.Object.Sprite;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace ProdModel.Puppet
 {

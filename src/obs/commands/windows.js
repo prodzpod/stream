@@ -70,7 +70,7 @@ let RULE = {
 module.exports.execute = async args => {
     let update = WASD.unpack(args[1]).map(x => {
         let o = unentry(WASD.unpack(x).map(y => [y.slice(0, y.indexOf(":")), y.slice(y.indexOf(":") + 1)]));
-        for (let k of ['id', 'x', 'y', 'w', 'h']) if (o[k] !== undefined) {
+        for (let k of ['id', 'x', 'y', 'w', 'h', 'i']) if (o[k] !== undefined) {
             o[k] = Number(o[k]);
             if (Number.isNaN(o[k])) delete o[k];
         }
@@ -93,12 +93,20 @@ module.exports.execute = async args => {
         log("Hooked Windows:", RULE[k].window?.name);
     }
     // update stuff
+    let indices = Object.entries(RULE).filter(x => x[1].window).sort((a, b) => a[1].window.i - b[1].window.i).map(x => x[0]);
+    let indicesToUpdate = update
+        .map(window => Object.keys(RULE).find(x => RULE[x].window?.id == window.id))
+        .filter(k => k)
+        .map(x => [x, indices.indexOf(x)]);
+    if (indicesToUpdate.length > 1) { // order swapped
+        log("Order Changed:", indicesToUpdate[0][0]);
+        sendByName("SetSceneItemIndex", "stream::sources", indicesToUpdate[0][0], {"sceneItemIndex": Object.keys(RULE).length - 1});
+    }
     for (let window of update) {
         let k = Object.keys(RULE).find(x => RULE[x].window?.id == window.id);
         if (!k) continue;
         if (window.name) send("SetInputSettings", {"inputName": k, "inputSettings": {"window": RULE[k].name.replace("%NAME%", window.name)}});
         if (window.x !== undefined || window.y !== undefined || window.w !== undefined || window.h !== undefined) {
-            sendByName("SetSceneItemIndex", "stream::sources", k, {"sceneItemIndex": Object.keys(RULE).length - 1});
             let o = {};
             if (window.x) o.positionX = window.x;
             if (window.y) o.positionY = window.y;

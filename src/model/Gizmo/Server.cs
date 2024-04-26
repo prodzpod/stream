@@ -1,7 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using NotGMS.Util;
-using ProdModel.Object;
+using ProdModel.Object.Audio;
+using ProdModel.Object.Sprite;
 using ProdModel.Utils;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -34,7 +35,8 @@ namespace ProdModel.Gizmo
                         if (args.Length < 7) return;
                         if (args[6] == "Joel")
                         {
-                            Chat.AddJoel(new(MathP.Random(1, ProdModel.SCREEN_WIDTH), MathP.Random(1, ProdModel.SCREEN_HEIGHT)), args[5] + ": Joel");
+                            Windows.AddJoel(new(MathP.Random(1, ProdModel.SCREEN_WIDTH), MathP.Random(1, ProdModel.SCREEN_HEIGHT)), args[5] + ": Joel");
+                            Audio.Play("audio/window");
                             return;
                         }
                         Chat.AddChat(args[3], ColorP.RGBA(ColorP.Hex(args[4])), args[5], args[6]); // icon, color, author, message
@@ -92,7 +94,7 @@ namespace ProdModel.Gizmo
                     {
                         if (args.Length < 7) return;
                         Vector2 pos = new(float.Parse(args[3]), float.Parse(args[4]));
-                        Chat.AddTextWindow(pos, args[5], args[6]);
+                        Windows.AddTextWindow(pos, args[5], args[6].Replace("\\n", "\n"));
                         Audio.Play("audio/window");
                     }
                     break;
@@ -110,6 +112,10 @@ namespace ProdModel.Gizmo
                     break;
                 case "sync":
                     Sync();
+                    break;
+                case "song":
+                    if (args.Length < 5) return;
+                    Windows.AddSongWindow(new(MathP.Random(1, ProdModel.SCREEN_WIDTH), MathP.Random(1, ProdModel.SCREEN_HEIGHT)), args[3], args[4]);
                     break;
             }
         }

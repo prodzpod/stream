@@ -41,6 +41,7 @@ namespace ProdModel.Object
                     User32.GetWindowRect(w.ID, out RECT rect);
                     w.Position = new(rect.left, rect.top);
                     w.Size = new(rect.right - rect.left, rect.bottom - rect.top);
+                    w.Order = i;
                     windows[i] = w;
                 }
                 // go diff style
@@ -52,7 +53,7 @@ namespace ProdModel.Object
                     {
                         int id = (int)window.ID;
                         if (!LastSync.ContainsKey(id)) // new
-                            updates.Add(WASD.Pack("id:" + id, "name:" + window.Name, "x:" + window.Position.X, "y:" + window.Position.Y, "w:" + window.Size.X, "h:" + window.Size.Y));
+                            updates.Add(WASD.Pack("id:" + id, "name:" + window.Name, "x:" + window.Position.X, "y:" + window.Position.Y, "w:" + window.Size.X, "h:" + window.Size.Y, "i:" + window.Order));
                         else // update?
                         {
                             List<string> txt = new() { "id:" + id };
@@ -61,8 +62,11 @@ namespace ProdModel.Object
                             if (window.Position.Y != LastSync[id].Position.Y) txt.Add("y:" + window.Position.Y);
                             if (window.Size.X != LastSync[id].Size.X) txt.Add("w:" + window.Size.X);
                             if (window.Size.Y != LastSync[id].Size.Y) txt.Add("h:" + window.Size.Y);
+                            if (window.Size.Y != LastSync[id].Size.Y) txt.Add("h:" + window.Size.Y);
+                            if (window.Order != LastSync[id].Order) txt.Add("i:" + window.Order);
                             if (txt.Count > 1) updates.Add(WASD.Pack(txt.ToArray()));
                         }
+                        // if (updates.Count > 0) Debug.WriteLine(updates.Count + ": " + window.Name + " / " + updates[^1]);
                     }
                     if (updates.Count > 0 || IDsToDestroy.Count > 0) ProdModel.WebSocket.Send("obs", "windows", WASD.Pack(updates.ToArray()), WASD.Pack(IDsToDestroy.Select(x => x.ToString()).ToArray()));
                 }
@@ -78,6 +82,7 @@ namespace ProdModel.Object
             public string Name;
             public Vector2 Position;
             public Vector2 Size;
+            public int Order;
         }
     }
 }

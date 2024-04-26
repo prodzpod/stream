@@ -10,7 +10,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 
-namespace ProdModel.Object
+namespace ProdModel.Object.Sprite
 {
     public class ModelSprite : ISprite
     {
@@ -53,57 +53,59 @@ namespace ProdModel.Object
             {
                 // used to be premature optimization but turned out to be a good call
                 Triangle triangle = triangles[i];
-                int xa = Math.Clamp((int)MathP.Min(triangle.a.X, triangle.b.X, triangle.c.X) , 0, Width);
+                int xa = Math.Clamp((int)MathP.Min(triangle.a.X, triangle.b.X, triangle.c.X), 0, Width);
                 int xb = Math.Clamp((int)MathP.Max(triangle.a.X, triangle.b.X, triangle.c.X) + 1, 0, Width);
-                int ya = Math.Clamp((int)MathP.Min(triangle.a.Y, triangle.b.Y, triangle.c.Y) , 0, Height);
+                int ya = Math.Clamp((int)MathP.Min(triangle.a.Y, triangle.b.Y, triangle.c.Y), 0, Height);
                 int yb = Math.Clamp((int)MathP.Max(triangle.a.Y, triangle.b.Y, triangle.c.Y) + 1, 0, Height);
                 for (int x = xa; x < xb; x++) for (int y = ya; y < yb; y++)
-                {
-                    var _z = triangle.ZAt(new Vector2(x, y));
-                    if (_z > z[x][y]) { z[x][y] = _z; pixels[x][y] = triangle.color; };
-                }
+                    {
+                        var _z = triangle.ZAt(new Vector2(x, y));
+                        if (_z > z[x][y]) { z[x][y] = _z; pixels[x][y] = triangle.color; };
+                    }
             }
             // outline 
-            const float OUTLINE_DEPTH = .15f;
-            for (int x = 0; x < Width; x++) for (int y = 0; y < Height; y++) {
-                if (((x > 0)            && (z[x - 1][y] - z[x][y] > OUTLINE_DEPTH)) ||
-                    ((x < (Width - 1))  && (z[x + 1][y] - z[x][y] > OUTLINE_DEPTH)) ||
-                    ((y > 0)            && (z[x][y - 1] - z[x][y] > OUTLINE_DEPTH)) ||
-                    ((y < (Height - 1)) && (z[x][y + 1] - z[x][y] > OUTLINE_DEPTH))) 
+            const float OUTLINE_DEPTH = .1f;
+            for (int x = 0; x < Width; x++) for (int y = 0; y < Height; y++)
+                {
+                    if (x > 0 && z[x - 1][y] - z[x][y] > OUTLINE_DEPTH ||
+                        x < Width - 1 && z[x + 1][y] - z[x][y] > OUTLINE_DEPTH ||
+                        y > 0 && z[x][y - 1] - z[x][y] > OUTLINE_DEPTH ||
+                        y < Height - 1 && z[x][y + 1] - z[x][y] > OUTLINE_DEPTH)
                         pixels[x][y] = black;
-            }
-            for (int x = 0; x < Width; x++) for (int y = 0; y < Height; y++) {
-                if (!Palette.ContainsKey(pixels[x][y])) Palette[pixels[x][y]] = System.Drawing.Color.FromArgb((int)pixels[x][y].W, (int)pixels[x][y].X, (int)pixels[x][y].Y, (int)pixels[x][y].Z);
-                image.SetPixel(x, y, Palette[pixels[x][y]]);
-            }
+                }
+            for (int x = 0; x < Width; x++) for (int y = 0; y < Height; y++)
+                {
+                    if (!Palette.ContainsKey(pixels[x][y])) Palette[pixels[x][y]] = System.Drawing.Color.FromArgb((int)pixels[x][y].W, (int)pixels[x][y].X, (int)pixels[x][y].Y, (int)pixels[x][y].Z);
+                    image.SetPixel(x, y, Palette[pixels[x][y]]);
+                }
         }
         public static Triangle[] GetTriangles(WorseVRM.Model model) => model.f.Select(x => new Triangle()
-            {
-                a = model.v[(int)x.X],
-                b = model.v[(int)x.Y],
-                c = model.v[(int)x.Z],
-                color = model.color
-            }).ToArray();
+        {
+            a = model.v[(int)x.X],
+            b = model.v[(int)x.Y],
+            c = model.v[(int)x.Z],
+            color = model.color
+        }).ToArray();
 
         public static void Transform(ref WorseVRM wvrm, string id, Vector3 translate, Vector3 _rotate)
         {
             List<string> names = GetAllChildrenAndItself(wvrm, id);
-            Vector3 rotate = CollectionP.Map(_rotate, MathP.RadToDeg).ZYX();
+            Vector3 rotate = _rotate.Map(MathP.RadToDeg).ZYX();
             if (translate != Vector3.Zero) foreach (string name in names)
-            {
-                var m = wvrm.model[name];
-                m.pivot += translate;
-                m.v = m.v.Select(x => x + translate).ToList();
-                wvrm.model[name] = m;
-            }
+                {
+                    var m = wvrm.model[name];
+                    m.pivot += translate;
+                    m.v = m.v.Select(x => x + translate).ToList();
+                    wvrm.model[name] = m;
+                }
             Vector3 pivot = wvrm.model[id].pivot;
             if (rotate != Vector3.Zero) foreach (string name in names)
-            {
-                var m = wvrm.model[name];
-                m.pivot = MathP.Rotate(m.pivot, pivot, rotate);
-                m.v = m.v.Select(x => MathP.Rotate(x, pivot, rotate)).ToList();
-                wvrm.model[name] = m;
-            }
+                {
+                    var m = wvrm.model[name];
+                    m.pivot = MathP.Rotate(m.pivot, pivot, rotate);
+                    m.v = m.v.Select(x => MathP.Rotate(x, pivot, rotate)).ToList();
+                    wvrm.model[name] = m;
+                }
         }
 
         public static List<string> GetAllChildrenAndItself(WorseVRM wvrm, string id)
@@ -190,8 +192,8 @@ namespace ProdModel.Object
                 model.color *= 255;
                 model.v = model.v.Select(x =>
                 {
-                    x.X = (x.X * Width / 2) + (Width / 2);
-                    x.Y = -(x.Y * Height / 2) + (Height * 0.75f);
+                    x.X = x.X * Width / 2 + Width / 2;
+                    x.Y = -(x.Y * Height / 2) + Height * 0.75f;
                     return x;
                 }).ToList();
                 wvrm.model[k] = model;
@@ -253,15 +255,15 @@ namespace ProdModel.Object
             Vector2 pxy = position - o;
             Vector2 uxy = b.XY() - o;
             Vector2 vxy = c.XY() - o;
-            if ((uxy.X == 0 && uxy.Y == 0) || (vxy.X == 0 && vxy.Y == 0) || (uxy.X == 0 && vxy.X == 0) || (uxy.Y == 0 && vxy.Y == 0)) return float.NegativeInfinity;
+            if (uxy.X == 0 && uxy.Y == 0 || vxy.X == 0 && vxy.Y == 0 || uxy.X == 0 && vxy.X == 0 || uxy.Y == 0 && vxy.Y == 0) return float.NegativeInfinity;
             // float fu = Vector2.Distance(uxy, Vector2.Zero);
             // float fv = Vector2.Distance(vxy, Vector2.Zero);
-            float qx = vxy.X == 0 ? (pxy.X / uxy.X) : ((pxy.X * vxy.Y / vxy.X - pxy.Y) / (uxy.X * vxy.Y / vxy.X - uxy.Y));
-            float qy = uxy.Y == 0 ? (pxy.Y / vxy.Y) : ((pxy.Y * uxy.X / uxy.Y - pxy.X) / (vxy.Y * uxy.X / uxy.Y - vxy.X));
-            if (MathP.Between(0, qx, 1) && 
-                MathP.Between(0, qy, 1) && 
-                MathP.Between(0, qx + qy, 1)) 
-                return (1 - qx - qy) * a.Z + (qx * b.Z) + (qy * c.Z);
+            float qx = vxy.X == 0 ? pxy.X / uxy.X : (pxy.X * vxy.Y / vxy.X - pxy.Y) / (uxy.X * vxy.Y / vxy.X - uxy.Y);
+            float qy = uxy.Y == 0 ? pxy.Y / vxy.Y : (pxy.Y * uxy.X / uxy.Y - pxy.X) / (vxy.Y * uxy.X / uxy.Y - vxy.X);
+            if (MathP.Between(0, qx, 1) &&
+                MathP.Between(0, qy, 1) &&
+                MathP.Between(0, qx + qy, 1))
+                return (1 - qx - qy) * a.Z + qx * b.Z + qy * c.Z;
             return float.NegativeInfinity;
         }
     }

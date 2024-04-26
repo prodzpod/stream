@@ -113,7 +113,7 @@ namespace ProdModel.Puppet
         public WorseVRM(string path) : this(
             JsonConvert.DeserializeObject<_WorseVRM>(
                 File.ReadAllText(ProdModel.ResolvePath(
-                    !path.Contains(".") ? path + ".json" : path)))) { }
+                    !path.Contains('.') ? path + ".json" : path)))) { }
 
         public WorseVRM(WorseVRM wvrm) // clone wvrm
         { 

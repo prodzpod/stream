@@ -78,7 +78,7 @@ function onDestroyed(name, ws) {
     switch (name) {
         case "startingsoon":
         case "brb":
-            sendClient(ID, 'obs', 'unbrb');
+            sendClient('main', 'obs', 'unbrb');
             break;
     }
     delete sockets[name];

@@ -5,6 +5,8 @@ using Microsoft.Xna.Framework.Input;
 using NotGMS.Util;
 using ProdModel.Gizmo;
 using ProdModel.Object;
+using ProdModel.Object.Audio;
+using ProdModel.Object.Sprite;
 using ProdModel.Puppet;
 using ProdModel.Utils;
 using System;
@@ -84,6 +86,7 @@ namespace ProdModel
             PIXEL = Texture2D.FromFile(Instance._graphics.GraphicsDevice, ResolvePath("Content/white.png"));
             ModelHandler.InitTextures();
             ModelSprite.Init();
+            SongHandler.Init();
             new Object.Object("_bg").AddChild(new ImageSprite("Content/layout/bg")).SetBoundingBoxes(0).SetPosition(0, 0);
             new Object.Object("_status").AddChild(new ImageSprite("Content/layout/status")).SetBoundingBoxes(0).SetPosition(-4, 4);
             var phase = new Object.Object("_phase")

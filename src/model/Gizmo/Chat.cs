@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using NotGMS.Util;
-using ProdModel.Object;
+using ProdModel.Object.Sprite;
 using ProdModel.Utils;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,12 +9,11 @@ namespace ProdModel.Gizmo
 {
     public static class Chat
     {
-        private static int ID = 0;
         public static List<Object.Object> ChatObjects = new();
         public static void AddChat(string icon, Color color, string author, string message)
         {
-            ID++;
-            var o = new Object.Object("chat_" + ID.ToString())
+            Object.Object.ID++;
+            var o = new Object.Object("chat_" + Object.Object.ID.ToString())
                 .AddChild(new ColorSprite(ColorP.RGBA(ColorP.Hex("D7D0C8"))))
                 .AddChild(new ImageSprite(icon), -152, 0)
                 .AddChild(new TextSprite("arcaoblique", author).SetColor(color).SetAlign(-1, -1), 36, 0)
@@ -44,8 +43,8 @@ namespace ProdModel.Gizmo
 
         public static void AddPointer(string icon, Vector2 pos, Vector2 dest, Color color, string author)
         {
-            ID++;
-            var pointer = new Object.Object("pointer_" + ID.ToString())
+            Object.Object.ID++;
+            var pointer = new Object.Object("pointer_" + Object.Object.ID.ToString())
                 .AddChild(new ImageSprite("Content/sprites/cursor_" + icon))
                 .AddChild(new TextSprite("arcaoblique", author).SetAlign(-1, 1).SetColor(color), 48, 0)
                 .SetBoundingBoxes(0).SetPosition(-pos).SetDepth(200).Listen();
@@ -60,9 +59,21 @@ namespace ProdModel.Gizmo
                         var o = Object.Object.OBJECTS[i];
                             if (MathP.PositionInBoundingBox(o, self.Position))
                         {
-                            o.Speed *= 0.8f;
-                            o.Rotation -= o.Angle * 0.1f;
-                            o.Angle *= 0.8f;
+                                ImageSprite img = (ImageSprite)self.Children[0].Sprite;
+                                if (img.Path == "Content/sprites/cursor_click")
+                                {
+                                    o.Speed *= 0.8f;
+                                    o.Rotation -= o.Angle * 0.1f;
+                                    o.Angle *= 0.8f;
+                                }
+                                else if (img.Path == "Content/sprites/cursor_point" && o.Name == "_prod" && MathP.Between(-180, self.Position.X - o.Position.X, 180) && MathP.Between(-160, self.Position.Y - o.Position.Y, -30))
+                                {
+                                    var color = img.Color;
+                                    img = new("Content/sprites/cursor_pet") { Color = color };
+                                    var z = self.Children[0];
+                                    z.Sprite = img;
+                                    self.Children[0] = z;
+                                }
                         }
                     }
                 }
@@ -82,53 +93,6 @@ namespace ProdModel.Gizmo
                 self.AddWSData("sprite", ((ImageSprite)self.Children[0].Sprite).Path);
                 self.AddWSData("author", ((TextSprite)self.Children[1].Sprite).Content);
                 self.AddWSData("color", ((ImageSprite)self.Children[0].Sprite).Color);
-            };
-        }
-
-        public static void AddTextWindow(Vector2 pos, string title, string content)
-        {
-            ID++;
-            var window = new Object.Object("window_" + ID.ToString()); window
-                .AddChild(new NineSliceSprite("Content/layout/window", true, true))
-                .AddChild(new TextSprite("arcaoblique", content).SetAlign(-1, -1), 8, 50)
-                .AddChild(new TextSprite("arcaoblique", title).SetColor(Color.White).SetAlign(-1, -1), 8, 12)
-                .SetBoundingBoxes(1, 20, 54).SetBoundingBoxes(MathP.Max(window.Children[1].Sprite.GetBoundingBox().X, window.Children[2].Sprite.GetBoundingBox().X + 42) + 12, -1).SetPosition(-pos.X, -pos.Y).Physics().MakeTopdown().SetDepth(100).Listen();
-            window.onUpdate += (self, time) =>
-            {
-                self.Rotation *= 0.99f;
-            };
-            window.onWSSend += (self) =>
-            {
-                self.AddWSData("title", ((TextSprite)self.Children[2].Sprite).Content);
-                self.AddWSData("content", ((TextSprite)self.Children[1].Sprite).Content);
-            };
-            window.onMouse += (self, button, pos) =>
-            {
-                if (button == InputP.Mouses.Left && pos.X >= (self.BoundingBoxSize.X / 2 - 48) && pos.Y <= 42)
-                    self.OnDestroy();
-            };
-        }
-        public static void AddJoel(Vector2 pos, string title = "Joel")
-        {
-            ID++;
-            var window = new Object.Object("window_" + ID.ToString()); window
-                .AddChild(new NineSliceSprite("Content/layout/window", true, true))
-                .AddChild(new AnimationSprite(window, "Content/sprites/joel", 7, 10), 0, 8)
-                .AddChild(new TextSprite("arcaoblique", title).SetColor(Color.White).SetAlign(-1, -1), 8, 12)
-                .SetBoundingBoxes(1, 20, 54).SetBoundingBoxes(MathP.Max(window.Children[1].Sprite.GetBoundingBox().X, window.Children[2].Sprite.GetBoundingBox().X + 42) + 12, -1).SetPosition(-pos.X, -pos.Y).Physics().MakeTopdown().SetDepth(100).Listen();
-            window.onUpdate += (self, time) =>
-            {
-                self.Rotation *= 0.99f;
-            };
-            window.onWSSend += (self) =>
-            {
-                self.AddWSData("title", ((TextSprite)self.Children[2].Sprite).Content);
-                self.AddWSData("content", ((TextSprite)self.Children[1].Sprite).Content);
-            };
-            window.onMouse += (self, button, pos) =>
-            {
-                if (button == InputP.Mouses.Left && pos.X >= (self.BoundingBoxSize.X / 2 - 48) && pos.Y <= 42)
-                    self.OnDestroy();
             };
         }
     }
