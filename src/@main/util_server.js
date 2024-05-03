@@ -2,6 +2,10 @@ const fs = require('fs');
 const { readdir } = require('node:fs/promises');
 const path = require('path');
 const { performance } = require('node:perf_hooks');
+const Stream = require('stream').Transform;
+const http = require('http');
+const https = require('https');
+const { utow, isNullOrWhitespace } = require('./util_client');
 // files
 module.exports.fileExists = (...p) => {
     try {
@@ -30,6 +34,36 @@ module.exports.listFiles = (...dir) => {
     }
     return new Promise(resolve => openDir(path.join(...dir)).then(resolve));
 }
+module.exports.saveFile = (url, ...dir) => new Promise(resolve => {
+    (url.startsWith('http://') ? http : https).request(url, res => {
+        let data = new Stream();
+        res.on('data', chunk => data.push(chunk));
+        res.on('end', () => {
+            let p = path.join(...dir);
+            if (!p.includes(".")) {
+                let baseurl = url;
+                if (baseurl.includes('?')) baseurl = baseurl.slice(0, baseurl.indexOf('?'));
+                if (baseurl.includes('#')) baseurl = baseurl.slice(0, baseurl.indexOf('#'));
+                if (baseurl.includes('//')) baseurl = baseurl.slice(baseurl.indexOf('//') + '//'.length);
+                let ext = baseurl.split('.');
+                ext = ext[ext.length - 1];
+                if (ext.includes("/")) ext = "png";
+                else baseurl = baseurl.slice(0, -1 - ext.length);
+                let name = baseurl.replace(/%/g, "").replace(/\//g, "+");
+                p = path.join(p, `${name}.${ext}`);
+            }
+            fs.writeFileSync(p, data.read());
+            resolve(p);
+        });
+        res.on('error', () => resolve(null));
+    }).end();
+});
+
+module.exports.toModelURL = p => {
+    if (isNullOrWhitespace(p)) return "Content/sprites/joel1";
+    return path.relative(path.join(__dirname, "../model"), p).replace(/\.\w+$/, "");
+}
+
 // ws
 module.exports.waitList = {
     main: {},

@@ -23,7 +23,7 @@ namespace ProdModel.Object.Audio
         }
         public Sample GetSample(float note) => samples.FindOr(x => MathP.Between(x.min, note, x.max), Sample.NONE);
         public void Play(float time, float pitch = 0, bool cutHead = false, bool cutFeet = false) => GetSample(pitch).Play(time, pitch, cutHead, cutFeet);
-        public Vector3 GetDuration(float pitch = 0) => GetSample(pitch).duration;
+        public Vector3 GetDuration(float pitch = 0) { Sample sample = GetSample(pitch); return sample.duration * (float)Math.Pow(2, (pitch - sample.pitch) / 12); }
     }
     public struct Sample
     {

@@ -202,46 +202,53 @@ namespace ProdModel.Object
         }
 
         public event Action<Object, Keys> onKey;
-        public virtual void OnKey(Keys key)
+        public virtual bool OnKey(Keys key)
         {
             onKey?.Invoke(this, key);
+            return onKey != null;
         }
 
         public event Action<Object, Keys> onKeyDown;
-        public virtual void OnKeyDown(Keys key)
+        public virtual bool OnKeyDown(Keys key)
         {
             onKeyDown?.Invoke(this, key);
+            return onKeyDown != null;
         }
 
         public event Action<Object, Keys> onKeyUp;
-        public virtual void OnKeyUp(Keys key)
+        public virtual bool OnKeyUp(Keys key)
         {
             onKeyUp?.Invoke(this, key);
+            return onKeyUp != null;
         }
 
         public event Action<Object, InputP.Mouses, Vector2> onMouse;
-        public virtual void OnMouse(InputP.Mouses button, Vector2 position)
+        public virtual bool OnMouse(InputP.Mouses button, Vector2 position)
         {
             if (button == InputP.Mouses.Left) Audio.Audio.Play("audio/click_me");
             if (!Name.StartsWith("_") && button == InputP.Mouses.Middle) OnDestroy();
             onMouse?.Invoke(this, button, position);
+            return onMouse != null;
         }
         public event Action<Object, Vector2, Vector2> onDrag;
-        public virtual void OnDrag(Vector2 position, Vector2 drag)
+        public virtual bool OnDrag(Vector2 position, Vector2 drag)
         {
             if (EnablePhysics) AddMoment(position, drag);
             onDrag?.Invoke(this, position, drag);
+            return onDrag != null;
         }
         public event Action<Object, InputP.Mouses> onRelease;
-        public virtual void OnRelease(InputP.Mouses button)
+        public virtual bool OnRelease(InputP.Mouses button)
         {
             onRelease?.Invoke(this, button);
+            return onRelease != null;
         }
 
         public event Action<Object, Vector2> onHover;
-        public virtual void OnHover(Vector2 position)
+        public virtual bool OnHover(Vector2 position)
         {
             onHover?.Invoke(this, position);
+            return onHover != null;
         }
 
         public virtual void SetFlip(Vector2 flip)

@@ -1,7 +1,7 @@
 const { Client, GatewayIntentBits, Partials } = require('discord.js');
-const { getIdentifier, WASD } = require('../@main/util_client');
-const { listFiles } = require('../@main/util_server');
-const { sendClient, data } = require('../@main/include');
+const { getIdentifier, WASD, isNullOrWhitespace } = require('../@main/util_client');
+const { listFiles, saveFile } = require('../@main/util_server');
+const { sendClient, data, writeData } = require('../@main/include');
 const OPTIONS = { intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildMembers, GatewayIntentBits.MessageContent], partials: [Partials.Message, Partials.Channel, Partials.Reaction] };
 module.exports.ID = 'discord';
 module.exports.log = (...stuff) => console.log('[DISCORD]', ...stuff);
@@ -40,9 +40,10 @@ module.exports.init = async () => {
             announcements = await server.channels.fetch('1219958741495975936');
             resolve(0);
         });
-        listFiles(__dirname, 'events').then(events => app.on(events.slice(0, -('.js'.length)), (...x) => require('./events/' + events.slice(0, -('.js'.length))).execute(...x)));
+        listFiles(__dirname, 'events').then(events => app.on(events.slice(0, -('.js'.length)), (...x) => require('./events/' + events.slice(0, -('.js'.length))).execute(app, ...x)));
         app.on('messageCreate', async message => {
             let __, user, content;
+            if (message.guildId != server) return;
             if (message.author.bot) switch (message.author.id) {
                 case THE_COMPUTER:
                     [__, user, content] = message.content.match(/`<([^>]+)>` (.+)/);
@@ -53,6 +54,13 @@ module.exports.init = async () => {
             } else {
                 user = users[message.author.id] ?? ('#' + message.author.tag);
                 content = message.content;
+                if (!user.startsWith("#") && new Date().getTime() - (data().user[user]?.discord_updated ?? 0) >= 24*60*60*1000) {
+                    let avatar = message.member.avatarURL() ?? message.author.avatarURL();
+                    if (avatar) {
+                        let url = await saveFile(avatar + '?size=300', __dirname, `../@main/data/user/${user}.discord.png`);
+                        if (url) writeData(`user.${user}`, { discord_image: url, discord_updated: new Date().getTime() });
+                    }
+                }
             }
             if (content.startsWith('!')) {
                 if (user.startsWith('#') && !content.startsWith("!login")) {
@@ -60,11 +68,11 @@ module.exports.init = async () => {
                     return;
                 }
                 messages[message.id] = message;
-                sendClient('twitch', 'twitch', `#${user}@id=${message.id}`, content);
+                sendClient('twitch', 'twitch', `${user}@id=${message.id};fromDiscord=true`, content);
                 setTimeout(() => { delete messages[message.id]; }, 60000);
             } else if (message.channel === general) {
-                sendClient(this.ID, 'twitch', WASD.pack('!discord', user, content + 
-                    Array.from(message.attachments.values()).map(x => "\n" + x.url).join(""))); // convert images to urls
+                sendClient(this.ID, 'twitch', '!discord', user, content + 
+                    Array.from(message.attachments.values()).map(x => "\n" + x.url).join("")); // convert images to urls
             }
         });
         app.on('interactionCreate', async interaction => {
@@ -89,12 +97,14 @@ module.exports.init = async () => {
 module.exports.send = (msg, user=null) => {
     if (!app) return;
     if (user) server.members.fetch(user).then(x => {
+        if (isNullOrWhitespace(msg)) msg = '** **';
         general.send((`<@${x.id}> ` + msg.replace(/@everyone/g, "**@**everyone").replace(/@here/g, "**@**here")).slice(0, 2000));
     }).catch(_ => general.send(msg)); else general.send(msg);
 }
 module.exports.reply = (msg, id) => {
     if (!app) return;
     if (messages[id]) {
+        if (isNullOrWhitespace(msg)) msg = '** **';
         messages[id].reply(msg.slice(0, 2000));
         delete messages[id];
     } else this.warn('Cannot find message id', id, 'to reply');

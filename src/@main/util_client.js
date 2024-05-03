@@ -211,6 +211,10 @@ module.exports.traverse = (o, k) => {
     }
     return [target, k[k.length - 1]];
 }
+module.exports.filterKey = (o, fn) => this.unentry(Object.entries(o).filter(x => fn(x[0])));
+module.exports.filterValue = (o, fn) => this.unentry(Object.entries(o).filter(x => fn(x[1])));
+module.exports.mapKey = (o, fn) => this.unentry(Object.entries(o).map(x => fn(x[0])));
+module.exports.mapValue = (o, fn) => this.unentry(Object.entries(o).map(x => fn(x[1])));
 module.exports.superstringify = o => {
     //! DO NOT USE THIS ON USER INPUT !! its basically eval lol
     if (typeof o !== 'object') return o + '';

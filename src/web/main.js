@@ -81,9 +81,8 @@ module.exports.init = async (extern) => {
             log('WebSocket Connected');
             ws.on('open', _ => ws.send(`register ${sockets.length}`));
             sockets.push(ws);
-            if (api.init) {
-                api.init(ws, req.query ?? {}, req.body ?? {}).then(ret => { if (ret !== undefined) ws.send(ret); });
-                
+            if (api._init) {
+                api._init(ws, req.query ?? {}, req.body ?? {}).then(ret => { if (ret !== undefined) ws.send(ret); });
             }
             ws.on('message', msg => {
                 if (busy.includes(ws)) {
@@ -91,16 +90,25 @@ module.exports.init = async (extern) => {
                     return;
                 }
                 [k, v] = takeWord(msg);
-                if (!api[k]) {
-                    warn(`Webclient WS hook ${k} does not exist, skipping`);
-                    ws.send(WASD.pack("respond", "invalid method"));
-                }
-                else {
+                if (k.startsWith("_")) ws.send(WASD.pack("respond", "no"));
+                if (api[k]) {
                     busy.push(ws);
                     api[k](ws, WASD.unpack(v)).then(ret => {
                         if (ret !== undefined) ws.send(ret);
                         busy = remove(busy, ws);
                     });
+                }
+                else if (api._all) {
+                    busy.push(ws);
+                    api._all(ws, k, WASD.unpack(v)).then(ret => {
+                        if (ret === false) ws.send(WASD.pack("respond", "invalid method"));
+                        else if (ret !== undefined) ws.send(ret);
+                        busy = remove(busy, ws);
+                    });
+                }
+                else {
+                    warn(`Webclient WS hook ${k} does not exist, skipping`);
+                    ws.send(WASD.pack("respond", "invalid method"));
                 }
             });
         });

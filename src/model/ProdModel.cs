@@ -188,7 +188,7 @@ namespace ProdModel
                         ModelHandler.Pose = "TPOSE";
                         break;
                     case Keys.NumPad0:
-                        Chat.AddChat("lib/icons_win2k_sp4_en/WINNT/system32/ole2.dll_14_DEFICON", Color.Black, "test", "this is a test message");
+                        Chat.AddChat("lib/icons_win2k_sp4_en/WINNT/system32/ole2.dll_14_DEFICON", Color.Black, "test", "this is a test message", true);
                         break;
                 }
             };
@@ -217,6 +217,7 @@ namespace ProdModel
 
         protected override void Update(GameTime gameTime)
         {
+            bool clicked = false;
             InputP.OnUpdate();
             Object.Object.OBJECTS.Sort((a, b) => MathF.Sign(a.Depth - b.Depth));
             for (int i = Object.Object.OBJECTS.Count - 1; i >= 0; i--) // in reverse order so backmost item gets selected
@@ -226,21 +227,22 @@ namespace ProdModel
                 foreach (var k in InputP.HeldKeys()) o.OnKey(k);
                 foreach (var k in InputP.PressedKeys()) o.OnKeyDown(k);
                 foreach (var k in InputP.ReleasedKeys()) o.OnKeyUp(k);
-                if (MathP.PositionInBoundingBox(o, InputP.MousePosition))
+                if (!clicked && MathP.PositionInBoundingBox(o, InputP.MousePosition))
                 {
                     var positionRelative = MathP.Rotate(InputP.MousePosition - o.Position, -o.Angle);
                     o.OnHover(positionRelative);
                     if (InputP.MousePressed(InputP.Mouses.Left))
                     {
                         o.HeldPosition = positionRelative;
-                        o.OnMouse(InputP.Mouses.Left, positionRelative);
+                        clicked = o.OnMouse(InputP.Mouses.Left, positionRelative);
                     }
-                    if (InputP.MousePressed(InputP.Mouses.Right)) o.OnMouse(InputP.Mouses.Right, positionRelative);
-                    if (InputP.MousePressed(InputP.Mouses.Middle)) o.OnMouse(InputP.Mouses.Middle, positionRelative);
+                    if (InputP.MousePressed(InputP.Mouses.Right)) clicked = o.OnMouse(InputP.Mouses.Right, positionRelative);
+                    if (InputP.MousePressed(InputP.Mouses.Middle)) clicked = o.OnMouse(InputP.Mouses.Middle, positionRelative);
                     if (InputP.MouseHeld(InputP.Mouses.Right))
                     {
                         o.Rotation -= o.Angle * 0.1f;
                         o.Angle *= 0.8f;
+                        clicked = true;
                     }
                 }
                 if (InputP.MouseReleased(InputP.Mouses.Left))

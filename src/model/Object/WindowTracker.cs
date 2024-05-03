@@ -37,6 +37,7 @@ namespace ProdModel.Object
                 for (int i = 0; i < windows.Count; i++)
                 {
                     var w = windows[i];
+                    if (!User32.IsWindow(w.ID)) continue;
                     w.Name = User32.GetWindowText(w.ID);
                     User32.GetWindowRect(w.ID, out RECT rect);
                     w.Position = new(rect.left, rect.top);

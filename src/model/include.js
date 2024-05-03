@@ -14,7 +14,7 @@ module.exports.init = async () => {
     objects = {};
     setInterval(() => {
         if (Object.keys(newObjects).length === 0) return;
-        for (let d of require('../web/api_client/WS/screen').allSockets()) {
+        for (let d of require('../web/api_client/WS/screen')._allSockets()) {
             if (d.ws?.readyState !== 1) continue;
             d.ws.send(WASD.pack('update', JSON.stringify(newObjects)));
         }
@@ -46,7 +46,7 @@ module.exports.sync = (l, update = true) => {
     let toRemove = Object.keys(objects).filter(x => !l.includes(x));
     for (let k of toAdd) onSpawned(k, null);
     for (let k of toRemove) onDestroyed(k, null);
-    for (let d of require('../web/api_client/WS/screen').allSockets()) {
+    for (let d of require('../web/api_client/WS/screen')._allSockets()) {
         if (d.ws?.readyState !== 1) continue;
         d.ws.send(WASD.pack('sync', JSON.stringify(Object.keys(objects)), update));
     }

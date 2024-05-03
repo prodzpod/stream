@@ -1,7 +1,7 @@
 const WebSocket = require('ws');
 const fs = require('fs');
 const path = require('path');
-const { waitList, listFiles, measureStart, measureEnd } = require('./util_server');
+const { waitList, listFiles, measureStart, measureEnd, fileExists } = require('./util_server');
 const { safeAssign, traverse, WASD, unentry } = require('./util_client');
 module.exports.ID = 'main';
 module.exports.log = (...stuff) => console.log('[MAIN]', ...stuff);
@@ -64,7 +64,6 @@ module.exports.commands = {};
 let id = 0;
 module.exports.getID = () => { id = (id + 1) % 0x100000000; return id; };
 module.exports.sendServer = (source, target, ...data) => {
-    if (source != 'twitch' && target == 'twitch') { data[0] = '!' + data[0]; data.splice(0, 0, 'prodzpod'); }
     let id = this.getID().toString();
     if (typeof target == 'string') target = this.socketsServer[target];
     if (target?.readyState === 1) {
@@ -72,6 +71,7 @@ module.exports.sendServer = (source, target, ...data) => {
             waitList[target][id] = data[data.length - 1];
             data = data.slice(0, -1);
         }
+        if (source != 'twitch' && target == 'twitch') { data = ['[SYSTEM]', WASD.pack('!' + data[0], ...data.slice(1))]; }
         target.send(WASD.pack(source, id, ...data));
     }
 }
@@ -79,12 +79,12 @@ module.exports.sendClient = (source, target, ...data) => {
     let id = this.getID().toString();
     let socket = typeof source == 'string' ? this.socketsClient[source] : source;
     let sourceID = typeof source == 'string' ? source : target;
-    if (sourceID != 'twitch' && target == 'twitch') { data[0] = '!' + data[0]; data.splice(0, 0, 'prodzpod'); }
     if (socket?.readyState === 1) {
         if (waitList[sourceID] && typeof data[data.length - 1] == 'function') {
             waitList[sourceID][id] = data[data.length - 1];
             data = data.slice(0, -1);
         }
+        if (sourceID != 'twitch' && target == 'twitch') { data = ['[SYSTEM]', WASD.pack('!' + data[0], ...data.slice(1))]; }
         socket.send(WASD.pack(target, id, ...data));
     }
 }
@@ -96,7 +96,7 @@ module.exports.onCommand = (key, cmds) => {
                 console.log(`[API: ${args[1]}]`, 'Fulfilling Callback');
                 waitList[key][args[1]](args.slice(3));
                 delete waitList[key][args[1]];
-            } else console.warn(`[API: ${args[1]}]`, 'Callback is Missing, skipping');
+            } // else console.warn(`[API: ${args[1]}]`, 'Callback is Missing, skipping');
         }
         else if (args[2].toLowerCase() == 'log') console.log(`[API: ${args[1]}]`, args.slice(3));
         else {
@@ -105,7 +105,8 @@ module.exports.onCommand = (key, cmds) => {
                 if (typeof x.condition == 'string') 
                     return args[2].toLowerCase() === x.condition;
                 else return x.condition(args.slice(2));
-            }).map(x => x.execute(args.slice(2), message).then(x => {
+            }).map(_x => _x.execute(args.slice(2), message).then(x => {
+                // this.log("cmd returned:", args[1], args[2], x);
                 if (args[0].toLowerCase() == 'void' || x === undefined) {
                     delete waitList[args[0]]?.[args[1]];
                     return;
@@ -137,7 +138,7 @@ module.exports.writeData = (k, obj, force=false) => {
     // check for identical (no writes needed)
     if ((typeof obj !== 'object' && t[0][t[1]] == obj) || (typeof obj === 'object' && JSON.stringify(t[0][t[1]]) == JSON.stringify(obj))) return t[0][t[1]];
     t[0][t[1]] = safeAssign(t[0][t[1]], obj);
-    if (k[0] == 'user' && t[1] == 'point') require('../web/api_client/WS/screen').sockets()[k[1]]?.ws.send(WASD.pack('points', obj));
+    if (k[0] == 'user' && t[1] == 'point') require('../web/api_client/WS/screen')._sockets()[k[1]]?.ws.send(WASD.pack('points', obj));
     let tname = [];
     let found = false;
     for (let ks of k) {
@@ -189,7 +190,8 @@ module.exports.updateLive = async o => {
     safeAssign(streamInfo, o);
     if (o.phase !== undefined) {
         if (o.phase >= 0) fs.writeFileSync(path.join(__dirname, '../../../secret/stream_info.json'), JSON.stringify(streamInfo));
-        else fs.rmSync(path.join(__dirname, '../../../secret/stream_info.json'));
+        else if (fileExists(__dirname, '../../../secret/stream_info.json'))
+            fs.rmSync(path.join(__dirname, '../../../secret/stream_info.json'));
     }
     if (this.getSocketsServer('twitch') != null) {
         const prodID = data.user?.[require('../twitch/include').id]?.['user-id'] ?? '140410053';
@@ -201,18 +203,22 @@ module.exports.updateLive = async o => {
             case 'category':
                 try {
                     let catData = JSON.parse(await new Promise(resolve => { this.sendClient(this.ID, 'twitch', 'api', 'GET', `games?name=${o.category}`, resolve); }));
-                    this.log('Found Twitch Category:', catData?.data[0].id);
+                    this.log('Found Twitch Category:', catData.data?.[0].id);
                     if (catData.data.length) body.game_id = catData.data[0].id
                 } catch (e) { this.error(e); }
                 break;
         }
-        if (Object.keys(body).length) this.sendClient(this.ID, 'twitch', 'api', 'PATCH', `channels?broadcaster_id=${prodID}`, JSON.stringify(body));
+        if (Object.keys(body).length) await new Promise(resolve => { this.sendClient(this.ID, 'twitch', 'api', 'PATCH', `channels?broadcaster_id=${prodID}`, JSON.stringify(body), resolve); });
     } else this.warn('updateLive() called without Twitch Module loaded');
     let obj = require('../model/include').sockets();
     if (obj._phase) obj._phase.send(WASD.pack('set', streamInfo.phase?.toString().padStart(2, '0')));
     if (obj._theme) obj._theme.send(WASD.pack('set', streamInfo.subject?.toString()));
 }
 module.exports.rejoinInfo = () => {
+    if (!fileExists(__dirname, '../../../secret/stream_info.json')) {
+        this.error("stream info does not exist??? (youre fucked)");
+        return 1;
+    }
     streamInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../../../secret/stream_info.json')));
     return 0;
 }

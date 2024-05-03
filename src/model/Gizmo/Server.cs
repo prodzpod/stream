@@ -32,14 +32,14 @@ namespace ProdModel.Gizmo
                     break;
                 case "chat":
                     {
-                        if (args.Length < 7) return;
+                        if (args.Length < 8) return;
                         if (args[6] == "Joel")
                         {
                             Windows.AddJoel(new(MathP.Random(1, ProdModel.SCREEN_WIDTH), MathP.Random(1, ProdModel.SCREEN_HEIGHT)), args[5] + ": Joel");
                             Audio.Play("audio/window");
                             return;
                         }
-                        Chat.AddChat(args[3], ColorP.RGBA(ColorP.Hex(args[4])), args[5], args[6]); // icon, color, author, message
+                        Chat.AddChat(args[3], ColorP.RGBA(ColorP.Hex(args[4])), args[5], args[6], !string.IsNullOrWhiteSpace(args[7])); // icon, color, author, message
                         Audio.Play("audio/chat");
                     }
                     break;
@@ -96,6 +96,18 @@ namespace ProdModel.Gizmo
                         Vector2 pos = new(float.Parse(args[3]), float.Parse(args[4]));
                         Windows.AddTextWindow(pos, args[5], args[6].Replace("\\n", "\n"));
                         Audio.Play("audio/window");
+                    }
+                    break;
+                case "raid":
+                    {
+                        if (args.Length < 6) return;
+                        Windows.AddRaid(args[3], int.Parse(args[4]), args[5]);
+                    }
+                    break;
+                case "idoldream":
+                    {
+                        if (args.Length < 5) return;
+                        Windows.AddIdolDream(new(MathP.Random(1, ProdModel.SCREEN_WIDTH), MathP.Random(1, ProdModel.SCREEN_HEIGHT)), $"{args[3]} is becoming american idol", args[4]);
                     }
                     break;
                 case "removetriangle":

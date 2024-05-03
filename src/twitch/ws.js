@@ -9,7 +9,7 @@ module.exports.init = () => {
         if (await validate()) return;
         else {
             log("OAuth Outdatad, Restarting Twitch");
-            require('./commands/restart').execute();
+            require('./commands/base/restart').execute();
         }
     }, 300000);
     return new Promise(resolve => {
@@ -22,12 +22,13 @@ module.exports.init = () => {
         }); });
         ws.on('message', message => { // to id user@s=3;a=z;s=g cmd args
             let args = WASD.unpack(message);
+            // log("ws:", args);
             if (args[2].toLowerCase() === 'respond') {
                 if (waitList[ID][args[1]]) {
                     console.log(`[API: ${args[1]}]`, 'Fulfilling Callback');
                     waitList[ID][args[1]](args[3]);
                     delete waitList[ID][args[1]];
-                } else console.warn(`[API: ${args[1]}]`, 'Callback is Missing, skipping');
+                } // else console.warn(`[API: ${args[1]}]`, 'Callback is Missing, skipping');
             }
             else if (args[2].toLowerCase() === 'log') console.log(`[API: ${args[1]}]`, takeWord(message, 4)[3]);
             else {

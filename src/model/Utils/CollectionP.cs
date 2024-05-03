@@ -37,6 +37,16 @@ namespace NotGMS.Util
             int idx = c.FindLastIndex(fn);
             return idx != -1 ? c[idx] : def;
         }
+        public static bool TryFirst<T>(this IEnumerable<T> c, Predicate<T> fn, out T output)
+        {
+            if (c.Any(c => fn(c)))
+            {
+                output = c.First(c => fn(c));
+                return true;
+            }
+            output = default;
+            return false;
+        }
 
         public static bool Intersects<T>(this IEnumerable<T> a, IEnumerable<T> b) => a.Intersect(b).Any();
 

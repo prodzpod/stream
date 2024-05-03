@@ -1,8 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using NotGMS.Util;
+using ProdModel.Object.Audio;
 using ProdModel.Object.Sprite;
 using ProdModel.Utils;
 using System;
+using System.Diagnostics;
+using System.Linq;
 
 namespace ProdModel.Gizmo
 {
@@ -15,8 +18,9 @@ namespace ProdModel.Gizmo
             window
                 .AddChild(new NineSliceSprite("Content/layout/window", true, true))
                 .AddChild(new TextSprite("arcaoblique", title).SetColor(Color.White).SetAlign(-1, -1), 8, 12);
+            window.SetPosition(-pos.X, -pos.Y).Physics().MakeTopdown().SetDepth(100).Listen();
             window = content(window);
-            window.SetBoundingBoxes(2, 20, 54).SetBoundingBoxes(MathP.Max(window.Children[2].Sprite.GetBoundingBox().X, window.Children[1].Sprite.GetBoundingBox().X + 42) + 12, -1).SetPosition(-pos.X, -pos.Y).Physics().MakeTopdown().SetDepth(100).Listen();
+            window.SetBoundingBoxes(2, 20, 54).SetBoundingBoxes(MathP.Max(window.Children[2].Sprite.GetBoundingBox().X, window.Children[1].Sprite.GetBoundingBox().X + 42) + 12, -1);
             window.onUpdate += (self, time) =>
             {
                 self.Rotation *= 0.99f;
@@ -49,8 +53,14 @@ namespace ProdModel.Gizmo
         {
             Note[] song = SongHandler.ParseSong(file);
             if (song.Length == 0) return;
-            float time = song[^1].startTime + song[^1].duration;
-            if (SongHandler.Instruments.TryGetValue(song[^1].instrument, out var inst)) time += inst.GetDuration(song[^1].pitch).Z; // TODO: replace this with max endtime
+            float time = song.Select(x =>
+            {
+                var ret = x.startTime + x.duration;
+                if (SongHandler.Instruments.TryGetValue(x.instrument, out var inst) && !x.cutFeet)
+                    ret += inst.GetDuration(x.pitch).Z;
+                // Debug.WriteLine($"note: {x.startTime} / {x.duration} ({x.pitch}): {ret}");
+                return ret;
+            }).Max() * 1.1f; // dilation
             AddWindow(pos, title,
                 window => {
                     var handler = new SongHandler();
@@ -58,8 +68,8 @@ namespace ProdModel.Gizmo
                     window.Extra.Add("time", time);
                     handler.PlaySong(song);
                     window
-                        .AddChild(new ImageSprite("Content/layout/song_1"), 7, 10)
-                        .AddChild(new ImageSprite("Content/layout/song_2"), -126, -4);
+                        .AddChild(new ImageSprite("Content/layout/song_1"), 0, 16)
+                        .AddChild(new ImageSprite("Content/layout/song_2"), -133, 4);
                     window.onUpdate += (self, time) =>
                     {
                         var child = self.Children[3];
@@ -74,6 +84,45 @@ namespace ProdModel.Gizmo
                     };
                     return window;
                 }, self => "Song");
+        }
+        public static async void AddRaid(string name, int viewers, string pfp)
+        {
+            AddWindow(new Vector2(MathP.Random(1, ProdModel.SCREEN_WIDTH), MathP.Random(1, ProdModel.SCREEN_HEIGHT)), $"{name} raid!",
+            window => {
+                window.AddChild(new ImageSprite(pfp), 0, 8);
+                window.Rotatability = 0.1f;
+                window.Gravity = new(0, 1f);
+                window.Drag = 0;
+                window.Speed = new(MathP.Random(-128, 128), MathP.Random(-128, 128));
+                window.Rotation = MathP.Random(360);
+                window.Extra.Add("viewer", MathP.Random(4, viewers + 10));
+                window.Extra.Add("i", 0);
+                window.onUpdate += (self, time) =>
+                {
+                    if ((int)self.Extra["i"] >= (int)self.Extra["viewer"]) return;
+                    if (self.Lifetime > ((int)self.Extra["i"] * (0.1f + (0.8f / (1 + (int)self.Extra["viewer"])))))
+                    {
+                        self.Extra["i"] = (int)self.Extra["i"] + 1;
+                        AddWindow(self.Position, "Welcome Raid ers!", w => {
+                            w.AddChild(new AnimationSprite(w, "Content/sprites/joel", 7, 10), 0, 8);
+                            w.Angle = self.Angle;
+                            w.Rotation = self.Rotation;
+                            return w;
+                        }, self => "Raid Alert");
+                        Audio.Play("audio/join", MathP.Random(0.8f, 1.2f));
+                        // if ((int)self.Extra["i"] >= (int)self.Extra["viewer"]) window.MakeTopdown();
+                    }
+                };
+                window.onBounce += (self, _) => { if ((int)self.Extra["i"] >= (int)self.Extra["viewer"]) return; window.Speed = new(MathP.Random(-128, 128), MathP.Random(-128, 128)); self.Rotation = MathP.Random(360); };
+                return window;
+            }, self => "Raid Alert");
+        }
+
+        public static void AddIdolDream(Vector2 pos, string title, string picture)
+        {
+            AddWindow(pos, title,
+                window => window.AddChild(new ImageSprite(picture), 0, 16),
+                self => "something about eidolon wyrm calamari from big geima");
         }
     }
 }

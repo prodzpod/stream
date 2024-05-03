@@ -8,7 +8,6 @@ module.exports.condition = 'startstream'
 module.exports.execute = async args => {
     if (isNullOrWhitespace(args[1])) {
         log('PREPARING FOR STREAM');
-        sendClient(ID, 'twitch', 'restart');
         require('../../../model/commands/start').execute();
         sendClient(ID, 'obs', 'start', 'spawn');
         for (let fname of await listFiles(__dirname, '../../programs')) {
@@ -29,7 +28,7 @@ module.exports.execute = async args => {
             start: new Date().getTime(),
             phase: 0
         };
-        updateLive(obj);
+        await updateLive(obj);
         getSocketsServer('model')?.send(WASD.pack('twitch', 0, 'startingsoon'));
         sendClient(ID, 'discord', 'announce', isNullOrWhitespace(args[3]) ? args[2] : args[3]);
         sendClient(ID, 'obs', 'brb'); 

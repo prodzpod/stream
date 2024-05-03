@@ -34,7 +34,7 @@ module.exports.startOBS = async (_spawn = false) => {
     return 0;
 }
 module.exports.send = (name, data, fn) => {
-    if (obsWS === undefined) return this.warn('OBS WS is not active');
+    if (obsWS?.readyState !== 1) return this.warn('OBS WS is not active');
     let id = `${randomHex(8)}-${randomHex(4)}-${randomHex(4)}-${randomHex(4)}-${randomHex(12)}`;
     messages[id] = fn;
     obsWS.send(JSON.stringify({

@@ -14,6 +14,6 @@ module.exports.execute = async args => {
         obj.title = `🌟𝙋𝙕𝙋𝘿🌙 ${args[2]}`;
         obj.subject = (args[2].match(/\[[^\]]+\]/)?.[0].slice(1, -1)) ?? 'gizmos';
     }
-    updateLive(obj);
+    await updateLive(obj);
     return 0;
 }

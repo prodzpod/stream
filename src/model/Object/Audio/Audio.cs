@@ -1,54 +1,51 @@
 ﻿using FMOD;
 using FmodForFoxes;
+using NotGMS.Util;
+using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
 
 namespace ProdModel.Object.Audio
 {
     public class Audio
     {
-        public static Dictionary<string, FmodForFoxes.Sound> Cache = new();
-        public static List<string> SoundsPlayedThisFrame = new();
-        public static FmodForFoxes.Sound Play(string path, string _pathoverride = "") => Play(path, false, 1, 1, _pathoverride);
-        public static FmodForFoxes.Sound Play(string path, float pitch, string _pathoverride = "") => Play(path, false, pitch, 1, _pathoverride);
-        public static FmodForFoxes.Sound Play(string path, float pitch, float volume, string _pathoverride = "") => Play(path, false, volume, pitch, _pathoverride);
-        public static FmodForFoxes.Sound Play(string path, bool loop, float pitch = 1, float volume = 1, string _pathoverride = "")
+        public const float GLOBAL_FADE = 0.02f;
+        public const float FADE_GRANULARITY = 0.005f;
+        public const float GLOBAL_DELAY = 0f;
+        public static List<PitchedSound> SoundsPlayedThisFrame = new();
+        public static PitchedSound Play(string path, float pitch = 1, float volume = 1) => Play(path, false, pitch, volume);
+        public static PitchedSound Play(string path, bool loop, float pitch = 1, float volume = 1)
         {
             if (path.StartsWith("Content/")) path = path["Content/".Length..];
             if (path.StartsWith("Content")) path = path["Content".Length..];
             if (!path.Contains('.')) path += ".ogg";
-            string ppath = pitch.ToString() + path;
-            if (!string.IsNullOrWhiteSpace(_pathoverride)) ppath = _pathoverride;
-            if (!Cache.ContainsKey(ppath)) Cache[ppath] = LoadStreamedSound(path);
-            if (SoundsPlayedThisFrame.Contains(ppath)) return Cache[ppath];
-            Cache[ppath].Looping = loop;
-            Cache[ppath].Volume = volume;
-            Cache[ppath].Pitch = pitch;
-            Cache[ppath].Play();
-            SoundsPlayedThisFrame.Add(ppath);
-            return Cache[ppath];
+            PitchedSound k = new(path, pitch);
+            if (SoundsPlayedThisFrame.TryFirst(x => x == k, out var ret)) return ret;
+            k.sound = LoadStreamedSound(path);
+            k.sound.Looping = loop;
+            k.sound.Pitch = pitch;
+            k.sound.Volume = loop ? 0 : volume;
+            k.channel = k.sound.Play();
+            k.channel.VolumeRamp = true;
+            if (loop) Fade(k, 0, volume);
+            SoundsPlayedThisFrame.Add(k);
+            return k;
         }
-        public static void Stop(string path, float pitch = 1)
+        public static async void Stop(PitchedSound sound)
         {
-            if (path.StartsWith("Content/")) path = path["Content/".Length..];
-            if (path.StartsWith("Content")) path = path["Content".Length..];
-            if (!path.Contains('.')) path += ".ogg";
-            _Stop(pitch.ToString() + path);
+            await Fade(sound, sound.channel.Volume, 0, GLOBAL_FADE);
+            sound.channel.Stop();
         }
-        public static void _Stop(string ppath)
+        public static async Task Fade(PitchedSound sound, float from, float to, float time = GLOBAL_FADE)
         {
-            if (Cache.TryGetValue(ppath, out FmodForFoxes.Sound sound))
+            await Task.Delay((int)(GLOBAL_DELAY * 1000));
+            for (float i = 0; i < time; i += FADE_GRANULARITY)
             {
-                sound.Dispose();
-                Cache.Remove(ppath);
+                sound.channel.Volume = EaseP.OutCirc()(from, to, i / time);
+                // System.Diagnostics.Debug.WriteLine("fade called: " + sound.channel.Volume);
+                await Task.Delay((int)(FADE_GRANULARITY * 1000));
             }
-        }
-        public static void Stop(FmodForFoxes.Sound sound)
-        {
-            if (!Cache.ContainsValue(sound)) return;
-            var key = Cache.First(x => x.Value == sound).Key;
-            Cache.Remove(key);
-            sound.Dispose();
+            sound.channel.Volume = to;
         }
 
         public const string OUTPUT_NAME = "INPUT: recording";
@@ -86,9 +83,19 @@ namespace ProdModel.Object.Audio
             System.Diagnostics.Debug.WriteLine("Audio Module Unloaded");
         }
 
-        public static FmodForFoxes.Sound LoadStreamedSound(string path)
+        public static FmodForFoxes.Sound LoadStreamedSound(string path) => CoreSystem.LoadSound(path);
+        public struct PitchedSound : IEquatable<PitchedSound>
         {
-            return CoreSystem.LoadStreamedSound(path);
+            public string path;
+            public float pitch;
+            public FmodForFoxes.Sound sound;
+            public FmodForFoxes.Channel channel;
+            public PitchedSound(string path, float pitch) { this.path = path; this.pitch = pitch; }
+            public bool Equals(PitchedSound other) => path == other.path && pitch == other.pitch;
+            public override bool Equals(object obj) => obj is PitchedSound && Equals((PitchedSound)obj);
+            public static bool operator ==(PitchedSound left, PitchedSound right) => left.Equals(right);
+            public static bool operator !=(PitchedSound left, PitchedSound right) => !(left == right);
+            public override int GetHashCode() => path.GetHashCode() + pitch.GetHashCode();
         }
     }
 }

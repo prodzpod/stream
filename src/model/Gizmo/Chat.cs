@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using NotGMS.Util;
+using ProdModel.Object;
+using ProdModel.Object.Audio;
 using ProdModel.Object.Sprite;
 using ProdModel.Utils;
 using System.Collections.Generic;
@@ -10,7 +12,7 @@ namespace ProdModel.Gizmo
     public static class Chat
     {
         public static List<Object.Object> ChatObjects = new();
-        public static void AddChat(string icon, Color color, string author, string message)
+        public static void AddChat(string icon, Color color, string author, string message, bool isFirstMessage)
         {
             Object.Object.ID++;
             var o = new Object.Object("chat_" + Object.Object.ID.ToString())
@@ -30,7 +32,8 @@ namespace ProdModel.Gizmo
                 if (m != InputP.Mouses.Left) return;
                 self.Physics();
                 self.Rotatability = 0.1f;
-                ChatObjects.Remove(self);
+                if (self.Extra.ContainsKey("follow")) self.Extra["follow"] = false;
+                else ChatObjects.Remove(self);
             };
             o.onWSSend += (self) =>
             {
@@ -38,7 +41,17 @@ namespace ProdModel.Gizmo
                 self.AddWSData("color", color);
                 self.AddWSData("message", message);
             };
-            ChatObjects.Add(o);
+            if (isFirstMessage)
+            {
+                o.Extra.Add("follow", true);
+                o.Physics().onUpdate += (self, time) =>
+                {
+                    if (!(bool)o.Extra["follow"]) return;
+                    self.Speed = (InputP.MousePosition - self.Position) * 0.1f;
+                    self.Rotation = float.Parse(Object.Object.writeAngle(MathP.Atan2(self.Speed) - self.Angle)) * 0.1f;
+                };
+                Audio.Play("audio/join", MathP.Random(0.8f, 1.2f));
+            } else ChatObjects.Add(o);
         }
 
         public static void AddPointer(string icon, Vector2 pos, Vector2 dest, Color color, string author)

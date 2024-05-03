@@ -13,3 +13,5 @@ src/model/Content/obj/
 src/model/Content/bin/
 src/model/*.dll
 src/@main/programs/*.*
+src/@main/data/user/*.png
+!src/@main/data/user/.discord.png

@@ -1,5 +1,4 @@
 const WebSocket = require('ws');
-const fs = require('fs');
 const path = require('path');
 const { isNullish, safeAssign, takeWord } = require('../@main/util_client');
 const { log, warn, error, onMessage, register, id, channel, commands } = require('./include');
@@ -36,10 +35,10 @@ module.exports.init = (pw) => {
                         break;
                     case 'USERNOTICE':
                         {
-                        let [_, subject] = takeWord(msg).map(x => x.slice(1));
-                        let user = src.slice(1, src.indexOf('!'));
-                        log("usernotice called:", tag, subject, user);
-                        onMessage(user, tag, `!!${tag['msg-id']} ${subject}`);
+                        let [subject, message] = takeWord(msg).map(x => x.slice(1));
+                        let user = tag['msg-param-login'] ?? subject ?? '[SYSTEM]';
+                        log("usernotice called:", tag['msg-id'], user, tag);
+                        onMessage(user, tag, `!!${tag['msg-id']} ${message}`);
                         }
                         break;
                     case 'PING':
@@ -77,7 +76,7 @@ function parseMessage(raw) {
     let cmd = "";
     let msg = "";
     let z = raw.split(' ');
-    const INCLUDED_TAGS = ['badges', 'color', 'display-name', 'emotes', 'first-msg', 'id', 'user-id'];
+    const INCLUDED_TAGS = ['badges', 'color', 'display-name', 'emotes', 'first-msg', 'id', 'user-id', 'msg-id', 'msg-param-cumulative-months', 'msg-param-displayName', 'msg-param-login', 'msg-param-months', 'msg-param-promo-gift-total', 'msg-param-promo-name', 'msg-param-recipient-display-name', 'msg-param-recipient-id', 'msg-param-recipient-user-name', 'msg-param-sender-login', 'msg-param-sender-name', 'msg-param-should-share-streak', 'msg-param-streak-months', 'msg-param-sub-plan', 'msg-param-sub-plan-name', 'msg-param-viewerCount', 'msg-param-ritual-name', 'msg-param-threshold', 'msg-param-gift-months'];
     if (z[0].startsWith('@')) { for (let y of z[0].slice(1).split(';')) { x = y.split('='); if (INCLUDED_TAGS.includes(x[0])) tag[x[0]] = x[1]; } if (tag.badges) tag.badges = tag.badges.split(','); z = z.slice(1); }
     if (z[0].startsWith(':')) { src = z[0]; z = z.slice(1); }
     cmd = z[0]; msg = z.slice(1).join(' ')

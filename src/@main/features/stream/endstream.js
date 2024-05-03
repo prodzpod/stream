@@ -8,7 +8,7 @@ module.exports.execute = async _ => {
     log('======================');
     log('ENDING STREAM SEQUENCE');
     log('======================');
-    updateLive({
+    await updateLive({
         title: '🌟𝙋𝙕𝙋𝘿🌙 Currently Offline',
         subject: null,
         category: 'Software and Game Development',
@@ -19,6 +19,6 @@ module.exports.execute = async _ => {
     sendClient(ID, 'obs', 'endstream');
     let songs = (await listFiles(__dirname, '../../data/song')).filter(x => x.startsWith("_"));
     log("Removing", songs.length, "song files");
-    for (let song of songs) fs.rm(path.join(__dirname, '../../data/song', song));
+    for (let song of songs) fs.rm(path.join(__dirname, '../../data/song', song), _ => {});
     return 0;
 }

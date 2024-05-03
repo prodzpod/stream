@@ -99,7 +99,7 @@ module.exports.execute = async args => {
         .filter(k => k)
         .map(x => [x, indices.indexOf(x)]);
     if (indicesToUpdate.length > 1) { // order swapped
-        log("Order Changed:", indicesToUpdate[0][0]);
+        log("Order Changed:", indicesToUpdate);
         sendByName("SetSceneItemIndex", "stream::sources", indicesToUpdate[0][0], {"sceneItemIndex": Object.keys(RULE).length - 1});
     }
     for (let window of update) {

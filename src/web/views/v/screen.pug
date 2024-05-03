@@ -21,6 +21,7 @@ block body
             button(onclick='flingButton()') fling
             button(onclick='spawnButton()') spawn window
         p#status
+        p#cmd
         .vlist#window-setting(style='display: none;')
             .hlist
                 input#window-title.spacer
@@ -159,13 +160,14 @@ block postbody
         let temp = {};
         function screen(event) {
             let r = e('screen').getBoundingClientRect()
-            let x = Math.clamp((event.clientX - r.x) * (1920 / r.width), 0, 1920);
-            let y = Math.clamp((event.clientY - r.y) * (1080 / r.height), 0, 1024);
+            let x = Math.clamp((event.clientX - r.x) * (1920 / r.width), 1, 1919);
+            let y = Math.clamp((event.clientY - r.y) * (1080 / r.height), 1, 1079);
             switch (state) {
                 case "point":
                 case "click":
                     socket?.send(WASD.pack(state, x, y));
                     e('status').innerText = "";
+                    e('cmd').innerText = `command form: !${state} ${Math.floor(x)} ${Math.floor(y)}`;
                     state = "waiting";
                     break;
                 case "fling1":
@@ -175,6 +177,7 @@ block postbody
                     break;
                 case "fling2":
                     socket?.send(WASD.pack('fling', temp.x, temp.y, x, y));
+                    e('cmd').innerText = `command form: !fling ${Math.floor(temp.x)} ${Math.floor(temp.y)} ${Math.floor(x)} ${Math.floor(y)}`;
                     e('status').innerText = "";
                     state = "waiting";
                     break;
@@ -187,6 +190,7 @@ block postbody
                         socket?.send(WASD.pack('spawn', x, y, title, content));
                         e('window-setting').style.display = 'none';
                         e('status').innerText = "";
+                        e('cmd').innerText = `command form: !spawn ${Math.floor(x)} ${Math.floor(y)} ${WASD.pack(title)} ${WASD.pack(content)}`;
                         state = "waiting";
                     }
                     break;
