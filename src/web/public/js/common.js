@@ -41,8 +41,12 @@ function doColorful() {
                 el.innerHTML = txt;
             }
         setCSS('o', 'var(--em)');
+        setCSS('o-y', '0.1em');
     }
-    else setCSS('o', 'var(--text)');
+    else {
+        setCSS('o', 'var(--text)');
+        setCSS('o-y', '0');
+    }
 }
 
 function toggleDark(self) { 

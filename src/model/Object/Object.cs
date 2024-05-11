@@ -227,6 +227,11 @@ namespace ProdModel.Object
         {
             if (button == InputP.Mouses.Left) Audio.Audio.Play("audio/click_me");
             if (!Name.StartsWith("_") && button == InputP.Mouses.Middle) OnDestroy();
+            if (Extra.ContainsKey("originalGravity"))
+            {
+                Gravity = (Vector2)Extra["originalGravity"];
+                Extra.Remove("originalGravity");
+            }
             onMouse?.Invoke(this, button, position);
             return onMouse != null;
         }

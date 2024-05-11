@@ -12,7 +12,7 @@ namespace ProdModel.Gizmo
     public static class Chat
     {
         public static List<Object.Object> ChatObjects = new();
-        public static void AddChat(string icon, Color color, string author, string message, bool isFirstMessage)
+        public static Object.Object AddChat(string icon, Color color, string author, string message, bool isFirstMessage)
         {
             Object.Object.ID++;
             var o = new Object.Object("chat_" + Object.Object.ID.ToString())
@@ -52,9 +52,10 @@ namespace ProdModel.Gizmo
                 };
                 Audio.Play("audio/join", MathP.Random(0.8f, 1.2f));
             } else ChatObjects.Add(o);
+            return o;
         }
 
-        public static void AddPointer(string icon, Vector2 pos, Vector2 dest, Color color, string author)
+        public static Object.Object AddPointer(string icon, Vector2 pos, Vector2 dest, Color color, string author)
         {
             Object.Object.ID++;
             var pointer = new Object.Object("pointer_" + Object.Object.ID.ToString())
@@ -75,6 +76,7 @@ namespace ProdModel.Gizmo
                                 ImageSprite img = (ImageSprite)self.Children[0].Sprite;
                                 if (img.Path == "Content/sprites/cursor_click")
                                 {
+                                    if (!o.EnablePhysics || !o.Extra.ContainsKey("pinned")) continue;
                                     o.Speed *= 0.8f;
                                     o.Rotation -= o.Angle * 0.1f;
                                     o.Angle *= 0.8f;
@@ -107,6 +109,7 @@ namespace ProdModel.Gizmo
                 self.AddWSData("author", ((TextSprite)self.Children[1].Sprite).Content);
                 self.AddWSData("color", ((ImageSprite)self.Children[0].Sprite).Color);
             };
+            return pointer;
         }
     }
 }

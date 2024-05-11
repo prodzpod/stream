@@ -5,7 +5,7 @@ module.exports.condition = (args, user, data) => user != 'prodzbot' && !args[0].
 module.exports.permission = true;
 module.exports.execute = async (_, user, data, message) => {
     log("todiscord: ", user, message);
-    send(`\`@${user}\`: ${message}`);
+    send(message, user);
     sendClient(ID, "main", "chat", user, message, data.color ?? '#000000');
     return 0;
 }

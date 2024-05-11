@@ -11,7 +11,7 @@ namespace ProdModel.Gizmo
 {
     public class Windows
     {
-        public static void AddWindow(Vector2 pos, string title, Func<Object.Object, Object.Object> content, Func<Object.Object, string> toWS)
+        public static Object.Object AddWindow(Vector2 pos, string title, Func<Object.Object, Object.Object> content, Func<Object.Object, string> toWS)
         {
             Object.Object.ID++;
             var window = new Object.Object("window_" + Object.Object.ID.ToString());
@@ -35,24 +35,25 @@ namespace ProdModel.Gizmo
                 if (button == InputP.Mouses.Left && pos.X >= (self.BoundingBoxSize.X / 2 - 48) && pos.Y <= 42)
                     self.OnDestroy();
             };
+            return window;
         }
 
-        public static void AddTextWindow(Vector2 pos, string title, string content)
+        public static Object.Object AddTextWindow(Vector2 pos, string title, string content)
         {
-            AddWindow(pos, title,
+            return AddWindow(pos, title,
                 window => window.AddChild(new TextSprite("arcaoblique", content).SetAlign(-1, -1), 8, 50), 
                 self => ((TextSprite)self.Children[2].Sprite).Content);
         }
-        public static void AddJoel(Vector2 pos, string title = "Joel")
+        public static Object.Object AddJoel(Vector2 pos, string title = "Joel")
         {
-            AddWindow(pos, title,
+            return AddWindow(pos, title,
                 window => window.AddChild(new AnimationSprite(window, "Content/sprites/joel", 7, 10), 0, 8),
                 self => "Joel");
         }
-        public static void AddSongWindow(Vector2 pos, string title, string file)
+        public static Object.Object AddSongWindow(Vector2 pos, string title, string file)
         {
             Note[] song = SongHandler.ParseSong(file);
-            if (song.Length == 0) return;
+            if (song.Length == 0) return null;
             float time = song.Select(x =>
             {
                 var ret = x.startTime + x.duration;
@@ -61,7 +62,7 @@ namespace ProdModel.Gizmo
                 // Debug.WriteLine($"note: {x.startTime} / {x.duration} ({x.pitch}): {ret}");
                 return ret;
             }).Max() * 1.1f; // dilation
-            AddWindow(pos, title,
+            return AddWindow(pos, title,
                 window => {
                     var handler = new SongHandler();
                     window.Extra.Add("SongHandler", handler);
@@ -85,17 +86,17 @@ namespace ProdModel.Gizmo
                     return window;
                 }, self => "Song");
         }
-        public static async void AddRaid(string name, int viewers, string pfp)
+        public static Object.Object AddRaid(string name, int viewers, string pfp)
         {
-            AddWindow(new Vector2(MathP.Random(1, ProdModel.SCREEN_WIDTH), MathP.Random(1, ProdModel.SCREEN_HEIGHT)), $"{name} raid!",
+            return AddWindow(new Vector2(MathP.Random(1, ProdModel.SCREEN_WIDTH), MathP.Random(1, ProdModel.SCREEN_HEIGHT)), $"{name} raid!",
             window => {
                 window.AddChild(new ImageSprite(pfp), 0, 8);
                 window.Rotatability = 0.1f;
                 window.Gravity = new(0, 1f);
                 window.Drag = 0;
                 window.Speed = new(MathP.Random(-128, 128), MathP.Random(-128, 128));
-                window.Rotation = MathP.Random(360);
-                window.Extra.Add("viewer", MathP.Random(4, viewers + 10));
+                window.Rotation = MathP.Random(-360, 360);
+                window.Extra.Add("viewer", MathP.Random(4 + viewers, viewers + 10));
                 window.Extra.Add("i", 0);
                 window.onUpdate += (self, time) =>
                 {
@@ -113,14 +114,14 @@ namespace ProdModel.Gizmo
                         // if ((int)self.Extra["i"] >= (int)self.Extra["viewer"]) window.MakeTopdown();
                     }
                 };
-                window.onBounce += (self, _) => { if ((int)self.Extra["i"] >= (int)self.Extra["viewer"]) return; window.Speed = new(MathP.Random(-128, 128), MathP.Random(-128, 128)); self.Rotation = MathP.Random(360); };
+                window.onBounce += (self, _) => { if ((int)self.Extra["i"] >= (int)self.Extra["viewer"]) return; window.Speed = new(MathP.Random(-128, 128), MathP.Random(-128, 128)); self.Rotation = MathP.Random(-360, 360); };
                 return window;
             }, self => "Raid Alert");
         }
 
-        public static void AddIdolDream(Vector2 pos, string title, string picture)
+        public static Object.Object AddIdolDream(Vector2 pos, string title, string picture)
         {
-            AddWindow(pos, title,
+            return AddWindow(pos, title,
                 window => window.AddChild(new ImageSprite(picture), 0, 16),
                 self => "something about eidolon wyrm calamari from big geima");
         }

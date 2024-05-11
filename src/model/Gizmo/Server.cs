@@ -70,6 +70,44 @@ namespace ProdModel.Gizmo
                         }
                     }
                     break;
+                case "kill":
+                    {
+                        if (args.Length < 7) return;
+                        Vector2 pos = new(float.Parse(args[3]), float.Parse(args[4]));
+                        var pointer = Chat.AddPointer("click", pos, pos, ColorP.RGBA(ColorP.Hex(args[5])), args[6]);
+                        Audio.Play("audio/click");
+                        for (var i = Object.Object.OBJECTS.Count - 1; i >= 0; i--)
+                        {
+                            var o = Object.Object.OBJECTS[i];
+                            if (pointer == o) continue;
+                            if (MathP.PositionInBoundingBox(o, pos))
+                            {
+                                var positionRelative = MathP.Rotate(pos - o.Position, -o.Angle);
+                                o.OnMouse(InputP.Mouses.Middle, positionRelative);
+                            }
+                        }
+                    }
+                    break;
+                case "pin":
+                    {
+                        if (args.Length < 7) return;
+                        Vector2 pos = new(float.Parse(args[3]), float.Parse(args[4]));
+                        Chat.AddPointer("pin", pos, pos, ColorP.RGBA(ColorP.Hex(args[5])), args[6]);
+                        Audio.Play("audio/point");
+                        for (var i = Object.Object.OBJECTS.Count - 1; i >= 0; i--)
+                        {
+                            var o = Object.Object.OBJECTS[i];
+                            if (MathP.PositionInBoundingBox(o, pos))
+                            {
+                                if (!o.EnablePhysics) continue;
+                                o.Extra.Add("pinned", true);
+                                o.EnablePhysics = false;
+                                o.Speed = Vector2.Zero;
+                                o.Rotation = 0;
+                            }
+                        }
+                    }
+                    break;
                 case "drag":
                     {
                         if (args.Length < 9) return;
@@ -82,6 +120,11 @@ namespace ProdModel.Gizmo
                             var o = Object.Object.OBJECTS[i];
                             if (MathP.PositionInBoundingBox(o, pos))
                             {
+                                if (o.Extra.ContainsKey("pinned"))
+                                {
+                                    o.EnablePhysics = true;
+                                    o.Extra.Remove("pinned");
+                                }
                                 var positionRelative = MathP.Rotate(pos - o.Position, -o.Angle);
                                 o.OnHover(positionRelative);
                                 o.OnMouse(InputP.Mouses.Left, positionRelative);
@@ -102,12 +145,14 @@ namespace ProdModel.Gizmo
                     {
                         if (args.Length < 6) return;
                         Windows.AddRaid(args[3], int.Parse(args[4]), args[5]);
+                        Audio.Play("audio/window");
                     }
                     break;
                 case "idoldream":
                     {
                         if (args.Length < 5) return;
                         Windows.AddIdolDream(new(MathP.Random(1, ProdModel.SCREEN_WIDTH), MathP.Random(1, ProdModel.SCREEN_HEIGHT)), $"{args[3]} is becoming american idol", args[4]);
+                        Audio.Play("audio/window");
                     }
                     break;
                 case "removetriangle":
@@ -128,6 +173,16 @@ namespace ProdModel.Gizmo
                 case "song":
                     if (args.Length < 5) return;
                     Windows.AddSongWindow(new(MathP.Random(1, ProdModel.SCREEN_WIDTH), MathP.Random(1, ProdModel.SCREEN_HEIGHT)), args[3], args[4]);
+                    break;
+                case "gravity":
+                    if (args.Length < 5) return;
+                    for (var i = Object.Object.OBJECTS.Count - 1; i >= 0; i--)
+                    {
+                        var o = Object.Object.OBJECTS[i];
+                        if (!o.EnablePhysics || o.Name.StartsWith("_")) continue;
+                        if (!o.Extra.ContainsKey("originalGravity")) o.Extra.Add("originalGravity", o.Gravity);
+                        o.Gravity = new(float.Parse(args[3]), float.Parse(args[4]));
+                    }
                     break;
             }
         }

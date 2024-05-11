@@ -11,7 +11,7 @@ module.exports.execute = async (req) => {
     }
     for (let k of [
         "channel.follow", "channel.shoutout.receive", "channel.raid.from", "channel.raid.to", 
-        "channel.chat.notification", "channel.chat.message_delete", "channel.ban", 
+        "channel.chat.message", "channel.chat.notification", "channel.chat.message_delete", "channel.ban", 
         /* //? AFFILIATE ZONE
         * "channel.cheer", "channel.channel_points_custom_reward_redemption.add", "channel.ad_break.begin", 
         * "channel.subscribe", "channel.subscription.gift", "channel.subscription.message", 
@@ -38,8 +38,9 @@ function getCondition(k) {
     switch (k) {
         case "channel.ad_break.begin":
             return { broadcaster_id: prodID };
-        case "channel.chat.message_delete":
+        case "channel.chat.message":
         case "channel.chat.notification":
+        case "channel.chat.message_delete":
             return { broadcaster_user_id: prodID, user_id: prodID };
         case "channel.follow":
         case "channel.shoutout.receive":

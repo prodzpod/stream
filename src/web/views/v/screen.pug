@@ -16,10 +16,12 @@ block body
         .screen#twitch-embed(style='display: none;') 
         div(style='margin: 16px;')
         .hlist.center#buttons(style='display: none;')
-            button(onclick='pointButton()') point 
-            button(onclick='clickButton()') click
-            button(onclick='flingButton()') fling
-            button(onclick='spawnButton()') spawn window
+            button(onclick='button("point", "select a position to point")') point 
+            button(onclick='button("click", "select a position to click")') click
+            button(onclick='button("fling1", "select an object")') fling
+            button(onclick='button("spawn", "put in fields and click on a screen (where to place it)"); e("window-setting").style.display = "flex";') spawn window
+            button(onclick='button("kill", "select an object")') kill 
+            button(onclick='button("pin", "select an object")') pin
         p#status
         p#cmd
         .vlist#window-setting(style='display: none;')
@@ -165,6 +167,8 @@ block postbody
             switch (state) {
                 case "point":
                 case "click":
+                case "kill":
+                case "pin":
                     socket?.send(WASD.pack(state, x, y));
                     e('status').innerText = "";
                     e('cmd').innerText = `command form: !${state} ${Math.floor(x)} ${Math.floor(y)}`;
@@ -197,30 +201,11 @@ block postbody
                 }
             }
         }
-
-        function pointButton() {
+        function button(newState, text) {
             if (state == "waiting") return;
-            state = "point";
+            state = newState;
             e('window-setting').style.display = 'none';
-            e('status').innerText = "select a position to point";
-        }
-        function clickButton() {
-            if (state == "waiting") return;
-            state = "click";
-            e('window-setting').style.display = 'none';
-            e('status').innerText = "select a position to click";
-        }
-        function flingButton() {
-            if (state == "waiting") return;
-            state = "fling1";
-            e('window-setting').style.display = 'none';
-            e('status').innerText = "select an object";
-        }
-        function spawnButton() {
-            if (state == "waiting") return;
-            state = "spawn";
-            e('window-setting').style.display = 'flex';
-            e('status').innerText = "put in fields and click on a screen (where to place it)";
+            e('status').innerText = text;
         }
     script(src="https://player.twitch.tv/js/embed/v1.js")
     script(type="text/javascript").

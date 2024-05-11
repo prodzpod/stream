@@ -46,7 +46,7 @@ module.exports.request = async (ws, args) => {
         return WASD.pack("update", JSON.stringify(ret));
     } catch (e) { error(e); return WASD.pack("respond", "what???"); };
 }
-const COMMANDS = ['point', 'click', 'fling', 'spawn'];
+const COMMANDS = ['point', 'click', 'fling', 'spawn', 'kill', 'pin'];
 module.exports._all = async (ws, k, args) => {
     let user = Object.values(sockets).find(x => x.ws == ws);
     if (!user) return WASD.pack("respond", "you are not logged in");

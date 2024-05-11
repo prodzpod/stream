@@ -90,6 +90,7 @@ module.exports.execute = async args => {
         if (!window) continue;
         RULE[k].window = window;
         sendByName("SetSceneItemEnabled", "stream::sources", k, {"sceneItemEnabled": true});
+        if (window.name) send("SetInputSettings", {"inputName": k, "inputSettings": {"window": RULE[k].name.replace("%NAME%", window.name)}});
         log("Hooked Windows:", RULE[k].window?.name);
     }
     // update stuff
@@ -105,7 +106,6 @@ module.exports.execute = async args => {
     for (let window of update) {
         let k = Object.keys(RULE).find(x => RULE[x].window?.id == window.id);
         if (!k) continue;
-        if (window.name) send("SetInputSettings", {"inputName": k, "inputSettings": {"window": RULE[k].name.replace("%NAME%", window.name)}});
         if (window.x !== undefined || window.y !== undefined || window.w !== undefined || window.h !== undefined) {
             let o = {};
             if (window.x) o.positionX = window.x;

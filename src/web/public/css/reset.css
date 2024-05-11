@@ -21,7 +21,7 @@ time, mark, audio, video, button, input, c, span, div, select, textarea {
 	border: 0;
 	font-size: 100%;
 	font: inherit;
-	vertical-align: middle;
+	vertical-align: bottom;
 }
 /* HTML5 display-role reset for older browsers */
 article, aside, details, figcaption, figure, 

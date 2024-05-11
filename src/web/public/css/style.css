@@ -55,7 +55,7 @@ input {
 }
 .card .content { margin-left: 16px; }
 .filter-group { margin-top: 16px; display: inline-block; }
-.o { color: var(--o); }
+.o { color: var(--o); transform: translate(0, var(--o-y)); transition: all 0.2s; display: inline-block; }
 
 @keyframes flicker {
     from { opacity: 0; }
