@@ -14,17 +14,21 @@ block body
     h3: a(href="https://prod.kr/discord") The Discord 
     p Our discord has a single channel (kind of) and is fully connected with Twitch Chat. by logging in within discord, you can also execute twitch commands within the discord server.
     p Additionally, thanks to <a href="https://colonq.computer">our progenitor</a>, the same channel is also <u>available under IRC</u> through <em>colonq.computer:26697</em> (over TLS) at <em>#prodarea</em> channel.
+    p you can also use the stream commands FROM colonq.computer irc via <em>!loginirc</em>.
     h3: a(href="https://prod.kr/v/screen") The Screen
     p The Screen is a replication of the broadcast where you can interact with the desktop. after logging in via typing the !login command on the twitch chat, you can utilize the screen in various ways.
     p <em>point</em>: make a pointer on screen. when used over prod, it does the twitch headpat thing.
     p <em>click</em>: click on the screen. this can be used to straighten or close windows, turn prod into 2d, or drop chat window into z-fighting hell.
     p <em>fling</em>: drag windows and prod around, throw chat messages and windows as well.
     p <em>spawn window</em>: spawns a window with title and content. you can also spawn a special window by typing <em>Joel</em> or using the <em>!song</em> command.
+    p <em>kill</em>: removes all windows in this position.
+    p <em>pin</em>: fixes window from moving or falling. can be reversed by flinging.
     h3 Twitch Commands
     p All the screen commands can also be used in twitch chat directly without logging in (TBD). we also have some extra commands.
     p <em>!removetriangle [number]</em>: removes a random triangle from prod (3d).
     p <em>!song</em>: spawns a media window that plays song based on a superset of <a href="https://pub.colonq.computer/~bezelea/bells/">Bells of Bezelea</a> that supports <u>multiple instruments and some extra compression</u>.
     p <em>!furrowthemareofeidola</em>: "chase idol dream", creates a window of your profile picture on stream.
+    p <em>!gravity [up/down/left/right]</em>: throws all open windows and objects into one direction.
     h2 The actual glossary part of the website 
     p due to prod's insane speeches, we get some words that might be wholly unintelligible for many. this is a compilation.
     p a lot of prod's speeches are from the <a href="https://pub.colonq.computer/~prod/toy/glossary#learn-the-language">progenitor zone</a>, please refer to the appropriate section in the glossary there (also written by me).
@@ -72,6 +76,14 @@ block body
     h4 so deep (briny)
     yt Mudr4UPRo5U
     p: u fucked up prod fixes fucked up bug and finishes up the song mode
+    c Testing in Prod 6
+    h4 Things definitely need to be done : FUMO
+    yt U60MaOeC2jY
+    p: u tbd
+    c Testing in Prod 7
+    h4 you gotta grind your throat 
+    yt 2NGZba17Ylo
+    p: u tbd
     div#toc-wrapper
         h2(style="padding: 16px; cursor: pointer;" class="noscroll" onclick="toggleTOC()") Warp Zone
         div#toc-outer: div#toc
@@ -149,7 +161,14 @@ block body
         .card 
             p the broadcast gets somehow even longer as prod shows off 3 videos they edited and proceeds to create <b>!song</b>, a superset of <a href="https://pub.colonq.computer/~bezelea/bells">Bells of Bezelea</a>. programming under duress happens as the broadcast becomes clonk level long and prod reaches the breaking point almost. we manage to play SICP, find some critical design flaw and emergency evacuate onto <a href="https://www.twitch.tv/hexadigital">hexadi</a> lands.
         .card 
-            p e
+            p tbd
+            p we raid <a href="https://www.twitch.tv/dantedaedalusch">dante daedalus mode</a>
+        .card 
+            p tbd
+            p we raid <a href="https://www.twitch.tv/keitaroch">keitaro channel (ch)</a>
+        .card 
+            p tbd
+            p we raid <a href="https://www.twitch.tv/mdxcai">medical doctor x(shipping) cai channel</a>
 block postbody 
     style.
         li { margin-left: 32px; }
@@ -199,7 +218,7 @@ block postbody
             const WEEKDAY_FROM = { 'thursday': '01', 'friday': '02', 'saturday': '03', 'sunday': '04', 'monday': '05', 'tuesday': '06', 'wednesday': '07' }
             const WEEKDAY_TO = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
             for (let el of document.getElementsByClassName('time')) {
-                let [day, time] = takeWord(el.innerText);
+                let [day, time] = split(el.innerText, " ", 1);
                 let date = new Date(`1970-01-${WEEKDAY_FROM[day.toLowerCase()]} ${time}`)
                 el.innerText = `${WEEKDAY_TO[date.getDay()]} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')} (in your timezone!)`;
             }

@@ -17,7 +17,7 @@ addEvent('onload', () => {
 });
 
 function doFlashy() {
-    randomScroll = setInterval(() => { foreachElement('random', x => x.innerText = rand('0123456789abcdefghijklmnopqrstuvwxyzæðñøþåħłŋœſƨƣǝȼɂɀȴɛɞɩɐɬɵɷɱɻʒʬͷͻͼͽαβγδεζηθικλμνξοπρςστυφχψωϐϑϙϛϝϟϡϣϥϧϩϫϭϯϰϱϵ϶ϻϼабвгдежзийклмнопрстуфхцчшщъыьэюяѣѥѧѫѯѳѻҁґぺラㄢㅱ㌀㎰㏌㏊㎝㏚ﬆ⚲⚠♪♭♯♮♩♡♝♖♁!#$%^&*(){}[]¡¿¯¬÷¢£¤¥¦§¨©®ª«»º¹²³°±´µ¶·¸¼½¾-=_+;\':",.<>/‽⁝⁂※‼†‡《》「」『』。、〃〄?\\|`~☿♀♁♂♃♄♅♆♇⚳⚴⚵⚶⚷⛒⛤⚛☯♲')); }, 1000 / 24);
+    randomScroll = setInterval(() => { foreachElement('random', x => x.innerText = random('0123456789abcdefghijklmnopqrstuvwxyzæðñøþåħłŋœſƨƣǝȼɂɀȴɛɞɩɐɬɵɷɱɻʒʬͷͻͼͽαβγδεζηθικλμνξοπρςστυφχψωϐϑϙϛϝϟϡϣϥϧϩϫϭϯϰϱϵ϶ϻϼабвгдежзийклмнопрстуфхцчшщъыьэюяѣѥѧѫѯѳѻҁґぺラㄢㅱ㌀㎰㏌㏊㎝㏚ﬆ⚲⚠♪♭♯♮♩♡♝♖♁!#$%^&*(){}[]¡¿¯¬÷¢£¤¥¦§¨©®ª«»º¹²³°±´µ¶·¸¼½¾-=_+;\':",.<>/‽⁝⁂※‼†‡《》「」『』。、〃〄?\\|`~☿♀♁♂♃♄♅♆♇⚳⚴⚵⚶⚷⛒⛤⚛☯♲')); }, 1000 / 24);
     setTimeout(() => {
         if (window.location.pathname[1] && e('title-random')) { e('title-random').classList.remove('random'); e('title-random').innerText = window.location.pathname[1]; }
     }, 500);

@@ -1,22 +1,16 @@
 {
-  "name": "prod-stream-setup",
+  "name": "stream2",
   "version": "1.0.0",
-  "description": "hi oomfies",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "prodzpod",
-  "license": "MIT",
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "body-parser": "^1.20.2",
-    "discord.js": "^14.14.1",
-    "express": "^4.18.3",
-    "express-ws": "^5.0.2",
-    "node-fetch": "^2.7.0",
     "open": "^10.1.0",
-    "pug": "^3.0.2",
-    "websocket": "^1.0.34",
-    "ws": "^8.16.0"
+    "pngjs": "^7.0.0",
+    "ws": "^8.17.0"
   }
 }

@@ -3,210 +3,361 @@ extends ../template/base.pugtemplate
 block meta
     - v = true
     - title = 'the screen'
-    - description = 'the gizmo interaction panel'
+    - description = 'the TRUE prod z pod broadcast experience'
+block header
 block body 
-    h1 The Screen 
-    .screen-wrapper
-        .hlist 
-            button(onclick='flip()') flip
-            p#point
-        div(style='margin: 16px;')
-        .screen#screen-wrapper
-            canvas#screen(onclick='screen(event)')
-        .screen#twitch-embed(style='display: none;') 
-        div(style='margin: 16px;')
-        .hlist.center#buttons(style='display: none;')
-            button(onclick='button("point", "select a position to point")') point 
-            button(onclick='button("click", "select a position to click")') click
-            button(onclick='button("fling1", "select an object")') fling
-            button(onclick='button("spawn", "put in fields and click on a screen (where to place it)"); e("window-setting").style.display = "flex";') spawn window
-            button(onclick='button("kill", "select an object")') kill 
-            button(onclick='button("pin", "select an object")') pin
-        p#status
-        p#cmd
-        .vlist#window-setting(style='display: none;')
-            .hlist
-                input#window-title.spacer
-                span title
-            .hlist
-                textarea#window-content.spacer
-                span content
-
+    .hlist
+        .spacer
+        .screen
+            .layer(style="background-color: #396ba5;")
+            .layer#twitch-embed
+            .layer#offline(style="background-color: #396ba5;")
+                img(src="/images/screen/offline.png" style="width: 100%; height: 100%;")
+            .layer#loading(style="background-color: #396ba5;")
+                img(src="/images/screen/error.png" style="width: 100%; height: 100%;")
+            .layer#screen(onclick="screen(event)" onauxclick="screen(event)" oncontextmenu="return false;")
+            .layer#start(style="background-color: var(--background); transition: background-color 2s;")
+                .vlist(style="height: 100%;")
+                    .spacer
+                    .hlist
+                        .spacer
+                        button#startButton(onclick="getWired()"): em ▶ Get Wired
+                        .spacer
+                    .spacer
+            .layer(style="pointer-events: none;")
+                .left.bottom.vlist.hard#error(style="position: absolute;")
+                    .spacer
+        .spacer
 block postbody
+    audio(id="audioClick" controls): source(src="https://prod.kr/images/screen/click.ogg" type="audio/ogg; codecs=vorbis")
+    audio(id="audioError" controls): source(src="https://prod.kr/images/screen/error.ogg" type="audio/ogg; codecs=vorbis")
+    audio(id="audioInfo" controls): source(src="https://prod.kr/images/screen/info.ogg" type="audio/ogg; codecs=vorbis")
+    img.cursor#cursor
     style.
-        .screen, .screen iframe {
-            width: calc(100vw - 128px);
-            height: calc((100vw - 128px) * 0.5625);
+        audio { display: none; }
+        .screen, .layer iframe {
+            width: min(calc(100vw - 128px), calc((100vh - 128px) / 0.5625));
+            height: min(calc((100vw - 128px) * 0.5625), calc(100vh - 128px));
+            user-select: none;
+        }
+        .layer {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+        }
+        #screen > * { position: absolute; }
+        #screen > .left { left: -32px; }
+        #screen > .right { right: -32px; }
+        #screen > .top { top: -32px; }
+        #screen > .bottom { bottom: -32px; }
+        .overlay {
+            background-color: var(--hover);
+            padding: 16px;
+            min-width: 128px; min-height: 128px;
+            color: var(--background);
+        }
+        .overlay button, .overlay a { color: var(--background); }
+        .overlay h1, .overlay h2, .overlay h3, .overlay h4, .overlay h5, .overlay h6 {
+            margin: 0;
+            flex: 0 0 auto !important;
+        }
+        .cursor {
+            position: absolute;
+            pointer-events: none;
+            width: 16px;
+            height: 16px;
+            transform: translate(-8px, -8px);
+        }
+        @keyframes fade {
+            from { opacity: 1; }
+            to { opacity: 0; }
         }
     script.
-        let flipped = false;
-        let socket;
-        function flip() {
-            flipped = !flipped;
-            e('screen-wrapper').style.display = flipped ? 'none' : 'block';
-            e('twitch-embed').style.display = flipped ? 'block' : 'none';
-        }
-        let iu = 0;
-        let objects = {};
-        const Images = {
-            activatewindows: new Image(),
-            bg: new Image(),
-            prod: new Image(),
-            cursor_click: new Image(),
-            cursor_point: new Image(),
-        }
-        addEvent('onload', async () => {
-            let proms = [];
-            for (k in Images) {
-                Images[k].src = 'https://prod.kr/images/screen/' + k + '.png';
-                proms.push(new Promise(resolve => Images[k].addEventListener("load", resolve)));
-            }
-            await Promise.all(proms);
-            socket = new WebSocket("wss://prod.kr/screen");
-            socket.addEventListener("open", (event) => { 
-                console.log("Websocket Opened");
-                setInterval(() => socket?.send('sync'), 60000);
+        let ws;
+        let cursor = null, mouse = {x: 0, y: 0};
+        addEvent('onload', () => {
+            e("start").style.animation = "";
+            let url = "wss://prod.kr/screen";
+            const hash = localStorage.getItem("screen");
+            if (hash) url += `?hash=${hash}`;
+            ws = new WebSocket(url);
+            ws.addEventListener("open", () => {
+                console.log("WebSocket opened");
             });
-            socket.addEventListener("message", (event) => {
-                let args = WASD.unpack(event.data);
-                // console.log("Message recieved", args);
-                switch (args[0]) {
-                    case "auth":
-                        e('point').innerHTML = `type <em>!login ${args[1]}</em> to log in`;
-                        objects = JSON.parse(args[2]);
-                        rebuild();
-                        break;
-                    case "points":
-                        e('buttons').style.display = 'flex';
-                        iu = Math.prec(Number(args[1]));
-                        e('point').innerHTML = `<em>${iu}</em>iu`;
-                        break;
-                    case "update":
-                        let newObjects = JSON.parse(args[1]);
-                        for (let k in newObjects) objects[k] = safeAssign(objects[k], newObjects[k]);
-                        rebuild();
-                        break;
-                    case "respond":
-                        e('status').innerText = args[1];
-                        state = "idle";
-                        break;
-                    case "sync":
-                        let names = JSON.parse(args[1]);
-                        for (let k of Object.keys(objects)) if (!names.includes(k)) delete objects[k];
-                        let list = names.filter(x => objects[x] == (args[2] == "true"));
-                        if (list.length) socket?.send(WASD.pack('request', JSON.stringify(list)));
-                        break;
-                }
+            ws.addEventListener("message", event => {
+                const args = WASD.unpack(event.data);
+                if (!COMMANDS[args[0]]) console.warn(args[0], "does not exist but recieved:", args);
+                else COMMANDS[args[0]](...args.slice(1));
             });
+            setInterval(() => {
+                if (!cursor) e("cursor").with("style", "display: none;");
+                else e("cursor").with("src", `https://prod.kr/images/screen/${cursor}.png`).with("style", `display: block; left: ${mouse.x}px; top: ${mouse.y}px;`);
+            }, 33);
         });
-
-        function rebuild() {
-            const ctx = e("screen").getContext("2d");
-            ctx.canvas.width = e('screen-wrapper').clientWidth;
-            ctx.canvas.height = e('screen-wrapper').clientHeight;
-            ctx.setTransform(ctx.canvas.width / 1920, 0, 0, ctx.canvas.height / 1080, 0, 0);
-            ctx.clearRect(0, 0, 1920, 1080);
-            ctx.fillStyle = "#396ba5";
-            ctx.fillRect(0, 0, 1920, 1080);
-            draw(ctx, '_prod', (ctx, _, x, y) => ctx.drawImage(Images.prod, x, y));
-            ctx.drawImage(Images.bg, 0, 0, 1920, 1080);
-            for (let k of Object.keys(objects).filter(x => x.startsWith("chat_"))) draw(ctx, k, drawChat);
-            for (let k of Object.keys(objects).filter(x => x.startsWith("window_"))) draw(ctx, k, drawWindow);
-            for (let k of Object.keys(objects).filter(x => x.startsWith("pointer_"))) draw(ctx, k, drawPointer);
-            ctx.drawImage(Images.activatewindows, 1599, 988, 236, 39)
+        addEvent('onmousemove', e => { mouse.x = e.x; mouse.y = e.y; });
+        let ID = 0, waitList = {};
+        function send(...msg) {
+            if (ws?.readyState !== 1) return new Promise(resolve => { resolve(undefined); }); ID++;
+            ws.send(WASD.pack(ID, ...msg));
+            return new Promise(resolve => waitList[ID] = resolve);
         }
-
-        function drawPointer(ctx, o, x, y) {
-            o.w = Number(o.w);
-            o.h = Number(o.h);
-            ctx.drawImage(o.sprite?.endsWith("cursor_point") ? Images.cursor_point : Images.cursor_click, x, y, o.w, o.h);
-            ctx.fillStyle = o.color;
-            ctx.fillText(o.author, x + 48, y + 0);
-        }
-
-        function drawChat(ctx, o, x, y) {
-            o.w = Number(o.w);
-            o.h = Number(o.h);
-            ctx.fillStyle = "#d7d0c8";
-            ctx.fillRect(x, y, o.w, o.h);
-            ctx.fillStyle = o.color;
-            ctx.fillText(o.author, x + 8, y + 12);
-            ctx.fillStyle = "#000000";
-            ctx.fillText(o.message, x + 8, y + 24);
-        }
-
-        function drawWindow(ctx, o, x, y) {
-            o.w = Number(o.w);
-            o.h = Number(o.h);
-            ctx.fillStyle = "#000080";
-            ctx.fillRect(x, y, o.w, o.h);
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(x + 4, y + 24, o.w - 8, o.h - 28);
-            ctx.fillRect(x + o.w - 24, y + 4, 20, 20);
-            ctx.fillText(o.title, x + 8, y + 12);
-            ctx.fillStyle = "#000000";
-            ctx.fillText("X", x + o.w - 16, y + 16);
-            ctx.fillText(o.content, x + 8, y + 36);
-        }
-
-        function draw(ctx, k, fn) {
-            let {x, y, w, h, a} = objects[k];
-            ctx.save();
-            ctx.setTransform(ctx.canvas.width / 1920, 0, 0, ctx.canvas.height / 1080, x * ctx.canvas.width / 1920, y * ctx.canvas.height / 1080);
-            ctx.rotate(a / 180 * Math.PI);
-            fn(ctx, objects[k], -w / 2, -h / 2, k);
-            ctx.restore();
-        }
-
-        let state = "idle";
-        let temp = {};
-        function screen(event) {
-            let r = e('screen').getBoundingClientRect()
-            let x = Math.clamp((event.clientX - r.x) * (1920 / r.width), 1, 1919);
-            let y = Math.clamp((event.clientY - r.y) * (1080 / r.height), 1, 1079);
-            switch (state) {
-                case "point":
-                case "click":
-                case "kill":
-                case "pin":
-                    socket?.send(WASD.pack(state, x, y));
-                    e('status').innerText = "";
-                    e('cmd').innerText = `command form: !${state} ${Math.floor(x)} ${Math.floor(y)}`;
-                    state = "waiting";
-                    break;
-                case "fling1":
-                    e('status').innerText = "select a destination";
-                    temp.x = x; temp.y = y;
-                    state = "fling2";
-                    break;
-                case "fling2":
-                    socket?.send(WASD.pack('fling', temp.x, temp.y, x, y));
-                    e('cmd').innerText = `command form: !fling ${Math.floor(temp.x)} ${Math.floor(temp.y)} ${Math.floor(x)} ${Math.floor(y)}`;
-                    e('status').innerText = "";
-                    state = "waiting";
-                    break;
-                case "spawn":
-                {
-                    let title = e('window-title').value;
-                    let content = e('window-content').value
-                    if (isNullOrWhitespace(title) || isNullOrWhitespace(content)) e('status').innerText = "one of the thing is empty";
-                    else {
-                        socket?.send(WASD.pack('spawn', x, y, title, content));
-                        e('window-setting').style.display = 'none';
-                        e('status').innerText = "";
-                        e('cmd').innerText = `command form: !spawn ${Math.floor(x)} ${Math.floor(y)} ${WASD.pack(title)} ${WASD.pack(content)}`;
-                        state = "waiting";
-                    }
-                    break;
+        const COMMANDS = {
+            register: (o) => {
+                e("loading").style.display = "none"
+                if (o.streaming) e("offline").style.display = "none"
+                user = o;
+            },
+            login: (o, hash) => {
+                user = o;
+                localStorage.setItem("screen", hash);
+                setState("idle");
+            },
+            error: o => error(o),
+            info: o => info(o),
+            respond: (id, o) => {
+                switch (state) {
+                    case "today":
+                        e("return").innerHTML = `Today we're making [${o}]!`;
+                        break;
+                    case "uptime":
+                        const HOUR = BigInt(1000*60*60); const WEEK = HOUR * 24n * 7n;
+                        const timezone = BigInt(-new Date("1970-01-01 0:0:0").getTime());
+                        const nextStream = BigMath.demod(time() - (29n * HOUR), WEEK) + (29n * HOUR) + WEEK - timezone;
+                        const evt = () => {
+                            e("return").innerHTML = user.streaming ? 
+                                `It's been ${formatTime(BigInt(o[0]), "hhh:mm:ss")} since the broadcast, and its currently phase ${o[1]}!` :
+                                `Broadcast is currently offline. we go live every ${formatDate(nextStream + timezone, "WWWW H:mm HHH")} (${formatTime(nextStream, time(), "hhh:mm")} away!)`;
+                            if (state === "uptime") setTimeout(evt, 1000);
+                        };
+                        evt();
+                        break;
+                    case "stats":
+                        e("return").innerHTML = Object.entries(o).map(x => `${x[0]}: ${x[1]}`).join("\n");
+                        break;
                 }
             }
         }
-        function button(newState, text) {
-            if (state == "waiting") return;
-            state = newState;
-            e('window-setting').style.display = 'none';
-            e('status').innerText = text;
+        function getWired() {
+            button();
+            removeElement("startButton");
+            e("start").style.background = "transparent";
+            setState("idle");
+            setTimeout(() => removeElement("start"), 2000);
+        }
+        let state = "";
+        let user = {};
+        let unlockedOnly = false;
+        let onclick = null;
+        const ON_STATE_CHANGE = {
+            idle: () => {
+                const chat = insertElement("div", "screen", "overlay bottom left right hlist").with("style", "margin: 0 160px; border-radius: 64px");
+                if (user.id) {
+                    onEnter(insertElement("textarea", chat, "spacer").with("id", "chat").with("placeholder", "chat...").with("style", "border-radius: 64px; padding: 16px; height: 64px; margin: 16px;"), _ => _chat());
+                    insertElement("img", insertElement("button", chat, null).with("style", "border-radius: 64px; margin: 16px 0;").with("onclick", "button(event); _chat();"), "circle").with("src", "https://prod.kr/images/screen/send.png").with("style", "width: 48px; height: 48px;");
+                    insertElement("img", insertElement("button", "screen", "overlay bottom left circle").with("onclick", "button(event); setState(\"user\");"), "circle").with("src", user.profile).with("style", "width: 96px; height: 96px;");
+                } else {
+                    insertElement("p", chat, "center", `type <u style="user-select: text;">!login ${user.login}</u> in the twitch chat to log in!`).with("style", "margin: auto; user-select: text;");
+                }
+                addSimpleButton("bottom right", "action", "action");
+                insertElement("img", insertElement("button", "screen", "overlay top left circle center").with("onclick", "button(event); window.open(\"https://prod.kr/live\");")).with("src", "https://prod.kr/images/screen/twitch.png").with("style", "width: 64px; height: 64px;");
+                insertElement("img", insertElement("button", "screen", "overlay top right circle center").with("onclick", "button(event); window.open(\"https://prod.kr/discord\");")).with("src", "https://prod.kr/images/screen/discord.png").with("style", "width: 64px; height: 64px;");
+            },
+            user: () => {
+                addSimpleButton("bottom left", "idle", "back");
+                insertElement("h2", "screen", "overlay top left", user.name);
+                const lm = insertElement("div", "screen", "left vlist hard").with("style", "top: 128px; bottom: 128px;")
+                const icon = insertElement("button", insertElement("div", lm).with("style", "margin: 16px;"), "overlay vlist").with("style", "width: 100%; height: 100%;").with("onclick", "button(event); setState(\"icon\");");
+                insertElement("h3", icon, "center", user.icons[0] ?? "Icon");
+                insertElement("img", icon, "center").with("src", `https://prod.kr/images/screen/icon/${user.icons[0] ?? "computer"}.png`).with("style", "width: 64px;");
+                const pointer = insertElement("button", insertElement("div", lm).with("style", "margin: 16px;"), "overlay vlist").with("style", "width: 100%; height: 100%;").with("onclick", "button(event); setState(\"pointer\");");
+                insertElement("h3", pointer, "center", user.pointers[0] ?? "Pointer");
+                insertElement("img", pointer, "center").with("src", `https://prod.kr/images/screen/pointer/${user.pointers[0] ?? "cursor"}_point.png`).with("style", "width: 64px; transform: translate(-25%, -25%); margin: -16px auto;");
+                const rm = insertElement("div", "screen", "top bottom right vlist hard").with("style", "min-width: 50%;");
+                const statChatter = insertElement("div", insertElement("div", rm).with("style", "margin: 16px;"), "overlay vlist").with("style", "width: 100%; height: 100%;");
+                insertElement("h3", statChatter, "center", "Chatter Stats");
+                const statShimeji = insertElement("div", insertElement("div", rm).with("style", "margin: 16px;"), "overlay vlist").with("style", "width: 100%; height: 100%;");
+                insertElement("h3", statShimeji, "center", "Shimeji Stats");
+            },
+            icon: () => {
+                addSimpleButton("bottom left", "idle", "back");
+                insertElement("h2", "screen", "overlay top left", "Change Icons");
+                const icon = insertElement("button", insertElement("div", insertElement("div", "screen", "left vlist hard").with("style", "top: 128px; bottom: 128px;")).with("style", "margin: 16px;"), "overlay vlist").with("style", "width: 100%; height: 100%;");
+                insertElement("h3", icon, "center", user.icons[0] ?? "Icon");
+                insertElement("img", icon, "center").with("src", `https://prod.kr/images/screen/icon/${user.icons[0] ?? "computer"}.png`).with("style", "width: 64px;");
+                insertElement("p", icon, "center", "Unlock Requirement");
+                const list = insertElement("div", insertElement("div", insertElement("div", "screen", "top bottom right vlist hard").with("style", "min-width: 50%;")).with("style", "margin: 16px;"), "overlay vlist").with("style", "width: 100%; height: 100%;");
+                const checkbox = insertElement("div", list, "hlist").with("style", "flex: 0 0 auto !important;");
+                insertElement("input", checkbox).with("type", "checkbox").with("id", "unlocked").with("value", unlockedOnly);
+                insertElement("p", checkbox, "spacer left", unlockedOnly ? "Show All" : "Show Unlocked");
+                const scroll = insertElement("div", list, "vlist").with("style", "overflow-y: scroll;");
+            },
+            pointer: () => {
+                addSimpleButton("bottom left", "idle", "back");
+                insertElement("h2", "screen", "overlay top left", "Change Pointers");
+                const pointer = insertElement("button", insertElement("div", insertElement("div", "screen", "left vlist hard").with("style", "top: 128px; bottom: 128px;")).with("style", "margin: 16px;"), "overlay vlist").with("style", "width: 100%; height: 100%;");
+                insertElement("h3", pointer, "center", user.pointers[0] ?? "Pointer");
+                insertElement("img", pointer, "center").with("src", `https://prod.kr/images/screen/pointer/${user.pointers[0] ?? "cursor"}_point.png`).with("style", "width: 64px; transform: translate(-25%, -25%); margin: -16px auto;");
+                insertElement("img", pointer, "center").with("src", `https://prod.kr/images/screen/pointer/${user.pointers[0] ?? "cursor"}_click.png`).with("style", "width: 64px; transform: translate(-25%, -25%); margin: -16px auto;");
+                insertElement("p", pointer, "center", "Unlock Requirement");
+                const list = insertElement("div", insertElement("div", insertElement("div", "screen", "top bottom right vlist hard").with("style", "min-width: 50%;")).with("style", "margin: 16px;"), "overlay vlist").with("style", "width: 100%; height: 100%;");
+                const checkbox = insertElement("div", list, "hlist").with("style", "flex: 0 0 auto !important;");
+                insertElement("input", checkbox).with("type", "checkbox").with("id", "unlocked").with("value", unlockedOnly);
+                insertElement("p", checkbox, "spacer left", unlockedOnly ? "Show All" : "Show Unlocked");
+                const scroll = insertElement("div", list, "vlist").with("style", "overflow-y: scroll;");
+            },
+            action: () => {
+                addSimpleButton("bottom right", "idle", "back");
+                insertElement("h2", "screen", "overlay top left", "Perform Actions").with("style", "min-height: 0;");
+                insertElement("h3", "screen", "overlay top right center", `${Math.prec(user.iu)}iu`).with("style", "min-height: 0;");
+                const ACTIONS = {
+                    "mouse": ["Point", "Click", "Fling", "Pin", "Kill"],
+                    "window": ["Spawn Window", "Song", "Furrow the Mare of Eidola"],
+                    "shimeji": [],
+                    "misc": ["Remove Triangle", "Gravity"],
+                    "help": ["Help", "Today", "Uptime", "Stats"],
+                }
+                const row = insertElement("div", "screen", "left bottom hlist hard").with("style", "right: 128px;");
+                for (const k in ACTIONS) {
+                    if ((!user.id || !user.streaming) && k !== "help") continue;
+                    const base = insertElement("div", row, "vlist action").with("style", "margin: 8px;");
+                    insertElement("div", base, "spacer");
+                    let top; if (ACTIONS[k].length) top = insertElement("div", base, "vlist overlay");
+                    insertElement("img", base, "overlay").with("src", `https://prod.kr/images/screen/${k}.png`).with("style", "width: 64px; height: 64px;"); 
+                    for (const v of ACTIONS[k]) if (user.streaming || v !== "Today") 
+                        insertElement("button", top, "left", v).with("onclick", `button(event); setState("${v.toLowerCase().replaceAll(" ", "")}");`);
+                }
+                insertElement("div", row, "spacer");
+            },
+            point: () => { addGenericPointerScreen("Click on the position you want to point.", "point"); },
+            click: () => { addGenericPointerScreen("Click on the position you want to click.", "click"); },
+            fling: () => { addGenericPointerScreen("Click on the element you want to fling.", "fling"); },
+            fling2: () => { 
+                addGenericPointerScreen("Click on the position you want to fling to.", "fling2"); 
+                const r = e('screen').getBoundingClientRect();
+                insertElement("img", "screen", "cursor").with("src", "https://prod.kr/images/screen/cursor_point.png").with("style", `left: ${temp.x / (1920 / r.width)}px; top: ${temp.y / (1080 / r.height)}px;`);
+                cursor = "cursor_point2";
+            },
+            pin: () => { addGenericPointerScreen("Click on the element you want to pin.", "pin"); },
+            kill: () => { addGenericPointerScreen("Click on the element you want to kill.", "kill"); },
+            spawnwindow: () => {
+                addGenericPointerScreen("Fill the textboxes and click on the position you want to spawn this window at.", "window");
+                const input = insertElement("div", "screen", "overlay bottom left right vlist").with("style", "margin: 0 160px; border-radius: 64px").with("onclick", "event?.stopPropagation();");
+                insertElement("input", input).with("id", "title").with("placeholder", "title...").with("style", "border-radius: 64px; padding: 16px; height: 64px; margin: 16px;");
+                insertElement("textarea", input).with("id", "contents").with("placeholder", "contents...").with("style", "border-radius: 64px; padding: 16px; height: 64px; margin: 16px;");
+            },
+            song: () => {
+                addGenericPointerScreen("Fill the textbox and click on the position you want to spawn the song window at.", "song");
+                const input = insertElement("div", "screen", "overlay bottom left right vlist").with("style", "margin: 0 160px; border-radius: 64px").with("onclick", "event?.stopPropagation();");
+                insertElement("textarea", input).with("id", "contents").with("placeholder", "song...").with("style", "border-radius: 64px; padding: 16px; height: 64px; margin: 16px;");
+                insertElement("img", insertElement("button", "screen", "overlay bottom left circle center").with("onclick", "button(event); window.open(\"https://pub.colonq.computer/~prod/toy/dbkai\");")).with("src", "https://prod.kr/images/screen/db.png").with("style", "width: 64px; height: 64px;");
+                insertElement("img", insertElement("button", "screen", "overlay left circle center").with("style", "bottom: 128px;").with("onclick", "button(event); window.open(\"https://prod.kr/v/lore\");")).with("src", "https://prod.kr/images/screen/help.png").with("style", "width: 64px; height: 64px;");
+            },
+            furrowthemareofeidola: () => {
+                addGenericPointerScreen("Fill the textbox and click on the position you want to spawn your profile at.", "furrowthemareofeidola");
+                const input = insertElement("div", "screen", "overlay bottom left right vlist").with("style", "margin: 0 160px; border-radius: 64px").with("onclick", "event?.stopPropagation();");
+                insertElement("input", input).with("id", "title").with("placeholder", "title...").with("value", `${user.name} is following their Idol Dream`).with("style", "border-radius: 64px; padding: 16px; height: 64px; margin: 16px;");
+            },
+            removetriangle: () => { send("removetriangle", 1); setState("action"); },
+            gravity: () => { addGenericPointerScreen("Click on the direction you want to throw.", "gravity"); },
+            help: () => {
+                addSimpleButton("bottom right", "action", "back");
+                const tl = insertElement("div", "screen", "overlay top left");
+                insertElement("h2", tl, null, "Screen v2.0");
+                insertElement("p", tl, null, "TRUE prod zed pod viewing experience (vastly more wired)");
+                const bl = insertElement("div", "screen", "overlay bottom left");
+                insertElement("a", bl, null, "twitch").with("href", "https://prod.kr/live").with("style", "display: block; user-select: text;");
+                insertElement("a", bl, null, "discord").with("href", "https://prod.kr/discord").with("style", "display: block; user-select: text;");
+                insertElement("a", bl, null, "youtube").with("href", "https://prod.kr/yt").with("style", "display: block; user-select: text;");
+                insertElement("a", bl, null, "VOD channel").with("href", "https://prod.kr/vod").with("style", "display: block; user-select: text;");
+                insertElement("a", bl, null, "vtuber lore thing").with("href", "https://prod.kr/v").with("style", "display: block; user-select: text;");
+                insertElement("a", bl, null, "command help / \"what is going on\" type glossary").with("href", "https://prod.kr/v/lore").with("style", "display: block; user-select: text;");
+            },
+            today: () => {
+                addSimpleButton("bottom right", "action", "back");
+                insertElement("h2", insertElement("div", "screen", "overlay top left").with("style", "min-height: 0;"), null, "Today");
+                insertElement("div", "screen", "overlay bottom left", "fetching from server...").with("style", "min-height: 0;").with("id", "return");
+                send("fetch", "today");
+            },
+            uptime: () => {
+                addSimpleButton("bottom right", "action", "back");
+                insertElement("h2", insertElement("div", "screen", "overlay top left").with("style", "min-height: 0;"), null, "Uptime");
+                insertElement("div", "screen", "overlay bottom left", "fetching from server...").with("style", "min-height: 0;").with("id", "return");
+                send("fetch", "uptime");
+            },
+            stats: () => {
+                addSimpleButton("bottom right", "action", "back");
+                insertElement("h2", insertElement("div", "screen", "overlay top left").with("style", "min-height: 0;"), null, "Stats");
+                insertElement("div", "screen", "overlay bottom left", "fetching from server...").with("style", "min-height: 0;").with("id", "return");
+                send("fetch", "stats");
+            }
+        }
+        function addSimpleButton(direction, state, img) { insertElement("img", insertElement("button", "screen", `overlay ${direction} circle center`).with("onclick", `button(event); setState("${state}");`), "circle").with("src", `https://prod.kr/images/screen/${img}.png`).with("style", "width: 64px; height: 64px;"); }
+        function addGenericPointerScreen(title, _state) {
+            insertElement("p", "screen", "overlay top left", title).with("style", "min-height: 0;");
+            addSimpleButton("bottom right", "action", "back");
+            onclick = _state;
+            e("screen").style.cursor = "none"; cursor = "cursor_point";
+        }
+        function setState(_state) {
+            state = _state;
+            onclick = null;
+            e("screen").style.cursor = ""; cursor = null;
+            removeAllChildren("screen");
+            if (ON_STATE_CHANGE[state]) ON_STATE_CHANGE[state]();
+            q(".overlay").map(x => x.style.animation = `flicker ${Math.random() + 0.25}s forwards`);
+        }
+        let temp;
+        const ON_CLICK = {
+            point: (x, y) => { sendGenericXY("point", x, y); },
+            click: (x, y) => { sendGenericXY("click", x, y); },
+            fling: (x, y) => { temp = {x: x, y: y}; setState("fling2"); },
+            fling2: (x, y) => { send("fling", temp.x, temp.y, x, y); setState("fling"); },
+            pin: (x, y) => { sendGenericXY("pin", x, y); },
+            kill: (x, y) => { sendGenericXY("close", x, y); },
+            window: (x, y) => { if (e("title").value.trim() === "" || e("contents").value.trim() === "") { error("Some textboxes are blank."); return; } send("window", x, y, e("title").value, e("contents").value); },
+            song: (x, y) => { 
+                let song = e("contents").value.trim();
+                if (song.startsWith("!s")) song = split(song, " ", 1)[1].trim();
+                if (song === "") { error("Song is empty."); return; } 
+                send("song", x, y, song); 
+                setState("action");
+            },
+            furrowthemareofeidola: (x, y) => { if (e("title").value.trim() === "") { error("Title is empty."); return; } send("furrowthemareofeidola", x, y, e("title").value); },
+            gravity: (x, y) => { send("gravity", ((x / 1920) - 0.5) * 16, ((y / 1080) - 0.5) * 16); setState("action"); }
+        }
+        function sendGenericXY(cmd, x, y) {
+            send(cmd, x, y);
+            setState(state); // refresh
+        }
+        function screen(event) {
+            const r = e('screen').getBoundingClientRect();
+            const x = Math.clamp(Math.round((event.clientX - r.x) * (1920 / r.width)), 1, 1919);
+            const y = Math.clamp(Math.round((event.clientY - r.y) * (1080 / r.height)), 1, 1079);
+            if (ON_CLICK[onclick]) { button(); ON_CLICK[onclick](x, y, event.button); }
+        }
+        function _chat() {
+            if (e("chat").value.trim() === "") return;
+            send("chat", e("chat").value);
+            e("chat").value = "";
+        }
+        function button(event) {
+            event?.stopPropagation();
+            e("audioClick").currentTime = 0;
+            e("audioClick").play();
+        }
+        function error(msg) {
+            const el = insertElement("div", "error", "overlay", msg).with("style", "min-height: 0; background-color: rgba(255, 0, 0, 0.25); color: var(--text);");
+            setTimeout(() => { el.style.animation = "fade 4s forwards"; }, 4000);
+            setTimeout(() => { removeElement(el); }, 8000);
+            e("audioError").currentTime = 0;
+            e("audioError").play();
+        }
+        function info(msg) {
+            const el = insertElement("div", "error", "overlay", msg).with("style", "min-height: 0; background-color: rgba(0, 0, 255, 0.25); color: var(--text);");
+            setTimeout(() => { el.style.animation = "fade 2s forwards"; }, 2000);
+            setTimeout(() => { removeElement(el); }, 4000);
+            e("audioInfo").currentTime = 0;
+            e("audioInfo").play();
         }
     script(src="https://player.twitch.tv/js/embed/v1.js")
     script(type="text/javascript").
-        new Twitch.Player("twitch-embed", { channel: "prodzpod" });
+        new Twitch.Player("twitch-embed", { channel: "prodzpod", muted: true, allowfullscreen: false });

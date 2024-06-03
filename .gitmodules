@@ -1,0 +1,6 @@
+[submodule "OpenSeeFace"]
+	path = tracker/OpenSeeFace
+	url = https://github.com/emilianavt/OpenSeeFace.git
+[submodule "Typography"]
+	path = gizmo/lib/Typography
+	url = https://github.com/LayoutFarm/Typography.git

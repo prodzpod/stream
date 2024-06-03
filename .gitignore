@@ -1,17 +1,15 @@
+# general node stuff
+**/node_modules
+**/*.log
+src/@main/data/**/*.*
+external
+# gizmo stuff (C# zone)
 src/.vs/
-node_modules/
-src/@main/log/*.log
-src/@main/data/user/*.json
-src/@main/data/song/*.*
-src/@main/data/1d1p.json
-secret/*.*
-external/
-src/model/lib/icons_win2k_sp4_en/
-src/model/bin/
-src/model/obj/
-src/model/Content/obj/
-src/model/Content/bin/
-src/model/*.dll
-src/@main/programs/*.*
-src/@main/data/user/*.png
-!src/@main/data/user/.discord.png
+src/gizmo/bin/
+src/gizmo/obj/
+src/gizmo/Content/obj/
+src/gizmo/Content/bin/
+src/gizmo/*.dll
+# temp
+src/gizmo/lib/classic-1/
+src/gizmo/lib/icons_win2k_sp4_en/

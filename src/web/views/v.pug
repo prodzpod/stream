@@ -128,7 +128,7 @@ block postbody
             const WEEKDAY_FROM = { 'thursday': '01', 'friday': '02', 'saturday': '03', 'sunday': '04', 'monday': '05', 'tuesday': '06', 'wednesday': '07' }
             const WEEKDAY_TO = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
             for (let el of document.getElementsByClassName('time')) {
-                let [day, time] = takeWord(el.innerText);
+                let [day, time] = split(el.innerText, " ", 1);
                 let date = new Date(`1970-01-${WEEKDAY_FROM[day.toLowerCase()]} ${time}`)
                 el.innerText = `${WEEKDAY_TO[date.getDay()]} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')} (in your timezone!)`;
             }
