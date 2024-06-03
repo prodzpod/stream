@@ -6,7 +6,7 @@ block body
     p Status: 
     p(id='code')
     script.
-        const perms = "channel:manage:broadcast channel:manage:redemptions channel:manage:predictions channel:manage:polls channel:manage:raids channel:manage:ads clips:edit moderator:read:followers moderator:read:chatters user:read:subscriptions channel:manage:moderators channel:manage:vips moderator:manage:chat_messages moderator:manage:banned_users user:manage:whispers channel:moderate user:read:chat moderator:manage:shoutouts bits:read chat:read chat:edit moderator:manage:shoutouts";
+        const perms = "channel:manage:broadcast channel:manage:redemptions channel:manage:predictions channel:manage:polls channel:manage:raids channel:manage:ads clips:edit moderator:read:followers moderator:read:chatters user:read:subscriptions channel:manage:moderators channel:manage:vips moderator:manage:chat_messages moderator:manage:banned_users user:manage:whispers channel:moderate user:read:chat moderator:manage:shoutouts bits:read chat:read chat:edit moderator:manage:shoutouts user:write:chat";
         window.onload = async () => {
             if (isNullish(query)) { // fetch
                 let s = await send('get', 'https://prod.kr/api/oauth');
@@ -34,7 +34,7 @@ block body
                         grant_type: 'authorization_code',
                         redirect_uri: 'https://prod.kr/v/oauth'
                     });
-                    if (await send('post', 'https://prod.kr/api/oauth', { token: res.access_token })) e('code').innerText = 'Token Sent and Stored';
+                    if (await send('post', 'https://prod.kr/api/oauth', { token: res.access_token, refresh: res.refresh_token })) e('code').innerText = 'Token Sent and Stored';
                     else e('code').innerText = 'Please Try Again';
                 } else e('code').innerText = 'Error';
             }

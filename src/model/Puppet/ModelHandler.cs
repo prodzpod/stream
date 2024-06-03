@@ -32,8 +32,8 @@ namespace ProdModel.Puppet
                 case 0: // eyes
                 case 1:
                     if (EyeSinceLastOne[index] < 10) return "0";
-                    if (TrackingData.Blink[index] > 0.95f) return "1";
-                    if (TrackingData.Blink[index] > 0.85f) return "3";
+                    if (TrackingData.Blink[index] > 0.9f) return "1";
+                    if (TrackingData.Blink[index] > 0.7f) return "3";
                     if (TrackingData.Blink[index] > 0.6f) return "4";
                     return "x";
                 case 2: // mouths

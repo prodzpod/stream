@@ -5,6 +5,7 @@ using ProdModel.Gizmo;
 using ProdModel.Puppet;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -126,6 +127,7 @@ namespace ProdModel.Object.Sprite
             return ret;
         }
 
+        public static List<string> _tempAccessories = new();
         public static void Draw()
         {
             // clear board
@@ -134,7 +136,12 @@ namespace ProdModel.Object.Sprite
             WorseVRM wvrm = new(ModelHandler.ModelWVRM);
 
             // exclude non-participating accessories and expressions
-            foreach (var k in wvrm.accessories.Except(wvrm.poses[ModelHandler.Pose].accessories))
+            if (MathP.Random(0, 100 / (_tempAccessories.Count + 1)) == 0)
+            {
+                _tempAccessories = wvrm.accessories.Where(x => MathP.Random(0, 2) == 0).ToList();
+                _tempAccessories.Remove("greenscreen");
+            }
+            foreach (var k in wvrm.accessories.Except(_tempAccessories))
                 foreach (var c in GetAllChildrenAndItself(wvrm, k))
                     wvrm.model.Remove(c);
             List<string> expressions = wvrm.poses[ModelHandler.Pose].expression.Select((x, i) => x ?? ModelHandler.GetExpression(wvrm, i, ModelHandler.Pose, ModelHandler.Time)).ToList();

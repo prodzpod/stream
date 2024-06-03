@@ -76,8 +76,8 @@ function onUpdate(name, ws, data) {
 function onDestroyed(name, ws) {
     module.exports.log("Destroyed " + name);
     switch (name) {
-        case "startingsoon":
-        case "brb":
+        case "_startingsoon":
+        case "_brb":
             sendClient('main', 'obs', 'unbrb');
             break;
     }

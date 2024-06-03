@@ -237,7 +237,15 @@ namespace ProdModel
                         clicked = o.OnMouse(InputP.Mouses.Left, positionRelative);
                     }
                     if (InputP.MousePressed(InputP.Mouses.Right)) clicked = o.OnMouse(InputP.Mouses.Right, positionRelative);
-                    if (InputP.MousePressed(InputP.Mouses.Middle)) clicked = o.OnMouse(InputP.Mouses.Middle, positionRelative);
+                    if (InputP.MousePressed(InputP.Mouses.Middle))
+                    {
+                        if (o.Name == "_brb" || o.Name == "_startingsoon")
+                        {
+                            o.OnDestroy();
+                            clicked = true;
+                        }
+                        clicked = o.OnMouse(InputP.Mouses.Middle, positionRelative);
+                    }
                     if (InputP.MouseHeld(InputP.Mouses.Right))
                     {
                         o.Rotation -= o.Angle * 0.1f;

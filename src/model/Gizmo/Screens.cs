@@ -11,12 +11,12 @@ namespace ProdModel.Gizmo
     {
         public static void AddStartingSoon()
         {
-            new Object.Object("startingsoon").AddChild(new ImageSprite("Content/layout/startingsoon")).SetBoundingBoxes(0).SetPosition(0, 0).SetDepth(-1).Listen();
+            new Object.Object("_startingsoon").AddChild(new ImageSprite("Content/layout/startingsoon")).SetBoundingBoxes(0).SetPosition(0, 0).SetDepth(-1).Listen();
         }
 
         public static void AddBRB()
         {
-            var brb = new Object.Object("brb"); brb
+            var brb = new Object.Object("_brb"); brb
                 .AddChild(new ImageSprite("Content/layout/brbbg"))
                 .AddChild(new ImageSprite("Content/layout/brb"))
                 .AddChild(new AnimationSprite(brb, "Content/sprites/raidboss", 9, 0), 350, 0)
