@@ -39,7 +39,7 @@ namespace ProdModel.Gizmo
                 child.BoundingBox.Y += ((float)time.ElapsedGameTime.TotalSeconds) * 100;
                 if (child.BoundingBox.Y > 32) child.BoundingBox.Y -= 64;
                 self.Children[0] = child;
-                if (MathP.Random(0f, 1f) < ((float)time.ElapsedGameTime.TotalSeconds) * 4) Chat.AddPointer("cursor_click", new(MathP.Random(1058 - 256, 1561 + 256), MathP.Random(1, ProdModel.SCREEN_HEIGHT - 1)), new(MathP.Random(1058, 1561), MathP.Random(254, 825)), new Color(MathP.Random(255), MathP.Random(255), MathP.Random(255)), "");
+                if (MathP.Random(0f, 1f) < ((float)time.ElapsedGameTime.TotalSeconds) * 4) Chat.AddPointer(ProdModel.ResolvePath("../@main/data/pointer/cursor_click"), new(MathP.Random(1058 - 256, 1561 + 256), MathP.Random(1, ProdModel.SCREEN_HEIGHT - 1)), new(MathP.Random(1058, 1561), MathP.Random(254, 825)), new Color(MathP.Random(255), MathP.Random(255), MathP.Random(255)), "");
             };
             brb.onDestroy += (self) => { ProdModel.WebSocket.Send("unbrb"); };
         }

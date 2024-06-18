@@ -1,7 +1,6 @@
-const { send } = require("../..");
+const { send, src } = require("../..");
 const { getIdentifier, safeAssign, split, randomHex } = require("../../common");
 const { log, debug } = require("../../commonServer");
-const { screenData } = require("../screen/screen");
 const { args } = require("./chat");
 const { register } = require("./user");
 let logins = {};
@@ -27,7 +26,7 @@ module.exports.execute = async (_reply, from, chatter, message, text, reply) => 
             chatter.web ??= {};
             chatter.web.id = randomHex(16);
             register(chatter);
-            await send("web", "login", k, screenData(chatter), chatter.web.id);
+            await send("web", "login", k, src().screen.screenData(chatter), chatter.web.id);
             _reply("Registered to Screen!");
         } else {
             _reply("Invalid Login");

@@ -4,6 +4,7 @@ using ProdModel.Object.Audio;
 using ProdModel.Object.Sprite;
 using ProdModel.Utils;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -122,8 +123,18 @@ namespace ProdModel.Gizmo
         public static Object.Object AddIdolDream(Vector2 pos, string title, string picture)
         {
             return AddWindow(pos, title,
-                window => window.AddChild(new ImageSprite(picture), 0, 16),
+                window => window.AddChild(new ImageSprite(picture), 0, 16, 128, 128),
                 self => "something about eidolon wyrm calamari from big geima");
+        }
+
+        public static Object.Object AddStuffGet(Vector2 pos, string title, string picture, string desc)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static Object.Object AddStuffGetMinor(Object.Object parent, string title, string picture, string desc)
+        {
+            throw new NotImplementedException();
         }
     }
 }

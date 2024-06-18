@@ -167,10 +167,10 @@ block postbody
                 const lm = insertElement("div", "screen", "left vlist hard").with("style", "top: 128px; bottom: 128px;")
                 const icon = insertElement("button", insertElement("div", lm).with("style", "margin: 16px;"), "overlay vlist").with("style", "width: 100%; height: 100%;").with("onclick", "button(event); setState(\"icon\");");
                 insertElement("h3", icon, "center", user.icons[0] ?? "Icon");
-                insertElement("img", icon, "center").with("src", `https://prod.kr/images/screen/icon/${user.icons[0] ?? "computer"}.png`).with("style", "width: 64px;");
+                insertElement("img", icon, "center").with("src", `https://prod.kr/data/icon/${user.icons[0] ?? "computer"}.png`).with("style", "width: 64px;");
                 const pointer = insertElement("button", insertElement("div", lm).with("style", "margin: 16px;"), "overlay vlist").with("style", "width: 100%; height: 100%;").with("onclick", "button(event); setState(\"pointer\");");
                 insertElement("h3", pointer, "center", user.pointers[0] ?? "Pointer");
-                insertElement("img", pointer, "center").with("src", `https://prod.kr/images/screen/pointer/${user.pointers[0] ?? "cursor"}_point.png`).with("style", "width: 64px; transform: translate(-25%, -25%); margin: -16px auto;");
+                insertElement("img", pointer, "center").with("src", `https://prod.kr/data/pointer/${user.pointers[0] ?? "cursor"}_point.png`).with("style", "width: 64px; transform: translate(-25%, -25%); margin: -16px auto;");
                 const rm = insertElement("div", "screen", "top bottom right vlist hard").with("style", "min-width: 50%;");
                 const statChatter = insertElement("div", insertElement("div", rm).with("style", "margin: 16px;"), "overlay vlist").with("style", "width: 100%; height: 100%;");
                 insertElement("h3", statChatter, "center", "Chatter Stats");
@@ -178,11 +178,11 @@ block postbody
                 insertElement("h3", statShimeji, "center", "Shimeji Stats");
             },
             icon: () => {
-                addSimpleButton("bottom left", "idle", "back");
+                addSimpleButton("bottom left", "user", "back");
                 insertElement("h2", "screen", "overlay top left", "Change Icons");
                 const icon = insertElement("button", insertElement("div", insertElement("div", "screen", "left vlist hard").with("style", "top: 128px; bottom: 128px;")).with("style", "margin: 16px;"), "overlay vlist").with("style", "width: 100%; height: 100%;");
                 insertElement("h3", icon, "center", user.icons[0] ?? "Icon");
-                insertElement("img", icon, "center").with("src", `https://prod.kr/images/screen/icon/${user.icons[0] ?? "computer"}.png`).with("style", "width: 64px;");
+                insertElement("img", icon, "center").with("src", `https://prod.kr/data/icon/${user.icons[0] ?? "computer"}.png`).with("style", "width: 64px;");
                 insertElement("p", icon, "center", "Unlock Requirement");
                 const list = insertElement("div", insertElement("div", insertElement("div", "screen", "top bottom right vlist hard").with("style", "min-width: 50%;")).with("style", "margin: 16px;"), "overlay vlist").with("style", "width: 100%; height: 100%;");
                 const checkbox = insertElement("div", list, "hlist").with("style", "flex: 0 0 auto !important;");
@@ -191,12 +191,12 @@ block postbody
                 const scroll = insertElement("div", list, "vlist").with("style", "overflow-y: scroll;");
             },
             pointer: () => {
-                addSimpleButton("bottom left", "idle", "back");
+                addSimpleButton("bottom left", "user", "back");
                 insertElement("h2", "screen", "overlay top left", "Change Pointers");
                 const pointer = insertElement("button", insertElement("div", insertElement("div", "screen", "left vlist hard").with("style", "top: 128px; bottom: 128px;")).with("style", "margin: 16px;"), "overlay vlist").with("style", "width: 100%; height: 100%;");
                 insertElement("h3", pointer, "center", user.pointers[0] ?? "Pointer");
-                insertElement("img", pointer, "center").with("src", `https://prod.kr/images/screen/pointer/${user.pointers[0] ?? "cursor"}_point.png`).with("style", "width: 64px; transform: translate(-25%, -25%); margin: -16px auto;");
-                insertElement("img", pointer, "center").with("src", `https://prod.kr/images/screen/pointer/${user.pointers[0] ?? "cursor"}_click.png`).with("style", "width: 64px; transform: translate(-25%, -25%); margin: -16px auto;");
+                insertElement("img", pointer, "center").with("src", `https://prod.kr/data/pointer/${user.pointers[0] ?? "cursor"}_point.png`).with("style", "width: 64px; transform: translate(-25%, -25%); margin: -16px auto;");
+                insertElement("img", pointer, "center").with("src", `https://prod.kr/data/pointer/${user.pointers[0] ?? "cursor"}_click.png`).with("style", "width: 64px; transform: translate(-25%, -25%); margin: -16px auto;");
                 insertElement("p", pointer, "center", "Unlock Requirement");
                 const list = insertElement("div", insertElement("div", insertElement("div", "screen", "top bottom right vlist hard").with("style", "min-width: 50%;")).with("style", "margin: 16px;"), "overlay vlist").with("style", "width: 100%; height: 100%;");
                 const checkbox = insertElement("div", list, "hlist").with("style", "flex: 0 0 auto !important;");

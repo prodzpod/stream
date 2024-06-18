@@ -6,6 +6,7 @@ using ProdModel.Object.Sprite;
 using ProdModel.Utils;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace ProdModel.Gizmo
@@ -19,6 +20,7 @@ namespace ProdModel.Gizmo
             {
                 case "info": Info(args[2], int.Parse(args[3])); break;
                 case "tracker": Tracker(args[2]); break;
+                case "speak": Speak(args[2]); break;
                 case "chat": _Chat(args[4], ColorP.RGBA(ColorP.Hex(args[3])), args[5], bool.Parse(args[6]), args[2]); break;
                 case "point": Point(new Vector2(float.Parse(args[4]), float.Parse(args[5])), args[2], ColorP.RGBA(ColorP.Hex(args[3])), args[6]); break;
                 case "click": Click(new Vector2(float.Parse(args[4]), float.Parse(args[5])), args[2], ColorP.RGBA(ColorP.Hex(args[3])), args[6]); break;
@@ -33,6 +35,7 @@ namespace ProdModel.Gizmo
                 case "brb": Screens.AddBRB(); break;
                 case "song": Song(new Vector2(float.Parse(args[2]), float.Parse(args[3])), args[4], args[5]); break;
                 case "gravity": Gravity(new Vector2(float.Parse(args[2]), float.Parse(args[3]))); break;
+                case "fetch": Fetch(int.Parse(args[0])); break;
             }
         }
 
@@ -45,6 +48,39 @@ namespace ProdModel.Gizmo
             if (_subject != null) ((TextSprite)_subject.Children[1].Sprite).Content = "\"" + (string.IsNullOrWhiteSpace(subject) ? "gizmo" : subject) + "\"";
         }
         public static void Tracker(string data) { Puppet.ModelHandler.HandleTracker(data); }
+
+        public static void Speak(string text)
+        {
+            Object.Object.ID++;
+            var prod = Object.Object.OBJECTS.Find(x => x.Name == "_prod");
+            var window = new Object.Object("speech_" + Object.Object.ID.ToString());
+            window.Extra.Add("lastsound", 0f);
+            window
+                .AddChild(new ImageSprite("Content/sprites/speech_bubble"))
+                .AddChild(new TextSprite("arcaoblique", text).SetColor(Color.Black), 16, 12);
+            window.SetBoundingBoxes(1, 57, 45).SetPosition(-prod.Position.X - (prod.BoundingBoxSize.X + window.BoundingBoxSize.X) / 2 - 8, -prod.Position.Y).SetDepth(100).Listen();
+            ImageSprite c = (ImageSprite)window.Children[0].Sprite;
+            c.Scale = window.BoundingBoxSize / c.GetBoundingBox();
+            var _c = window.Children[0]; _c.Sprite = c; window.Children[0] = _c;
+            window.onUpdate += (self, d) => { 
+                if (self.Lifetime > MathP.Max(text.Length / 10, 2f))
+                {
+                    if (!self.Extra.ContainsKey("noremove")) self.OnDestroy();
+                } 
+                else if (self.Lifetime >= (float)self.Extra["lastsound"])
+                {
+                    Audio.Play("audio/speak", MathP.Random(0.9f, 1.1f));
+                    self.Extra["lastsound"] = (float)self.Extra["lastsound"] + 0.1f;
+                }
+            };
+            window.onMouse += (self, m, p) =>
+            {
+                if (m != InputP.Mouses.Left) return;
+                if (!self.Extra.ContainsKey("noremove")) self.Extra.Add("noremove", true);
+                self.Physics();
+            };
+        }
+
         public static void _Chat(string name, Color color, string text, bool firstMessage, string icon)
         {
             ProdModel.Log("Chat (" + name + "): " + text);
@@ -164,6 +200,11 @@ namespace ProdModel.Gizmo
                 if (!o.Extra.ContainsKey("originalGravity")) o.Extra.Add("originalGravity", o.Gravity);
                 o.Gravity = pos;
             }
+        }
+
+        public static void Fetch(int id)
+        {
+            ProdModel.WebSocket.Respond(id, $"[{WASD.Pack("windowcount ", Object.Object.OBJECTS.Where(x => x.Name.StartsWith("window_")).Count().ToString())}]");
         }
     }
 }

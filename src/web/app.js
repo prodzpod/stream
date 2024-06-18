@@ -4,7 +4,7 @@ const http = require("http");
 const fs = require("fs");
 const expressWS = require("express-ws");
 const bodyParser = require("body-parser");
-const { log, info, error } = require("./ws");
+const { log, info, error, debug } = require("./ws");
 const { fileExists, path, listFiles, WASD, split, unentry, nullish } = require("./common");
 
 // TODO: rewrite this to fit gizmo2 (currently copied from gizmo1)
@@ -99,9 +99,13 @@ module.exports.init = async () => {
         render("404", req, res);
     });
     app.use((err, req, res, __) => {
-        res.status(err.status || 500);
-        render("500", req, res);
-        error(err.stack);
+        if (err.stack.startsWith("URIError") && err.stack.includes("cgi-bin")) { res.status(400); log("they're doing it again"); res.send("stop bro ur not getting this"); return; }
+        const status = err.status || 500;
+        res.status(status);
+        if (status >= 500) {
+            render("500", req, res);    
+            error(err.stack);
+        } else render("400", req, res);
     });
     // listen
     serverHTTP.listen(80); serverHTTPS.listen(443);

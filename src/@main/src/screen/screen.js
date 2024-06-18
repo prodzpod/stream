@@ -1,13 +1,16 @@
-const { src, data } = require("../..");
-const { split, realtype, time, formatTime, formatDate, BigMath } = require("../../common");
+const { src, data, send } = require("../..");
+const { split, realtype, time, formatTime, formatDate, BigMath, WASD, nullish, filterKey, filterValue } = require("../../common");
+const { log } = require("../../commonServer");
 
 module.exports.screenData = chatter => {
     let ret = {};
     ret.id = chatter.twitch.id;
     ret.name = chatter.twitch.name;
     ret.iu = chatter.economy?.iu ?? 0;
-    ret.icons = chatter.economy?.icons ?? [];
-    ret.pointers = chatter.economy?.pointers ?? [];
+    ret.icon = chatter.economy?.icon ?? { icon: "", alt: false, modifier: null };
+    ret.icons = chatter.economy?.icons ?? {};
+    ret.pointer = chatter.economy?.pointer ?? {};
+    ret.pointers = chatter.economy?.pointers ?? {};
     ret.profile = chatter.shimeji?.sprite ?? chatter.twitch.profile_image;
     ret.shimeji = chatter.shimeji ?? {};
     return ret;
@@ -17,7 +20,7 @@ module.exports.fetch = subject => {
     switch (subject) {
         case "today": return [0, data().stream.subject];
         case "uptime": return [0, [data().stream.start, data().stream.phase]];
-        case "stats": return [0, data().global];
+        case "stats": return [0, filterValue(data().global, x => nullish(x) !== null)];
     }
     return [1, ""];
 }
@@ -45,11 +48,21 @@ const INFO_MESSAGES = {
             `It's been ${formatTime(BigInt(o[0]), "hhh:mm:ss")} since the broadcast, and its currently phase ${o[1]}!` :
             `Broadcast is currently offline. we go live every ${formatDate(nextStream + timezone, "WWWW H:mm HHH")} (${formatTime(nextStream, time(), "hhh:mm")} away!)`;
     },
-    stats: () => Object.entries(module.exports.fetch("stats")[1]).map(x => `${x[0]}: ${x[1]}`).join("\n"),
+    stats: async () => {
+        let ret = module.exports.fetch("stats")[1];
+        let g = await send("gizmo", "fetch");
+        if (g) {
+            g = WASD.unpack(g)[0];
+            for (let i = 0; i < g.length; i += 2) ret[g[i]] = g[i+1] ?? 0;
+        }
+        return Object.entries(ret).map(x => `${x[0]}: ${x[1]}`).join("\n");
+    },
 }
 module.exports.predicate = Object.keys(INFO_MESSAGES).map(x => "!" + x);
 module.exports.permission = 0;  
-module.exports.execute = (_reply, from, chatter, message, text, reply) => {
-    _reply(INFO_MESSAGES[split(text, " ", 1)[0].slice(1).toLowerCase().trim()]());
+module.exports.execute = async (_reply, from, chatter, message, text, reply) => {
+    let ret = INFO_MESSAGES[split(text, " ", 1)[0].slice(1).toLowerCase().trim()]();
+    if (ret instanceof Promise) ret = await ret;
+    _reply(ret);
     return [0, ""];
 }

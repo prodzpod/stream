@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net7.0-windows</TargetFramework>
@@ -33,6 +33,11 @@
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.303" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="PInvoke.User32" Version="0.7.124" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Typography.One">
+      <HintPath>lib\Typography\Build\Typography.One\bin\Debug\netstandard2.0\Typography.One.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Update="fmod.dll">

@@ -9,8 +9,6 @@ module.exports.init = async () => {
     while (!connected) {
         ws = new WebSocket("ws://localhost:4455");
         ws.on("open", _ => { log("WS Connected"); ws.send(JSON.stringify({ "op": 1, "d": { "rpcVersion": 1 }})); connected = true; });
-        ws.on("error", _ => {});
-        ws.on("close", _ => { log("WS closed"); process.exit(0); })
         await delay(100);
     }
     messages = {};
@@ -19,6 +17,8 @@ module.exports.init = async () => {
         // if (evt.op === 5 && getSocketsServer(this.ID)) getSocketsServer(this.ID).send(`void 0 ${evt.eventType} ${JSON.stringify(evt.eventData)}`);
         if (evt.op === 7 && messages[evt.d.requestId]) { messages[evt.d.requestId](evt.d); delete messages[evt.d.requestId]; }
     });
+    ws.on("error", _ => {});
+    ws.on("close", _ => { log("WS closed"); process.exit(0); });
 }
 
 module.exports.send = (name, data) => {

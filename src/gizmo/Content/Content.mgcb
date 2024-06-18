@@ -85,6 +85,9 @@
 #begin audio/point.ogg
 /copy:audio/point.ogg
 
+#begin audio/speak.ogg
+/copy:audio/speak.ogg
+
 #begin audio/window.ogg
 /copy:audio/window.ogg
 

@@ -71,7 +71,13 @@ module.exports.init = async () => {
             this.log(fullname, -2, id, "message processed:", status, res);
             ws.send(WASD.pack(id, "respond", status, res));
         });
-        ws.on("close", () => this.log(fullname, 1, "closed connection"));
+        ws.on("close", () => {
+            this.log(fullname, 1, "closed connection")
+            if (streamModules.includes(fullname) && data.stream.phase >= 0) {
+                this.log(fullname, 2, "erroneous closure, rebooting...");
+                src.module.start(fullname, true);
+            }
+        });
         ws.on("error", e => error(fullname, "error:", e.stack));
     });
     log(`Server Set Up! duration: ${Math.prec(measureEnd(mServer))}ms`);

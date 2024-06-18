@@ -14,7 +14,6 @@ namespace ProdModel.Puppet
         public List<List<string>> expressions;
         public Dictionary<string, Model> model;
         public Dictionary<string, Pose> poses;
-
         public struct Model
         {
             public List<float> pivot;

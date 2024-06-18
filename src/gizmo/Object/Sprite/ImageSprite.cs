@@ -10,6 +10,7 @@ namespace ProdModel.Object.Sprite
         public Texture2D Texture;
         public Vector2 FlipDependence = Vector2.One; // whether to flip the image itself upon flip
         public Color Color = Color.White;
+        public Vector2 Scale = Vector2.One;
 
         public ImageSprite(string Path) : this(Texture2D.FromFile(ProdModel.Instance._graphics.GraphicsDevice, ProdModel.ResolvePath(Path.EndsWith(".png") ? Path : Path + ".png"))) { this.Path = Path; }
         public ImageSprite(Texture2D Texture)
@@ -29,7 +30,7 @@ namespace ProdModel.Object.Sprite
 
         public virtual void Render(Vector4 position, float rotation)
         {
-            ProdModel.Instance._spriteBatch.Draw(Texture, position.XY(), null, Color, MathP.DegToRad(rotation), GetBoundingBox() / 2, Vector2.One, SpriteEffects.None, 0);
+            ProdModel.Instance._spriteBatch.Draw(Texture, position.XY(), null, Color, MathP.DegToRad(rotation), GetBoundingBox() / 2, Scale, SpriteEffects.None, 0);
         }
     }
 }

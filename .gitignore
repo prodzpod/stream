@@ -2,13 +2,18 @@
 **/node_modules
 **/*.log
 src/@main/data/**/*.*
+src/web/public/data/**
 external
+# data exceptions
+!src/@main/data/icon/extract.py
 # gizmo stuff (C# zone)
 src/.vs/
 src/gizmo/bin/
 src/gizmo/obj/
 src/gizmo/Content/obj/
 src/gizmo/Content/bin/
+src/gizmo/Content/fonts/*.ttf
+src/gizmo/Content/fonts/*.otf
 src/gizmo/*.dll
 # temp
 src/gizmo/lib/classic-1/

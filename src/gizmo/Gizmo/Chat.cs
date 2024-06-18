@@ -5,6 +5,7 @@ using ProdModel.Object.Audio;
 using ProdModel.Object.Sprite;
 using ProdModel.Utils;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace ProdModel.Gizmo
@@ -59,7 +60,7 @@ namespace ProdModel.Gizmo
         {
             Object.Object.ID++;
             var pointer = new Object.Object(Object.Object.ID.ToString())
-                .AddChild(new ImageSprite("Content/sprites/" + icon))
+                .AddChild(new ImageSprite(icon))
                 .AddChild(new TextSprite("arcaoblique", author).SetAlign(-1, 1).SetColor(color), 48, 0)
                 .SetBoundingBoxes(0).SetPosition(-pos).SetDepth(200).Listen();
             ((ImageSprite)pointer.Children[0].Sprite).Color = color;
@@ -74,17 +75,18 @@ namespace ProdModel.Gizmo
                             if (MathP.PositionInBoundingBox(o, self.Position))
                         {
                                 ImageSprite img = (ImageSprite)self.Children[0].Sprite;
-                                if (img.Path == "Content/sprites/cursor_click")
+                                Debug.WriteLine(img.Path);
+                                if (img.Path.EndsWith("_click"))
                                 {
                                     if (!o.EnablePhysics || !o.Extra.ContainsKey("pinned")) continue;
                                     o.Speed *= 0.8f;
                                     o.Rotation -= o.Angle * 0.1f;
                                     o.Angle *= 0.8f;
                                 }
-                                else if (img.Path == "Content/sprites/cursor_point" && o.Name == "_prod" && MathP.Between(-180, self.Position.X - o.Position.X, 180) && MathP.Between(-160, self.Position.Y - o.Position.Y, -30))
+                                else if (img.Path.EndsWith("_point") && o.Name == "_prod" && MathP.Between(-180, self.Position.X - o.Position.X, 180) && MathP.Between(-160, self.Position.Y - o.Position.Y, -30))
                                 {
                                     var color = img.Color;
-                                    img = new("Content/sprites/cursor_pet") { Color = color };
+                                    img = new(img.Path.Replace("_point", "_pet")) { Color = color };
                                     var z = self.Children[0];
                                     z.Sprite = img;
                                     self.Children[0] = z;

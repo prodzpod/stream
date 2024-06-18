@@ -49,6 +49,14 @@ namespace ProdModel.Utils
             WebSocket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(txt)), WebSocketMessageType.Text, true, CancellationToken.None);
             return LastID + 1;
         }
+        public int Respond(int id, params string[] msg)
+        {
+            if (WebSocket.State != WebSocketState.Open) return 0;
+            string txt = $"{id} respond 0 {WASD.Pack(msg)}";
+            WebSocket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(txt)), WebSocketMessageType.Text, true, CancellationToken.None);
+            return id;
+        }
+
         public int Send(Func<string, string> callback, params string[] msg)
         {
             if (WebSocket.State != WebSocketState.Open) return 0;
