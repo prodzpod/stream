@@ -9,7 +9,7 @@ const fs = require("fs");
 const WebSocket = require("ws");
 const { WASD, numberish, split, Math, nullish, safeAssign } = require("./common");
 const { warn, _log, info, error, listFiles, path, measureStart, log, measureEnd, fileExists, debug, verbose } = require("./commonServer");
-const { initModules, streamModules } = require("../..");
+const { initModules, streamModules, stop } = require("../..");
 let server = undefined, sockets = {}, ID = 0, waitList = {};
 const STATUS_OK = 0, STATUS_REJECT = 1, STATUS_ERR = -1;
 let commands = {}, data = {}, src = {};
@@ -67,13 +67,14 @@ module.exports.init = async () => {
                         status = STATUS_ERR; res = ret;
                     }
                 }
-            } catch (e) { status = STATUS_ERR; res = WASD.pack(e.stack); }
+            } catch (e) { error("Error:", e.stack); status = STATUS_ERR; res = WASD.pack(e.stack); }
             this.log(fullname, -2, id, "message processed:", status, res);
             ws.send(WASD.pack(id, "respond", status, res));
         });
         ws.on("close", () => {
             this.log(fullname, 1, "closed connection")
-            if (streamModules.includes(fullname) && data.stream.phase >= 0) {
+            if (stop()) return;
+            if (initModules.includes(fullname) || (streamModules.includes(fullname) && data.stream.phase >= 0)) {
                 this.log(fullname, 2, "erroneous closure, rebooting...");
                 src.module.start(fullname, true);
             }

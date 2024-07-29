@@ -49,7 +49,7 @@ module.exports.download = (url, ...dir) => new Promise(resolve => {
             fs.writeFileSync(p, data.read());
             resolve(p);
         });
-        res.on('error', () => resolve(null));
+        res.on('error', e => resolve(e.stack));
     }).end();
 });
 //* #REGION debug operation !! SERVER

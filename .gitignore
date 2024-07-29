@@ -15,6 +15,15 @@ src/gizmo/Content/bin/
 src/gizmo/Content/fonts/*.ttf
 src/gizmo/Content/fonts/*.otf
 src/gizmo/*.dll
+# gizmo2 stuff (C# zone)
+src/gizmo2/.vs/
+src/gizmo2/lib/*.*
+src/gizmo2/Gizmo/bin/
+src/gizmo2/Gizmo/obj/
+src/gizmo2/Gizmo/StreamOverlay/@Content/@data/**/*.*
+src/gizmo2/Gizmo/StreamOverlay/@Content/@font/**/*.*
+src/gizmo2/Gizmo/StreamOverlay/@Content/screen/**/*.*
+src/gizmo2/Gizmo/*.dll
 # temp
 src/gizmo/lib/classic-1/
 src/gizmo/lib/icons_win2k_sp4_en/

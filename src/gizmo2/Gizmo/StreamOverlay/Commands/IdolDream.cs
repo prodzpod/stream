@@ -1,0 +1,33 @@
+﻿using Gizmo.Engine;
+using Gizmo.Engine.Graphic;
+using Raylib_CSharp;
+using Raylib_CSharp.Images;
+using Raylib_CSharp.Rendering;
+using Raylib_CSharp.Textures;
+using System.Numerics;
+
+namespace Gizmo.StreamOverlay.Commands
+{
+    public class IdolDream : Command
+    {
+        public override object?[]? Execute(params object?[] args)
+        {
+            float x = WASD.Assert<float>(args[2]);
+            float y = WASD.Assert<float>(args[3]);
+            string title = WASD.Assert<string>(args[4]);
+            string profile = WASD.Assert<string>(args[5]);
+            if (title == null || profile == null) return null;
+            StreamOverlay.DrawResolve.Add(new(Image.Load(profile), texture =>
+            {
+                Sprite sprite = new()
+                {
+                    Image = texture,
+                    Size = new(texture.Width, texture.Height),
+                    Subimages = Vector2.One
+                };
+                Elements.Window.New(new(x, y), title, sprite.Size, sprite);
+            }));
+            return null;
+        }
+    }
+}

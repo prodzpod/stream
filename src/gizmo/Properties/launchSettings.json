@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "ProdModel": {
-      "commandName": "Project",
-      "nativeDebugging": false
-    }
-  }
-}

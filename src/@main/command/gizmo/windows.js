@@ -1,6 +1,6 @@
 const { send } = require("../..");
 const { WASD, unentry } = require("../../common");
-const { log } = require("../../commonServer");
+const { log, debug } = require("../../commonServer");
 // TODO: rewrite in gizmo2 style
 let RULE = {
     // software and game development
@@ -101,7 +101,7 @@ module.exports.execute = async (...args) => {
         .filter(k => k)
         .map(x => [x, indices.indexOf(x)]);
     if (indicesToUpdate.length > 1) { // order swapped
-        log("Order Changed:", indicesToUpdate);
+        debug("Order Changed:", indicesToUpdate);
         send("obs", "send", "SetSceneItemIndex", "stream::sources", indicesToUpdate[0][0], {"sceneItemIndex": Object.keys(RULE).length - 1});
     }
     for (let window of update) {
@@ -113,7 +113,7 @@ module.exports.execute = async (...args) => {
             if (window.y) o.positionY = window.y;
             // if (window.w) o.scaleX = window.w;
             // if (window.h) o.scaleY = window.h;
-            log("Updating Transform:", k, o);
+            debug("Updating Transform:", k, o);
             send("obs", "send", "SetSceneItemTransform", "stream::sources", k, {"sceneItemTransform": o});
         }
     }

@@ -1,4 +1,5 @@
 const { src, data, send } = require("../..");
+const { info } = require("../../commonServer");
 const { args } = require("../chat/chat");
 module.exports.predicate = "!marker";
 module.exports.permission = false;

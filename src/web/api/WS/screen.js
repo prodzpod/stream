@@ -1,5 +1,5 @@
 const { WASD } = require("../../common");
-const { log, send } = require("../../ws")
+const { log, send } = require("../../ws");
 let loginWS = {};
 let userWS = {};
 
@@ -21,6 +21,9 @@ module.exports._login = async (k, chatter, hash) => {
 }
 module.exports._info = (chatter, msg, iserror=false) => {
     if (!userWS[chatter]) return 1; userWS[chatter].send(WASD.pack(iserror ? "error" : "info", msg)); return 0;
+}
+module.exports._iu = (chatter, iu, iserror=false) => {
+    if (!userWS[chatter]) return 1; userWS[chatter].send(WASD.pack("iu", iu)); return 0;
 }
 module.exports.chat = async (ws, args) => {
     const user = Object.keys(userWS).find(x => userWS[x] === ws);

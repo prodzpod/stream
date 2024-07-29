@@ -92,3 +92,6 @@ if (process.argv.every(x => x !== "-m" && x !== "--minimal")) for (let k of modu
 
 module.exports.initModules = ["twitch", "discord", "web", "qat", "gpt", "gcp"];
 module.exports.streamModules = ["obs", "tracker" /*, "fl"*/];
+let stop = false;
+module.exports.stop = () => stop;
+module.exports.stopReal = () => stop = true;

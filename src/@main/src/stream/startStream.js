@@ -1,4 +1,5 @@
 const { src, data, send } = require("../..");
+const { time } = require("../../common");
 const { info } = require("../../commonServer");
 const { args } = require("../chat/chat");
 module.exports.predicate = "!golive";
@@ -11,7 +12,7 @@ module.exports.execute = async (_reply, from, chatter, message, text, reply) => 
         category: _args[0],
         title: `🌟𝙋𝙕𝙋𝘿🌙 ${_args[1]}`,
         subject: (_args[1].match(/\[[^\]]+\]/)?.[0].slice(1, -1)) ?? 'gizmos',
-        start: new Date().getTime(),
+        start: time(),
         phase: 0
     });
     send("twitch", "info", data().stream.category, data().stream.title);

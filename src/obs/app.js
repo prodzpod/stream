@@ -7,9 +7,11 @@ module.exports.init = async () => {
     log("WS Connecting Attempt Begin");
     let connected = false;
     while (!connected) {
-        ws = new WebSocket("ws://localhost:4455");
-        ws.on("open", _ => { log("WS Connected"); ws.send(JSON.stringify({ "op": 1, "d": { "rpcVersion": 1 }})); connected = true; });
-        await delay(100);
+        try {
+            ws = new WebSocket("ws://localhost:4455");
+            ws.on("open", _ => { log("WS Connected"); ws.send(JSON.stringify({ "op": 1, "d": { "rpcVersion": 1 }})); connected = true; });
+        } catch {}
+        await delay(1000);
     }
     messages = {};
     ws.on("message", str => {

@@ -17,9 +17,7 @@ module.exports.execute = (_reply, from, chatter, message, text, reply) => {
         txt.push("the only shill", "we have a discord fully connected with this twitch chat!\nim active there all the time, we hang out here\nhttps://prod.kr/discord");
         _reply("https://prod.kr/discord");
     }
-    else if (Math.between(752, x, 1044) && Math.between(1030, y, 1076)) 
-        txt.push("TEST STREAM", "none of this is really done,\ncode is extremely messy,\nand the stream will most likely end in crashing. be aware!\n\nalso the on screen chat only supports ascii for now");
-    else if (Math.between(1050, x, 1750) && Math.between(1030, y, 1076)) {
+    else if (Math.between(752, x, 1452) && Math.between(1030, y, 1076)) {
         txt.push("!today", `today we"re making [${data().stream.subject}]!`);
     }
     else if (Math.between(1772, x, 1916) && Math.between(1030, y, 1076)) {

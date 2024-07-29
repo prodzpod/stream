@@ -8,7 +8,7 @@ module.exports.init = async () => {
     retrying = true;
     if (ws?.readyState === 1) ws.terminate();
     const subs = await fetch("GET", "eventsub/subscriptions");
-    if (subs[0] === 200) for (const d of subs[1].data) if (d.status === 'enabled') await fetch("DELETE", "eventsub/subscriptions", {id: d.id});
+    if (subs[0] === 200) for (const d of subs[1]?.data) if (d.status === 'enabled') await fetch("DELETE", "eventsub/subscriptions", {id: d.id});
     log("Loading EventSub"); const mGlobal = measureStart();
     log("Loading Events"); const mEvents = measureStart();
     for (const fname of (await listFiles("src/twitch/event")).filter(x => x.endsWith(".js")).map(x => x.slice(0, -".js".length)))
@@ -40,8 +40,11 @@ module.exports.init = async () => {
     });
     ws.on("close", code => {
         if (retrying) return;
+        /*
         if (retryAttempt < 3) { log(`Eventsub Closed (${code}), reconnecting (attempt ${retryAttempt})`); module.exports.init(); }
         else warn(`Eventsub cannot be connected after ${retryAttempt} attempts, please check your network, twitch setting and reconnect`);
+        */ info("Eventsub Closed");
+        process.exit(1);
     });
 }
 

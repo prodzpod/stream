@@ -21,7 +21,7 @@ block body
                     .spacer
                     .hlist
                         .spacer
-                        button#startButton(onclick="getWired()"): em ▶ Get Wired
+                        button#startButton(onclick="getWired()" style="display: none;"): em ▶ Get Wired
                         .spacer
                     .spacer
             .layer(style="pointer-events: none;")
@@ -82,6 +82,7 @@ block postbody
             ws = new WebSocket(url);
             ws.addEventListener("open", () => {
                 console.log("WebSocket opened");
+                e("startButton").style.display = "inline-block";
             });
             ws.addEventListener("message", event => {
                 const args = WASD.unpack(event.data);
@@ -134,7 +135,8 @@ block postbody
                         e("return").innerHTML = Object.entries(o).map(x => `${x[0]}: ${x[1]}`).join("\n");
                         break;
                 }
-            }
+            },
+            iu: o => { if (e("iu")) e("iu").innerText = Math.prec(o) + "iu"; }
         }
         function getWired() {
             button();
@@ -207,11 +209,11 @@ block postbody
             action: () => {
                 addSimpleButton("bottom right", "idle", "back");
                 insertElement("h2", "screen", "overlay top left", "Perform Actions").with("style", "min-height: 0;");
-                insertElement("h3", "screen", "overlay top right center", `${Math.prec(user.iu)}iu`).with("style", "min-height: 0;");
+                insertElement("h3", "screen", "overlay top right center", `${Math.prec(user.iu ?? 0)}iu`).with("style", "min-height: 0;").with("id", "iu");
                 const ACTIONS = {
-                    "mouse": ["Point", "Click", "Fling", "Pin", "Kill"],
+                    "mouse": ["Point", "Click", "Fling", "Kill"],
                     "window": ["Spawn Window", "Song", "Furrow the Mare of Eidola"],
-                    "shimeji": [],
+                    "shimeji": ["Spawn Shimeji", "Move"],
                     "misc": ["Remove Triangle", "Gravity"],
                     "help": ["Help", "Today", "Uptime", "Stats"],
                 }
@@ -256,6 +258,9 @@ block postbody
                 const input = insertElement("div", "screen", "overlay bottom left right vlist").with("style", "margin: 0 160px; border-radius: 64px").with("onclick", "event?.stopPropagation();");
                 insertElement("input", input).with("id", "title").with("placeholder", "title...").with("value", `${user.name} is following their Idol Dream`).with("style", "border-radius: 64px; padding: 16px; height: 64px; margin: 16px;");
             },
+            spawnshimeji: () => { addGenericPointerScreen("Click on the position you want to spawn your shimeji at.", "spawnshimeji"); },
+            move: () => { addGenericPointerScreen("Click on the position you want to move your shimeji to.", "moveshimeji"); },
+            levelupprod: () => { send("credits"); setState("action"); },
             removetriangle: () => { send("removetriangle", 1); setState("action"); },
             gravity: () => { addGenericPointerScreen("Click on the direction you want to throw.", "gravity"); },
             help: () => {
@@ -322,6 +327,8 @@ block postbody
                 setState("action");
             },
             furrowthemareofeidola: (x, y) => { if (e("title").value.trim() === "") { error("Title is empty."); return; } send("furrowthemareofeidola", x, y, e("title").value); },
+            spawnshimeji: (x, y) => { sendGenericXY("spawnshimeji", x, y); },
+            moveshimeji: (x, y) => { sendGenericXY("moveshimeji", x, y); },
             gravity: (x, y) => { send("gravity", ((x / 1920) - 0.5) * 16, ((y / 1080) - 0.5) * 16); setState("action"); }
         }
         function sendGenericXY(cmd, x, y) {

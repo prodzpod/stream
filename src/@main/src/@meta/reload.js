@@ -1,6 +1,6 @@
 const { src, commands, setCommand, setSrc } = require("../..");
 const { Math } = require("../../common");
-const { path, measureStart, measureEnd } = require("../../commonServer");
+const { path, measureStart, measureEnd, log, error } = require("../../commonServer");
 const { args } = require("../chat/chat");
 
 module.exports.predicate = "!reload";
@@ -26,6 +26,7 @@ module.exports.execute = async (_reply, from, chatter, message, text, reply) => 
         _reply(`reloaded ${fpath}! duration: ${Math.prec(measureEnd(m))}ms`);
         return [0, fpath];
     } catch (e) {
+        error(e)
         _reply("target does not exist");
         return [1, ""];
     }

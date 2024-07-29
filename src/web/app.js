@@ -59,9 +59,9 @@ module.exports.init = async () => {
             if (v === "index") v = ""; else v = "/" + v;
             log("Registering api method", x, "subpage", "/api/" + vr, `(/api${v})`);
             app[x.toLowerCase()]("/api" + v, (req, res) => {
-                res.type("json");
                 require(`./api/${x}/${vr}`).execute(req.query ?? {}, req.body ?? {}).then(raw => {
-                    let [status, ret] = raw;
+                    let status = raw[0], ret = raw[1], type = raw[2] ?? "json";
+                    res.type(type);
                     res.set({ "Access-Control-Allow-Origin": "*" });
                     res.status(status).send(ret);
                 });

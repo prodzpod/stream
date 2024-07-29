@@ -17,5 +17,6 @@ const ALIASES = {
     'Mahjong Soul': ['mahjong'],
     'Jackbox Party Packs': ['jackbox'],
     'Bloons TD 6': ['bloons', 'btd6'],
-    'VRChat': ['vrc', 'vrchat']
+    'VRChat': ['vrc', 'vrchat'],
+    'Linux for PlayStation 2': ['ps2', 'linux']
 };

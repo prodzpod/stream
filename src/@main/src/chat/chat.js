@@ -1,5 +1,5 @@
 const { send, src, data } = require("../..");
-const { time, realtype, trueish, array, unentry, split, WASD, String, occurance, safeAssign, random } = require("../../common")
+const { time, realtype, trueish, array, unentry, split, WASD, String, occurance, safeAssign, random, BigMath } = require("../../common")
 const { debug, verbose, download, log, path } = require("../../commonServer");
 
 module.exports.message = async (from, chatter, message, text, reply) => {
@@ -91,23 +91,9 @@ module.exports.command = async (from, chatter, message, text, reply) => {
         const res = unentry(await Promise.all(processes.map(async x => {
             debug("[message]", "processing command", x);
             const _reply = getReply(from, chatter, message, text, reply);
-            if (!chatter.meta.permission.streamer) {
-                const permission = array(trueish(src()[x].permission));
-                let ret = false;
-                switch (realtype(permission)) {
-                    case "boolean": ret = permission; break;
-                    case "number": ret = trueish(({
-                        "0": c => c.twitch?.id,
-                        "1": c => c.meta.permission.trusted,
-                        "2": c => c.meta.permission.vip,
-                        "3": c => c.meta.permission.moderator,
-                    })[permission](chatter)); break;
-                    case "function": ret = trueish(permission(from, chatter, message, text, reply)); break;
-                }
-                if (!ret) {
-                    _reply("Insufficient Permission");
-                    return [x, [1, "insufficient permission"]];
-                }
+            if (!module.exports.checkPerms(src()[x].permission, from, chatter, message, text, reply)){
+                _reply("Insufficient Permission");
+                return [x, [1, "insufficient permission"]];
             }
             let ret = src()[x].execute(_reply, from, chatter, message, text, reply);
             if (ret instanceof Promise) ret = await ret;
@@ -116,6 +102,24 @@ module.exports.command = async (from, chatter, message, text, reply) => {
         return [chatter, res[mainProcess]];
     } else return [chatter, null];
 } 
+
+module.exports.checkPerms = (source, from, chatter, message, text, reply) => {
+    if (chatter.meta.permission.streamer) return true;
+    const permission = array(trueish(source));
+    let ret = false;
+    switch (realtype(permission)) {
+        case "boolean": ret = permission; break;
+        case "number": ret = trueish(({
+            "0": c => c.twitch?.id,
+            "1": c => c.meta.permission.trusted,
+            "2": c => c.meta.permission.vip,
+            "3": c => c.meta.permission.moderator,
+        })[permission](chatter)); break;
+        case "function": ret = trueish(permission(from, chatter, message, text, reply)); break;
+    }
+    return ret;
+}
+
 module.exports.args = text => WASD.unpack(split(text, " ", 1)[1]);
 function onCommand(from, chatter, message, text, reply) {
     return chatter;
@@ -138,25 +142,26 @@ module.exports.reaction = async (from, chatter, message, text, reply) => {
 module.exports.chat = async (from, chatter, message, text, reply) => {
     if ((message.twitch && message.twitch.channel != "140410053") ||
         (message.discord && message.discord.channel != "1219954701726912586")) return [chatter, null];
-    chatter = onChat(from, chatter, message, text, reply);
     const name = chatter.twitch?.name ?? Object.values(chatter).find(x => x.name).name;
     // TODO: replace emotes
     if (!message.twitch) message.twitch = (await send("twitch", "send", null, `@${name}: ${text}`, reply?.twitch?.id));
     if (!message.discord) message.discord = (await send("discord", "send", null, `\`<@${name}>\`: ${text}`, reply?.discord?.id));
-    // TODO: first message check
-    send("gizmo", "chat", path("src/@main/data/icon", chatter.economy.icon.icon), (chatter.twitch?.color ?? "#000000").slice(1), name, text, false);
+    send("gizmo", "chat", "icon/" + chatter.economy.icon.icon, (chatter.twitch?.color ?? "#000000"), name, text, chatter.twitch && BigMath.between(chatter.meta.last_chatted, data().stream.start, time()) ? 1 : 0);
     src().message.register(message);
+    chatter = onChat(from, chatter, message, text, reply);
     return [chatter, null];
 }
 function onChat(from, chatter, message, text, reply) {
     const iu = text.length / 10;
-    chatter.economy.iu += iu;
+    chatter.economy.iu = Number(chatter.economy.iu) + iu;
+    send("web", "iu", chatter.twitch.id, chatter.economy.iu);
     const global = data().global; let found = false;
     for (const k in GLOBAL_OCCURANCE) {
         const occ = occurance(text.toLowerCase(), GLOBAL_OCCURANCE[k]);
         if (occ > 0) { found = true; global[k] ??= 0; global[k] += occ; }
     }
     if (found) data("global", global);
+    chatter.meta.last_chatted = time();
     return chatter;
 }
 const GLOBAL_OCCURANCE = {

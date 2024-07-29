@@ -1,1 +1,6 @@
-module.exports.execute = () => [0, ""];
+const { end } = require("..");
+
+module.exports.execute = () => {
+    end();
+    return [0, ""];
+}

@@ -7,10 +7,29 @@ block meta
 block body 
     p TIP: Click the <u>underlined text</u> to <em>/ponder/</em>...
     h1 The Lore 
-    p Welcome to <em>the pod</em>, see the <a href="https://prod.kr/v">v page</a> for the setting and introduction of myself but we do go live every <em class='time'>Thursday 20:00 GMT</em>.
+    p Welcome to <em>the pod</em>, see the <a href="https://prod.kr/v">v page</a> for the setting and introduction of myself but we do go live every <em class='time'>Thursday 20:00 GMT</em> and <em class='time'>Monday 20:00 GMT</em>.
     p we give way too much control to the viewers, talk in an unapologetically insane manner and <u>barely program</u>.
     h2 The Gizmo
     p one of the main feature of the broadcast is the high-effort homemade gizmo (the Monstrous Project) we have going on. the source of this project is available under <a href="https://github.com/prodzpod/stream">github</a>.
+    h3 The Chat
+    p since the beginning of Season 1, various bbcode-like syntax can be used to markup your text.
+    p basic syntax is <em>&lt;item key=value key2=value2&gt;text&lt;/&gt;</em>. notice the lack of label on the closing tag. tags that do not require a closing tag is labeled "self-closing". all key-values are optional and can be omitted. default value is shown for this documentation.
+    ul
+        li: p <em>&lt;reset&gt;</em>: resets any text modification.
+        li: p <em>&lt;br&gt;</em>: (self-closing) adds a newline (useful in twitch).
+        li: p <em>&lt;b&gt;</em>: makes the text bold (only supported by corresponding fonts).
+        li: p <em>&lt;i&gt;</em>: makes the text italic (only supported by corresponding fonts).
+        li: p <em>&lt;u&gt;</em>: puts underline on text.
+        li: p <em>&lt;s&gt;</em>: puts strikethrough on text.
+        li: p <em>&lt;color=#000000&gt;</em>: sets the color of the text.
+        li: p <em>&lt;tilt=0&gt;</em>: makes the text tilted (character by character).
+        li: p <em>&lt;size=26&gt;</em>: sets the font size.
+        li: p <em>&lt;charspace=0&gt;</em>: sets the number of extra pixels between characters.
+        li: p <em>&lt;lineheight=1&gt;</em>: sets the line height multiplier.
+        li: p <em>&lt;font=arcaoblique&gt;</em>: sets the font. see <em>!font</em> for the list of fonts.
+        li: p <em>&lt;wave amp=4 period=16 freq=1&gt;</em>: makes the text wave up and down.
+        li: p <em>&lt;shake amp=1&gt;</em>: makes the text shaky.
+        li: p <em>&lt;sprite=blank x=0 y=0&gt;</em>: insert a sprite as if it is text, taking up the specified amount of space.
     h3: a(href="https://prod.kr/discord") The Discord 
     p Our discord has a single channel (kind of) and is fully connected with Twitch Chat. by logging in within discord, you can also execute twitch commands within the discord server.
     p Additionally, thanks to <a href="https://colonq.computer">our progenitor</a>, the same channel is also <u>available under IRC</u> through <em>colonq.computer:26697</em> (over TLS) at <em>#prodarea</em> channel.
@@ -22,13 +41,23 @@ block body
     p <em>fling</em>: drag windows and prod around, throw chat messages and windows as well.
     p <em>spawn window</em>: spawns a window with title and content. you can also spawn a special window by typing <em>Joel</em> or using the <em>!song</em> command.
     p <em>kill</em>: removes all windows in this position.
-    p <em>pin</em>: fixes window from moving or falling. can be reversed by flinging.
+    // p <em>pin</em>: fixes window from moving or falling. can be reversed by flinging.
     h3 Twitch Commands
     p All the screen commands can also be used in twitch chat directly without logging in (TBD). we also have some extra commands.
     p <em>!removetriangle [number]</em>: removes a random triangle from prod (3d).
     p <em>!song</em>: spawns a media window that plays song based on a superset of <a href="https://pub.colonq.computer/~bezelea/bells/">Bells of Bezelea</a> that supports <u>multiple instruments and some extra compression</u>.
     p <em>!furrowthemareofeidola</em>: "chase idol dream", creates a window of your profile picture on stream.
     p <em>!gravity [up/down/left/right]</em>: throws all open windows and objects into one direction.
+    h3 Shimeji Commands
+    p this is your primary representation of yourself on screen, it inherits your chat behaviour as its AI, you can customize its stats and appearance, and it battles with other shimejis. currently not much can be done with it as we haven't properly started season 1.
+    p <em>!spawnshimeji [x] [y]</em>: spawns your shimeji on screen.
+    p <em>!moveshimeji [x] [y]</em>: sets the target destination your shimeji will attempt to move towards.
+    h3 Information Commands
+    p various information.
+    p <em>!inst</em>: lists the instruments you can use for <em>!song</em> (see that for details).
+    p <em>!font</em>: lists the fonts you can use in chat. see the above section for details.
+    p <em>!v</em>, <em>!screen</em>, <em>!lore</em>: links you to various sections of this website.
+    p <em>!vod</em>, <em>!discord</em>: links you to helpful external websites.
     h2 The actual glossary part of the website 
     p due to prod's insane speeches, we get some words that might be wholly unintelligible for many. this is a compilation.
     p a lot of prod's speeches are from the <a href="https://pub.colonq.computer/~prod/toy/glossary#learn-the-language">progenitor zone</a>, please refer to the appropriate section in the glossary there (also written by me).
@@ -100,6 +129,30 @@ block body
     h4 there is an entire bible's worth of windows on the screen
     yt bgc0fbHyF8s
     p: u we draw a default shimeji for the initiative and then chat spawns 13000 windows on the screen
+    c Testing in Prod 12
+    h4 lets get to negative viewers
+    yt HWQFmRCAdmA
+    yt Ks-_1JssKYQ
+    p: u the finale
+    c Season 0.5
+    h3 Hypertext Bestiary (kind of)
+    p After 3~4 week break, prod reinvents the gizmo in the Raylib zone - in place of the monogame zone and goes live immediately after missing talking to the computer too much. A lot of jank and below minimum viable product issues emerges.
+    c Hypertext Bestiary -1
+    h4 OH MY GOSH PROD HELL YEAH
+    yt DDg9MInHic8
+    p: u the incident 2
+    c Between the Wires -1
+    h4 GGG (gravity is good) 
+    yt 91M_mIh8EBI
+    p: u Freaking monday?? also we do ascension but again
+    c Hypertext Bestiary 0
+    h4 I once slammed my balls on the ground, R.I.P Pangea 
+    yt YyFxsQVJxcQ
+    p: u we get the rest of the thing done, ready for the actual beginning
+    c Season 1
+    h3 Hypertext Bestiary (real)
+    p we may actually begin
+
     div#toc-wrapper
         h2(style="padding: 16px; cursor: pointer;" class="noscroll" onclick="toggleTOC()") Warp Zone
         div#toc-outer: div#toc
@@ -305,8 +358,35 @@ block body
             p but yeah we bring friends of the stream nichePenguin and ctrl_o computers into <a href="https://yume.wiki/2kki/Planetarium">Planetarium</a> and <a href="https://yume.wiki/2kki/Depths">Depths</a> zone in the world of <a href="https://ynoproject.net/2kki/">2kki</a>ing. CU hype!
             p we slip into the realms of the <a href="https://www.twitch.tv/conditionbleen">crt man</a>
         .card
-            p tbd
-            p we raid <a href="https://www.twitch.tv/het_tanis">the president of linux</a>
+            p prod is Green is Good Mode and becomes zenith once more. they try to reference something in the lore but gets lost and becomes john mandela.
+            p they showcase the docket in a new format: drawing worlds in those dream games. we discuss the "Two-Week Cycle" phenomenon they discovered where their energy state is in a state of consistent flux.
+            p they also catch up to the progenitor by becoming bon vivant today, and discusses how they are so back now. we showcase kalimba, we showcase new blog, and we discuss how programmingtime need to be sillier.
+            p regardless, todays stream is artstream where we draw the default shimeji for Ascension purposes.
+            p in the middle we gets bombarded by 13 thousand windows and lag out the computer, art under duress has been achieved.
+            p we adjoin the <a href="https://www.twitch.tv/het_tanis">the president of linux</a>
+        .card
+            p we start off with the intro offset with the graphic bc lag (LOL bruh), todays prod has blocks stuck onto it and generally unstable.
+            p and then we show off the NEW format in docket: one embedded within the gizmomode. 
+            p today's theming is Ooze, the slime, and we reflect on this with :susdie: as we interpret these messages as a form of fluidity, where they finally realize that maybe they shouldnt stress about being funny or silly or entertaining bc theyre not growing their channel anyways and the content doesnt matter as much as banter.
+            p they vow to never overwork themselves again as they immediately announce a overhaul to the cs zone. 
+            p we then create the shimejis, going Ascension mode, this resolves quicker than we expect and we add web functionality so you can spawn and move them too.
+            p then the ending gets triggered prematurely and we are sucked into the ending screen where a new season is revealed, with 2 sessions per week and some improvements to come. 
+            p we hastily vacate onto the <a href="https://www.twitch.tv/jddoesdev">jd channel</a>, and later that day clonk reveals his theme of Ooze as well. we have stepped into the future.
+        .card
+            p prod is ooze mode (PHYSICAL instead of mental) not because its an intended aesthetic, but like bc the colors broke LOL oh my god
+            p prod returns in below minimum viable product mode, no starting soon or brb screen, physics is very bad ("quicksand" occurs), chat window goes above the zone and covers the creature, everything is wilding.
+            p prod spends 2 week out of their 3ish week break making the elaborate new textmode, and all the functionality of the new v2 textmode is revealed (its awesome).
+            p we do a lot of returnation related chatting, i showcase the new raylib gizmo and tell the tall tale of how we got there, and we overcome this immense duress by coding back some miscellaneous commands like remove triangle, gravity and idol dream.
+            p we tease the next time zone by playing a bit of tetris (HUGE mistake LOL) and raid <a href="https://www.twitch.tv/hazmatvt">just about to raid out as well zone</a>.
+        .card
+            p prod is back into the land of un-oozed, song is back and the quicksand is mostly fixed as well. we encounter a problem where starting soon screen is not closable due to "issues".
+            p we then talk about how it is Freaking Monday ??? this is the first time streaming in monday and its actually kinda wild that it is so soon that we meet again.
+            p we do the ascension again where i create the shimeji things back into reality. unfortunately?? we do the job too early that even after doing the extra quest of putting the user labels in were done, and we weren't going to play freaking tetris again so were raiding <a href="https://www.twitch.tv/setolyx">seto zone</a>.
+        .card
+            p prod is mixing and matching season 0 equipments until new season begins proper, and this time its the teal items and white dress.
+            p we talk about the tall tale of prod in Tetris Hell and how they survived the ordeal, and reflects upon the gamerization of last time, vowing to never have such a problem again (they do).
+            p they come up with THREE (3) objectives, restoring capital, restoring bottom bar and restoring the BATTLE that is the z-fighting.
+            p we struggle a little bit on the bottom bar as we fail to nail down the positions and we find a bug in the nine-slice mechanisms but we blaze through the rest of it, leaving another hour to fill yet again. prod is absolutely not playing tetris again, so we raid <a href="https://www.twitch.tv/karichary">the shrimp lands</a>.
 block postbody 
     style.
         li { margin-left: 32px; display: block; }

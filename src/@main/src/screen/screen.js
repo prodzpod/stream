@@ -1,6 +1,7 @@
 const { src, data, send } = require("../..");
 const { split, realtype, time, formatTime, formatDate, BigMath, WASD, nullish, filterKey, filterValue } = require("../../common");
-const { log } = require("../../commonServer");
+const { log, listFiles } = require("../../commonServer");
+const { checkPerms } = require("../chat/chat");
 
 module.exports.screenData = chatter => {
     let ret = {};
@@ -25,19 +26,39 @@ module.exports.fetch = subject => {
     return [1, ""];
 }
 
+const getCommands = (from, chatter, message, text, reply) => "available commands: `"
+ + Object.values(src())
+    .filter(x => 
+        ["array", "string"].includes(realtype(x.predicate))
+        && x.predicate.length > 0
+        && checkPerms(x.permission, from, chatter, message, text, reply))
+    .map(x => typeof x.predicate === "string" ? x.predicate : x.predicate.join("`, `")).join("`, `")
+ + "`";
+const getInsts = async () => `available instruments: \`${
+    (await listFiles("src/gizmo2/Gizmo/StreamOverlay/@Content/instruments"))
+    .filter(x => x.endsWith(".instrument.properties"))
+    .map(x => x.slice(0, -".instrument.properties".length))
+    .join("`, `")}\``;
+const getFonts = async () => `available fonts: \`${
+    (await listFiles("src/gizmo2/Gizmo/StreamOverlay/@Content/@font"))
+    .filter(x => x.endsWith(".font.properties"))
+    .map(x => x.slice(0, -".font.properties".length))
+    .join("`, `")}\``;
+
 const INFO_MESSAGES = {
     discord: () => "https://prod.kr/discord",
     screen: () => "https://prod.kr/screen",
     v: () => "https://prod.kr/v",
     lore: () => "https://prod.kr/v/lore",
     help: () => "https://prod.kr/v/lore",
-    commands: () => "available commands: `" + Object.values(src()).filter(x => ["array", "string"].includes(realtype(x.predicate))).map(x => typeof x.predicate === "string" ? x.predicate : x.predicate.join("`, `")).join("`, `") + "`",
-    command: () => "available commands: `" + Object.values(src()).filter(x => ["array", "string"].includes(realtype(x.predicate))).map(x => typeof x.predicate === "string" ? x.predicate : x.predicate.join("`, `")).join("`, `") + "`",
-    insts: () => "available instruments: `sine`, `tri`, `sq50` and `drum`",
-    instruments: () => "available instruments: `sine`, `tri`, `sq50` and `drum`",
-    inst: () => "available instruments: `sine`, `tri`, `sq50` and `drum`",
-    instrument: () => "available instruments: `sine`, `tri`, `sq50` and `drum`",
-    test: () => "TEST STREAM: none of this is really done, code is extremely messy, and the stream will most likely end in crashing. be aware!\n\nalso the on screen chat only supports ascii for now",
+    commands: getCommands,
+    command: getCommands,
+    insts: getInsts,
+    instruments: getInsts,
+    inst: getInsts,
+    instrument: getInsts,
+    font: getFonts,
+    fonts: getFonts,
     today: () => data().stream.phase !== -1 ? `Today we're making [${module.exports.fetch("today")[1]}]!` : "Stream is currently offline. Check out more prod at https://prod.kr/discord !",
     uptime: () => {
         const o = module.exports.fetch("uptime")[1];
@@ -61,7 +82,7 @@ const INFO_MESSAGES = {
 module.exports.predicate = Object.keys(INFO_MESSAGES).map(x => "!" + x);
 module.exports.permission = 0;  
 module.exports.execute = async (_reply, from, chatter, message, text, reply) => {
-    let ret = INFO_MESSAGES[split(text, " ", 1)[0].slice(1).toLowerCase().trim()]();
+    let ret = INFO_MESSAGES[split(text, " ", 1)[0].slice(1).toLowerCase().trim()](from, chatter, message, text, reply);
     if (ret instanceof Promise) ret = await ret;
     _reply(ret);
     return [0, ""];

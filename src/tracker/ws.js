@@ -74,4 +74,4 @@ module.exports.warn = (...x) => { console.log("[WARN]", ...x); }
 module.exports.info = (...x) => { console.log("[INFO]", ...x); }
 module.exports.log = (...x) => { console.log("[LOG]", ...x); }
 module.exports.debug = (...x) => { console.log("[DEBUG]", ...x); }
-module.exports.verbose = (...x) => { console.log("[VERBOSE]", ...x); }
+module.exports.verbose = (...x) => {  }
