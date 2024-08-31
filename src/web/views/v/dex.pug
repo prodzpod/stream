@@ -1,0 +1,347 @@
+extends ../template/base.pugtemplate
+
+block meta
+    - v = true
+    - title = 'the hollow decks'
+    - description = 'find your Green Goblins'
+block body 
+    h1 The Hollow Decks
+    p were kinda like the Knights rn
+    h2 Feed
+    .hlist#feed(style="min-height: 30vh;")
+    hr
+    .hlist
+        h2 Multiview
+        .hlist.right.bottom(style="position: absolute;")
+            button(onclick="closeAllViews()") Remove All 
+            button(onclick="toggleEdit()") Edit
+            button(onclick="location.href = '#multiview'") Focus
+    c hey if ur on firefox check if ur already logged in i think auto login remember me stuff on firefox embed is broken on twitch side
+    div#multiview
+    .hlist
+        input.spacer#add-custom(placeholder="channel name...")
+        label v
+        select
+            option(onclick="e('add-custom').value = 'https://pub.colonq.computer/~prod/toy/glossary'") glossary
+            option(onclick="e('add-custom').value = 'https://pub.colonq.computer/~prod/toy/dbkai'") dbkai
+            option(onclick="e('add-custom').value = 'https://global-mind.org/gcpdot/gcp.html'") GCP dot
+            option(onclick="e('add-custom').value = 'https://pub.colonq.computer/~prod/toy/bingo/min.html'") Bingo
+            option(onclick="e('add-custom').value = 'https://prod.kr/v/screen'") screen
+            // option(onclick="e('add-custom').value = 'https://cop.fish/pond'") cop.fish
+            option(onclick="e('add-custom').value = 'https://server.venorrak.dev/joels/channels'") Joelboard
+            // option(onclick="e('add-custom').value = 'https://crazykitty357.github.io/v2'") Thing V2
+        button(onclick="addStream(e('add-custom').value); saveViews();") Add Stream
+        button(onclick="addChat(e('add-custom').value); saveViews();") Add Chat
+block postbody 
+    style.
+        body { scroll-behavior: smooth; }
+        label { width: 0; transform: translate(10px, 12px); }
+        select { 
+            font-size: 0;
+            background-color: var(--highlight);
+            color: var(--text);
+            cursor: pointer;
+            position: relative; 
+            min-width: 32px;
+        }
+        select:hover { background-color: var(--hover); }
+        option { 
+            font-size: 1.5rem; 
+            background-color: color-mix(in srgb, var(--background) 100%, var(--highlight) 25%);
+            position: relative;
+        }
+
+        .feed {
+            max-width: 340px;
+            margin: 4px;
+            padding: 10px;
+        }
+        .thumb {
+            width: 330px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .pfp {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+        }
+
+        #multiview {
+            border-top: 1px white solid;
+            border-bottom: 1px white solid;
+            width: 100vw;
+            height: 100vh;
+            margin: 16px -64px;
+            background: #222;
+            position: relative;
+            overflow: hidden;
+        }
+        .view { position: absolute; }
+        .video, .chat, .view iframe {
+            width: 100%;
+            height: 100%;
+        }
+
+        .overlay {
+            display: none;
+            position: absolute;
+            top: 0; bottom: 0; left: 0; right: 0;
+        }
+        .overlay.active { display: block; }
+        .overlay button {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.25);
+        }
+        .overlay .drag { top: 0; left: 0; right: 0; bottom: 0; }
+        .overlay .resize {
+            position: absolute;
+            bottom: 0; right: 0px; width: 16px; height: 16px;
+            clip-path: polygon(100% 0%, 100% 100%, 0% 100%);
+        }
+        .overlay .close {
+            top: 0; right: 0; width: 32px; height: 32px;
+            background-color: rgba(255, 0, 0, 0.25);    
+        }
+    script(src="https://embed.twitch.tv/embed/v1.js")
+    script.
+        let ws;
+        let online = [];
+        let streams = {};
+        let midpoint = {x: 0, y: 0};
+
+        function open() {
+            ws = new WebSocket("wss://prod.kr/dex");
+            ws.onopen = () => console.log("WS Connected");
+            ws.onmessage = message => {
+                let data = WASD.unpack(message.data);
+                if (data[0] === "respond") waitList[data[1]]?.(...data.slice(2));
+                else if (data[0] === "online") {
+                    online.push(data[1]);
+                    streams[data[1]] = data[2];
+                    reloadFeed();
+                } else { // offline
+                    online = online.filter(x => x !== data[1]);
+                    delete streams[data[1]];
+                    reloadFeed();
+                }
+            }
+            ws.onclose = () => { console.log("redoing"); open(); }
+        }
+
+        addEvent("onload", async () => {
+            open(); 
+            online = parseSexpRubbish((await (await fetch("https://api.colonq.computer/api/circle")).text()));
+            streams = filterKey(streams, x => online.includes(x));
+            for (let i of online.filter(x => !Object.keys(streams).includes(x))) {
+                let data = await send("fetch", i);
+                streams[i] = data;
+            }
+            reloadFeed();
+            midpoint = {x: e("multiview").clientWidth / 2, y: e("multiview").clientHeight / 2};
+            let mvRaw = localStorage.getItem("multiview");
+            if (mvRaw) for (let k of WASD.unpack(mvRaw)[0]) {
+                let o;
+                switch (k.type) {
+                    case "view": o = addStream(k.url); break;
+                    case "chat": o = addChat(k.url); break;
+                    case "custom": o = addCustom(k.url); break;
+                }
+                positions[o] = {x: k.x, y: k.y, w: k.w, h: k.h};
+                updateTransform(o); 
+            }
+        });
+
+        addEvent("onresize", async() => {
+            midpoint = {x: e("multiview").clientWidth / 2, y: e("multiview").clientHeight / 2};
+            q(".view").map(x => updateTransform(x.id));
+        });
+
+        function reloadFeed() {
+            removeAllChildren("feed");
+            if (online.length == 0) insertElement("c", "feed", null, "The circle sleeps in tranquility...");
+            else for (let k of online.sort()) {
+                let stream = streams[k];
+                let block = insertElement("div", "feed", "feed vlist");
+                insertElement("div", block, "spacer");
+                insertElement("p", insertElement("a", block).with("href", "#multiview").with("style", "text-decoration: none;").with("onclick", `addStream("${stream.user_login}"); saveViews();`), null, stream.title).with("title", "Add Stream to MultiView");
+                insertElement("img", insertElement("a", block).with("href", "#multiview").with("onclick", `addStream("${stream.user_login}"); saveViews();`), "thumb center").with("src", stream.thumbnail_url.replaceAll("{width}", "440").replaceAll("{height}", "248")).with("title", "Add Stream to MultiView");
+                let nameRow = insertElement("div", insertElement("a", block).with("href", `//twitch.tv/${stream.user_login}`), "hlist").with("title", "Go to Channel");
+                insertElement("img", nameRow, "pfp").with("src", stream.user.profile_image_url);
+                insertElement("div", nameRow, "spacer");
+                insertElement("p", nameRow, null, stream.user_name);
+                let buttonRow = insertElement("div", block, "hlist");
+                let info = insertElement("div", buttonRow, "vlist");
+                insertElement("p", info, null, stream.game_name);
+                insertElement("c", info, null, formatTime(time() - time(stream.started_at.replace("T", " ")), "hhh:mm:ss"));
+                insertElement("div", buttonRow, "spacer");
+                insertElement("button", insertElement("a", buttonRow).with("href", "#multiview"), null, "+Chat").with("onclick", `addChat("${stream.user_login}"); saveViews();`).with("title", "Add Chat to MultiView");
+            }
+        }
+
+        let ID = 0, waitList = {};
+        function send(...args) {
+            ID++;
+            if (ws.readyState !== 1) return;
+            ws.send(WASD.pack(ID, ...args));
+            return new Promise(resolve => waitList[ID] = resolve);
+        }
+        function parseSexpRubbish(str) { return WASD.unpack(str.slice(1, -1).replaceAll("(", "[").replaceAll(")", "]")); }
+        
+        let positions = {};
+        let currentlySelected = null;
+        let origin = {x: 0, y: 0};
+        let mode = "drag";
+
+        function addStream(name) {
+            if (name.startsWith("http")) return addCustom(name);
+            if (e(`view-${name}`)) closeView(`view-${name}`)
+            let view = insertElement("div", "multiview", "view").with("id", `view-${name}`);
+            insertElement("iframe", view, "chat").with("id", `view-${name}-embed`).with("src", `https://player.twitch.tv?channel=${name}&parent=prod.kr`).with("allowfullscreen", true).with("scrolling", "no").with("frameborder", 0);
+            addTransform(`view-${name}`);
+            return `view-${name}`;
+        }
+
+        function addChat(name) {
+            if (name.startsWith("http")) return addCustom(name);
+            if (e(`chat-${name}`)) closeView(`chat-${name}`)
+            let view = insertElement("div", "multiview", "view").with("id", `chat-${name}`);
+            insertElement("iframe", view, "chat").with("id", `chat-${name}-embed`).with("src", `https://www.twitch.tv/embed/${name}/chat?parent=prod.kr${dark ? "&darkpopout" : ""}`).with("allowfullscreen", true).with("scrolling", "no").with("frameborder", 0);
+            addTransform(`chat-${name}`, .5);
+            return `chat-${name}`;
+        }
+
+        function addCustom(name) {
+            let m = /https?:\/\/(?:\w+\.)?twitch\.tv\/(\w+)/.exec(name);
+            if (m) return addStream(m[1]);
+            let sname = name.replace(/^https?:\/\//, "").replace(/\W/g, "_");
+            if (e(`custom-${sname}`)) closeView(`custom-${sname}`)
+            let view = insertElement("div", "multiview", "view").with("id", `custom-${sname}`);
+            insertElement("iframe", view, "custom").with("id", `custom-${sname}-embed`).with("src", name).with("scrolling", "no").with("frameborder", 0);
+            addTransform(`custom-${sname}`, 1);
+            return `custom-${sname}`;
+        }
+
+        function addTransform(name, initialResolution = 16/9) {
+            let overlay = insertElement("div", name, "overlay");
+            if (isEditing) overlay.classList.add("active");
+            insertElement("button", overlay, "drag").with("onmousedown", `startDrag(event, "${name}")`);
+            insertElement("button", overlay, "resize").with("onmousedown", `startResize(event, "${name}")`);
+            insertElement("button", overlay, "close").with("onmousedown", `closeView("${name}")`);
+            let w = 960, h = 960;
+            if (initialResolution >= 1) h /= initialResolution;
+            else w *= initialResolution;
+            positions[name] = {x: 0, y: 0, w: w, h: h};
+            e(name + "-embed").with("width", Math.floor(positions[name].w)).with("height", Math.floor(positions[name].h));
+            updateTransform(name);
+        }
+
+        let isEditing = false;
+        function toggleEdit() { isEditing = !isEditing; q(".overlay").map(x => x.classList.toggle("active")); currentlySelected = null; }
+        function updateTransform(name) {
+            e(name)?.with("style", `
+                left: ${midpoint.x + positions[name].x - (positions[name].w / 2)}px; 
+                top: ${midpoint.y + positions[name].y - (positions[name].h / 2)}px; 
+                width: ${positions[name].w}px; 
+                height: ${positions[name].h}px;`);
+        }
+
+        function startDrag(event, name) {
+            currentlySelected = name;
+            mode = "drag";
+            origin = {x: event.clientX, y: event.clientY};
+            event.stopPropagation();
+        }
+
+        function startResize(event, name) {
+            currentlySelected = name;
+            mode = "resize";
+            origin = {x: event.clientX, y: event.clientY};
+            event.stopPropagation();
+        }
+
+        addEvent("onmousemove", (event) => {
+            if (!currentlySelected) return;
+            let delta = {x: event.clientX - origin.x, y: event.clientY - origin.y};
+            switch (mode) {
+                case "drag":
+                    positions[currentlySelected].x += delta.x;
+                    positions[currentlySelected].y += delta.y;
+                    break;
+                case "resize":
+                    positions[currentlySelected].x += delta.x / 2;
+                    positions[currentlySelected].y += delta.y / 2;
+                    positions[currentlySelected].w += delta.x;
+                    positions[currentlySelected].h += delta.y;
+                    break;
+            }
+            updateTransform(currentlySelected);
+            origin = {x: event.clientX, y: event.clientY};
+        });
+
+        function closeView(name) {
+            currentlySelected = null;
+            delete positions[name];
+            removeElement(name);
+            saveViews();
+        }
+
+        function closeAllViews() {
+            currentlySelected = null;
+            positions = {};
+            removeAllChildren("multiview");
+            saveViews();
+        }
+
+        let SNAP_OFFSET = 32;
+        addEvent("onmouseup", () => { 
+            if (!currentlySelected) return;
+            let xSnap = [-midpoint.x, midpoint.x];
+            let ySnap = [-midpoint.y, midpoint.y];
+            for (let k in positions) {
+                if (k === currentlySelected) continue;
+                if (Math.between(positions[k].y - (positions[k].h + positions[currentlySelected].h) / 2, positions[currentlySelected].y - SNAP_OFFSET, positions[k].y + (positions[k].h + positions[currentlySelected].h) / 2 + SNAP_OFFSET)) 
+                    { xSnap.push(positions[k].x - (positions[k].w / 2)); xSnap.push(positions[k].x + (positions[k].w / 2)); }
+                if (Math.between(positions[k].x - (positions[k].w + positions[currentlySelected].w) / 2, positions[currentlySelected].x - SNAP_OFFSET, positions[k].x + (positions[k].w + positions[currentlySelected].w) / 2 + SNAP_OFFSET)) 
+                    { ySnap.push(positions[k].y - (positions[k].h / 2)); ySnap.push(positions[k].y + (positions[k].h / 2)); }
+            }
+            let snap;
+            // left
+            snap = xSnap.map(x => x - positions[currentlySelected].x + (positions[currentlySelected].w / 2)).filter(x => Math.abs(x) <= SNAP_OFFSET);
+            snap = snap.length ? snap.reduce((a, b) => Math.abs(a) > Math.abs(b) ? b : a, SNAP_OFFSET) : null;
+            if (snap !== null) { positions[currentlySelected].x += snap / 2; positions[currentlySelected].w -= snap; }
+            // right
+            snap = xSnap.map(x => x - positions[currentlySelected].x - (positions[currentlySelected].w / 2)).filter(x => Math.abs(x) <= SNAP_OFFSET);
+            snap = snap.length ? snap.reduce((a, b) => Math.abs(a) > Math.abs(b) ? b : a, SNAP_OFFSET) : null;
+            if (snap !== null) { positions[currentlySelected].x += snap / 2; positions[currentlySelected].w += snap; }
+            // up
+            snap = ySnap.map(x => x - positions[currentlySelected].y + (positions[currentlySelected].h / 2)).filter(x => Math.abs(x) <= SNAP_OFFSET);
+            snap = snap.length ? snap.reduce((a, b) => Math.abs(a) > Math.abs(b) ? b : a, SNAP_OFFSET) : null;
+            if (snap !== null) { positions[currentlySelected].y += snap / 2; positions[currentlySelected].h -= snap; }
+            // down
+            snap = ySnap.map(x => x - positions[currentlySelected].y - (positions[currentlySelected].h / 2)).filter(x => Math.abs(x) <= SNAP_OFFSET);
+            snap = snap.length ? snap.reduce((a, b) => Math.abs(a) > Math.abs(b) ? b : a, SNAP_OFFSET) : null;
+            if (snap !== null) { positions[currentlySelected].y += snap / 2; positions[currentlySelected].h += snap; }
+            //
+            updateTransform(currentlySelected);
+            e(currentlySelected + "-embed").with("width", Math.floor(positions[currentlySelected].w)).with("height", Math.floor(positions[currentlySelected].h));
+            if (currentlySelected.includes("gcpdot")) e(currentlySelected + "-embed").outerHTML = e(currentlySelected + "-embed").outerHTML + " ";
+            saveViews();
+            currentlySelected = null; 
+        });
+
+        function saveViews() {
+            let ret = [];
+            for (k in positions) {
+                let type = k.split("-")[0]; 
+                ret.push({
+                    url: type === "custom" ? e(k + "-embed").src : k.split("-")[1],
+                    type: type,
+                    x: positions[k].x,
+                    y: positions[k].y,
+                    w: positions[k].w,
+                    h: positions[k].h,
+                });
+            }
+            localStorage.setItem("multiview", WASD.pack(ret));
+        }

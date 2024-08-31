@@ -12,6 +12,7 @@ namespace Gizmo.StreamOverlay.Commands
         {
             string subject = WASD.Assert<string>(args[0]);
             float phase = WASD.Assert<float>(args[1]);
+            string game = WASD.Assert<string>(args[2]);
             if (subject == null) return null;
             var text = Text.Compile($"\"{subject}\"", "arcaoblique", 26, -Vector2.One, ColorP.BLACK);
             var ns = Resource.NineSlices["window/making"];
@@ -21,6 +22,7 @@ namespace Gizmo.StreamOverlay.Commands
             MainRoom.Making.Position = new(748 + x / 2, 1056);
             MainRoom.MakingText.Position = new((Resource.NineSlices["window/making"].innerLeft - text.Size.X) / 2, 4);
             MainRoom.Phase.Sprite = Text.Compile(phase.ToString().PadLeft(2, '0'), "arcaoblique", 26, -Vector2.One, ColorP.BLACK);
+            Elements.Windows.DrawWindow.IsTetris = game == "tetr";
             return null;
         }
     }

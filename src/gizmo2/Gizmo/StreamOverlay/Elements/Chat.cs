@@ -31,5 +31,10 @@ namespace Gizmo.StreamOverlay.Elements
             self.Set("follow", false);
             self.Gravity = Vector2.UnitY * 3000;
         }
+
+        public override string Serialize(ref Instance self)
+        {
+            return WASD.Pack("chat", self.Get<string>("id"), (int)self.Position.X, (int)self.Position.Y, (int)(self.Angle * 256), self.Get<string[]>("icon"), self.Get<string>("author"), self.Get<string>("color"), self.Get<string>("content").Replace("\n", "<br>"), self.Get<bool>("racked") ? 1 : 0);
+        }
     }
 }

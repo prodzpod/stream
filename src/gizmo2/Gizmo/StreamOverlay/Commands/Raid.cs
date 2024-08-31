@@ -1,4 +1,5 @@
 ﻿using Gizmo.Engine.Graphic;
+using Gizmo.StreamOverlay.Elements.Windows;
 using Raylib_CSharp.Images;
 using System.Numerics;
 
@@ -20,7 +21,8 @@ namespace Gizmo.StreamOverlay.Commands
                     Size = new(texture.Width, texture.Height),
                     Subimages = Vector2.One
                 };
-                Elements.RaidWindow.New(new(960, 540), $"{name} raid!", sprite, (int)viewer);
+                var i = RaidWindow.New(new(960, 540), $"{name} raid!", sprite, (int)viewer);
+                i.Set("content", $"<idoldream={profile}>");
             }));
             return null;
         }

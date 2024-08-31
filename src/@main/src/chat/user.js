@@ -1,12 +1,91 @@
-const { data } = require("../..");
-const { log } = require("../../commonServer");
+const { data, send } = require("../..");
+const { nullish, BigMath, time, random, numberish } = require("../../common");
+const { log, download } = require("../../commonServer");
 
 module.exports.identify = chatter => {
     const category = Object.keys(chatter)[0];
     if (!category) return null;
-    return Object.values(data().user ?? {}).find(x => x[category]?.id == chatter[category].id) ?? null;
+    return Object.values(data().user ?? {}).find(x => x[category]?.id == chatter[category].id) ?? chatter;
 }
 module.exports.register = chatter => {
     if (!chatter.twitch) return;
     data(`user.${chatter.twitch.id}`, chatter);
+}
+
+module.exports.initialize = async (id, forceBlockUpdate=false) => {
+    let chatter = Object.values(data().user ?? {}).find(x => x.twitch?.id == id) ?? { twitch: {id: id} };
+    let updateThis = nullish(chatter.meta) === null;
+    chatter.meta ??= {};
+    chatter.economy ??= {};
+    chatter.economy.weekly ??= 0;
+    chatter.economy.iu ??= 0;
+    chatter.economy.icon ??= { icon: "", alt: false, modifier: null };
+    chatter.economy.icons ??= {};
+    if (!Object.keys(chatter.economy.icons).length) {
+        const icon = random(data().icon.common);
+        chatter.economy.icon.icon = "common/" + icon;
+        chatter.economy.icons["common/" + icon] = { alt: false, modifiers: [] };
+    }
+    chatter.economy.pointer ??= {};
+    chatter.economy.pointers ??= {};
+    if (!Object.keys(chatter.economy.pointers).length) {
+        const pointers = data().pointer.cursor.sprite;
+        chatter.economy.pointers.cursor = pointers;
+        for (const k of pointers) chatter.economy.pointer[k] = "cursor";
+    }
+    chatter.shimeji ??= {};
+    chatter.shimeji.sprite ??= null;
+    chatter.shimeji.ai ??= {};
+    chatter.shimeji.stats ??= {};
+    chatter.shimeji.history ??= {};
+    chatter.meta.last_chatted ??= 0;
+    if (chatter.twitch && (time() - BigInt(chatter.twitch.last_updated ?? 0)) > TWITCH_UPDATE_PERIOD) {
+        chatter = await twitchUpdate(chatter);
+        updateThis = true;
+    }
+    if (nullish(chatter.meta.last_interacted) === null || BigMath.between(chatter.economy.weekly, chatter.meta.last_interacted, time())) {
+        updateThis = true;
+        chatter.economy.iu = Number(chatter.economy.iu) + WEEKLY_IU;
+        chatter.economy.weekly = BigMath.demod(time() - 313200000n, WEEKLY_IU_PERIOD) + 313200000n + WEEKLY_IU_PERIOD; 
+    }
+    chatter.meta.last_interacted = time();
+    chatter.meta.permission = {
+        streamer: chatter.twitch?.badges?.includes("broadcaster-1") ?? false,
+        mod: chatter.twitch?.badges?.includes("moderator-1") ?? false,
+        vip: chatter.twitch?.badges?.includes("vip-1") ?? false,
+    }
+    if (updateThis && !forceBlockUpdate) {
+        log("Updating User", chatter.twitch?.name);
+        data(`user.${chatter.twitch.id}`, chatter);
+    }
+    return chatter;
+}
+const WEEKLY_IU_PERIOD = BigInt(7*1000*60*60*24);
+const WEEKLY_IU = 1000;
+const TWITCH_UPDATE_PERIOD = BigInt(1000*60*60*24);
+const TWITCH_INFO_MAP = {
+    "login": "login",
+    "display_name": "name",
+    "description": "description",
+    "profile_image_url": "profile_image",
+    "offline_image_url": "offline_image",
+    "created_at": "created_at"
+}
+async function twitchUpdate(chatter) {
+    let _twitch = await send("twitch", "user", chatter.twitch?.id);
+    if (!_twitch?.id) return chatter;
+    for (let k of Object.keys(TWITCH_INFO_MAP)) if (_twitch[k]) chatter.twitch[TWITCH_INFO_MAP[k]] = _twitch[k];
+    if (chatter.twitch.profile_image) chatter.twitch.profile = await download(chatter.twitch.profile_image, "user", chatter.twitch.id + ".twitch.png");
+    chatter.twitch.last_updated = time();
+    if (chatter.discord?.profile_image) chatter.discord.profile = await download(chatter.discord.profile_image + "?size=300", "user", chatter.twitch.id + ".discord.png");
+    // (login bonus)
+    return chatter;
+}
+
+module.exports.cost = (_reply, chatter, iu) => {
+    if (!chatter?.twitch?.id || !chatter.economy) { _reply("invalid chatter"); return false; }
+    iu = numberish(chatter.economy.iu) - iu;
+    if (iu < 0) { _reply("not enough iu"); return false; }
+    data(`user.${chatter.twitch.id}.economy.iu`, iu);
+    return true;
 }

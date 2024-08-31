@@ -4,7 +4,7 @@ const { args } = require("../chat/chat");
 
 module.exports.predicate = ["!click"];
 module.exports.permission = 0;  
-module.exports.execute = (_reply, from, chatter, message, text, reply) => {
+module.exports.execute = (_reply, from, chatter, message, text, emote, reply) => {
     const _args = args(text);
     const x = Math.clamp(Math.round(Number(_args[0])), 0, 1920), y = Math.clamp(Math.round(Number(_args[1])), 0, 1080);
     if (!nullish(x) || !nullish(y)) return [1, ""];
@@ -24,5 +24,5 @@ module.exports.execute = (_reply, from, chatter, message, text, reply) => {
         txt.push("!uptime", `We"ve been going for ${formatTime(data().stream.start, "hhh:mm:ss")}!\nCurrently we"re in phase ${data().stream.phase}.`);
     }
     else txt = ["!click", x, y];
-    return src().pointerXY.execute(_reply, from, chatter, message, WASD.pack(...txt), reply);
+    return src().pointerXY.execute(_reply, from, chatter, message, WASD.pack(...txt), emote, reply);
 }

@@ -4,10 +4,10 @@ const { log, debug } = require("../../commonServer");
 const { args } = require("./chat");
 const { register } = require("./user");
 let logins = {};
-let ids = [];
+let ids = {};
 module.exports.predicate = "!login";
 module.exports.permission = true;
-module.exports.execute = async (_reply, from, chatter, message, text, reply) => {
+module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
     const _args = args(text);
     if (from !== "twitch" && !_args.length) {
         const id = getIdentifier();
@@ -22,19 +22,20 @@ module.exports.execute = async (_reply, from, chatter, message, text, reply) => 
             delete logins[k];
             _reply(`Registered to ${chatter.twitch.name}!`);
             return [0, ""];
-        } else if (ids.includes(k)) {
+        } 
+        for (let category in ids) if (ids[category].includes(k)) {
             chatter.web ??= {};
-            chatter.web.id = randomHex(16);
+            chatter.web[category === "screen" ? "id" : category] = randomHex(16);
             register(chatter);
-            await send("web", "login", k, src().screen.screenData(chatter), chatter.web.id);
-            _reply("Registered to Screen!");
-        } else {
-            _reply("Invalid Login");
-            return [1, ""];
+            await send("web", "login", k, src().screen.screenData(chatter), chatter.web[category === "screen" ? "id" : category], category);
+            _reply(`Registered to ${category}!`);
+            return [0, ""];
         }
+        _reply("Invalid Login");
+        return [1, ""];
     } else {
         _reply("This account is not logged in.");
         return [1, ""];
     }
 }
-module.exports.addID = id => { debug("ID added to watchlist:", id); ids.push(id); }
+module.exports.addID = (category, id) => { debug(category, "ID added to watchlist:", id); ids[category] ??= []; ids[category].push(id); }

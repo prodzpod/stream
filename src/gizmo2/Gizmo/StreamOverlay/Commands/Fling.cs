@@ -2,6 +2,7 @@
 using Gizmo.Engine.Builtin;
 using Gizmo.Engine.Data;
 using Gizmo.StreamOverlay.Elements;
+using Gizmo.StreamOverlay.Elements.Entities;
 using System.Numerics;
 
 namespace Gizmo.StreamOverlay.Commands
@@ -27,9 +28,16 @@ namespace Gizmo.StreamOverlay.Commands
                 if (HitboxP.Check(instance, new PointHitbox(new Vector2(x.Value, y.Value))))
                 {
                     var temp = StreamOverlay.ClickedInstance;
+                    instance.Set("pinned", false);
                     ((GameElement)instance.Element).OnClick(ref instance, new(x.Value, y.Value));
                     ((GameElement)instance.Element).ApplyForce(ref instance, instance.GetRelativePosition(new(x.Value, y.Value)), new(x2.Value, y2.Value));
                     StreamOverlay.ClickedInstance = temp;
+                    if (instance.Element is Prod && !Prod.Is2D)
+                    {
+                        Instance.New(nameof(Explosion), StreamOverlay.Prod.Position);
+                        Prod.Is2D = true;
+                        StreamOverlay.Prod.Gravity = Vector2.UnitY * 3000;
+                    } 
                 }
                 Game.INSTANCES[i] = instance;
             }

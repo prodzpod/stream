@@ -1,13 +1,20 @@
 const { send, data } = require("../..");
-const { log } = require("../../commonServer");
+const { numberish, nullish } = require("../../common");
+const { log, warn } = require("../../commonServer");
 const { args } = require("../chat/chat");
+const { initialize } = require("../chat/user");
 
 module.exports.predicate = ["!!raid"];
 module.exports.permission = false;
-module.exports.execute = async (_reply, from, chatter, message, text, reply) => {
+module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
     let _args = args(text);
-    let user = data().user[_args[0]].twitch;
-    log("raid recieved:", user.name, _args[0]);
+    let user = null;
+    if (typeof numberish(_args[0]) === "number") user = data().user[_args[0]]?.twitch.id;
+    else user = Object.values(data().user).find(x => x.twitch?.login === _args[0].toLowerCase())?.twitch.id;
+    if (nullish(user) === null) { warn("Raid target do not exist!"); return [1, "raid target do not exist"]; }
+    user = (await initialize(user)).twitch;
+    let channel = await send("twitch", "channel", user.id)
+    log("raid recieved:", user.name, user.id, [channel.game_name], [channel.title], channel.tags);
     await send("gizmo", "raid", user.name, _args[1], user.profile ?? "");
     return [0, ""];
 }

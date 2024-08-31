@@ -45,6 +45,7 @@ module.exports.init = async () => {
         sockets[fullname] = ws;
         this.log(fullname, 1, "opened connection");
         ws.on("message", async msg => {
+            if (sockets[fullname] !== ws) return;
             msg = WASD.unpack(msg.toString());
             if (msg.length < 2) { this.log(name, 3, "message has insufficient params:", msg); return; };
             const id = msg[0], command = msg[1].toString().trim().toLowerCase(); let args = [...fullname.split("/").slice(1), ...msg.slice(2)];
@@ -82,13 +83,19 @@ module.exports.init = async () => {
         ws.on("error", e => error(fullname, "error:", e.stack));
     });
     log(`Server Set Up! duration: ${Math.prec(measureEnd(mServer))}ms`);
-    if (data.stream.phase >= 0) for (const module of streamModules) src.module.start(module, true);
+    if (data.stream.phase >= 0) {
+        for (const module of streamModules) src.module.start(module, true);
+        src.startWeekly.start();
+    }
     // #REGION done 4 now --------------------------------------------------------------
     info(`prod@MAIN Ready! duration: ${Math.prec(measureEnd(mGlobal))}ms`);
 }
 
 module.exports.send = (dest, ...args) => {
-    if (sockets[dest]?.readyState !== 1) return (initModules.includes(dest) ? warn : verbose)(dest + " websocket is not active, skipping send");
+    if (sockets[dest]?.readyState !== 1) {
+        (initModules.includes(dest) ? warn : verbose)(dest + " websocket is not active, skipping send");
+        return false;
+    } 
     ID++; sockets[dest].send(WASD.pack(ID, ...args));
     return new Promise(resolve => { waitList[ID] = resolve; });
 }

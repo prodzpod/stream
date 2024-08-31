@@ -3,7 +3,8 @@ using System.Numerics;
 
 namespace Gizmo.Engine.Data
 {
-    public struct ColorP(Color color): IEquatable<ColorP>, IEquatable<Color>, IEquatable<Vector4>, IEquatable<System.Drawing.Color>, IComparable<ColorP>, ICloneable
+    public struct ColorP(Color color): IEquatable<ColorP>, IEquatable<Color>, IEquatable<Vector4>, 
+        IEquatable<System.Drawing.Color>, IComparable<ColorP>, ICloneable
     {
         public static readonly ColorP WHITE = new(255, 255, 255, 255);
         public static readonly ColorP BLACK = new(0, 0, 0, 255);

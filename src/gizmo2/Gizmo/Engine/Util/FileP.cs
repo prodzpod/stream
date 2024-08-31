@@ -35,13 +35,14 @@
         public static string[] ListFiles(IEnumerable<string> path, string extension) => ListFiles(Path([.. path]), extension);
         public static string Slurp(string path)
         {
-            using StreamReader r = new(path);
+                using StreamReader r = new(Path(path));
             return r.ReadToEnd();
         }
         public static void Write(string path, string text)
         {
-            using StreamWriter w = new(path);
+            using StreamWriter w = new(Path(path));
             w.Write(text);
+            w.Close();
             return;
         }
     }

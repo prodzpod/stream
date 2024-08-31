@@ -4,7 +4,7 @@ const { info } = require("../../commonServer");
 const { args } = require("../chat/chat");
 module.exports.predicate = "!golive";
 module.exports.permission = false;
-module.exports.execute = async (_reply, from, chatter, message, text, reply) => {
+module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
     const _args = args(text);
     if (!_args.length) return await src().prepare.execute();
     info("Starting Stream Sequence");
@@ -16,9 +16,10 @@ module.exports.execute = async (_reply, from, chatter, message, text, reply) => 
         phase: 0
     });
     send("twitch", "info", data().stream.category, data().stream.title);
-    send("discord", "send", "1219958741495975936", "@everyone\n" + _args[2] + "\n\nhttps://prod.kr/live\nhttps://prod.kr/screen");
+    send("discord", "send", "1219958741495975936", "@everyone\n" + _args[2] + "\n\nhttps://prod.kr/live\nhttps://prod.kr/screen", []);
     src().obs.start(); src().obs.brb();
     send("gizmo", "startingsoon");
     src().marker.sendInfo();
+    src().startWeekly.start();
     return [0, ""];
 }

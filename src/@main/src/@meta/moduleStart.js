@@ -5,7 +5,7 @@ const { args } = require("../chat/chat");
 
 module.exports.predicate = ["!start", "!restart"];
 module.exports.permission = false;
-module.exports.execute = async (_reply, from, chatter, message, text, reply) => {
+module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
     const module = args(text)[0];
     if (fileExists("src", module, "index.bat")) {
         const m = measureStart(); const ret = await src().module.start(module, true);

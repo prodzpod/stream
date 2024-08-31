@@ -19,7 +19,13 @@ namespace Gizmo.Engine
             { 3, new("ERROR", 9) },
             { 999, new("NONE", -1) },
         };
-        public static void Init() { _log = new(File.OpenWrite(FileP.Path("latest.log"))); }
+        public static void Init() { 
+            _log = new(File.Open(FileP.Path("latest.log"), FileMode.Create, FileAccess.Write, FileShare.ReadWrite));  
+            var t = new System.Timers.Timer();
+            t.Elapsed += (_, __) => { _log.Flush(); };
+            t.Interval = 1000;
+            t.Start();
+        }
         public static void Log(int level, params object[] msg) 
         {
             if (level < LogLevel) return;

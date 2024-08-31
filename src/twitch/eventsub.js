@@ -25,7 +25,7 @@ module.exports.init = async () => {
         let req = JSON.parse(raw.toString());
         let cmd = req.metadata.message_type;
         if (cmd === "notification") {
-            cmd = getEvent(req.metadata.subscription_type.replace(/\./g, "_"), req.payload.subscription.condition);
+            cmd = getEvent(req.metadata.subscription_type, req.payload.subscription.condition).replace(/\./g, "_");
             req = req.payload.event;
         } else req = req.payload;
         if (commands[cmd]) {

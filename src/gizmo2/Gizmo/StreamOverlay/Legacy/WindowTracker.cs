@@ -16,7 +16,7 @@ namespace ProdModel.Object
             {
                 // ProdModel.Log("Syncing Windows");
                 // get window handles
-                List<IntPtr> handles = new();
+                List<IntPtr> handles = [];
                 IntPtr shellWindow = User32.GetShellWindow();
                 User32.EnumWindows(delegate (IntPtr hWnd, IntPtr lParam)
                 {
@@ -45,7 +45,7 @@ namespace ProdModel.Object
                 checked
                 {
                     List<int> IDsToDestroy = LastSync.Keys.Where(x => !windows.Any(y => (int)y.ID == x)).ToList();
-                    List<string> updates = new();
+                    List<string> updates = [];
                     foreach (var window in windows)
                     {
                         int id = (int)window.ID;

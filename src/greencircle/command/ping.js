@@ -1,0 +1,1 @@
+module.exports.execute = async () => [0, "pong"];

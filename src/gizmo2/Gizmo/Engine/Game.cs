@@ -64,6 +64,7 @@ namespace Gizmo.Engine
             NotGMS.Init(this);
         }
         public abstract void Init();
+        public virtual void PostInit() { }
         public virtual void OnResource(Type type, string key) { }
         public virtual void ResourceLoaded() { }
         public virtual void PreUpdate(float deltaTime) { }

@@ -1,7 +1,8 @@
 ﻿using Gizmo.Engine;
 using Gizmo.Engine.Data;
-using Gizmo.StreamOverlay.Elements;
+using Gizmo.StreamOverlay.Elements.Entities;
 using System.Numerics;
+using YamlDotNet.Core.Tokens;
 
 namespace Gizmo.StreamOverlay.Commands
 {
@@ -23,11 +24,21 @@ namespace Gizmo.StreamOverlay.Commands
                 i.Var.Remove("target");
                 return null;
             }
-            ColorP color = new(_color);
-            if (!Resource.Sprites.TryGetValue("shimeji/" + author, out var sprite)) 
-                sprite = Resource.Sprites["shimeji/default"];
-            StreamOverlay.Shimeji[author] = Shimeji.New(sprite, pos, author, color);
+            _SpawnShimeji(x.Value, y.Value, author, _color);
             return null;
+        }
+
+        public static Instance _SpawnShimeji(float x, float y, string author, string _color)
+        {
+            Vector2 pos = new(x, y);
+            ColorP color = new(_color);
+            if (!Resource.Sprites.TryGetValue("shimeji/" + author, out var sprite))
+                sprite = Resource.Sprites["shimeji/default"];
+            var i = Shimeji.New(sprite, pos, author, color);
+            StreamOverlay.Shimeji[author] = i;
+            i.Set("author", author);
+            i.Set("color", _color);
+            return i;
         }
     }
 }

@@ -101,11 +101,17 @@ namespace Gizmo.Engine.Builtin
         }
         public static bool Check(LineHitbox a, LineHitbox b)
         {
-            if (MathP.Cross(a.Target - a.Offset, b.Target - b.Offset) != 0 || MathP.Cross(b.Offset - a.Offset, a.Target - a.Offset) != 0) return false;
-            var rr = Vector2.Dot(b.Target - b.Offset, b.Target - b.Offset);
-            var t0 = Vector2.Dot(b.Offset - a.Offset, b.Target - b.Offset) / rr;
-            var t1 = t0 + Vector2.Dot(b.Target - b.Offset, a.Target - a.Offset) / rr;
-            return MathP.Between(0, t0, 1) || MathP.Between(0, t1, 1) || (t0 < 0 && t1 > 1) || (t1 < 0 && t0 > 1);
+            static float o(Vector2 a, Vector2 b, Vector2 c) => MathP.Sign(MathP.Cross(b - a, c - b));
+            var o1 = o(a.Offset, a.Target, b.Offset);
+            var o2 = o(a.Offset, a.Target, b.Target);
+            var o3 = o(b.Offset, b.Target, a.Offset);
+            var o4 = o(b.Offset, b.Target, a.Target);
+            if ((o1 != o2 && o3 != o4) 
+                || (o1 == 0 && MathP.Between(a.Offset, b.Offset, a.Target))
+                || (o2 == 0 && MathP.Between(a.Offset, b.Target, a.Target)) 
+                || (o3 == 0 && MathP.Between(b.Offset, a.Offset, b.Target)) 
+                || (o4 == 0 && MathP.Between(b.Offset, a.Target, b.Target))) return true;
+            return false;
         }
         public static bool Check(LineHitbox a, CircleHitbox b) => MathP.DistanceToSegment(a.Offset, a.Target, b.Offset) <= b.Radius;
         public static bool Check(LineHitbox a, AABBHitbox b) =>
@@ -113,7 +119,9 @@ namespace Gizmo.Engine.Builtin
             || MathP.Between(a.Offset, b.Offset - b.Size / 2, a.Target) || MathP.Between(a.Offset, b.Offset + b.Size / 2, a.Target);
         public static bool Check(LineHitbox a, RectangleHitbox b)
         {
-            if (b.Angle == 0) return Check(a, (AABBHitbox)b);
+            if (MathP.Abs(b.Angle) <= 1 || MathP.Abs(b.Angle - 180) <= 1) return Check(a, (AABBHitbox)b);
+            if (MathP.Abs(b.Angle - 90) <= 1 || MathP.Abs(b.Angle - 270) <= 1)
+                return Check(a, new AABBHitbox(b.Offset, new(b.Size.Y, b.Size.X)));
             return Check(new LineHitbox(PointHitbox.RotateAround(a.Offset, b.Offset, b.Angle), PointHitbox.RotateAround(a.Target, b.Offset, b.Angle)), (AABBHitbox)b);
         }
         public static bool Check(LineHitbox a, PolygonHitbox b)
@@ -137,7 +145,9 @@ namespace Gizmo.Engine.Builtin
         }
         public static bool Check(CircleHitbox a, RectangleHitbox b)
         {
-            if (b.Angle == 0) return Check(a, (AABBHitbox)b);
+            if (MathP.Abs(b.Angle) <= 1 || MathP.Abs(b.Angle - 180) <= 1) return Check(a, (AABBHitbox)b);
+            if (MathP.Abs(b.Angle - 90) <= 1 || MathP.Abs(b.Angle - 270) <= 1)
+                return Check(a, new AABBHitbox(b.Offset, new(b.Size.Y, b.Size.X)));
             return Check(new CircleHitbox(PointHitbox.RotateAround(a.Offset, b.Offset, b.Angle), a.Radius), (AABBHitbox)b);
         }
         public static bool Check(CircleHitbox a, PolygonHitbox b)
@@ -148,18 +158,30 @@ namespace Gizmo.Engine.Builtin
             if (Check(new PointHitbox(a.Offset), b)) return true;
             return b.Lines.Any(line => Check(a, line));
         }
-        public static bool Check(AABBHitbox a, AABBHitbox b) =>
-            MathP.Between(b.Offset - b.Size / 2, a.Offset - a.Size / 2, b.Offset + b.Size / 2) || MathP.Between(b.Offset - b.Size / 2, a.Offset + a.Size / 2, b.Offset + b.Size / 2)
-            || MathP.Between(a.Offset - a.Size / 2, b.Offset - b.Size / 2, a.Offset + a.Size / 2) || MathP.Between(a.Offset - a.Size / 2, b.Offset + b.Size / 2, a.Offset + a.Size / 2);
+        public static bool Check(AABBHitbox a, AABBHitbox b)
+        {
+            var aMin = a.Offset - a.Size / 2;
+            var aMax = a.Offset + a.Size / 2;
+            var bMin = b.Offset - b.Size / 2;
+            var bMax = b.Offset + b.Size / 2;
+            return (MathP.Between(aMin.X, bMin.X, aMax.X) || MathP.Between(aMin.X, bMax.X, aMax.X)
+                || MathP.Between(bMin.X, aMin.X, bMax.X) || MathP.Between(bMin.X, aMax.X, bMax.X))
+                && (MathP.Between(aMin.Y, bMin.Y, aMax.Y) || MathP.Between(aMin.Y, bMax.Y, aMax.Y)
+                || MathP.Between(bMin.Y, aMin.Y, bMax.Y) || MathP.Between(bMin.Y, aMax.Y, bMax.Y));
+        }
         public static bool Check(AABBHitbox a, RectangleHitbox b)
         {
-            if (b.Angle == 0) return Check(a, (AABBHitbox)b);
+            if (MathP.Abs(b.Angle) <= 1 || MathP.Abs(b.Angle - 180) <= 1) return Check(a, (AABBHitbox)b);
+            if (MathP.Abs(b.Angle - 90) <= 1 || MathP.Abs(b.Angle - 270) <= 1)
+                return Check(a, new AABBHitbox(b.Offset, new(b.Size.Y, b.Size.X)));
             return Check(new RectangleHitbox(a.Offset, a.Size, 0), b);
         }
         public static bool Check(AABBHitbox a, PolygonHitbox b) => Check(new RectangleHitbox(a.Offset, a.Size, 0), b);
         public static bool Check(RectangleHitbox a, RectangleHitbox b)
         {
-            if (b.Angle == 0) return Check(a, (AABBHitbox)b);
+            if (MathP.Abs(b.Angle) <= 1 || MathP.Abs(b.Angle - 180) <= 1) return Check(a, (AABBHitbox)b);
+            if (MathP.Abs(b.Angle - 90) <= 1 || MathP.Abs(b.Angle - 270) <= 1)
+                return Check(a, new AABBHitbox(b.Offset, new(b.Size.Y, b.Size.X)));
             return Check((PolygonHitbox)a, (PolygonHitbox)b);
         }
         public static bool Check(RectangleHitbox a, PolygonHitbox b) => Check((PolygonHitbox)a, b);

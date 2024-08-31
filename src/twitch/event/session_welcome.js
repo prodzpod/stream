@@ -55,4 +55,4 @@ const condition = {
     "channel.raid.to": { to_broadcaster_user_id: STREAMER_ID },
 }
 
-module.exports.getEvent = (event, cond) => Object.keys(type).filter(x => event === type[x] && condition[x] && Object.keys(condition[x]).every(y => cond[y] == condition[x][y]))[0] ?? event;
+module.exports.getEvent = (event, cond) => Object.keys(type).find(x => event === type[x] && (!condition[x] || Object.keys(condition[x]).every(y => cond[y] == condition[x][y]))) ?? event;

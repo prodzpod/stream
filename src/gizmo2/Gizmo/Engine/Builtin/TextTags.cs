@@ -60,7 +60,6 @@ namespace Gizmo.Engine.Builtin
                 if (bounds > 0 && conductor.Pen + ch.Size.X > bounds)
                     Helper.LineBreak(ref charNo, ref conductor, ref currentLine, ref currentY, ref lines);
                 ch.Position = new(conductor.Pen, currentY);
-                currentLine.Add(ch);
                 conductor.Pen += ch.Size.X + conductor.Spacing.X;
                 int frame = 0, speed = 0;
                 if (args.TryGetValue("frame", out var _frame)) frame = int.Parse(_frame);
@@ -69,7 +68,7 @@ namespace Gizmo.Engine.Builtin
                 {
                     ch.onDraw += (i, offset, ch) =>
                     {
-                        if (sprite.Image == null || !Sprite.TryCameraWarp(MathP.Rotate(ch.Position, i.Angle) + i.Position + offset, ch.Size * i.Scale, out var meta)) return;
+                        if (sprite.Image == null || !Sprite.TryCameraWarp(MathP.Rotate(ch.Position, i.Angle) + i.Position + offset, ch.Size * i.Scale, i.Angle + ch.Angle, out var meta)) return;
                         int fr = frame + (int)(speed * i.Frame);
                         var frameOffset = sprite.Size * sprite.GetSubimage(frame);
                         Raylib_CSharp.Transformations.Rectangle source = new(frameOffset.X, frameOffset.Y, sprite.Size.X, sprite.Size.Y);
@@ -77,6 +76,7 @@ namespace Gizmo.Engine.Builtin
                         Graphics.DrawTexturePro((Texture2D)sprite.Image, source, target, new(target.Width / 2, target.Height / 2), ch.Angle + i.Angle, ch.Color * i.Blend * i.Alpha);
                     };
                 }
+                currentLine.Add(ch);
                 return conductor;
             }
         }
@@ -244,7 +244,7 @@ namespace Gizmo.Engine.Builtin
             {
                 lines.Add(currentLine);
                 charNo = 0;
-                currentY += currentLine.MaxBy(x => x.Size.Y).Size.Y * conductor.Spacing.Y;
+                if (currentLine.Count > 0) currentY += currentLine.MaxBy(x => x.Size.Y).Size.Y * conductor.Spacing.Y;
                 currentLine = [];
                 conductor.Pen = 0;
             }

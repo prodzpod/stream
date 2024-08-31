@@ -5,6 +5,7 @@ module.exports.execute = async (o) => {
         "twitch", 
         { twitch: o.chatter }, 
         { twitch: { id: o.message.id, channel: o.message.channel }}, 
-        o.message.text,
+        o.message.text ?? "",
+        o.message.emotes,
         o.reply ? { twitch: { id: o.reply.id }, fallback: o.reply.name } : null);
 }

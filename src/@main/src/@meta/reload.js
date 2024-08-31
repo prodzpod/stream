@@ -5,7 +5,7 @@ const { args } = require("../chat/chat");
 
 module.exports.predicate = "!reload";
 module.exports.permission = false;
-module.exports.execute = async (_reply, from, chatter, message, text, reply) => {
+module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
     const _args = args(text); const m = measureStart();
     try {
         let fpath;

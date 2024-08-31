@@ -1,6 +1,6 @@
 const fetch = require("node-fetch");
 const { measureStart, measureEnd } = require("./common"); 
-const { init, info, error, log, send } = require("./ws");
+const { init, info, error, log, send, debug } = require("./ws");
 
 try {(async () => {
 
@@ -12,9 +12,11 @@ info(`Global Consciousness Project Module Loaded, total time: ${measureEnd(mGlob
 })();} catch (e) { console.log(e.stack); }
 
 async function gcp() {
-    const html = await fetch("https://global-mind.org/gcpdot/gcpindex.php?current=1&nonce=238930");
-    if (html.status !== 200) { error("gcp fetch error:", html.status, html.error); process.exit(1); }
-    send("gcp", Number((await html.text()).match(/([\d\.]+)<\/s><\/ss>/)[1]));
+    try {
+        const html = await fetch("https://global-mind.org/gcpdot/gcpindex.php?current=1&nonce=238930");
+        if (html.status !== 200) { error("gcp fetch error:", html.status, html.error); return; }
+        send("gcp", Number((await html.text()).match(/([\d\.]+)<\/s><\/ss>/)[1]));
+    } catch (e) { debug(e); }
     setTimeout(gcp, 60000);
 }
 

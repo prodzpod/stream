@@ -41,7 +41,8 @@ module.exports.fetch = async (method, subdir = "", query, body, isEncoded = fals
         headers: {
             "Authorization": "Bearer " + secret.token,
             "Client-Id": BOT_ID,
-            "Content-Type": isEncoded ? "application/x-www-form-urlencoded" : "application/json"
+            "Content-Type": isEncoded ? "application/x-www-form-urlencoded" : "application/json",
+            "Keep-Alive": "timeout=60"
         }
     };
     if (!subdir.startsWith("https://") && !subdir.startsWith("http://")) subdir = "https://api.twitch.tv/helix/" + subdir;
@@ -51,6 +52,12 @@ module.exports.fetch = async (method, subdir = "", query, body, isEncoded = fals
     if (nullish(query)) subdir = `${subdir}?${Object.entries(query)
             .filter(x => x.every(y => nullish(y)))
             .map(x => x.map(y => encodeURIComponent(String(y))).join("=")).join("&")}`;
-    const res = await (require("node-fetch"))(subdir, options);
-    try { return [res.status, await res.json()]; } catch { return [res?.status, res?.body]; };
+    let res = await (require("node-fetch"))(subdir, options);
+    let ret = "";
+    res.body.on('data', (chunk) => { ret += chunk.toString(); });
+    await new Promise(resolve => res.body.on('end', resolve)); 
+    if (res?.status === 502 && subdir.includes("/cgi-bin/")) { res = {status: 200}; ret = {}; }
+    try { let j = JSON.parse(ret); return [res.status, j]; } catch { return [res?.status, ret]; };
 }
+
+module.exports.secret = () => secret;

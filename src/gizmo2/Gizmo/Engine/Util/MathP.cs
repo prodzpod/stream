@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Gizmo.Engine.Util;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Numerics;
 using System.Runtime.InteropServices;
@@ -57,6 +58,7 @@ namespace Gizmo.Engine.Data
         public static T PosMod<T>(T n, T a) where T : INumber<T> => (n % a + a) % a;
         public static T Demod<T>(T n, T a) where T : INumber<T> => n - n % a;
         public static T Sqr<T>(T n) where T : INumber<T> => n * n;
+        public static T Sign<T>(T n) where T : INumber<T> => T.IsZero(n) ? T.Zero : (T.IsPositive(n) ? T.One : -T.One);
         public static float Sqrt(float a) => MathF.Sqrt(a);
         public static double Sqrt(double a) => Math.Sqrt(a);
         public static decimal Sqrt(decimal a) => (decimal)Math.Sqrt((double)a);
@@ -139,7 +141,7 @@ namespace Gizmo.Engine.Data
         public static float Dot(Vector4 a, Vector4 b) => (a.X * b.X) + (a.Y * b.Y) + (a.Z * b.Z) + (a.W * b.W);
         public static float Cross(Vector2 a, Vector2 b) => (a.X * b.Y) - (a.Y * b.X);
         public static Vector3 Cross(Vector3 a, Vector3 b) => new((a.Y * b.Z) - (a.Z * b.Y), (a.Z * b.X) - (a.X * b.Z), (a.X * b.Y) - (a.Y * b.X));
-        public static T? Sum<T>(params T[] n) where T : INumber<T> => n.Aggregate((a, b) => a + b);
+        public static T? Sum<T>(params T[] n) where T : INumber<T> => n.Length == 0 ? T.Zero : n.Aggregate((a, b) => a + b);
         public static float Sum(this Vector2 n) => n.X + n.Y;
         public static float Sum(this Vector3 n) => n.X + n.Y + n.Z;
         public static float Sum(this Vector4 n) => n.X + n.Y + n.Z + n.W;
@@ -161,7 +163,7 @@ namespace Gizmo.Engine.Data
         public static Vector2 Average(Vector2 first, params Vector2[] rest) => Average([first, .. rest]);
         public static Vector3 Average(Vector3 first, params Vector3[] rest) => Average([first, .. rest]);
         public static Vector4 Average(Vector4 first, params Vector4[] rest) => Average([first, .. rest]);
-        public static T? Product<T>(params T[] n) where T : INumber<T> => n.Aggregate((a, b) => a * b);
+        public static T? Product<T>(params T[] n) where T : INumber<T> => n.Length == 0 ? T.One : n.Aggregate((a, b) => a * b);
         public static float Product(this Vector2 n) => n.X * n.Y;
         public static float Product(this Vector3 n) => n.X * n.Y * n.Z;
         public static float Product(this Vector4 n) => n.X * n.Y * n.Z * n.W;
@@ -174,6 +176,7 @@ namespace Gizmo.Engine.Data
         public static float Magnitude(this Vector2 a) => Vector2.Distance(a, Vector2.Zero);
         public static float Magnitude(this Vector3 a) => Vector3.Distance(a, Vector3.Zero);
         public static float Magnitude(this Vector4 a) => Vector4.Distance(a, Vector4.Zero);
+
         #endregion
         #region angle stuff
         public static float DegToRad(float x) => x / 180 * MathF.PI;
@@ -235,20 +238,13 @@ namespace Gizmo.Engine.Data
         public static Vector2 Rotate(float x1, float y1, float x2, float y2, float angle) => Rotate(x1 - x2, y1 - y2, angle) + new Vector2(x2, y2);
         public static Vector2 Rotate(float x, float y, float angle) => Rotate(new(x, y), angle);
         public static Vector3 Rotate(Vector3 a, Vector3 b, Vector3 angle) => Rotate(a - b, angle) + b;
-        public static Vector3 Rotate(Vector3 a, Vector3 angle)
-        {
-            return new( // stackoverflow GO (again)
-                (Cos(angle.X) * Cos(angle.Y)) * a.X +
-                (Cos(angle.X) * Sin(angle.Y) * Sin(angle.Z) - Sin(angle.X) * Cos(angle.Z)) * a.Y +
-                (Cos(angle.X) * Sin(angle.Y) * Cos(angle.Z) + Sin(angle.X) * Sin(angle.Z)) * a.Z,
-                (Sin(angle.X) * Cos(angle.Y)) * a.X +
-                (Sin(angle.X) * Sin(angle.Y) * Sin(angle.Z) + Cos(angle.X) * Cos(angle.Z)) * a.Y +
-                (Sin(angle.X) * Sin(angle.Y) * Cos(angle.Z) - Cos(angle.X) * Sin(angle.Z)) * a.Z,
-                (-Sin(angle.Y)) * a.X +
-                (Cos(angle.Y) * Sin(angle.Z)) * a.Y +
-                (Cos(angle.Y) * Cos(angle.Z)) * a.Z
-                );
-        }
+        public static Vector3 Rotate(Vector3 a, Vector3 angle) => MatrixP.Rotate(angle) * a;
+        public static Vector2 InverseRotate(Vector2 a, Vector2 b, float angle) => InverseRotate(a - b, angle) + b;
+        public static Vector2 InverseRotate(Vector2 v, float angle) => Rotate(v, -angle);
+        public static Vector2 InverseRotate(float x1, float y1, float x2, float y2, float angle) => InverseRotate(x1 - x2, y1 - y2, angle) + new Vector2(x2, y2);
+        public static Vector2 InverseRotate(float x, float y, float angle) => InverseRotate(new(x, y), angle);
+        public static Vector3 InverseRotate(Vector3 a, Vector3 b, Vector3 angle) => InverseRotate(a - b, angle) + b;
+        public static Vector3 InverseRotate(Vector3 a, Vector3 angle) => MatrixP.InverseRotate(angle) * a;
         public static Vector2 Mirror(Vector2 v, Vector2 normal) => Mirror(v, Atan2(normal));
         public static Vector2 Mirror(Vector2 v, float normal) => Rotate(-v, 2 * AngleBetween(180 - Atan2(v), normal));
         public static Vector2 Mirror(float x, float y, float nx, float ny) => Mirror(x, y, Atan2(NormalOfLine(nx, ny)));

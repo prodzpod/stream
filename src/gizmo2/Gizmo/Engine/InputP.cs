@@ -15,8 +15,9 @@ namespace Gizmo.Engine
         public static List<int> Codes = [];
         public static void OnUpdate()
         {
+            LastCodes = [.. Codes];
             LastMousePosition = MousePosition;
-            LastCodes = [.. Codes]; MouseWheelDelta = Vector2.Zero;
+            MouseWheelDelta = Vector2.Zero;
             if ((Game.WindowFlag & Raylib_CSharp.Windowing.ConfigFlags.MousePassthroughWindow) != 0 && MetaP.Platform == OSPlatform.Windows) 
                 Hacks.OutOfFocusMouseCheck.OnUpdate();
             else

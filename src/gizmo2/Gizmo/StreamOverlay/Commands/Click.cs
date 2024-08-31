@@ -2,6 +2,8 @@
 using Gizmo.Engine.Builtin;
 using Gizmo.Engine.Data;
 using Gizmo.StreamOverlay.Elements;
+using Gizmo.StreamOverlay.Elements.Entities;
+using PInvoke;
 using System.Numerics;
 
 namespace Gizmo.StreamOverlay.Commands
@@ -28,6 +30,12 @@ namespace Gizmo.StreamOverlay.Commands
                     ((GameElement)instance.Element).OnClick(ref instance, new(x.Value, y.Value));
                     instance.Rotation = MathP.Lerp(instance.Rotation, -instance.Angle * 5, .5f);
                     StreamOverlay.ClickedInstance = temp;
+                    if (instance.Element is Prod && !Prod.Is2D) 
+                    {
+                        Instance.New(nameof(Explosion), StreamOverlay.Prod.Position);
+                        Prod.Is2D = true;
+                        StreamOverlay.Prod.Gravity = Vector2.UnitY * 3000;
+                    }
                 }
                 Game.INSTANCES[i] = instance;
             }

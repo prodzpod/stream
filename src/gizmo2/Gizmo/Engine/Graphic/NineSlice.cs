@@ -156,8 +156,7 @@ namespace Gizmo.Engine.Graphic
             {
                 Vector2 pos = i.Position + MathP.Rotate(info.Position * i.Scale, i.Angle);
                 Vector2 sz = info.Size * i.Scale;
-                if (!Sprite.TryCameraWarp(pos, sz, out var meta)) continue;
-                info.Sprite.Draw(info.Subimage, meta.XY(), meta.ZW(), i.Angle + info.Rotate, i.Blend * i.Alpha);
+                info.Sprite.Draw(info.Subimage, pos, sz, i.Angle + info.Rotate, i.Blend * i.Alpha);
             }
         }
         public class DrawInfo

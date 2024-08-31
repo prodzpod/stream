@@ -6,7 +6,7 @@ const { args } = require("../chat/chat");
 
 module.exports.predicate = ["!end", "!kill"];
 module.exports.permission = false;
-module.exports.execute = async (_reply, from, chatter, message, text, reply) => {
+module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
     const module = args(text)[0];
     if (nullish(module) === null) { stopReal(); info("Exiting Process"); process.exit(0); return; }
     if (fileExists("src", module, "index.bat")) {

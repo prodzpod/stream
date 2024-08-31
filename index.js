@@ -90,7 +90,7 @@ if (process.argv.every(x => x !== "-m" && x !== "--minimal")) for (let k of modu
     require("./src/@main/src/@meta/module").start(k, process.argv.some(x => x === "-d" || x === "--debug"));
 })();
 
-module.exports.initModules = ["twitch", "discord", "web", "qat", "gpt", "gcp"];
+module.exports.initModules = ["twitch", "discord", "web", "qat", "gpt", "gcp", "greencircle"];
 module.exports.streamModules = ["obs", "tracker" /*, "fl"*/];
 let stop = false;
 module.exports.stop = () => stop;

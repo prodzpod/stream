@@ -6,15 +6,8 @@ src/web/public/data/**
 external
 # data exceptions
 !src/@main/data/icon/extract.py
-# gizmo stuff (C# zone)
-src/.vs/
-src/gizmo/bin/
-src/gizmo/obj/
-src/gizmo/Content/obj/
-src/gizmo/Content/bin/
-src/gizmo/Content/fonts/*.ttf
-src/gizmo/Content/fonts/*.otf
-src/gizmo/*.dll
+!src/@main/data/emote/extractFrames.py
+src/discord/emotes.wasd
 # gizmo2 stuff (C# zone)
 src/gizmo2/.vs/
 src/gizmo2/lib/*.*
@@ -24,6 +17,10 @@ src/gizmo2/Gizmo/StreamOverlay/@Content/@data/**/*.*
 src/gizmo2/Gizmo/StreamOverlay/@Content/@font/**/*.*
 src/gizmo2/Gizmo/StreamOverlay/@Content/screen/**/*.*
 src/gizmo2/Gizmo/*.dll
+src/gizmo2/Gizmo/StreamOverlay/backup.txt
 # temp
 src/gizmo/lib/classic-1/
 src/gizmo/lib/icons_win2k_sp4_en/
+src/@main/data/temp.mp4
+src/web/public/images/*.mp4
+src/web/public/images/temp*.png

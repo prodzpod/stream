@@ -47,7 +47,7 @@ namespace Gizmo.Engine.Graphic
             float currentY = 0;
             for (int ptr = 0; ptr < text.Length; ptr++)
             {
-                if (text[ptr] == '\\') ptr++;
+                if (text[ptr] == '\\' && ptr < (text.Length - 1)) ptr++;
                 else if (text[ptr] == '<')
                 {
                     var start = ptr;
@@ -107,13 +107,14 @@ namespace Gizmo.Engine.Graphic
                 charNo++;
             }
             if (currentLine.Count > 0) lines.Add(currentLine);
-            if (lines.Count == 0) { Logger.Warn("Empty Text was generated?!"); return new(); }
-            var _totalX = lines.MaxBy(x => x.Last().Position.X + x.Last().Size.X).Last();
+            if (lines.Where(x => x.Count > 0).Count() == 0) { Logger.Warn("Empty Text was generated?!"); return new(); }
+            var _totalX = lines.Where(x => x.Count > 0).MaxBy(x => x.Last().Position.X + x.Last().Size.X).Last();
             float totalX = _totalX.Position.X + _totalX.Size.X;
             var _totalY = lines.Last().MaxBy(x => x.Size.Y);
             float totalY = _totalY.Position.Y + _totalY.Size.Y;
             for (int i = 0; i < lines.Count; i++)
             {
+                if (lines[i].Count == 0) continue;
                 var line = lines[i];
                 float maxX = line.Last().Position.X + line.Last().Size.X;
                 float maxY = line.MaxBy(x => x.Size.Y).Size.Y;
@@ -128,7 +129,7 @@ namespace Gizmo.Engine.Graphic
                 lines[i] = line;
             }
             List<Character> ret = []; foreach (var line in lines) ret.AddRange(line);
-            return new() { Characters = [..ret], Size = new(totalX, totalY) };
+            return new() { Characters = [.. ret], Size = new(totalX, totalY) };
         }
         public void Draw(Instance i) => Draw(i, Vector2.Zero);
         public void Draw(Instance i, Vector2 offset)
@@ -136,7 +137,7 @@ namespace Gizmo.Engine.Graphic
             foreach (var _ch in Characters)
             {
                 var ch = _ch.OnUpdate(i);
-                if (!Sprite.TryCameraWarp(MathP.Rotate(ch.Position, i.Angle) + i.Position + offset, ch.Size * i.Scale, out Vector4 m)) return;
+                Sprite.TryCameraWarp(MathP.Rotate(ch.Position, i.Angle) * i.Scale + i.Position + offset, ch.Size * i.Scale, i.Angle + ch.Angle, out Vector4 m);
                 if (!char.IsWhiteSpace(ch.Text)) Graphics.DrawTextPro(ch.Font.font, ch.Text.ToString(), m.XY(), m.ZW() / 2, ch.Angle + i.Angle, ch.Scale * m.Z / ch.Size.X, 0, ch.Color * i.Blend * i.Alpha);
                 ch.OnDraw(i, offset);
             }

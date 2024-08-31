@@ -2,7 +2,7 @@
 const fs = require("fs");
 const path = require("path");
 const { exec } = require("child_process");
-module.exports.path = (...dir) => path.join(__dirname, "../../", ...dir);
+module.exports.path = (...dir) => path.join(__dirname, "../../", ...dir).replaceAll("\\", "/");
 module.exports.fileExists = (...p) => { try { fs.accessSync(module.exports.path(...p)); return true; } catch (e) { return false; }}
 module.exports.listFiles = (...dir) => {
     async function openDir(dirname, basepath = "") {
@@ -22,6 +22,14 @@ module.exports.listFiles = (...dir) => {
     }
     return new Promise(resolve => openDir(module.exports.path(...dir)).then(resolve));
 }
+module.exports.shell = c => new Promise(resolve => {
+    let prog = exec(c, {cwd: module.exports.path()});
+    prog.stdout.on('data', x => module.exports.log("[SHELL]", x)); 
+    prog.stderr.on('data', x => module.exports.error("[SHELL]", x)); 
+    prog.on('error', x => module.exports.error("[SHELL]", x)); 
+    prog.on('close', resolve);
+    prog.on('exit', resolve); 
+});
 module.exports.open = (...path) => {
     if (path[0].trim().toLowerCase().startsWith("https://") || path[0].trim().toLowerCase().startsWith("http://")) import("open").then(open => open.default(path.join("/")));
     else exec(module.exports.path(...path)).unref();

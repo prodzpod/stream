@@ -1,10 +1,15 @@
 ﻿using Gizmo.Engine;
+using Gizmo.Engine.Data;
 using Gizmo.Engine.Graphic;
+using LibVLCSharp.Shared;
 using Raylib_CSharp;
 using Raylib_CSharp.Images;
+using Raylib_CSharp.Interact;
 using Raylib_CSharp.Rendering;
 using Raylib_CSharp.Textures;
 using System.Numerics;
+using System.Security.Cryptography.X509Certificates;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Gizmo.StreamOverlay.Commands
 {
@@ -17,17 +22,21 @@ namespace Gizmo.StreamOverlay.Commands
             string title = WASD.Assert<string>(args[4]);
             string profile = WASD.Assert<string>(args[5]);
             if (title == null || profile == null) return null;
-            StreamOverlay.DrawResolve.Add(new(Image.Load(profile), texture =>
-            {
-                Sprite sprite = new()
-                {
-                    Image = texture,
-                    Size = new(texture.Width, texture.Height),
-                    Subimages = Vector2.One
-                };
-                Elements.Window.New(new(x, y), title, sprite.Size, sprite);
-            }));
+            StreamOverlay.DrawResolve.Add(new(Image.Load(profile), texture => { SpawnProfileWindow(x, y, title, profile, texture); }));
             return null;
+        }
+
+        public static Instance SpawnProfileWindow(float x, float y, string title, string profile, Texture2D texture)
+        {
+            Sprite sprite = new()
+            {
+                Image = texture,
+                Size = new(texture.Width, texture.Height),
+                Subimages = Vector2.One
+            };
+            var i = Elements.Windows.Window.New(new(x, y), title, sprite.Size, sprite);
+            i.Set("content", $"<idoldream={profile}>");
+            return i;
         }
     }
 }

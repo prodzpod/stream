@@ -35,6 +35,7 @@ module.exports.grant = (user, icon, apply = true) => {
     let icons = data().user[user]?.economy?.icons;
     if (!icons) return {error: "user does not exist" };
     icons[icon.icon] ??= {}; 
+    icons[icon.icon].modifiers ??= [];
     if (icon.alt) icons[icon.icon].alt = icon.alt;
     if (icon.modifiers) for (const k of icon.modifiers) 
         if (!icons[icon.icon].modifiers.includes(k)) icons[icon.icon].modifiers.push(k);

@@ -10,8 +10,11 @@ module.exports.init = async () => {
         try {
             ws = new WebSocket("ws://localhost:4455");
             ws.on("open", _ => { log("WS Connected"); ws.send(JSON.stringify({ "op": 1, "d": { "rpcVersion": 1 }})); connected = true; });
-        } catch {}
-        await delay(1000);
+            ws.on("error", _ => {});
+        } catch {
+            await delay(1000);
+        }
+        await delay(100);
     }
     messages = {};
     ws.on("message", str => {
@@ -24,7 +27,7 @@ module.exports.init = async () => {
 }
 
 module.exports.send = (name, data) => {
-    if (ws?.readyState !== 1) return warn("OBS WS is not active");
+    if (ws?.readyState !== 1) return new Promise(resolve => { warn("OBS WS is not active"); resolve(null); });
     let id = `${randomHex(8)}-${randomHex(4)}-${randomHex(4)}-${randomHex(4)}-${randomHex(12)}`;
     ws.send(JSON.stringify({
         "op": 6,

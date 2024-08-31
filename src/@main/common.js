@@ -11,9 +11,10 @@ module.exports.WASD = {
             x = module.exports.array(x);
             const type = module.exports.realtype(x);
             if (type === "array") return `[${x.map(y => _pack(y)).join(" ")}]`;
-            if (type === "object") return `{${Object.entries(x).map(y => y.map(z => _pack(z)).join(" ")).join(" ")}}`;
+            if (type === "object") return `{${Object.entries(x).map(y => `${_pack(module.exports.WASD.toString(y[0]))} ${_pack(y[1])}`).join(" ")}}`;
             x = x?.toString().trim() ?? "";
             if (x === "") return '""';
+            if (x.startsWith("\0")) x = " " + x.slice(1);
             if (/\s/.test(x) || x.startsWith('"') || x.includes("[") || x.includes("]") || x.includes("{") || x.includes("}")) 
                 return `"${x.replaceAll('"', '""')}"`;
             else return x;
@@ -26,7 +27,7 @@ module.exports.WASD = {
             let ret = [];
             str = str.trim();
             while (str.length > 0) {
-                let end = 0, substr = "", _endChar = "}";
+                let end = 0, substr = "", _endChar = "}", forceString = false;
                 switch (str[0]) {
                     case "[": _endChar = "]"; // passthrough to other
                     case "{":
@@ -44,18 +45,23 @@ module.exports.WASD = {
                         let res = /((?:[^"]|^)(?:"")*")(?:[^"]|$)/.exec(str.slice(1));
                         end = res.index + res[1].length + 1;
                         substr = str.slice(1, end - 1).replaceAll("\"\"", "\"");
+                        if (substr.startsWith(" ")) { substr = substr.slice(1); forceString = true; }
                         break;
                     default: 
                         end = /\s|$/.exec(str).index; 
                         substr = str.slice(0, end);
                         break;
                 }
-                ret.push(module.exports.unstringify(substr));
+                ret.push(forceString ? substr : module.exports.unstringify(substr));
                 str = str.slice(end).trim();
             }
             return ret;
         }
         return _unpack(str);
+    },
+    toString: str => {
+        if (module.exports.realtype(module.exports.unstringify(str)) !== "string") return `\0${module.exports.stringify(str)}`
+        else return str;
     }
 }
 
@@ -95,6 +101,22 @@ module.exports.unstringify = str => {
         default:
             if (str[0] === "{" || str[0] === "[") try { return JSON.parse(str); } catch (_) { return str; }
             return module.exports.numberish(str);
+    }
+}
+module.exports.stringify = str => {
+    if (typeof str === "string") return str;
+    const type = module.exports.realtype(str);
+    switch (type) {
+        case "array":
+        case "object":
+            return JSON.stringify(str);
+        case "map":
+        case "set":
+            return JSON.stringify(module.exports.array(str));
+        case "function":
+            return str + "";
+        default:
+            return String(str);
     }
 }
 module.exports.realtype = a => {
@@ -251,6 +273,11 @@ module.exports.zip = (...args) => {
 }
 module.exports.lastFindIndex = (arr, fn) => { for (let i = arr.length - 1; i >= 0; i--) if (fn(arr[i], i, arr)) return i; return -1; }
 module.exports.lastFind = (arr, fn, def=undefined) => { const idx = module.exports.lastFindIndex(arr, fn); return idx === -1 ? def : arr[idx]; }
+module.exports.inPlaceSort = (arr, fn) => arr.map((x, i) => [x, i]).sort((a, b) => {
+    let ret = fn(a[0], b[0]);
+    if (ret !== 0) return ret;
+    return a[1] - b[1];
+}).map(x => x[0]);
 //* #REGION object operation
 module.exports.safeAssign = (a, b) => {
     if (module.exports.realtype(a) === "object" && module.exports.realtype(b) === "object" && !Array.isArray(a) && !Array.isArray(b)) return Object.assign(a, b);

@@ -5,7 +5,7 @@ let userWS = {};
 
 module.exports._init = async (ws, query, body) => {
     log("[screen] WS initialized");
-    const user = await send("init", query.hash);
+    const user = await send("init", query.hash, "screen");
     if (user) {
         if (user.id) userWS[user.id] = ws;
         else loginWS[user.login] = ws;
@@ -24,6 +24,9 @@ module.exports._info = (chatter, msg, iserror=false) => {
 }
 module.exports._iu = (chatter, iu, iserror=false) => {
     if (!userWS[chatter]) return 1; userWS[chatter].send(WASD.pack("iu", iu)); return 0;
+}
+module.exports._changeIcon = (chatter, icon, iserror=false) => {
+    if (!userWS[chatter]) return 1; userWS[chatter].send(WASD.pack("icon", icon)); return 0;
 }
 module.exports.chat = async (ws, args) => {
     const user = Object.keys(userWS).find(x => userWS[x] === ws);

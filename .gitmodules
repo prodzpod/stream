@@ -1,3 +1,6 @@
 [submodule "OpenSeeFace"]
-	path = tracker/OpenSeeFace
+	path = src/tracker/OpenSeeFace
 	url = https://github.com/emilianavt/OpenSeeFace.git
+[submodule "twemoji"]
+	path = src/@main/data/emote/vanilla/twemoji
+	url = https://github.com/twitter/twemoji.git

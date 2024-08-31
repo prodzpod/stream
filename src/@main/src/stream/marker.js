@@ -3,7 +3,7 @@ const { info } = require("../../commonServer");
 const { args } = require("../chat/chat");
 module.exports.predicate = "!marker";
 module.exports.permission = false;
-module.exports.execute = (_reply, from, chatter, message, text, reply) => {
+module.exports.execute = (_reply, from, chatter, message, text, emote, reply) => {
     const _args = args(text);
     info("Starting Stream Sequence");
     let ret = { phase: data().stream.phase + 1 };
@@ -19,5 +19,5 @@ module.exports.execute = (_reply, from, chatter, message, text, reply) => {
 }
 
 module.exports.sendInfo = () => {
-    send("gizmo", "info", data().stream.subject, data().stream.phase);
+    send("gizmo", "info", data().stream.subject, data().stream.phase, data().stream.category);
 }

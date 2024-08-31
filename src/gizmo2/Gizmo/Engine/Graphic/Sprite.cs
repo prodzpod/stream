@@ -1,4 +1,5 @@
-﻿using Gizmo.Engine.Data;
+﻿using Gizmo.Engine.Builtin;
+using Gizmo.Engine.Data;
 using PInvoke;
 using Raylib_CSharp.Rendering;
 using Raylib_CSharp.Textures;
@@ -21,21 +22,22 @@ namespace Gizmo.Engine.Graphic
                 Subimages = new(width, height),
             };
         }
-        public int GetSubimageCount() => (int)(Subimages.X * Subimages.Y);
-        public Vector2 GetSubimage(int i) => new(i % Subimages.X, (int)(i / Subimages.X) % Subimages.Y);
+        public virtual int GetSubimageCount() => ((int)Subimages.X * (int)Subimages.Y);
+        public virtual Vector2 GetSubimage(float i) => GetSubimage((int)i);
+        public virtual Vector2 GetSubimage(int i) => new(i % Subimages.X, (int)(i / Subimages.X) % Subimages.Y);
         public Vector4 GetRectangle(int i) => GetRectangle(GetSubimage(i));
         public Vector4 GetRectangle(int x, int y) => GetRectangle(new Vector2(x, y));
-        public Vector4 GetRectangle(Vector2 v)
+        public virtual Vector4 GetRectangle(Vector2 v)
         {
             v.X = v.X % Subimages.X;
             v.Y = v.Y % Subimages.Y;
             return new(v.X * Size.X, v.Y * Size.Y, Size.X, Size.Y);
         }
 
-        public void Draw(Instance i) => Draw((int)i.Frame, i.Position, i.Scale, i.Angle, i.Blend * i.Alpha);
-        public void Draw(int frame, Vector2 _pos, Vector2 _size, float angle, ColorP color)
+        public void Draw(Instance i) => Draw(i.Frame, i.Position, i.Scale, i.Angle, i.Blend * i.Alpha);
+        public void Draw(float frame, Vector2 _pos, Vector2 _size, float angle, ColorP color)
         {
-            if (Image == null || !TryCameraWarp(_pos, _size * Size, out Vector4 data)) return;
+            if (Image == null || !TryCameraWarp(_pos, _size * Size, angle, out Vector4 data)) return;
             var frameOffset = Size * GetSubimage(frame);
             Raylib_CSharp.Transformations.Rectangle source = new(frameOffset.X, frameOffset.Y, Size.X, Size.Y);
             Raylib_CSharp.Transformations.Rectangle target = new(data.X, data.Y, data.Z, data.W);
@@ -44,23 +46,24 @@ namespace Gizmo.Engine.Graphic
             Graphics.DrawTexturePro((Texture2D)Image, source, target, new Vector2(target.Width / 2, target.Height / 2), angle, color);
         }
 
-        public static bool TryCameraWarp(Vector2 position, Vector2 scale, out Vector4 ret)
+        public static bool TryCameraWarp(Vector2 position, Vector2 scale, out Vector4 ret) => TryCameraWarp(position, scale, 0, out ret);
+        public static bool TryCameraWarp(Vector2 position, Vector2 scale, float angle, out Vector4 ret)
         {
             ret = default;
             if (Game.Room == null) return false;
             Vector2 cameraPosition = Game.Room.Camera.XY();
             Vector2 cameraScale = Game.Room.Camera.ZW();
             position += cameraPosition - (Game.Resolution / 2);
-            if (!MathP.Between(cameraPosition + cameraScale, position - scale, cameraPosition - cameraScale) // culling
-                && !MathP.Between(cameraPosition + cameraScale, position + scale, cameraPosition - cameraScale)
-                && !MathP.Between(position - scale, cameraPosition + cameraScale, position + scale) 
-                && !MathP.Between(position - scale, cameraPosition - cameraScale, position + scale)) return false;
+            if (!IsInFrame(new(cameraPosition.X, cameraPosition.Y, cameraScale.X, cameraScale.Y), position, scale, angle)) return false;
             Vector2 resMultiplier = Game.Resolution / cameraScale;
             position *= resMultiplier; 
             scale *= resMultiplier;
             ret = new Vector4(position.X, position.Y, scale.X, scale.Y);
             return true;
         }
+
+        public static bool IsInFrame(Vector4 bound, Vector2 pos, Vector2 scale, float angle = 0)
+            => HitboxP.Check(new AABBHitbox(bound.XY(), bound.ZW()), new RectangleHitbox(pos, scale, angle));
 
         public ColorP[][] ToBitmap()
         {

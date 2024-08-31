@@ -1,5 +1,5 @@
-﻿using Gizmo.Engine.Data;
-using Gizmo.Engine.Util;
+﻿using Gizmo.Engine;
+using Gizmo.Engine.Data;
 using ProdModel.Object.Sprite;
 using System.Numerics;
 
@@ -15,6 +15,8 @@ namespace ProdModel.Puppet
 
         public static Vector3 aEuler = Vector3.Zero;
         public static Vector3 aTranslation = Vector3.Zero;
+
+        public static bool useSecondaryModel = false;
         public static void HandleTracker(string raw)
         {
             TrackingData = new(raw);
@@ -30,6 +32,7 @@ namespace ProdModel.Puppet
 
         public static string GetExpression(WorseVRM wvrm, int index, string pose, float time)
         {
+            if (useSecondaryModel) return "0"; // disable for ck
             // quirky stuff here
             switch (index)
             {
@@ -46,7 +49,7 @@ namespace ProdModel.Puppet
             return "0";
         }
 
-        public static void SetPose(ref WorseVRM wvrm, string id, ref Vector3 translate, ref Vector3 rotate)
+        public static void SetPose(ref WorseVRM wvrm, string id, ref Vector3 translate, ref Vector3 rotate, ref Vector3 scale)
         {
             // quirky stuff here
             Vector3 rotation = TrackingData.Euler - new Vector3(165, -32, 103 + (2 * TrackingData.Euler.Y / 9f));
@@ -54,15 +57,24 @@ namespace ProdModel.Puppet
             {
                 case "body":
                     translate += (TrackingData.Translation.ZXY() - new Vector3(-3f, 1.5f, 0.3f)) * new Vector3(0.1f, 0.1f, 0.1f);
-                    rotate.Y += MathP.DegToRad(rotation.Y * 0.3f);
-                    rotate.Z += MathP.DegToRad(rotation.Z * 0.75f);
+                    rotate.Y += rotation.Y * 0.3f;
+                    rotate.X += rotation.X * 0.75f;
+                    if (useSecondaryModel)
+                    {
+                        translate.Y += .15f;
+                        rotate.Z -= .1f;
+                    }
+                    break;
+                case "skirt_default":
+                    rotate.Y -= rotation.Y * 0.3f;
+                    rotate.X -= rotation.X * 0.75f;
                     break;
                 case "ribbon":
-                    rotate.Y += MathP.DegToRad(rotation.Y * 0.3f);
+                    rotate.Y += rotation.Y * 0.3f;
                     break;
                 case "head":
-                    rotate.X += MathP.DegToRad(rotation.X);
-                    rotate.Y += MathP.DegToRad(rotation.Y * 0.7f);
+                    rotate.Z += rotation.Z;
+                    rotate.Y += rotation.Y * 0.7f;
                     break;
             }
         }

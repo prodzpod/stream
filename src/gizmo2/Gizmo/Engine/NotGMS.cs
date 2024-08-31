@@ -1,5 +1,6 @@
 ﻿using Gizmo.Engine.Builtin;
 using Gizmo.Engine.Data;
+using Gizmo.Engine.Extra;
 using Raylib_CSharp;
 using Raylib_CSharp.Audio;
 using Raylib_CSharp.Images;
@@ -58,12 +59,21 @@ namespace Gizmo.Engine
                 return true;
             };
 
+            game.PostInit();
             static void apply(int i) { Graphics.BeginShaderMode(Game.SHADERS[i].OnShader()); }
             while (!Window.ShouldClose())
             {
-                Game.DRAW_ORDER = [..Game._DRAW_ORDER];
                 Game.INSTANCES = [.. Game._INSTANCES];
+                Game._DRAW_ORDER = Game._DRAW_ORDER.Intersect(Game._INSTANCES).ToList();
+                Game.DRAW_ORDER = [.. Game._DRAW_ORDER];
                 // input
+                KeyValuePair<WebSocket, byte[]>[] z = [.. WebSocket.ActiveWSMessages];
+                foreach (var m in z)
+                {
+                    WebSocket.ActiveWSMessages.Remove(m);
+                    m.Key.Recieve(m.Value);
+                }
+                WebSocket.ActiveWSMessages.Clear();
                 var deltaTime = Time.GetFrameTime();
                 InputP.OnUpdate();
                 game.PreUpdate(deltaTime);
@@ -119,7 +129,6 @@ namespace Gizmo.Engine
             Resource.Dispose();
             Window.Close();
             AudioDevice.Close();
-            Logger._log.Close();
         }
     }
 }

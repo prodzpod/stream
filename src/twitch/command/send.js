@@ -1,6 +1,6 @@
 const { fetch } = require("../api");
 const { STREAMER_ID, nullish } = require("../common");
-module.exports.execute = async (channel, message, reply) => {
+module.exports.execute = async (channel, message, emote, reply) => {
     let ret = {
         broadcaster_id: channel ?? STREAMER_ID,
         sender_id: STREAMER_ID,

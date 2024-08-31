@@ -1,6 +1,6 @@
 const { OpenAI } = require("openai");
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-const MODEL = 'gpt-4-turbo';
+const MODEL = 'gpt-4o-mini';
 module.exports.execute = async (...ask) => {
     let messages = [];
     for (let i = 0; i < ask.length - 1; i++)

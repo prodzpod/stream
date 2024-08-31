@@ -10,6 +10,26 @@ namespace Gizmo.Engine.Hacks
         public static bool hooked = false;
         public static User32.SafeHookHandle _kb;
         public static User32.SafeHookHandle _ms;
+        public static List<int> PressedThisFrame = [];
+        public static List<int> ReleasedThisFrame = [];
+        public static void Press(int k)
+        {
+            if (!ReleasedThisFrame.Remove(k)) PressedThisFrame.Add(k);
+        }
+        public static void Release(int k)
+        {
+            ReleasedThisFrame.Add(k);
+        }
+        public static void OnUpdate()
+        {
+            if (!hooked) OnInit();
+            User32.GetCursorPos(out var POINT);
+            InputP.MousePosition = new(POINT.x, POINT.y);
+            InputP.Codes.AddRange(PressedThisFrame);
+            InputP.Codes.RemoveAll(x => ReleasedThisFrame.Contains(x) && !PressedThisFrame.Contains(x));
+            ReleasedThisFrame = [.. ReleasedThisFrame.Where(PressedThisFrame.Contains)];
+            PressedThisFrame = [];
+        }
         public static void OnInit()
         {
             using (Process curProcess = Process.GetCurrentProcess())
@@ -25,14 +45,14 @@ namespace Gizmo.Engine.Hacks
         {
             if (nCode == HC_ACTION)
             {
-                if (wParam == WM_LBUTTONDOWN || wParam == WM_NCLBUTTONDOWN) InputP.Codes.Add(-1);
-                if (wParam == WM_RBUTTONDOWN || wParam == WM_NCRBUTTONDOWN) InputP.Codes.Add(-2);
-                if (wParam == WM_MBUTTONDOWN || wParam == WM_NCMBUTTONDOWN) InputP.Codes.Add(-3);
-                if (wParam == WM_XBUTTONDOWN || wParam == WM_NCXBUTTONDOWN) InputP.Codes.Add(-4);
-                if (wParam == WM_LBUTTONUP || wParam == WM_NCLBUTTONUP) InputP.Codes.Remove(-1);
-                if (wParam == WM_RBUTTONUP || wParam == WM_NCRBUTTONUP) InputP.Codes.Remove(-2);
-                if (wParam == WM_MBUTTONUP || wParam == WM_NCMBUTTONUP) InputP.Codes.Remove(-3);
-                if (wParam == WM_XBUTTONUP || wParam == WM_NCXBUTTONUP) InputP.Codes.Remove(-4);
+                if (wParam == WM_LBUTTONDOWN || wParam == WM_NCLBUTTONDOWN) Press(-1);
+                if (wParam == WM_RBUTTONDOWN || wParam == WM_NCRBUTTONDOWN) Press(-2);
+                if (wParam == WM_MBUTTONDOWN || wParam == WM_NCMBUTTONDOWN) Press(-3);
+                if (wParam == WM_XBUTTONDOWN || wParam == WM_NCXBUTTONDOWN) Press(-4);
+                if (wParam == WM_LBUTTONUP || wParam == WM_NCLBUTTONUP) Release(-1);
+                if (wParam == WM_RBUTTONUP || wParam == WM_NCRBUTTONUP) Release(-2);
+                if (wParam == WM_MBUTTONUP || wParam == WM_NCMBUTTONUP) Release(-3);
+                if (wParam == WM_XBUTTONUP || wParam == WM_NCXBUTTONUP) Release(-4);
                 if (wParam == WM_MOUSEWHEEL)
                 {
                     MSG? l = Marshal.PtrToStructure<MSG>(lParam);
@@ -47,15 +67,9 @@ namespace Gizmo.Engine.Hacks
         private static int OnKeyboard(int nCode, nint wParam, nint lParam)
         {
             var l = GetMSG(lParam)[0];
-            if (wParam == WM_KEYDOWN) InputP.Codes.Add(l);
-            if (wParam == WM_KEYUP) while (InputP.Codes.Remove(l));
+            if (wParam == WM_KEYDOWN && !InputP.Codes.Contains(l)) Press(l);
+            if (wParam == WM_KEYUP) Release(l);
             return User32.CallNextHookEx((nint)User32.WindowsHookType.WH_KEYBOARD_LL, nCode, wParam, lParam);
-        }
-        public static void OnUpdate()
-        {
-            if (!hooked) OnInit();
-            User32.GetCursorPos(out var POINT);
-            InputP.MousePosition = new(POINT.x, POINT.y);
         }
         public const int HC_ACTION = 0;
         public const nint WM_LBUTTONDBLCLK = 0x0203;

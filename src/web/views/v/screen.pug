@@ -71,6 +71,9 @@ block postbody
             from { opacity: 1; }
             to { opacity: 0; }
         }
+        .locked { background-color: rgba(0, 0, 0, .25) !important; cursor: default; }
+        .rarity-uncommon { background-color: rgba(0, 255, 0, .25); }
+        .rarity-quest { background-color: rgba(255, 0, 255, .25); }
     script.
         let ws;
         let cursor = null, mouse = {x: 0, y: 0};
@@ -93,6 +96,18 @@ block postbody
                 if (!cursor) e("cursor").with("style", "display: none;");
                 else e("cursor").with("src", `https://prod.kr/images/screen/${cursor}.png`).with("style", `display: block; left: ${mouse.x}px; top: ${mouse.y}px;`);
             }, 33);
+            (async () => {
+                let _icons = WASD.unpack(await (await fetch("https://prod.kr/data/icon.wasd")).text())[0]
+                modifiers = Object.keys(_icons.modifier);
+                delete _icons.modifier;
+                for (let k in _icons) 
+                    icons.push(..._icons[k].map(x => `${k}/${x}`));
+                let _pointers = WASD.unpack(await (await fetch("https://prod.kr/data/pointer.wasd")).text())[0]
+                for (let k in _pointers) for (let l of _pointers[k].sprite) {
+                    pointers[l] ??= [];
+                    pointers[l].push(k);
+                }
+            })();
         });
         addEvent('onmousemove', e => { mouse.x = e.x; mouse.y = e.y; });
         let ID = 0, waitList = {};
@@ -136,7 +151,8 @@ block postbody
                         break;
                 }
             },
-            iu: o => { if (e("iu")) e("iu").innerText = Math.prec(o) + "iu"; }
+            iu: o => { if (e("iu")) e("iu").innerText = Math.prec(o) + "iu"; },
+            icon: o => { user.icon = o; if (state === "icon") setState("icon") }
         }
         function getWired() {
             button();
@@ -147,7 +163,8 @@ block postbody
         }
         let state = "";
         let user = {};
-        let unlockedOnly = false;
+        let icons = [], modifier = [], pointers = {};
+        let unlockedOnly = true;
         let onclick = null;
         const ON_STATE_CHANGE = {
             idle: () => {
@@ -169,10 +186,10 @@ block postbody
                 const lm = insertElement("div", "screen", "left vlist hard").with("style", "top: 128px; bottom: 128px;")
                 const icon = insertElement("button", insertElement("div", lm).with("style", "margin: 16px;"), "overlay vlist").with("style", "width: 100%; height: 100%;").with("onclick", "button(event); setState(\"icon\");");
                 insertElement("h3", icon, "center", user.icons[0] ?? "Icon");
-                insertElement("img", icon, "center").with("src", `https://prod.kr/data/icon/${user.icons[0] ?? "computer"}.png`).with("style", "width: 64px;");
+                insertElement("img", icon, "center").with("src", `https://prod.kr/data/icon/${user.icon.icon ?? "common/computer/monitor_empty"}.png`).with("style", "width: 64px;");
                 const pointer = insertElement("button", insertElement("div", lm).with("style", "margin: 16px;"), "overlay vlist").with("style", "width: 100%; height: 100%;").with("onclick", "button(event); setState(\"pointer\");");
                 insertElement("h3", pointer, "center", user.pointers[0] ?? "Pointer");
-                insertElement("img", pointer, "center").with("src", `https://prod.kr/data/pointer/${user.pointers[0] ?? "cursor"}_point.png`).with("style", "width: 64px; transform: translate(-25%, -25%); margin: -16px auto;");
+                    insertElement("img", pointer, "center").with("src", `https://prod.kr/data/pointer/${user.pointer.point ?? "cursor"}_point.png`).with("style", "width: 64px; transform: translate(-25%, -25%); margin: -16px auto;");
                 const rm = insertElement("div", "screen", "top bottom right vlist hard").with("style", "min-width: 50%;");
                 const statChatter = insertElement("div", insertElement("div", rm).with("style", "margin: 16px;"), "overlay vlist").with("style", "width: 100%; height: 100%;");
                 insertElement("h3", statChatter, "center", "Chatter Stats");
@@ -184,21 +201,25 @@ block postbody
                 insertElement("h2", "screen", "overlay top left", "Change Icons");
                 const icon = insertElement("button", insertElement("div", insertElement("div", "screen", "left vlist hard").with("style", "top: 128px; bottom: 128px;")).with("style", "margin: 16px;"), "overlay vlist").with("style", "width: 100%; height: 100%;");
                 insertElement("h3", icon, "center", user.icons[0] ?? "Icon");
-                insertElement("img", icon, "center").with("src", `https://prod.kr/data/icon/${user.icons[0] ?? "computer"}.png`).with("style", "width: 64px;");
+                insertElement("img", icon, "center").with("src", `https://prod.kr/data/icon/${user.icon.icon ?? "common/computer/monitor_empty"}.png`).with("style", "width: 64px;");
                 insertElement("p", icon, "center", "Unlock Requirement");
                 const list = insertElement("div", insertElement("div", insertElement("div", "screen", "top bottom right vlist hard").with("style", "min-width: 50%;")).with("style", "margin: 16px;"), "overlay vlist").with("style", "width: 100%; height: 100%;");
+                const search = insertElement("div", list, "hlist").with("style", "flex: 0 0 auto !important;");
+                onEnter(insertElement("input", search, "spacer").with("id", "search").with("placeholder", "Search..."), searchIcon);
+                insertElement("button", search, null, "Go").with("onclick", "searchIcon()");
                 const checkbox = insertElement("div", list, "hlist").with("style", "flex: 0 0 auto !important;");
                 insertElement("input", checkbox).with("type", "checkbox").with("id", "unlocked").with("value", unlockedOnly);
                 insertElement("p", checkbox, "spacer left", unlockedOnly ? "Show All" : "Show Unlocked");
-                const scroll = insertElement("div", list, "vlist").with("style", "overflow-y: scroll;");
+                const scroll = insertElement("div", list, "vlist hard").with("style", "overflow-y: scroll; height: 0;").with("id", "icon-list");
+                searchIcon();
             },
             pointer: () => {
                 addSimpleButton("bottom left", "user", "back");
                 insertElement("h2", "screen", "overlay top left", "Change Pointers");
                 const pointer = insertElement("button", insertElement("div", insertElement("div", "screen", "left vlist hard").with("style", "top: 128px; bottom: 128px;")).with("style", "margin: 16px;"), "overlay vlist").with("style", "width: 100%; height: 100%;");
                 insertElement("h3", pointer, "center", user.pointers[0] ?? "Pointer");
-                insertElement("img", pointer, "center").with("src", `https://prod.kr/data/pointer/${user.pointers[0] ?? "cursor"}_point.png`).with("style", "width: 64px; transform: translate(-25%, -25%); margin: -16px auto;");
-                insertElement("img", pointer, "center").with("src", `https://prod.kr/data/pointer/${user.pointers[0] ?? "cursor"}_click.png`).with("style", "width: 64px; transform: translate(-25%, -25%); margin: -16px auto;");
+                insertElement("img", pointer, "center").with("src", `https://prod.kr/data/pointer/${user.pointer.point ?? "cursor"}_point.png`).with("style", "width: 64px; transform: translate(-25%, -25%); margin: -16px auto;");
+                insertElement("img", pointer, "center").with("src", `https://prod.kr/data/pointer/${user.pointer.click ?? "cursor"}_click.png`).with("style", "width: 64px; transform: translate(-25%, -25%); margin: -16px auto;");
                 insertElement("p", pointer, "center", "Unlock Requirement");
                 const list = insertElement("div", insertElement("div", insertElement("div", "screen", "top bottom right vlist hard").with("style", "min-width: 50%;")).with("style", "margin: 16px;"), "overlay vlist").with("style", "width: 100%; height: 100%;");
                 const checkbox = insertElement("div", list, "hlist").with("style", "flex: 0 0 auto !important;");
@@ -211,8 +232,8 @@ block postbody
                 insertElement("h2", "screen", "overlay top left", "Perform Actions").with("style", "min-height: 0;");
                 insertElement("h3", "screen", "overlay top right center", `${Math.prec(user.iu ?? 0)}iu`).with("style", "min-height: 0;").with("id", "iu");
                 const ACTIONS = {
-                    "mouse": ["Point", "Click", "Fling", "Kill"],
-                    "window": ["Spawn Window", "Song", "Furrow the Mare of Eidola"],
+                    "mouse": ["Point", "Click", "Fling", "Draw", "Pin", "Kill"],
+                    "window": ["Spawn Window", "Song", "Spawn Draw Window", "Furrow the Mare of Eidola"],
                     "shimeji": ["Spawn Shimeji", "Move"],
                     "misc": ["Remove Triangle", "Gravity"],
                     "help": ["Help", "Today", "Uptime", "Stats"],
@@ -238,6 +259,13 @@ block postbody
                 insertElement("img", "screen", "cursor").with("src", "https://prod.kr/images/screen/cursor_point.png").with("style", `left: ${temp.x / (1920 / r.width)}px; top: ${temp.y / (1080 / r.height)}px;`);
                 cursor = "cursor_point2";
             },
+            draw: () => { addGenericPointerScreen("Click on the position you want to draw.", "draw"); },
+            draw2: () => { 
+                addGenericPointerScreen("Click on the position you want to draw to.", "draw2"); 
+                const r = e('screen').getBoundingClientRect();
+                insertElement("img", "screen", "cursor").with("src", "https://prod.kr/images/screen/cursor_point.png").with("style", `left: ${temp.x / (1920 / r.width)}px; top: ${temp.y / (1080 / r.height)}px;`);
+                cursor = "cursor_point2";
+            },
             pin: () => { addGenericPointerScreen("Click on the element you want to pin.", "pin"); },
             kill: () => { addGenericPointerScreen("Click on the element you want to kill.", "kill"); },
             spawnwindow: () => {
@@ -246,12 +274,20 @@ block postbody
                 insertElement("input", input).with("id", "title").with("placeholder", "title...").with("style", "border-radius: 64px; padding: 16px; height: 64px; margin: 16px;");
                 insertElement("textarea", input).with("id", "contents").with("placeholder", "contents...").with("style", "border-radius: 64px; padding: 16px; height: 64px; margin: 16px;");
             },
+            spawndrawwindow: () => { addGenericPointerScreen("Click on the position of the corner where you want to open the window at.", "spawndrawwindow"); },
+            spawndrawwindow2: () => { 
+                addGenericPointerScreen("Click on the position for the other corner of the window.", "spawndrawwindow2"); 
+                const r = e('screen').getBoundingClientRect();
+                insertElement("img", "screen", "cursor").with("src", "https://prod.kr/images/screen/cursor_point.png").with("style", `left: ${temp.x / (1920 / r.width)}px; top: ${temp.y / (1080 / r.height)}px;`);
+                cursor = "cursor_point2";
+            },
             song: () => {
                 addGenericPointerScreen("Fill the textbox and click on the position you want to spawn the song window at.", "song");
                 const input = insertElement("div", "screen", "overlay bottom left right vlist").with("style", "margin: 0 160px; border-radius: 64px").with("onclick", "event?.stopPropagation();");
                 insertElement("textarea", input).with("id", "contents").with("placeholder", "song...").with("style", "border-radius: 64px; padding: 16px; height: 64px; margin: 16px;");
-                insertElement("img", insertElement("button", "screen", "overlay bottom left circle center").with("onclick", "button(event); window.open(\"https://pub.colonq.computer/~prod/toy/dbkai\");")).with("src", "https://prod.kr/images/screen/db.png").with("style", "width: 64px; height: 64px;");
-                insertElement("img", insertElement("button", "screen", "overlay left circle center").with("style", "bottom: 128px;").with("onclick", "button(event); window.open(\"https://prod.kr/v/lore\");")).with("src", "https://prod.kr/images/screen/help.png").with("style", "width: 64px; height: 64px;");
+                insertElement("img", insertElement("button", "screen", "overlay bottom left circle center").with("title", "view the !s repository courtesy of @CrazyKitty357 (WARNING: godotzone (lots of js))").with("onclick", "button(event); window.open(\"https://pub.colonq.computer/~crazykitty/\");")).with("src", "https://prod.kr/images/screen/ck.png").with("style", "width: 64px; height: 64px;");
+                insertElement("img", insertElement("button", "screen", "overlay left circle center").with("title", "view the Deluxe Bells 'Zelea KAI (song repository for green circle)").with("style", "bottom: 128px;").with("onclick", "button(event); window.open(\"https://pub.colonq.computer/~prod/toy/dbkai\");")).with("src", "https://prod.kr/images/screen/db.png").with("style", "width: 64px; height: 64px;");
+                insertElement("img", insertElement("button", "screen", "overlay left circle center").with("title", "docmentation of the format (!lore)").with("style", "bottom: 288px;").with("onclick", "button(event); window.open(\"https://prod.kr/v/lore\");")).with("src", "https://prod.kr/images/screen/help.png").with("style", "width: 64px; height: 64px;");
             },
             furrowthemareofeidola: () => {
                 addGenericPointerScreen("Fill the textbox and click on the position you want to spawn your profile at.", "furrowthemareofeidola");
@@ -316,9 +352,13 @@ block postbody
             click: (x, y) => { sendGenericXY("click", x, y); },
             fling: (x, y) => { temp = {x: x, y: y}; setState("fling2"); },
             fling2: (x, y) => { send("fling", temp.x, temp.y, x, y); setState("fling"); },
+            draw: (x, y) => { temp = {x: x, y: y}; setState("draw2"); },
+            draw2: (x, y) => { send("draw", temp.x, temp.y, x, y); setState("draw"); },
             pin: (x, y) => { sendGenericXY("pin", x, y); },
             kill: (x, y) => { sendGenericXY("close", x, y); },
             window: (x, y) => { if (e("title").value.trim() === "" || e("contents").value.trim() === "") { error("Some textboxes are blank."); return; } send("window", x, y, e("title").value, e("contents").value); },
+            spawndrawwindow: (x, y) => { temp = {x: x, y: y}; setState("spawndrawwindow2"); },
+            spawndrawwindow2: (x, y) => { send("drawwindow", (x + temp.x) / 2, (y + temp.y) / 2, Math.abs(x - temp.x), Math.abs(y - temp.y)); setState("draw"); },
             song: (x, y) => { 
                 let song = e("contents").value.trim();
                 if (song.startsWith("!s")) song = split(song, " ", 1)[1].trim();
@@ -364,6 +404,18 @@ block postbody
             setTimeout(() => { removeElement(el); }, 4000);
             e("audioInfo").currentTime = 0;
             e("audioInfo").play();
+        }
+        function searchIcon() {
+            removeAllChildren("icon-list");
+            let query = e("search").value.toLowerCase();
+            let unlocked = Object.keys(user.icons);
+            for (let icon of icons.filter(x => ((unlockedOnly === e("unlocked").checked) || unlocked.includes(x)) && x.includes(query))) {
+                let [rarity, name] = split(icon, "/", 1)
+                let body = insertElement("div", insertElement("button", "icon-list", `icon-entry rarity-${rarity}${!unlocked.includes(icon) ? " locked" : ""}`).with("onclick", `send("changeicon", "${icon}")`), "hlist");
+                insertElement("img", body).with("src", `//prod.kr/data/icon/${icon}.png`);
+                insertElement("p", body, "spacer", name);
+            }
+            insertElement("div", "icon-list", "spacer");
         }
     script(src="https://player.twitch.tv/js/embed/v1.js")
     script(type="text/javascript").

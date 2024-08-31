@@ -4,7 +4,7 @@ const { time, random } = require("../../common");
 const { log } = require("../../commonServer");
 
 module.exports.predicate = "!credits";
-module.exports.permission = true;
+module.exports.permission = false;
 module.exports.execute = async () => {
     log("Playing Credits");
     let raw = data().finale;

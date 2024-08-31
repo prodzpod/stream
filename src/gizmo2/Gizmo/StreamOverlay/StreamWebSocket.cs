@@ -27,6 +27,7 @@ namespace Gizmo.StreamOverlay
             if (args.Length <= 1) { Logger.Error("Websocket is malformed: no id or command??"); return; }
             float id = WASD.Assert<float>(args[0]);
             var command = WASD.Assert<string>(args[1]);
+            // if (command != "tracker") Logger.Log("Recieve:", message);
             args = args[2..];
             if (command == "respond") 
             {
@@ -96,6 +97,7 @@ namespace Gizmo.StreamOverlay
             while (true)
             {
                 int end = 0;
+                bool forceString = false;
                 message = message.Trim();
                 if (string.IsNullOrWhiteSpace(message)) break;
                 else if (message.StartsWith('{'))
@@ -103,15 +105,16 @@ namespace Gizmo.StreamOverlay
                     int level = 0;
                     while (end < message.Length) 
                     { 
-                        end++;
                         if (message[end] == '{') level++;
                         if (message[end] == '}') level--;
-                        if (level == 0) { end--; break; }
+                        if (level == 0) break;
+                        end++;
                     }
-                    object?[] test = Unpack(message[..end]);
+                    object?[] test = Unpack(message[1..end]);
                     Dictionary<string, object?> dict = [];
                     for (int i = 0; i < test.Length; i += 2) dict.Add(test[i].ToString(), test[i + 1]);
                     ret.Add(dict);
+                    if (end >= message.Length - 1) break;
                     message = message[(end + 1)..];
                 }
                 else if (message.StartsWith('['))
@@ -119,13 +122,14 @@ namespace Gizmo.StreamOverlay
                     int level = 0;
                     while (end < message.Length)
                     {
-                        end++;
                         if (message[end] == '[') level++;
                         if (message[end] == ']') level--;
-                        if (level == 0) { end--; break; }
+                        if (level == 0) break;
+                        end++;
                     }
-                    object?[] test = Unpack(message[..end]);
+                    object?[] test = Unpack(message[1..end]);
                     ret.Add(test);
+                    if (end >= message.Length - 1) break;
                     message = message[(end + 1)..];
                 }
                 else 
@@ -142,6 +146,7 @@ namespace Gizmo.StreamOverlay
                             else break;
                         }
                         temp = message[1..end].Replace("\"\"", "\"");
+                        if (temp.StartsWith(' ')) { temp = temp[1..]; forceString = true; }
                     } 
                     else
                     {
@@ -150,7 +155,7 @@ namespace Gizmo.StreamOverlay
                         temp = message[..end];
                     }
                     if (temp == "") ret.Add(null);
-                    else if (float.TryParse(temp, out var f)) ret.Add(f);
+                    else if (!forceString && float.TryParse(temp, out var f)) ret.Add(f);
                     else ret.Add(temp);
                     if (end >= message.Length - 1) break;
                     message = message[(end + 1)..];

@@ -1,4 +1,4 @@
-﻿using Gizmo.StreamOverlay.Elements;
+﻿using Gizmo.StreamOverlay.Elements.Windows;
 using System.Numerics;
 
 namespace Gizmo.StreamOverlay.Commands

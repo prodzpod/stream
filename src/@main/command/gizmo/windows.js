@@ -14,9 +14,14 @@ let RULE = {
         name: "%NAME%:HwndWrapper[DefaultDomain;;af9ecdd9-3aed-4e32-bce9-ebeb2f58597a]:devenv.exe",
         window: null,
     },
+    cygwin: {
+        rule: name => name === "~",
+        name: "%NAME%:mintty:mintty.exe",
+        window: null,
+    },
     // art
     aseprite: {
-        rule: name => name.startsWith("Aseprite"),
+        rule: name => name.includes("Aseprite"),
         name: "%NAME%:Aseprite.Window:Aseprite.exe",
         window: null,
     },
@@ -33,6 +38,21 @@ let RULE = {
     vegas: {
         rule: name => name.includes(" - VEGAS Pro"),
         name: "%NAME%:Vegas.Class.Frame:vegas140.exe",
+        window: null,
+    },
+    krita: {
+        rule: name => name.includes(" - Krita"),
+        name: "Krita:Qt5QWindowIcon:krita.exe",
+        window: null,
+    },
+    audacity: {
+        rule: name => name.includes("Audacity"),
+        name: "%NAME%:wxWindowNR:Audacity.exe",
+        window: null,
+    },
+    paint: {
+        rule: name => name.includes(" - Paint"),
+        name: "%NAME%:MSPaintApp:mspaint.exe",
         window: null,
     },
     // just joeling
@@ -66,7 +86,22 @@ let RULE = {
         rule: name => name.startsWith("Noita"),
         name: "%NAME%:SDL_app:noita.exe",
         window: null,
-    }
+    },
+    nosignal: {
+        rule: name => name.startsWith("no signal"),
+        name: "%NAME%:Engine:no-signal.exe",
+        window: null,
+    },
+    vilzin: {
+        rule: name => name.startsWith("Kill Vilzin"),
+        name: "%NAME%:SDL_app:main.exe",
+        window: null,
+    },
+    rd: {
+        rule: name => name.includes("Rhythm Doctor"),
+        name: "%NAME%:UnityWndClass:Rhythm Doctor.exe",
+        window: null,
+    },
 };
 module.exports.execute = async (...args) => {
     let update = WASD.unpack(args[0]).map(x => {
@@ -95,15 +130,17 @@ module.exports.execute = async (...args) => {
         log("Hooked Windows:", RULE[k].window?.name);
     }
     // update stuff
-    let indices = Object.entries(RULE).filter(x => x[1].window).sort((a, b) => a[1].window.i - b[1].window.i).map(x => x[0]);
-    let indicesToUpdate = update
-        .map(window => Object.keys(RULE).find(x => RULE[x].window?.id == window.id))
-        .filter(k => k)
-        .map(x => [x, indices.indexOf(x)]);
-    if (indicesToUpdate.length > 1) { // order swapped
-        debug("Order Changed:", indicesToUpdate);
-        send("obs", "send", "SetSceneItemIndex", "stream::sources", indicesToUpdate[0][0], {"sceneItemIndex": Object.keys(RULE).length - 1});
+    let indices = Object.entries(RULE).filter(x => x[1].window).sort((a, b) => a[1].window.i - b[1].window.i).map(x => [x[0], x[1].window.i, update?.find(y => x[1].window.id === y.id)?.i ?? x[1].window.i]);
+    let prev = indices.sort((a, b) => a[1] - b[1]).map(x => x[0]); 
+    let cur = indices.sort((a, b) => a[2] - b[2]).map(x => x[0]); 
+    // log(prev, cur);
+    for (let i = 0; i < cur.length; i++) {
+        if (prev[i] === cur[i]) continue;
+        debug("Order Changed:", prev[i], cur[i]);
+        send("obs", "send", "SetSceneItemIndex", "stream::sources", cur[i], {"sceneItemIndex": Object.keys(RULE).length - 1 - i});
+        prev = [cur[i], ...prev.filter(x => x !== cur[i])];
     }
+    for (let w of indices) RULE[w[0]].window.i = w[2];
     for (let window of update) {
         let k = Object.keys(RULE).find(x => RULE[x].window?.id == window.id);
         if (!k) continue;
