@@ -30,7 +30,7 @@ namespace Gizmo.StreamOverlay.Rooms
             MakingText.Position = new(Resource.NineSlices["window/making"].innerLeft / 2, 4);
             Graphic.New(null, "window/phase").Position = new(1836, 1056);
             Phase = Graphic.New(null, Text.Compile("-1", "arcaoblique", 26, ColorP.BLACK));
-            Phase.Position = new(1884+8, 1056+6);
+            Phase.Position = new(1884 + 8, 1056 + 6);
             // Graphic.New(null, "temp/bg2").Position = new(960, 540);
         }
     }

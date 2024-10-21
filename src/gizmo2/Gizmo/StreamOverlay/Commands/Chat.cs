@@ -2,6 +2,7 @@
 using Gizmo.Engine.Data;
 using Gizmo.Engine.Graphic;
 using Gizmo.Engine.Util;
+using Gizmo.StreamOverlay.Elements.Gizmos;
 using System.Numerics;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
@@ -42,14 +43,14 @@ namespace Gizmo.StreamOverlay.Commands
             Text content = Text.Compile(_content, "arcaoblique", fontSize, Bounds.Z - 32 - OFFSET * 3 - (fontSize / 2), -Vector2.One, ColorP.BLACK);
             Sprite[] icons = [.._icon.Select(x => Resource.Sprites[x])];
             float h = author.Size.Y + content.Size.Y + OFFSET * 3;
-            foreach (var x in Game.INSTANCES.Where(y => y.Element is Elements.Chat && y.Get<bool>("racked")))
+            foreach (var x in Game.INSTANCES.Where(y => y.Element is Elements.Gizmos.Chat && y.Get<bool>("racked")))
             {
                 x.Position.Y -= h;
                 var size = x.Get<Vector2>("size");
                 if (x.Position.Y - size.Y / 2 < Bounds.Y) x.Destroy();
             }
             IDrawable[] _i = [author, content, ..icons];
-            Instance i = Elements.Squareish.New(nameof(Elements.Chat), new(Bounds.X + Bounds.Z / 2, Bounds.Y + Bounds.W - h / 2), new(Bounds.Z, h), _i);
+            Instance i = Squareish.New(nameof(Elements.Gizmos.Chat), new(Bounds.X + Bounds.Z / 2, Bounds.Y + Bounds.W - h / 2), new(Bounds.Z, h), _i);
             Audio.Play(isFirstMessage ? "screen/join" : "screen/chat");
             Logger.Log("Chat Recieved:", id);
             i.Set("id", id);

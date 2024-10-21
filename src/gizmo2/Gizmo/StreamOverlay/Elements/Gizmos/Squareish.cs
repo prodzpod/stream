@@ -4,7 +4,7 @@ using Gizmo.Engine.Data;
 using Gizmo.Engine.Graphic;
 using System.Numerics;
 
-namespace Gizmo.StreamOverlay.Elements
+namespace Gizmo.StreamOverlay.Elements.Gizmos
 {
     public class Squareish : GameElement
     {

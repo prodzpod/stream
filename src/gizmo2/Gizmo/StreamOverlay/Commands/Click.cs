@@ -3,6 +3,7 @@ using Gizmo.Engine.Builtin;
 using Gizmo.Engine.Data;
 using Gizmo.StreamOverlay.Elements;
 using Gizmo.StreamOverlay.Elements.Entities;
+using Gizmo.StreamOverlay.Elements.Gizmos;
 using PInvoke;
 using System.Numerics;
 

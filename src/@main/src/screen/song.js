@@ -1,5 +1,5 @@
 const fs = require("fs");
-const { send } = require("../..");
+const { send, src } = require("../..");
 const { nullish, Math, random, deidn, unbits, numberish, split } = require("../../common");
 const { listFiles, log, path } = require("../../commonServer");
 const GLOBAL_SPEEDUP = 120 / 106.5; // some kind of lag
@@ -7,6 +7,7 @@ const GLOBAL_SPEEDUP = 120 / 106.5; // some kind of lag
 module.exports.predicate = ["!song", "!sing", "!play", "!bell", "!bells", "!s"];
 module.exports.permission = 0;  
 module.exports.execute = async (_reply, from, chatter, message, text) => {
+    if (!src().user.cost(_reply, chatter, 100)) return [0, ""];
     let raw = split(text, " ", 1)[1], x, y;
     if (typeof numberish(split(raw, " ", 1)[0]) === "number") {
         [x, y, raw] = split(raw, " ", 2);

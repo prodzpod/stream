@@ -22,6 +22,7 @@ block body
         input.spacer#add-custom(placeholder="channel name...")
         label v
         select
+            option(onclick="e('add-custom').value = 'https://live.colonq.computer'") live.colonq.computer
             option(onclick="e('add-custom').value = 'https://pub.colonq.computer/~prod/toy/glossary'") glossary
             option(onclick="e('add-custom').value = 'https://pub.colonq.computer/~prod/toy/dbkai'") dbkai
             option(onclick="e('add-custom').value = 'https://global-mind.org/gcpdot/gcp.html'") GCP dot

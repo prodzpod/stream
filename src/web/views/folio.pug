@@ -101,7 +101,21 @@ block postbody
         };
 
         let ENTRIES = [
-            /*
+            new Entry(
+                'RRrroohrrRGHHhhh!!', 'https://steamuserimages-a.akamaihd.net/ugc/772865314180167674/E49862CEB9A5A103A13D15DC5DCD873681FCC88D/?imw=268&imh=268&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true', 'https://steamcommunity.com/workshop/filedetails/?id=1974088804', 
+                'Rebalance/Rework mod for [Slay the Spire](https://store.steampowered.com/app/646570/Slay_the_Spire/). written in Java using ModtheSpire.', 
+                'code,mod,collab', '2022-01-20', '2022-02-05'
+            ),
+            new Entry(
+                'ClayHeads', 'https://media.forgecdn.net/avatars/thumbnails/248/956/256/256/637171121620711323.png', "https://github.com/prodzpod/ClayHeads",
+                'Minecraft mod that allow you to gain custom heads in survival.', 
+                'code,mod', '2022-02-12', '2022-02-13'
+            ),
+            new Entry(
+                'Psi: Ophiuchus', 'https://raw.githubusercontent.com/prodzpod/psi_ophiuchus/refs/heads/master/src/main/resources/assets/ophiuchus/textures/meta/logo_symbol.png', "https://github.com/prodzpod/psi_ophiuchus",
+                'PSI addon that adds new spells. minecraft mod (java). unfinished.', 
+                'code,mod,wip', '2022-02-29', '2022-06-23'
+            ),
             new Entry(
                 'Shapez Infinity', 'https://camo.githubusercontent.com/e813ec6b906a5b98c660ad2277208443ce62339f621e59ed2b5dc5edb82223d4/68747470733a2f2f692e696d6775722e636f6d2f72456a744954612e706e67', 'https://github.com/prodzpod/shapez.io/tree/shapez-infinity-prototype', 
                 'a [shapez.io](https://store.steampowered.com/app/1318690/shapez/) mod that aimed to expand the overall game through different methods of transportation, logistics, and new objectives. [A Spreadsheet](https://docs.google.com/spreadsheets/d/1ODLpB3Hg9pf7-ZFkKVQBCMyUlop6Qf0nfbkUR3Vf0x4/edit?usp=sharing) exists, but no code has been written and the project never really got anywhere since the announcement of [Shapez 2](https://store.steampowered.com/app/2162800/shapez_2/).', 
@@ -113,16 +127,340 @@ block postbody
                 'code,mod,wip', '2021-01-16', '2021-01-16'
             ),
             new Entry(
+                'rdtutorial', 'https://raw.githubusercontent.com/prodzpod/rdtutorial/refs/heads/main/docs/public/images/bg.png', "https://prodzpod.github.com/rdtutorial/tree/main",
+                'Static website, tutorial for [Rhythm Doctor] editing. ', 
+                'code,art,ui,wip', '2021-05-19', '2021-06-16'
+            ),
+            new Entry(
                 'TSU-classmanager', 'https://prod.kr/images/folio/tsu.png', 'https://github.com/prodzpod/tsu-classmanager-issues', 
                 'custom university scheduling and alert webapp system commissioned by TSU. this was done on a set deadline and client consulting. Contains filtering and displaying data from SQL database by different views, login and permissions system, auto scheduling and conflict resolution and excel export system.', 
-                'code,manage', '2021-12-20', '2022-01-10'
+                'code,comm,ui', '2021-12-20', '2022-01-10'
             ),
             new Entry(
                 'Planar Artifice: Continuation', 'https://media.forgecdn.net/avatars/490/878/637798774798297534.gif', 'https://www.curseforge.com/minecraft/mc-mods/planar-artifice/', 
                 'a Minecraft addon for [Thaumcraft 6](https://www.curseforge.com/minecraft/mc-mods/thaumcraft) that adds glassworking and dimension-related contents. Overhauled all textures and added mechanics.', 
                 'code,art', '2022-02-07', '2022-03-01'
             ),
-            */
+            new Entry(
+                'adofaitimeline', "", "https://prodzpod.github.com/adofaitimeline/tree/main",
+                'static web (js) timeline editor that outputs json file for [adofai]() custom levels. unfinished.', 
+                'code,wip,ui', '2022-03-19', '2022-03-26'
+            ),
+            new Entry(
+                '🔀🐦 (Shuffle Bird)', "", "https://prodzpod.github.io/shuffle-bird",
+                'a "fork" of [Rotate Bird]() ttrpg with a documentation webpage.', 
+                'code,art,ui,design', '2022-03-29', '2022-03-29'
+            ),
+            new Entry(
+                'Funny Looksy', "https://raw.githubusercontent.com/prodzpod/witness/refs/heads/master/data/favicon.png", "https://looksy.kro.kr/",
+                'Fork of [witnesspuzzles.com]() with community symbols and puzzles sourced from the witness community. v3 development ongoing.', 
+                'code,art,ui,design,featured', '2021-05-31', ''
+            ),
+            new Entry(
+                'dlo', "https://firebasestorage.googleapis.com/v0/b/onedayonepuzl.appspot.com/o/31%2Fprod.png?alt=media&token=5e508571-095b-4266-8792-4c85e3767fec", "https://prodzpod.github.io/dlo/",
+                '[One Day One Puzzle]() week 31 entry, static js page, novel puzzle and editor.', 
+                'code,design', '2022-04-16', '2022-04-16'
+            ),
+            new Entry(
+                'HOW', "https://raw.githubusercontent.com/prodzpod/xau/refs/heads/master/favicon.png", "https://prodzpod.github.io/xau",
+                'Custom [Xau] level editor and player.', 
+                'code,ui', '2022-10-04', '2022-10-04'
+            ),
+            new Entry(
+                'EggBot-4', "", "https://github.com/prodzpod/EggBot-4",
+                'General discord bot using discord.js, canvas and imagemagick.', 
+                'code', '2019-04-03', '2019-12-18'
+            ),
+            new Entry(
+                'le', "https://raw.githubusercontent.com/prodzpod/le/refs/heads/main/favicon.png", "https://prodzpod.github.io/le",
+                'a "wordle-like" game.', 
+                'code,design', '2019-04-03', '2019-12-18'
+            ),
+            new Entry(
+                'Ghabi\'s Forest', "https://ghabi.kro.kr/images/logo_mini.png", "https://ghabi.kro.kr/",
+                'full stack character and art management service, discord support, written in js and sql.', 
+                'code,ui,comm,featured', '2019-04-03', '2019-12-18'
+            ),
+            new Entry(
+                'urobot', "https://raw.githubusercontent.com/prodzpod/urobot/refs/heads/master/urobot.ico", "https://github.com/prodzpod/urobot",
+                'a "longest walk" graph solver for Yume Nikki-like games. written in python.', 
+                'code', '2023-10-17', ''
+            ),
+            new Entry(
+                'ZeroDayToolKit', "https://raw.githubusercontent.com/prodzpod/ZeroDayToolKit/refs/heads/main/installer/icon.ico", "https://github.com/prodzpod/ZeroDayToolKit",
+                'a [Hacknet]() [Pathfinder]() mod that adds new content and localization support. written in C#. posix shell port in development', 
+                'code,mod', '2022-04-28', '2023-10-21'
+            ),
+            new Entry(
+                'Tosim Elementia', "", "https://github.com/prodzpod/tosim-elementia",
+                'Printed word generator containing 3 fonts for a constructed script.' ,
+                'code,art', '2022-04-19', '2023-12-04'
+            ),
+            new Entry(
+                'Chambers of L', "https://raw.githubusercontent.com/prodzpod/chambers/refs/heads/final_build/docs/favicon.ico", "https://github.com/prodzpod/chambers/releases/tag/final",
+                'Entry for LCOLONQ Game Jam 2024, a roguelike written in gamemaker', 
+                'code,art,music,featured', '2024-01-31', '2024-02-07'
+            ),
+            new Entry(
+                'Kalimba Radio', "https://raw.githubusercontent.com/prodzpod/kalimba/refs/heads/main/kalimba.ico", "https://github.com/prodzpod/kalimba/releases/tag/r2",
+                'Midi file player and device link to "keyboard to instrument" games such as Yume 2kki, Collective Unconscious or Core Keeper. also configurable for other games. written in python.', 
+                'code', '2024-06-12', '2024-06-12'
+            ),
+            new Entry(
+                'stargen', "", "https://github.com/prodzpod/stargen",
+                'Simple image generator written in python.', 
+                'code', '2024-06-25', '2024-06-25'
+            ),
+            new Entry(
+                'Stream', "", "https://prod.kr/v/",
+                'Multimedia project with interactive web console that affects the c# program for broadcasting. server written in js.', 
+                'code,art,model,music,ui,video,featured', '2024-03-17', ''
+            ),
+            new Entry(
+                'Fishing Line', "", "https://onedayonepuzl.web.app/puzzle?week=32&id=prod",
+                '[One Day One Puzzle]() week 32 entry, lateral image puzzle.', 
+                'art,design', '2022-04-16', '2022-04-16'
+            ),
+            new Entry(
+                'genzan', "", "https://onedayonepuzl.web.app/puzzle?week=33&id=prod",
+                '[One Day One Puzzle]() week 33 entry, lateral image puzzle.', 
+                'art,design', '2022-04-16', '2022-04-16'
+            ),
+            new Entry(
+                'Aquarium Seoul', "", "https://onedayonepuzl.web.app/puzzle?week=35&id=prod",
+                '[One Day One Puzzle]() week 35 entry, lateral video puzzle.', 
+                'art,video,design', '2022-04-16', '2022-04-16'
+            ),
+            new Entry(
+                'Playing By Ear', "", "https://onedayonepuzl.web.app/puzzle?week=40&id=LavenderxProd",
+                '[One Day One Puzzle]() week 40 entry, lateral audio puzzle, composed songs, puzzle collaboration with lavender.', 
+                'music,design,collab', '2022-09-27', '2022-09-27'
+            ),
+            new Entry(
+                'This Shit Braid 3: Multi-Track Drifting', "", "https://onedayonepuzl.web.app/puzzle?week=50&id=prod",
+                '[One Day One Puzzle]() week 50 entry, lateral image puzzle in a style of [deranged text adventure]().,', 
+                'art,design', '2024-01-04', '2024-01-04'
+            ),
+            new Entry(
+                'Down Your Spine', "", "https://www.youtube.com/watch?v=V0U6Yp77Wow",
+                '[One Day One Puzzle]() week 51 entry, lateral video puzzle.', 
+                'video,design', '2024-04-19', '2024-04-19'
+            ),
+            new Entry(
+                'ResumeMusicPostTeleporter', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-ResumeMusicPostTeleporter-1.0.0.png", "https://thunderstore.io/package/prodzpod/ResumeMusicPostTeleporter/",
+                'a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'LimitedInteractables', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-LimitedInteractables-1.0.0.png", "https://thunderstore.io/package/prodzpod/LimitedInteractables/",
+                'a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'BetterMoonPillars', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-BetterMoonPillars-1.0.0.png", "https://thunderstore.io/package/prodzpod/BetterMoonPillars/",
+                'a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'EclipseSelector', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-EclipseSelector-1.0.0.png", "https://thunderstore.io/package/prodzpod/EclipseSelector/",
+                'a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'FallDamageChanges', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-FallDamageChanges-1.0.0.png", "https://thunderstore.io/package/prodzpod/FallDamageChanges/",
+                'a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'AchievementPins', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-AchievementPins-1.0.0.png", "https://thunderstore.io/package/prodzpod/AchievementPins/",
+                'a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'HuntressMomentum2', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-HuntressMomentum2-2.0.3.png", "https://thunderstore.io/package/prodzpod/HuntressMomentum2/",
+                'a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'WRBStandalone', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-WRBStandalone-1.0.0.png", "https://thunderstore.io/package/prodzpod/WRBStandalone/",
+                'a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'RealerCheatUnlocks', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-RealerCheatUnlocks-1.0.0.png", "https://thunderstore.io/package/prodzpod/RealerCheatUnlocks/",
+                'fork of [CheatUnlocks](), a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'ProperLoop', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-ProperLoop-1.0.0.png", "https://thunderstore.io/package/prodzpod/ProperLoop/",
+                'a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'RealerBulwarksHaunt', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-RealerBulwarksHaunt-1.1.5.png", "https://thunderstore.io/package/prodzpod/RealerBulwarksHaunt/",
+                'fork of [Bulwark\'s Haunt](), a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'RealerExtraChallengeShrines', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-RealerExtraChallengeShrines-1.0.3.png", "https://thunderstore.io/package/prodzpod/RealerExtraChallengeShrines/",
+                'fork of [Extra Challenge Shrines](), a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'RealerHex3Mod', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-RealerHex3Mod-2.1.5.png", "https://thunderstore.io/package/prodzpod/RealerHex3Mod/",
+                'fork of [Hex3Mod](), a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'SquawkyGoose', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-SquawkyGoose-1.0.0.png", "https://thunderstore.io/package/prodzpod/SquawkyGoose/",
+                'a [Risk of Rain] mod written in C#.', 
+                'code,mod,comm', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'Bandit Dynamite Toss', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-Bandit_Dynamite_Toss-1.1.5.png", "https://thunderstore.io/package/prodzpod/Bandit_Dynamite_Toss/",
+                'fork of [Moffein\'s Bandit Dynamite Toss](), a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'Hypercrit2', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-Hypercrit2-1.0.0.png", "https://thunderstore.io/package/prodzpod/Hypercrit2/",
+                'fork of [Hypercrit]() and [Hyperbleed](), a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'RealerRisingTides', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-RealerRisingTides-1.2.3.png", "https://thunderstore.io/package/prodzpod/RealerRisingTides/",
+                'fork of [Rising Tides](), a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'ConsistentStageFeatures', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-ConsistentStageFeatures-1.0.0.png", "https://thunderstore.io/package/prodzpod/ConsistentStageFeatures/",
+                'a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'ProdzpodSpikestripContent', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-ProdzpodSpikestripContent-1.0.0.png", "https://thunderstore.io/package/prodzpod/ProdzpodSpikestripContent/",
+                'a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'RealerEliteVariety', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-RealerEliteVariety-1.0.5.png", "https://thunderstore.io/package/prodzpod/RealerEliteVariety/",
+                'fork of [Elite Variety](), a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'FasterBossWait2', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-FasterBossWait2-1.0.0.png", "https://thunderstore.io/package/prodzpod/FasterBossWait2/",
+                'a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'Nemesis Rising Tides', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-Nemesis_Rising_Tides-1.0.0.png", "https://thunderstore.io/package/prodzpod/Nemesis_Rising_Tides/",
+                'a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'Nemesis Spikestrip', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-Nemesis_Spikestrip-1.0.0.png", "https://thunderstore.io/package/prodzpod/Nemesis_Spikestrip/",
+                'a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'RealerMysticsRisky2Utils', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-RealerMysticsRisky2Utils-2.0.20.png", "https://thunderstore.io/package/prodzpod/RealerMysticsRisky2Utils/",
+                'fork of [MysticsRisky2Utils](), a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'RealerMysticsItems', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-RealerMysticsItems-2.1.21.png", "https://thunderstore.io/package/prodzpod/RealerMysticsItems/",
+                'fork of [Mystic\'s Items](), a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'RecoveredAndReformed', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-RecoveredAndReformed-1.0.0.png", "https://thunderstore.io/package/prodzpod/RecoveredAndReformed/",
+                'a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'MinerSkillReturns', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-MinerSkillReturns-1.0.0.png", "https://thunderstore.io/package/prodzpod/MinerSkillReturns/",
+                'a [Risk of Rain] mod written in C#.', 
+                'code,mod,comm', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'WhiteGuillotine', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-WhiteGuillotine-1.0.0.png", "https://thunderstore.io/package/prodzpod/WhiteGuillotine/",
+                'a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'RealerStageTweaker', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-RealerStageTweaker-1.0.0.png", "https://thunderstore.io/package/prodzpod/RealerStageTweaker/",
+                'a [Risk of Rain] mod written in C#.', 
+                'code,mod,comm', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'Downpour', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-Downpour-1.0.0.png", "https://thunderstore.io/package/prodzpod/Downpour/",
+                'a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'MiscModpackUtils', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-MiscModpackUtils-1.0.0.png", "https://thunderstore.io/package/prodzpod/MiscModpackUtils/",
+                'a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'TemplarSkins', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-TemplarSkins-1.0.0.png", "https://thunderstore.io/package/prodzpod/TemplarSkins/",
+                'a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'Cracked Slab', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-Cracked_Slab-1.0.0.png", "https://thunderstore.io/package/prodzpod/Cracked_Slab/",
+                'a [Risk of Rain] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'Starstorm 2', "https://gcdn.thunderstore.io/live/repository/icons/TeamMoonstorm-Starstorm2-0.6.12.png", "https://thunderstore.io/package/TeamMoonstorm/Starstorm2/",
+                'a [Risk of Rain] mod written in C#.', 
+                'code,mod,collab', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'Sandswept', "https://gcdn.thunderstore.io/live/repository/icons/SandsweptTeam-Sandswept-0.9.4.png", "https://thunderstore.io/package/SandsweptTeam/Sandswept/",
+                'a [Risk of Rain] mod written in C#.', 
+                'code,mod,collab', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'Well Rounded Balance', "https://gcdn.thunderstore.io/live/repository/icons/TheBestAssociatedLargelyLudicrousSillyheadGroup-WellRoundedBalance-1.4.2.png", "https://thunderstore.io/package/TheBestAssociatedLargelyLudicrousSillyheadGroup/WellRoundedBalance/",
+                'a [Risk of Rain] mod written in C#.', 
+                'code,mod,collab', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'New Bepin', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-NewBepin-1.0.0.png", "https://thunderstore.io/c/core-keeper/p/prodzpod/NewBepin/",
+                'a fork of [BepInExPack]() made for 1.0 release of Core Keeper, and a mod for it written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'Mod.io Manager', "https://gcdn.thunderstore.io/live/repository/icons/prodzpod-ModIOManager-1.0.0.png", "https://thunderstore.io/c/core-keeper/p/prodzpod/ModIOManager/",
+                'a [Core Keeper] mod written in C#.', 
+                'code,mod', '2023-02-17', '2023-02-25'
+            ),
+            new Entry(
+                'Idle Queer', "", "",
+                'an idle game and a custom engine for it written in js. unfinished', 
+                'code,art,ui,design,wip', '2021-12-03', '2021-12-03'
+            ),
+            new Entry(
+                'Geiser.jar', "", "",
+                'a minecraft mod that processes websocket strings and executes user-defined commands. used for [JakeCreatesStuff]()\'s [VTuber Summer Slam 2024]() charity event.', 
+                'code,mod', '2024-06-23', '2024-06-25'
+            ),
+            new Entry(
+                'I can\'t believe this is my first (released) game!', "", "",
+                'Made for [Secret Doctah 2022](), demo of a rhythm platformer. written in gamemaker.', 
+                'code,music,art,design,wip', '2022-12-30', '2023-01-05'
+            ),
+            new Entry(
+                'Stellae*', "", "",
+                'engine for an rpg-shoot-em-up hybrid game in progress. written in gamemaker.', 
+                'code,art,wip', '2023-12-27', '2023-12-27'
+            ),
+            new Entry(
+                'Creepy Castle: Ribbon of the Strategist', "", "https://www.youtube.com/watch?v=LeW8HZaZFN4",
+                'fanmade expansion and mod for [Creepy Castle]().', 
+                'code,mod,video,music,design,art', '2020-11-25', '2021-12-26'
+            ),
         ];
 
         addEvent('onload', () => {
@@ -136,7 +474,7 @@ block postbody
             for (let tag of ['design', 'code', 'mod', 'manage', 'art', 'model', 'music', 'video']) if (e(tag).classList.contains('active')) tags.push(tag);
             let allowWIPs = e('wip').classList.contains('active');
             ENTRIES
-                .filter(x => (allowWIPs || !x.tag.includes('wip')) && intersects(x.tag, tags))
+                .filter(x => (allowWIPs || !x.tag.includes('wip')) && intersect(x.tag, tags)?.length)
                 .filter(x => x.name.includes(e('search').value) || x.url?.includes(e('search').value))
                 .sort((a, b) => b.start?.getTime() - a.start?.getTime())
                 .map(x => x.render());
@@ -145,5 +483,14 @@ block postbody
         function toggleCheckbox(self) {
             if (self.classList.contains('active')) self.classList.remove('active');
             else self.classList.add('active');
+        }
+
+        function toJSDate(num) {
+            if (typeof(num) == 'string') {
+                if (isNaN(num)) num = new Date(num);
+                else num = Number(num);
+            }
+            if (typeof(num) == 'number') num = new Date(num);
+            return `${String(num.getFullYear()).padStart(4, '0')}-${String(num.getMonth()+1).padStart(2, '0')}-${String(num.getDate()).padStart(2, '0')}`
         }
         

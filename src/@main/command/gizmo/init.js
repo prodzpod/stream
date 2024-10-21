@@ -1,6 +1,6 @@
-const { send, src } = require("../..")
+const { send, src, data } = require("../..")
 
 module.exports.execute = () => {
-    src().marker.sendInfo();
+    send("gizmo", "info", data().stream.subject, data().stream.phase, data().stream.category);
     return [0, ""];
 }

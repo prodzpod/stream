@@ -47,7 +47,7 @@ module.exports.grant = (user, icon, apply = true) => {
         _icon.modifier = icon.modifier?.[0] ?? null;
         data(`user.${user}.economy.icon`, _icon);
     }    
-    return icons[icon.icon];
+    return [icon.icon, icons[icon.icon]];
 }
 
 module.exports.grantAlt = (user, icon, apply = true) => {

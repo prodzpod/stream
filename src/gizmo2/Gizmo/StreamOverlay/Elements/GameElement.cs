@@ -63,7 +63,7 @@ namespace Gizmo.StreamOverlay.Elements
             // Logger.Log("OnClick called");
             StreamOverlay.ClickedInstance = self;
             StreamOverlay.ClickedPosition = self.GetRelativePosition(position);
-            Audio.Play("screen/click_me");
+            if (StreamOverlay.ClickedInstance != null) Audio.Play("screen/click_me");
         }
         public virtual void OnRelease(ref Instance self, Vector2 position)
         {

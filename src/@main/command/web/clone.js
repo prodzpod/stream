@@ -7,7 +7,7 @@ const SIGIL_CLONE = "🌙";
 
 module.exports.execute = async (prompt) => {
     if (!nullish((await send("twitch", "raw", "GET", "streams?user_id=866686220"))?.data?.[0])) return [0, {error: "clonk is not on"}];
-    let promptSelected = prompts[random(unentry(Object.entries(prompts).map(x => [x[0], x[1].weight])))];
+    let promptSelected = prompts.find(x => x._name === /@\w+/.exec(prompt)?.[0].slice(1)) ?? prompts[random(unentry(Object.entries(prompts).map(x => [x[0], x[1].weight])))];
     let ret = { ...promptSelected.chatter(data().user["140410053"]) };
     const system = ret.system(prompt) ?? "default message";
     log("prompt recieved:", promptSelected._name, system.length + Math.sum((ret.example ?? []).map(x => x.length)) + prompt.length, "characters");
@@ -16,7 +16,7 @@ module.exports.execute = async (prompt) => {
     if (ret.res instanceof Promise) ret.res = await ret.res;
     let originalText = ret.res;
     ret.hexes = [];
-    let chance = .5;
+    let chance = .2;
     while (random() < chance) {
         let hex = random(hexes);
         ret.hexes.push(hex.name);
@@ -62,7 +62,7 @@ const prompts = [
             color: prod.twitch.color,
             sigil: SIGIL_NORMAL + "💎" + SIGIL_CLONE,
             system: _ => "",
-            postprocess: _ => `https://jpegdirt.tumblr.com/page/${Math.floor(random(1, 356))}`,
+            postprocess: async _ => (await fetch("https://jpegdirt.tumblr.com/random")).url,
         }),
     },{
         _name: "BOT_PROD", weight: 1,
@@ -343,7 +343,7 @@ const prompts = [
         chatter: prod => ({
             name: prod.twitch.name,
             color: prod.twitch.color,
-            sigil: SIGIL_NORMAL + "🔏" + SIGIL_CLONE,
+            sigil: SIGIL_NORMAL + "💎" + SIGIL_CLONE,
             system: _ => "",
             postprocess: async _ => {
                 let html = await (await fetch("https://wiby.org/surprise")).text();
@@ -538,6 +538,7 @@ const prompts = [
     },
 ];
 const hexes = [
+    { name: "MANIAC", fn: text => text }, 
     { name: "DIGITAL", fn: text => text }, 
     { name: "ALTMAN", fn: text => text }, 
     { name: "BIGFOOT", fn: text => text }, 

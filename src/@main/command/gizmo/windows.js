@@ -19,6 +19,31 @@ let RULE = {
         name: "%NAME%:mintty:mintty.exe",
         window: null,
     },
+    bepin: {
+        rule: name => name.includes("BepInExGUI"),
+        name: "%NAME%:Window Class:bepinex_gui.exe",
+        window: null,
+    },
+    assetstudio: {
+        rule: name => name.includes("AssetStudioGUI"),
+        name: "%NAME%:WindowsForms10.Window.8.app.0.378734a_r3_ad1:AssetStudioGUI.exe",
+        window: null,
+    },
+    ilspy: {
+        rule: name => name.includes("ILSpy"),
+        name: "%NAME%:HwndWrapper[ILSpy;;ac8547a7-b5d9-4c7f-b37f-133545679eaf]:ILSpy.exe",
+        window: null,
+    },
+    unity: {
+        rule: name => name.includes(" - Unity "),
+        name: "%NAME%:UnityContainerWndClass:Unity.exe",
+        window: null,
+    },
+    r2modman: {
+        rule: name => name.startsWith("r2modman"),
+        name: "%NAME%:Chrome_WidgetWin_1:r2modman.exe",
+        window: null,
+    },
     // art
     aseprite: {
         rule: name => name.includes("Aseprite"),
@@ -38,6 +63,11 @@ let RULE = {
     vegas: {
         rule: name => name.includes(" - VEGAS Pro"),
         name: "%NAME%:Vegas.Class.Frame:vegas140.exe",
+        window: null,
+    },
+    kdenlive: {
+        rule: name => name.includes(" - Kdenlive"),
+        name: "Kdenlive:Qt672QWindowIcon:kdenlive.exe",
         window: null,
     },
     krita: {
@@ -102,6 +132,11 @@ let RULE = {
         name: "%NAME%:UnityWndClass:Rhythm Doctor.exe",
         window: null,
     },
+    ror2: {
+        rule: name => name === "Risk of Rain 2",
+        name: "%NAME%:UnityWndClass:Risk of Rain 2.exe",
+        window: null,
+    }
 };
 module.exports.execute = async (...args) => {
     let update = WASD.unpack(args[0]).map(x => {
@@ -155,4 +190,8 @@ module.exports.execute = async (...args) => {
         }
     }
     return [0, ""];
+}
+
+module.exports.reset = () => {
+    for (let k of Object.keys(RULE)) RULE[k].window = null;
 }

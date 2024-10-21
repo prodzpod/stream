@@ -15,6 +15,7 @@ namespace Gizmo.Engine
     public static class NotGMS
     {
         public static string WorkingDirectory;
+
         public static void Init(Game game)
         {
             Raylib_CSharp.Logging.Logger.SetTraceLogLevel(Raylib_CSharp.Logging.TraceLogLevel.Warning);
@@ -74,15 +75,15 @@ namespace Gizmo.Engine
                     m.Key.Recieve(m.Value);
                 }
                 WebSocket.ActiveWSMessages.Clear();
-                var deltaTime = Time.GetFrameTime();
+                Game.deltaTime = Time.GetFrameTime();
                 InputP.OnUpdate();
-                game.PreUpdate(deltaTime);
+                game.PreUpdate(Game.deltaTime);
                 // collision
                 Game.COLLISION.Clear();
                 for (int i = 0; i < Game.INSTANCES.Length; i++) 
                 {
-                    Game.INSTANCES[i].Position += Game.INSTANCES[i].Speed * deltaTime;
-                    Game.INSTANCES[i].Angle += Game.INSTANCES[i].Rotation * deltaTime;
+                    Game.INSTANCES[i].Position += Game.INSTANCES[i].Speed * Game.deltaTime;
+                    Game.INSTANCES[i].Angle += Game.INSTANCES[i].Rotation * Game.deltaTime;
                 }
                 var _i = Game.INSTANCES.Where(x => x.Hitbox != null).Reverse().ToArray();
                 foreach (var x in _i) foreach (var y in _i.Where(z => x.InteractsWith.Contains(z.Element) && x != z))
@@ -96,16 +97,16 @@ namespace Gizmo.Engine
                     Game.COLLISION[new(x, y)] = ch;
                 }
                 // logic
-                game.Update(deltaTime);
-                Game._Update(deltaTime);
-                game.PostUpdate(deltaTime);
+                game.Update(Game.deltaTime);
+                Game._Update(Game.deltaTime);
+                game.PostUpdate(Game.deltaTime);
                 // graphics
                 Graphics.BeginDrawing();
                 if (MetaP.ClearScreen) Graphics.ClearBackground(ColorP.TRANSPARENT);
                 if (Game.SHADERS.Count > 0) apply(0);
-                game.Draw(deltaTime);
-                Game._Draw(deltaTime);
-                game.PostDraw(deltaTime);
+                game.Draw(Game.deltaTime);
+                Game._Draw(Game.deltaTime);
+                game.PostDraw(Game.deltaTime);
                 if (Game.SHADERS.Count > 1) for (int i = 1; i < Game.SHADERS.Count; i++)
                 { // bad code for multiple shaders
                     Image temp = Image.LoadFromScreen();
@@ -120,8 +121,8 @@ namespace Gizmo.Engine
                 Graphics.EndDrawing();
                 // audio
                 Audio._INSTANCES = [..Audio.INSTANCES];
-                foreach (var ae in Audio._INSTANCES) if (!ae.Tick(deltaTime)) Audio.INSTANCES.Remove(ae);
-                Game.Time += deltaTime;
+                foreach (var ae in Audio._INSTANCES) if (!ae.Tick(Game.deltaTime)) Audio.INSTANCES.Remove(ae);
+                Game.Time += Game.deltaTime;
             }
         }
         public static void Dispose()

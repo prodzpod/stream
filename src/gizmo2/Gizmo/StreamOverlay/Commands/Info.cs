@@ -22,7 +22,7 @@ namespace Gizmo.StreamOverlay.Commands
             MainRoom.Making.Position = new(748 + x / 2, 1056);
             MainRoom.MakingText.Position = new((Resource.NineSlices["window/making"].innerLeft - text.Size.X) / 2, 4);
             MainRoom.Phase.Sprite = Text.Compile(phase.ToString().PadLeft(2, '0'), "arcaoblique", 26, -Vector2.One, ColorP.BLACK);
-            Elements.Windows.DrawWindow.IsTetris = game == "tetr";
+            Elements.Windows.DrawWindow.IsTetris = game != "Software and Game Development" && game != "Linux for PlayStation 2";
             return null;
         }
     }

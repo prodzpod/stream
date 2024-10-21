@@ -27,6 +27,7 @@ namespace Gizmo.Engine
         public static Dictionary<string, object> Global = [];
         public static List<Shader> SHADERS = [];
         public static float Time = 0;
+        public static float deltaTime;
         public virtual string WorkingDirectory => ".";
         public abstract string InitialRoom { get; }
         private static Vector2 _resolution = Vector2.Zero;

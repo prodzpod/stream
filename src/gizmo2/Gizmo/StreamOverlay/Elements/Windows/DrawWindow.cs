@@ -22,7 +22,7 @@ namespace Gizmo.StreamOverlay.Elements.Windows
         {
             base.OnCollide(ref self, other);
             if (!self.Get<bool>("pinned")) return;
-            if (other != null && other.Element is Mouse && InputP.KeyPressed(-1)) // TODO: clientside drawing
+            if (other != null && other.Element is Mouse && InputP.KeyPressed(0xA2)) // TODO: clientside drawing
             {
                 var pos = self.GetRelativePosition(InputP.MousePosition);
                 if (lineInProgress == null)

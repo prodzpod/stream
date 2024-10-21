@@ -2,6 +2,7 @@
 using Gizmo.Engine.Builtin;
 using Gizmo.Engine.Data;
 using Gizmo.StreamOverlay.Elements;
+using Gizmo.StreamOverlay.Elements.Gizmos;
 using System.Numerics;
 
 namespace Gizmo.StreamOverlay.Commands

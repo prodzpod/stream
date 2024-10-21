@@ -7,16 +7,8 @@ module.exports.predicate = "!endstream";
 module.exports.permission = false;
 module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
     info("Ending Stream Sequence");
-    data("stream", {
-        title: '🌟𝙋𝙕𝙋𝘿🌙 Currently Offline',
-        subject: null,
-        category: 'Software and Game Development',
-        start: -1,
-        phase: -1
-    });
-    send("twitch", "info", data().stream.category, data().stream.title);
+    src().marker.updateInfo("sgd", "Currently Offline", -1);
     src().obs.brb(); src().obs.end();
-    src().marker.sendInfo();
     for (const module of streamModules) end(module, true);
     src().startWeekly.end();
     log("Removing Previous Backup");

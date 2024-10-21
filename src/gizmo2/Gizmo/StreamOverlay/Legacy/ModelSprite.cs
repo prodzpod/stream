@@ -18,7 +18,7 @@ namespace ProdModel.Object.Sprite
         public static int TriangleRemoved = 0;
         public static bool Busy = false;
         public static bool Ready = false;
-        public static string[] accessories = ["earcloud", "skirt_default", "sparkle"];
+        public static string[] accessories = ["skirt_default"];
         public static void DrawTriangles(List<Triangle> triangles)
         {
             /*
@@ -44,7 +44,7 @@ namespace ProdModel.Object.Sprite
                 for (int x = xa; x < xb; x++) for (int y = ya; y < yb; y++)
                 {
                     var _z = triangle.ZAt(new Vector2(x, y));
-                    if (_z > z[x][y]) { z[x][y] = _z; pixels[x][y] = triangle.color; };
+                    if (_z > z[x][y]) { z[x][y] = _z; var hsv = ((triangle.color) + new ColorP(0, 0, 0, 0)).HSV; pixels[x][y] = ColorP.FromHSV(hsv.X, hsv.Y, hsv.Z, triangle.color.A); };
                 }
             }
             // outline 
@@ -55,7 +55,7 @@ namespace ProdModel.Object.Sprite
                     x < Width - 1 && z[x + 1][y] - z[x][y] > OUTLINE_DEPTH ||
                     y > 0 && z[x][y - 1] - z[x][y] > OUTLINE_DEPTH ||
                     y < Height - 1 && z[x][y + 1] - z[x][y] > OUTLINE_DEPTH)
-                    pixels[x][y] = ColorP.BLACK;
+                    pixels[x][y] = ColorP.BLACK * 0.5f;
             }
             for (int x = 0; x < Width; x++) for (int y = 0; y < Height; y++)
             {

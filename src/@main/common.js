@@ -156,7 +156,10 @@ module.exports.BigMath = {
     abs: n => BigInt(n) * (BigInt(n) >= 0n ? 1n : -1n),
     sign: n => BigInt(n) > 0n ? 1n : (BigInt(n) === 0n ? 0n : -1n),
     clamp: (x, a, b) => { module.exports.BigMath.min(module.exports.BigMath.max(BigInt(x), module.exports.BigMath.min(a, b)), module.exports.BigMath.max(a, b)) },
-    between: (a, b, c) => module.exports.BigMath.min(a, c) <= BigInt(b) && BigInt(b) <= module.exports.BigMath.max(a, c),
+    between: (a, b, c, d) => {
+        if (d === undefined) return module.exports.BigMath.min(a, c) <= BigInt(b) && BigInt(b) <= module.exports.BigMath.max(a, c);
+        return module.exports.BigMath.max(module.exports.BigMath.min(a, b), module.exports.BigMath.min(c, d)) <= module.exports.BigMath.min(module.exports.BigMath.max(a, b), module.exports.BigMath.max(c, d));
+    },
     div: (n, a) => {
         n = BigInt(n) * module.exports.BigMath.sign(a); a = module.exports.BigMath.abs(a);
         if (n === 0n) return 0n; // also covers div by 0
@@ -729,7 +732,10 @@ module.exports.Math = module.exports.safeAssign(Math, {
     lerp: (a, b, t) => (b - a) * t + a,
     antilerp: (x, a, b) => a === b ? 0.5 : ((b - x) / (a - b)),
     clamp: (x, a, b) => Math.min(Math.max(x, Math.min(a, b)), Math.max(a, b)),
-    between: (a, b, c) => Math.min(a, c) <= b && b <= Math.max(a, c),
+    between: (a, b, c, d) => {
+        if (d === undefined) return Math.min(a, c) <= b && b <= Math.max(a, c);
+        return Math.max(Math.min(a, b), Math.min(c, d)) <= Math.min(Math.max(a, b), Math.max(c, d));
+    },
     div: (n, a) => Math.trunc(n / a),
     demod: (n, a) => n - (n % a),
     posmod: (n, a) => ((n % a) + a) % a,

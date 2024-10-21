@@ -8,7 +8,7 @@ namespace ProdModel.Object
     {
         public static float Lifetime = 0;
         public static float LastSyncTime = 0;
-        public static Dictionary<int, WindowTransform> LastSync = new();
+        public static Dictionary<int, WindowTransform> LastSync = [];
         public static void Update(float time)
         {
             Lifetime += time;

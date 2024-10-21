@@ -6,6 +6,7 @@ using Gizmo.StreamOverlay.Elements.Windows;
 using Raylib_CSharp.Images;
 using System.Numerics;
 using System.Text.RegularExpressions;
+using YamlDotNet.Core.Tokens;
 
 namespace Gizmo.StreamOverlay
 {
@@ -47,12 +48,14 @@ namespace Gizmo.StreamOverlay
                         var i = Commands.Chat.SpawnChat(id, color, author, content, icon.Select(x => (string)x).ToArray(), false, new Regex(@"^<emote=[^>]+>$").IsMatch(content));
                         i.Position = new(x.Value, y.Value);
                         i.Angle = angle.Value / 256f;
-                        i.Set("racked", false);
-                        i.Set("follow", isRacked.Value == 1);
+                        i.Set("racked", isRacked.Value == 1);
+                        i.Set("follow", false);
                         i.Gravity = Vector2.UnitY * 3000;
                         break;
                     }
                 case "window":
+                case "okwindow":
+                case "yesnowindow":
                     {
                         float? x = WASD.Assert<float>(args[0]);
                         float? y = WASD.Assert<float>(args[1]);
@@ -79,6 +82,7 @@ namespace Gizmo.StreamOverlay
                             string? extra = args.Length > 5 ? WASD.Assert<string>(args[5]) : "";
                             Instance i;
                             if (extra == "OK") i = OKWindow.New(new(x.Value, y.Value), title, content);
+                            else if (extra == "YesNo") i = YesNoWindow.New(new(x.Value, y.Value), title, content, () => { });
                             else if (extra == "Draw") {
                                 float? x2 = WASD.Assert<float>(args[6]);
                                 float? y2 = WASD.Assert<float>(args[7]);
@@ -102,6 +106,19 @@ namespace Gizmo.StreamOverlay
                         string? author = WASD.Assert<string>(args[3]);
                         string? color = WASD.Assert<string>(args[4]);
                         var i = Commands.SpawnShimeji._SpawnShimeji(x.Value, y.Value, author, color);
+                        i.Angle = angle.Value / 256f;
+                    }
+                    break;
+                case "fan":
+                case "antifan":
+                    {
+                        float? x = WASD.Assert<float>(args[0]);
+                        float? y = WASD.Assert<float>(args[1]);
+                        float? angle = WASD.Assert<float>(args[2]);
+                        float? force = WASD.Assert<float>(args[4]);
+                        Instance i;
+                        if (type == "fan") i = Elements.Gizmos.Fan.New(new(x.Value, y.Value), 128, angle.Value, force.Value);
+                        else i = Elements.Gizmos.AntiFan.New(new(x.Value, y.Value), 128, angle.Value, force.Value);
                         i.Angle = angle.Value / 256f;
                     }
                     break;

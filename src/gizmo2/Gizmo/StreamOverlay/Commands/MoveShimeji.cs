@@ -15,6 +15,7 @@ namespace Gizmo.StreamOverlay.Commands
             if (StreamOverlay.Shimeji.TryGetValue(author, out var i))
             {
                 Vector2 pos = new(x.Value, y.Value);
+                i.Speed = Vector2.Zero;
                 i.Set("target", pos);
             }
             return null;

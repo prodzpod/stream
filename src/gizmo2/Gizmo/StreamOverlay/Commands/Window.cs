@@ -15,15 +15,19 @@ namespace Gizmo.StreamOverlay.Commands
             float? y = WASD.Assert<float>(args[3]);
             string? title = WASD.Assert<string>(args[4]);
             string? _content = WASD.Assert<string>(args[5]);
+            float? type = WASD.Assert<float>(args[6]);
             if (x == null || y == null || title == null || _content == null) return null;
-            SpawnWindow(x.Value, y.Value, title, _content);
+            SpawnWindow(x.Value, y.Value, title, _content, type.Value);
             return null;
         }
 
-        public static Instance SpawnWindow(float x, float y, string title, string _content)
+        public static Instance SpawnWindow(float x, float y, string title, string _content, float type = 0)
         {
             Text content = Text.Compile(_content, "arcaoblique", 26, Game.Room.Camera.Z, -Vector2.One, ColorP.BLACK);
-            Instance i = Elements.Windows.Window.New(new(x, y), title, content.Size, content);
+            Instance i;
+            if (type == 1) i = Elements.Windows.OKWindow.New(new(x, y), title, _content);
+            else if (type == 2) i = Elements.Windows.YesNoWindow.New(new(x, y), title, _content, () => { });
+            else i = Elements.Windows.Window.New(new(x, y), title, content.Size, content);
             i.Set("content", _content);
             var size = i.Get<Vector2>("size");
             NineSlice? ns = Resource.NineSlices["window/window"];

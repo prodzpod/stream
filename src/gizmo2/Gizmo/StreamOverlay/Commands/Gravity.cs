@@ -1,5 +1,5 @@
 ﻿using Gizmo.Engine;
-using Gizmo.StreamOverlay.Elements;
+using Gizmo.StreamOverlay.Elements.Gizmos;
 using ProdModel.Object.Sprite;
 using System.Numerics;
 

@@ -1,5 +1,5 @@
 const { send, src, data } = require("../..");
-const { nullish } = require("../../common");
+const { nullish, trueish } = require("../../common");
 const { info, log } = require("../../commonServer");
 const { initialize } = require("../chat/user");
 
@@ -17,7 +17,7 @@ async function check() {
     if (data().stream.phase === -1) { log("Ending Weekly Take"); return; } 
     log("User Check Started");
     let users = await send("twitch", "users", 140410053);
-    if (nullish(users) === null) return;
+    if (trueish(users) === false) return;
     for (let id of users) {
         chatter = await initialize(id);
         if (chatter?.twitch.id) data(`user.${chatter.twitch.id}.economy.iu`, Number(chatter.economy.iu) + MINUTELY_IU);

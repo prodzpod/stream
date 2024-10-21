@@ -151,8 +151,8 @@ block postbody
                         break;
                 }
             },
-            iu: o => { if (e("iu")) e("iu").innerText = Math.prec(o) + "iu"; },
-            icon: o => { user.icon = o; if (state === "icon") setState("icon") }
+            iu: o => { if (e("iu")) e("iu").innerText = Math.prec(o) + "iu"; if (e("unlock")) e("unlock").innerText = `Unlock (${Math.prec(o) + "iu"})`; user.iu = o; },
+            icon: (o, o2) => { user.icon = o; if (o2) user.icons[o] = o2; if (state === "icon") setState("icon") }
         }
         function getWired() {
             button();
@@ -210,7 +210,9 @@ block postbody
                 const checkbox = insertElement("div", list, "hlist").with("style", "flex: 0 0 auto !important;");
                 insertElement("input", checkbox).with("type", "checkbox").with("id", "unlocked").with("value", unlockedOnly);
                 insertElement("p", checkbox, "spacer left", unlockedOnly ? "Show All" : "Show Unlocked");
-                const scroll = insertElement("div", list, "vlist hard").with("style", "overflow-y: scroll; height: 0;").with("id", "icon-list");
+                const scroll = insertElement("div", list, "vlist hard spacer").with("style", "overflow-y: scroll; height: 0;").with("id", "icon-list");
+                const buttons = insertElement("div", list, "hlist").with("style", "flex: 0 0 auto !important;");
+                insertElement("button", buttons, null, `Unlock (${user.iu}iu)`).with("id", "unlock").with("onclick", `send("unlockIcon"); setState("icon");`);
                 searchIcon();
             },
             pointer: () => {
@@ -229,11 +231,11 @@ block postbody
             },
             action: () => {
                 addSimpleButton("bottom right", "idle", "back");
+                showIU();
                 insertElement("h2", "screen", "overlay top left", "Perform Actions").with("style", "min-height: 0;");
-                insertElement("h3", "screen", "overlay top right center", `${Math.prec(user.iu ?? 0)}iu`).with("style", "min-height: 0;").with("id", "iu");
                 const ACTIONS = {
                     "mouse": ["Point", "Click", "Fling", "Draw", "Pin", "Kill"],
-                    "window": ["Spawn Window", "Song", "Spawn Draw Window", "Furrow the Mare of Eidola"],
+                    "window": ["Spawn Window (10)", "Spawn Fan", "Spawn Anti Fan", "Song (100)", "Spawn Draw Window (100)", "Furrow the Mare of Eidola (10)"],
                     "shimeji": ["Spawn Shimeji", "Move"],
                     "misc": ["Remove Triangle", "Gravity"],
                     "help": ["Help", "Today", "Uptime", "Stats"],
@@ -245,8 +247,11 @@ block postbody
                     insertElement("div", base, "spacer");
                     let top; if (ACTIONS[k].length) top = insertElement("div", base, "vlist overlay");
                     insertElement("img", base, "overlay").with("src", `https://prod.kr/images/screen/${k}.png`).with("style", "width: 64px; height: 64px;"); 
-                    for (const v of ACTIONS[k]) if (user.streaming || v !== "Today") 
-                        insertElement("button", top, "left", v).with("onclick", `button(event); setState("${v.toLowerCase().replaceAll(" ", "")}");`);
+                    for (const _v of ACTIONS[k]) {
+                        const v = split(_v, "(", 1)[0].trim();
+                        if (user.streaming || v !== "Today") 
+                            insertElement("button", top, "left", _v).with("onclick", `button(event); setState("${v.toLowerCase().replaceAll(" ", "")}");`);
+                    }
                 }
                 insertElement("div", row, "spacer");
             },
@@ -269,19 +274,42 @@ block postbody
             pin: () => { addGenericPointerScreen("Click on the element you want to pin.", "pin"); },
             kill: () => { addGenericPointerScreen("Click on the element you want to kill.", "kill"); },
             spawnwindow: () => {
+                showIU();
                 addGenericPointerScreen("Fill the textboxes and click on the position you want to spawn this window at.", "window");
                 const input = insertElement("div", "screen", "overlay bottom left right vlist").with("style", "margin: 0 160px; border-radius: 64px").with("onclick", "event?.stopPropagation();");
                 insertElement("input", input).with("id", "title").with("placeholder", "title...").with("style", "border-radius: 64px; padding: 16px; height: 64px; margin: 16px;");
                 insertElement("textarea", input).with("id", "contents").with("placeholder", "contents...").with("style", "border-radius: 64px; padding: 16px; height: 64px; margin: 16px;");
+                var type = insertElement("select", input).with("id", "type").with("placeholder", "type...").with("style", "border-radius: 64px; padding: 16px; height: 64px; margin: 16px;");
+                insertElement("option", type, null, "Default").with("value", 0);
+                insertElement("option", type, null, "OK").with("value", 1);
+                insertElement("option", type, null, "Yes/No").with("value", 2);
             },
-            spawndrawwindow: () => { addGenericPointerScreen("Click on the position of the corner where you want to open the window at.", "spawndrawwindow"); },
-            spawndrawwindow2: () => { 
+            spawndrawwindow: () => { showIU(); addGenericPointerScreen("Click on the position of the corner where you want to open the window at.", "spawndrawwindow"); },
+            spawndrawwindow2: () => {
+                showIU(); 
                 addGenericPointerScreen("Click on the position for the other corner of the window.", "spawndrawwindow2"); 
                 const r = e('screen').getBoundingClientRect();
                 insertElement("img", "screen", "cursor").with("src", "https://prod.kr/images/screen/cursor_point.png").with("style", `left: ${temp.x / (1920 / r.width)}px; top: ${temp.y / (1080 / r.height)}px;`);
                 cursor = "cursor_point2";
             },
+            spawnfan: () => { showIU(); addGenericPointerScreen("Click on the position where you want to spawn the fan at.", "spawnfan"); },
+            spawnfan2: () => {
+                showIU(); 
+                addGenericPointerScreen("Click on the position towards where the fan should be blowing.", "spawnfan2"); 
+                const r = e('screen').getBoundingClientRect();
+                insertElement("img", "screen", "cursor").with("src", "https://prod.kr/images/screen/cursor_point.png").with("style", `left: ${temp.x / (1920 / r.width)}px; top: ${temp.y / (1080 / r.height)}px;`);
+                cursor = "cursor_point2";
+            },
+            spawnantifan: () => { showIU(); addGenericPointerScreen("Click on the position where you want to spawn the fan at.", "spawnantifan"); },
+            spawnantifan2: () => {
+                showIU(); 
+                addGenericPointerScreen("Click on the position towards where the fan should be blowing.", "spawnantifan2"); 
+                const r = e('screen').getBoundingClientRect();
+                insertElement("img", "screen", "cursor").with("src", "https://prod.kr/images/screen/cursor_point.png").with("style", `left: ${temp.x / (1920 / r.width)}px; top: ${temp.y / (1080 / r.height)}px;`);
+                cursor = "cursor_point2";
+            },
             song: () => {
+                showIU();
                 addGenericPointerScreen("Fill the textbox and click on the position you want to spawn the song window at.", "song");
                 const input = insertElement("div", "screen", "overlay bottom left right vlist").with("style", "margin: 0 160px; border-radius: 64px").with("onclick", "event?.stopPropagation();");
                 insertElement("textarea", input).with("id", "contents").with("placeholder", "song...").with("style", "border-radius: 64px; padding: 16px; height: 64px; margin: 16px;");
@@ -290,6 +318,7 @@ block postbody
                 insertElement("img", insertElement("button", "screen", "overlay left circle center").with("title", "docmentation of the format (!lore)").with("style", "bottom: 288px;").with("onclick", "button(event); window.open(\"https://prod.kr/v/lore\");")).with("src", "https://prod.kr/images/screen/help.png").with("style", "width: 64px; height: 64px;");
             },
             furrowthemareofeidola: () => {
+                showIU();
                 addGenericPointerScreen("Fill the textbox and click on the position you want to spawn your profile at.", "furrowthemareofeidola");
                 const input = insertElement("div", "screen", "overlay bottom left right vlist").with("style", "margin: 0 160px; border-radius: 64px").with("onclick", "event?.stopPropagation();");
                 insertElement("input", input).with("id", "title").with("placeholder", "title...").with("value", `${user.name} is following their Idol Dream`).with("style", "border-radius: 64px; padding: 16px; height: 64px; margin: 16px;");
@@ -356,10 +385,14 @@ block postbody
             draw2: (x, y) => { send("draw", temp.x, temp.y, x, y); setState("draw"); },
             pin: (x, y) => { sendGenericXY("pin", x, y); },
             kill: (x, y) => { sendGenericXY("close", x, y); },
-            window: (x, y) => { if (e("title").value.trim() === "" || e("contents").value.trim() === "") { error("Some textboxes are blank."); return; } send("window", x, y, e("title").value, e("contents").value); },
+            window: (x, y) => { if (e("title").value.trim() === "" || e("contents").value.trim() === "") { error("Some textboxes are blank."); return; } send("window", x, y, e("title").value, e("contents").value, e("type").value); },
             spawndrawwindow: (x, y) => { temp = {x: x, y: y}; setState("spawndrawwindow2"); },
             spawndrawwindow2: (x, y) => { send("drawwindow", (x + temp.x) / 2, (y + temp.y) / 2, Math.abs(x - temp.x), Math.abs(y - temp.y)); setState("draw"); },
-            song: (x, y) => { 
+            spawnfan: (x, y) => { temp = {x: x, y: y}; setState("spawnfan2"); },
+            spawnfan2: (x, y) => { send("fan", temp.x, temp.y, x, y); setState("spawnfan"); },
+            spawnantifan: (x, y) => { temp = {x: x, y: y}; setState("spawnantifan2"); },
+            spawnantifan2: (x, y) => { send("antifan", temp.x, temp.y, x, y); setState("spawnantifan"); },
+            song: (x, y) => {   
                 let song = e("contents").value.trim();
                 if (song.startsWith("!s")) song = split(song, " ", 1)[1].trim();
                 if (song === "") { error("Song is empty."); return; } 
@@ -367,7 +400,7 @@ block postbody
                 setState("action");
             },
             furrowthemareofeidola: (x, y) => { if (e("title").value.trim() === "") { error("Title is empty."); return; } send("furrowthemareofeidola", x, y, e("title").value); },
-            spawnshimeji: (x, y) => { sendGenericXY("spawnshimeji", x, y); },
+            spawnshimeji: (x, y) => { sendGenericXY("spawnshimeji   ", x, y); },
             moveshimeji: (x, y) => { sendGenericXY("moveshimeji", x, y); },
             gravity: (x, y) => { send("gravity", ((x / 1920) - 0.5) * 16, ((y / 1080) - 0.5) * 16); setState("action"); }
         }
@@ -405,6 +438,7 @@ block postbody
             e("audioInfo").currentTime = 0;
             e("audioInfo").play();
         }
+        function showIU() { insertElement("h3", "screen", "overlay top right center", `${Math.prec(user.iu ?? 0)}iu`).with("style", "min-height: 0;").with("id", "iu"); }
         function searchIcon() {
             removeAllChildren("icon-list");
             let query = e("search").value.toLowerCase();

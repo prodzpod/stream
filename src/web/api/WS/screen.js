@@ -22,11 +22,11 @@ module.exports._login = async (k, chatter, hash) => {
 module.exports._info = (chatter, msg, iserror=false) => {
     if (!userWS[chatter]) return 1; userWS[chatter].send(WASD.pack(iserror ? "error" : "info", msg)); return 0;
 }
-module.exports._iu = (chatter, iu, iserror=false) => {
+module.exports._iu = (chatter, iu) => {
     if (!userWS[chatter]) return 1; userWS[chatter].send(WASD.pack("iu", iu)); return 0;
 }
-module.exports._changeIcon = (chatter, icon, iserror=false) => {
-    if (!userWS[chatter]) return 1; userWS[chatter].send(WASD.pack("icon", icon)); return 0;
+module.exports._changeIcon = (chatter, icon, data) => {
+    if (!userWS[chatter]) return 1; userWS[chatter].send(WASD.pack("icon", icon, data)); return 0;
 }
 module.exports.chat = async (ws, args) => {
     const user = Object.keys(userWS).find(x => userWS[x] === ws);

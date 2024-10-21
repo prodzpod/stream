@@ -43,12 +43,7 @@ module.exports.initialize = async (id, forceBlockUpdate=false) => {
         chatter = await twitchUpdate(chatter);
         updateThis = true;
     }
-    if (nullish(chatter.meta.last_interacted) === null || BigMath.between(chatter.economy.weekly, chatter.meta.last_interacted, time())) {
-        updateThis = true;
-        chatter.economy.iu = Number(chatter.economy.iu) + WEEKLY_IU;
-        chatter.economy.weekly = BigMath.demod(time() - 313200000n, WEEKLY_IU_PERIOD) + 313200000n + WEEKLY_IU_PERIOD; 
-    }
-    chatter.meta.last_interacted = time();
+    chatter.meta.last_interacted ??= 0;
     chatter.meta.permission = {
         streamer: chatter.twitch?.badges?.includes("broadcaster-1") ?? false,
         mod: chatter.twitch?.badges?.includes("moderator-1") ?? false,
@@ -58,10 +53,13 @@ module.exports.initialize = async (id, forceBlockUpdate=false) => {
         log("Updating User", chatter.twitch?.name);
         data(`user.${chatter.twitch.id}`, chatter);
     }
+    chatter.clonkspotting ??= {};
+    chatter.clonkspotting.boost ??= 0;
+    chatter.clonkspotting.boosted ??= [];
+    chatter.clonkspotting.last_boosted ??= 0;
     return chatter;
 }
-const WEEKLY_IU_PERIOD = BigInt(7*1000*60*60*24);
-const WEEKLY_IU = 1000;
+
 const TWITCH_UPDATE_PERIOD = BigInt(1000*60*60*24);
 const TWITCH_INFO_MAP = {
     "login": "login",
@@ -69,7 +67,8 @@ const TWITCH_INFO_MAP = {
     "description": "description",
     "profile_image_url": "profile_image",
     "offline_image_url": "offline_image",
-    "created_at": "created_at"
+    "created_at": "created_at",
+    "color": "color",
 }
 async function twitchUpdate(chatter) {
     let _twitch = await send("twitch", "user", chatter.twitch?.id);
@@ -87,5 +86,6 @@ module.exports.cost = (_reply, chatter, iu) => {
     iu = numberish(chatter.economy.iu) - iu;
     if (iu < 0) { _reply("not enough iu"); return false; }
     data(`user.${chatter.twitch.id}.economy.iu`, iu);
+    send("web", "iu", chatter.twitch.id, iu);
     return true;
 }

@@ -110,7 +110,10 @@ module.exports.respond = (from, id, status, ...args) => {
             delete waitList[id];
         }
     } else if (status === STATUS_REJECT) {
-        this.log(from, 0, `respond id ${id} rejected:`, ...args);
+        if (waitList[id] !== undefined) {
+            waitList[id](...args);
+            delete waitList[id];
+        } else this.log(from, 0, `respond id ${id} rejected:`, ...args);
     } else {
         this.log(from, 3, `respond id ${id} ERROR:`, status, ...args);
     }

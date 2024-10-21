@@ -4,7 +4,7 @@ const { Math, nullish } = require("../../common");
 const { fileExists, measureStart, measureEnd, info } = require("../../commonServer");
 const { args } = require("../chat/chat");
 
-module.exports.predicate = ["!end", "!kill"];
+module.exports.predicate = ["!end", "!kill", "!stop"];
 module.exports.permission = false;
 module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
     const module = args(text)[0];

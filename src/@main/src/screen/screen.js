@@ -1,7 +1,7 @@
 const { src, data, send } = require("../..");
 const { split, realtype, time, formatTime, formatDate, BigMath, nullish, filterValue, random, String, Math } = require("../../common");
 const { log, listFiles, path } = require("../../commonServer");
-const { checkPerms } = require("../chat/chat");
+const { checkPerms, args } = require("../chat/chat");
 
 module.exports.screenData = chatter => {
     let ret = {};
@@ -46,7 +46,16 @@ const getFonts = async () => `available fonts: \`${
     .filter(x => x.endsWith(".font.properties"))
     .map(x => x.slice(0, -".font.properties".length))
     .join("`, `")}\``;
-const getInfo = (from, chatter, message, text, emote, reply) => `iu: ${chatter.economy.iu}`;
+const getInfo = (from, chatter, message, text, emote, reply) => {
+    let _args = args(text);
+    let target = chatter;
+    if (nullish(_args[0]) !== null) {
+        _args[0] = _args[0].trim().toLowerCase();
+        target = Object.values(data().user).find(x => x.twitch?.login.toLowerCase() === _args[0] || x.twitch?.name.toLowerCase() === _args[0] || x.twitch?.id === _args[0] || x.discord?.id === _args[0] || x.discord?.name.toLowerCase() === _args[0]);
+        if (nullish(target) === null) return "Could not find chatter";
+    }
+    return `iu: ${Math.prec(target.economy.iu)}`;
+} 
 
 const INFO_MESSAGES = {
     discord: () => "https://prod.kr/discord",
@@ -113,7 +122,8 @@ const INFO_MESSAGES = {
     inv: getInfo,
     inventory: getInfo,
     me: getInfo,
-    wallet: getInfo
+    wallet: getInfo,
+    songs: async () => "Current Songs: " + (await listFiles("src/@main/data/song")).filter(x => !x.startsWith("_")).map(x => x.slice(0, -".wmid".length)).join(", ")
 }
 module.exports.predicate = Object.keys(INFO_MESSAGES).map(x => "!" + x);
 module.exports.permission = 0;  

@@ -16,6 +16,12 @@ namespace Gizmo.StreamOverlay.Elements.Windows
         public static int CHARACTER_WIDTH = 128;
         public static int CHARACTER_HEIGHT = 64;
         public static int GRANULARITY = 2;
+        public override void OnInit(ref Instance self)
+        {
+            self.Depth = -1;
+            base.OnInit(ref self);
+            self.Depth = -1;
+        }
         public override void OnDestroy(ref Instance self)
         {
             Instance = null;

@@ -14,7 +14,7 @@ namespace Gizmo.Engine.Extra
         public static List<KeyValuePair<WebSocket, byte[]>> ActiveWSMessages = [];
         public static int chunkSize = 4096;
         public static int pollDelay = 100;
-        public WebSocket(string uri, Action<string> onRecieve) : this(uri, (b) => onRecieve(Encoding.UTF8.GetString(b))) { }
+        public WebSocket(string uri, Action<string> onRecieve) : this(uri, (b) => onRecieve(Encoding.UTF8.GetString(b ?? []))) { }
         public WebSocket(string uri, Action<byte[]> onRecieve)
         {
             OnReceive = onRecieve;
@@ -68,8 +68,8 @@ namespace Gizmo.Engine.Extra
             if (_ws.State != WebSocketState.Open) { Logger.Error("Websocket is closed!"); return; }
             for (int i = 0; i < msg.Length; i += chunkSize)
             {
-                int end = MathP.Min(i + chunkSize, msg.Length);
-                await _ws.SendAsync(new ArraySegment<byte>(msg[i .. end]), asText ? WebSocketMessageType.Text : WebSocketMessageType.Binary, true, CancellationToken.None);
+                bool endOfMessage = msg.Length <= i + chunkSize;
+                await _ws.SendAsync(new ArraySegment<byte>(msg[i .. (endOfMessage ? msg.Length : (i + chunkSize))]), asText ? WebSocketMessageType.Text : WebSocketMessageType.Binary, endOfMessage, CancellationToken.None);
             }
             return;
         }

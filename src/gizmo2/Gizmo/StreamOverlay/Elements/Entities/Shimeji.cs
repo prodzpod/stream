@@ -2,6 +2,7 @@
 using Gizmo.Engine.Builtin;
 using Gizmo.Engine.Data;
 using Gizmo.Engine.Graphic;
+using Gizmo.StreamOverlay.Elements.Gizmos;
 using Gizmo.StreamOverlay.Elements.Windows;
 using System.Numerics;
 
@@ -20,6 +21,7 @@ namespace Gizmo.StreamOverlay.Elements.Entities
             self.Depth = 50;
             self.Playback = 0;
             self.Frame = 0;
+            self.Set("targetx", 0f);
         }
         public static float MaxSpeed = 500;
         public override void OnDestroy(ref Instance self)

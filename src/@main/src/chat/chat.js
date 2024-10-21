@@ -1,5 +1,5 @@
 const { send, src, data } = require("../..");
-const { time, realtype, trueish, array, unentry, split, WASD, String, occurance, safeAssign, random, BigMath, stringify, numberish, Math, inPlaceSort } = require("../../common")
+const { time, realtype, trueish, array, unentry, split, WASD, String, occurance, safeAssign, random, BigMath, stringify, numberish, Math, nullish } = require("../../common")
 const { debug, verbose, download, log, path, fileExists } = require("../../commonServer");
 
 module.exports.message = async (from, chatter, message, text, emote, reply) => {
@@ -20,8 +20,20 @@ module.exports.message = async (from, chatter, message, text, emote, reply) => {
     return ret ?? [0, ""];
 }
 
+const WEEKLY_IU_PERIOD = BigInt(7*1000*60*60*24);
+const WEEKLY_IU = 5000;
 function onInteraction(from, chatter, message, text, emote, reply) {
     // every interaction
+    if (chatter.meta && data().stream.phase > -1) {    
+        let _last_interacted = chatter.meta.last_interacted;
+        let _time = time();
+        if (nullish(_last_interacted) === null || BigMath.between(chatter.economy.weekly, _last_interacted, _time + 1n)) {
+            updateThis = true;
+            chatter.economy.iu = Number(chatter.economy.iu) + WEEKLY_IU;
+            chatter.economy.weekly = BigMath.demod(_time - 313200000n, WEEKLY_IU_PERIOD) + 313200000n + WEEKLY_IU_PERIOD; 
+        }
+        chatter.meta.last_interacted = _time;
+    }
     return chatter;
 }
 
@@ -32,6 +44,7 @@ module.exports.command = async (from, chatter, message, text, emote, reply) => {
         switch (realtype(predicate)) {
             case "boolean": return predicate;
             case "string": return predicate === cmd;
+            let _time = time();
             case "array": return predicate.includes(cmd);
             case "function": return trueish(x.predicate(from, chatter, message, text, emote, reply));
         }
@@ -63,9 +76,9 @@ module.exports.checkPerms = (source, from, chatter, message, text, emote, reply)
         case "boolean": ret = permission; break;
         case "number": ret = trueish(({
             "0": c => c.twitch?.id,
-            "1": c => c.meta.permission.trusted,
-            "2": c => c.meta.permission.vip,
-            "3": c => c.meta.permission.moderator,
+            "1": c => c.meta?.permission.trusted ?? false,
+            "2": c => c.meta?.permission.vip ?? false,
+            "3": c => c.meta?.permission.moderator ?? false,
         })[permission](chatter)); break;
         case "function": ret = trueish(permission(from, chatter, message, text, emote, reply)); break;
     }
@@ -89,29 +102,40 @@ module.exports.emotesToGizmo = async (source, text, emote, offset=0) => {
 }
 module.exports.emotes = async (from, chatter, message, text, emote, reply) => {
     let emotes = data().emote;
-    for (let source in emotes) for (let k in emotes[source]) {
-        let idx = source === "7tv" ? (new RegExp(k + "\\b").exec(text)?.index ?? -1) : text.indexOf(k);
-        let temp = "";
-        while (idx !== -1) {
-            temp += text.slice(0, idx);
-            emote = emote.map(x => {
-                if (x.position <= temp.length) return x;
-                if (x.position <= temp.length + k.length) x.position = temp.length;
-                else x.position -= k.length;
-                return x;
-            })
+    // Detect Emotes
+    let spaces = [];
+    for (let source in emotes) for (let name in emotes[source]) {
+        let re = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        re = new RegExp(source === "7tv" ? `\\b${re}\\b` : re, "g");
+        let matches = Array.from(text.matchAll(re)).map(x => x.index);
+        for (let idx of matches) {
+            let bound = [idx, idx + name.length];
+            if (source === "vanilla") {
+                if (text[bound[1]] === "\uFE0E") { spaces.push([bound[1], bound[1] + 1]); continue; }
+                if (text[bound[1]] === "\uFE0F") bound[1]++;
+            }
+            if (spaces.some(x => Math.between(x[0], x[1] - 1, bound[0], bound[1] - 1))) continue;
+            spaces.push(bound);
             emote.push({
-                position: temp.length,
-                name: k,
-                url: emotes[source][k],
+                position: idx,
+                name: name,
+                url: emotes[source][name],
                 source: source,
-                format: emotes[source][k].endsWith(".gif") ? "gif" : "png"
+                format: emotes[source][name].endsWith(".gif") ? "gif" : "png"
             });
-            text = text.slice(idx + k.length);
-            idx = source === "7tv" ? (new RegExp(k + "\\b").exec(text)?.index ?? -1) : text.indexOf(k);
         }
-        text = temp + text;
     } 
+    emote = emote.sort((a, b) => a.position - b.position);
+    for (let space of spaces.sort((a, b) => a[0] - b[0]).reverse()) {
+        text = text.slice(0, space[0]) + text.slice(space[1]);
+        emote = emote.map(x => {
+            if (x.position <= space[0]) return x;
+            if (x.position <= space[1]) x.position = space[0];
+            else x.position -= space[1] - space[0];
+            return x;
+        })
+    }
+    // Download Emotes
     for (let i = 0; i < emote.length; i++) {
         let p = `emote/${emote[i].source}/${emote[i].name.replace(/\W/g, "_")}.${emote[i].format}`;
         let fullp = emote[i].url.startsWith("src/") ? emote[i].url : (`src/@main/data/` + p);
@@ -147,7 +171,7 @@ module.exports.chat = async (from, chatter, message, text, emote, reply) => {
     let icons = [];
     if (chatter.economy?.icon) {
         let icon = chatter.economy.icon.icon;
-        if (chatter.economy.icon.alt) icon += "_ALT";
+        if (chatter.economy.icon.alt && require("fs").existsSync(path("src/@main/data/icon/" + icon + "_ALT.png"))) icon += "_ALT";
         icons.push(icon);
         if (chatter.economy.icon.modifier) icons.push("modifier/" + chatter.economy.icon.modifier);
     } else icons.push("common/" + random(data().icon.common));
@@ -171,9 +195,9 @@ function handleMeta(source, dest, text, emote) {
             case "discord": ret = `<@${chatter[dest].id}>`; break;
         }
         emote = emote.map(x => {
-            if (x.position <= temp.length) return x;
-            if (x.position <= temp.length + i[0].length) x.position = temp.length;
-            else x.position -= i[0].length;
+            if (x.position <= temp.length) return x + ret.length;
+            if (x.position <= temp.length + i[0].length) x.position = temp.length + ret.length;
+            else x.position += ret.length - i[0].length;
             return x;
         });
         temp += ret;
@@ -181,20 +205,21 @@ function handleMeta(source, dest, text, emote) {
         i = /<@([^:]+):(\d+)>/.exec(text);
     }
     text = temp + text;
-    const textifyAll = e => e.source === "discord" ? `:${e.name}:` : e.name;
+    const textifyAll = e => e.source === "discord" ? `:${e.name}:` : (e.name + (e.source === "vanilla" ? "\uFE0F" : ""));
     const fn = {
         twitch: textifyAll,
         web: textifyAll,
         gizmo: e => `<emote=${e.url}>`
     };
     if (fn[dest]) {
-        for (let e of inPlaceSort(emote, (a, b) => a.position - b.position).reverse())
+        for (let e of emote.sort((a, b) => a.position - b.position).reverse())
             text = text.slice(0, e.position).padEnd(e.position, " ") + fn[dest](e) + text.slice(e.position);
         return [text, []];
     }
     return [text, emote];
 }
 function onChat(from, chatter, message, text, emote, reply) {
+    log(text);
     const iu = numberish(text.length / 100 + emote.length / 10);
     if (realtype(iu) === "number" && chatter.twitch) {
         chatter.economy.iu = Number(chatter.economy.iu) + iu;

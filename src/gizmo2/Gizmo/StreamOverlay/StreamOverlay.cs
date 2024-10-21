@@ -47,6 +47,7 @@ namespace Gizmo.StreamOverlay
                     foreach (var lines in FileP.Slurp("backup.txt").Split('\n'))
                         BackupP.Restore(WASD.Unpack(lines));
                 });
+                i.Set("pinned", true);
                 i.onDestroy += () => BackupP.BackupEnabled = true;
             }
         }
@@ -60,6 +61,8 @@ namespace Gizmo.StreamOverlay
 
         public override void Update(float deltaTime)
         {
+            if (InputP.KeyPressed(0x68)) StreamWebSocket.Send("echo", 127);
+            if (InputP.KeyReleased(0x68)) StreamWebSocket.Send("echo", 0);
             if (InputP.KeyHeld(0x61) && InputP.Codes.Count > InputP.LastCodes.Count) Logger.Log("Keyboard:", InputP.Codes.Except(InputP.LastCodes).Select(x => $"0x{x:X2}").Join(", "));
             if (!ModelSprite.Busy && InputP.KeyPressed(0x64))
             {

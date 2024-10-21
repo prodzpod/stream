@@ -2,6 +2,7 @@
 using Gizmo.Engine.Builtin;
 using Gizmo.Engine.Data;
 using Gizmo.Engine.Graphic;
+using LibVLCSharp.Shared;
 using System.Numerics;
 
 namespace Gizmo.StreamOverlay.Elements.Windows
@@ -45,7 +46,9 @@ namespace Gizmo.StreamOverlay.Elements.Windows
             }
             else if (HitboxP.Check(new PointHitbox(self.GetRelativePosition(position)), new AABBHitbox(children[4].Position, children[4].Get<Vector2>("size")))) self.Destroy();
         }
-
-        public override string Serialize(ref Instance self) => "";
+        public override string Serialize(ref Instance self)
+        {
+            return WASD.Pack("window", (int)self.Position.X, (int)self.Position.Y, (int)(self.Angle * 256), self.Get<string>("title"), self.Get<string>("content").Replace("\n", "<br>"), "YesNo");
+        }
     }
 }

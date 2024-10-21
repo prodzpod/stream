@@ -1,9 +1,9 @@
 ﻿using Gizmo.Engine.Builtin;
 using Gizmo.Engine.Data;
 using Gizmo.Engine;
-using Gizmo.StreamOverlay.Elements;
 using System.Numerics;
 using Gizmo.StreamOverlay.Elements.Windows;
+using Gizmo.StreamOverlay.Elements.Gizmos;
 
 namespace Gizmo.StreamOverlay.Commands
 {
@@ -24,7 +24,8 @@ namespace Gizmo.StreamOverlay.Commands
             for (var i = 0; i < Game.INSTANCES.Length; i++)
             {
                 var instance = Game.INSTANCES[i];
-                if (instance.Element is not Elements.Windows.DrawWindow && !instance.Get<bool>("pinned")) continue;
+                if (instance.Element is not Elements.Windows.DrawWindow 
+                    || !instance.Get<bool>("pinned")) continue;
                 if (HitboxP.Check(instance, new PointHitbox(new Vector2(x.Value, y.Value))))
                 {
                     Logger.Log("Adding Line");

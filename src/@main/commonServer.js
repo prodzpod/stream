@@ -54,7 +54,8 @@ module.exports.download = (url, ...dir) => new Promise(resolve => {
                 const name = baseurl.replace(/%/g, "").replace(/\//g, "+");
                 p += `/${name}.${ext}`;
             }
-            fs.writeFileSync(p, data.read());
+            let ret = data.read();
+            if (ret) fs.writeFileSync(p, ret);
             resolve(p);
         });
         res.on('error', e => resolve(e.stack));

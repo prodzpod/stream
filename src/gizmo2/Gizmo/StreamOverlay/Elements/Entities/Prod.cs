@@ -2,6 +2,7 @@
 using Gizmo.Engine.Builtin;
 using Gizmo.Engine.Data;
 using Gizmo.Engine.Graphic;
+using Gizmo.StreamOverlay.Elements.Gizmos;
 using Gizmo.StreamOverlay.Elements.Windows;
 using ProdModel.Object.Sprite;
 using ProdModel.Puppet;

@@ -2,6 +2,7 @@
 using Gizmo.Engine.Builtin;
 using Gizmo.Engine.Data;
 using Gizmo.StreamOverlay.Elements.Entities;
+using Gizmo.StreamOverlay.Elements.Gizmos;
 using System.Numerics;
 
 namespace Gizmo.StreamOverlay.Commands
@@ -19,7 +20,7 @@ namespace Gizmo.StreamOverlay.Commands
             if (x == null || y == null || icon == null || _color == null || author == null) return null;
             ColorP color = new(_color);
             Instance[] iToCheck = [StreamOverlay.Prod, ..Game.INSTANCES.Where(x => x.Element is Shimeji)];
-            Elements.Pointer.New(new((float)x, (float)y), icon, 
+            Pointer.New(new((float)x, (float)y), icon, 
                iToCheck.Any(i => HitboxP.Check(i, new PointHitbox(new Vector2(x.Value, y.Value)))) ? 3 : 0, author, color);
             Audio.Play("screen/point");
             return null;

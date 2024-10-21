@@ -1,9 +1,9 @@
 ﻿using Gizmo.Engine.Data;
 using Gizmo.Engine.Graphic;
 
-namespace Gizmo.StreamOverlay.Elements
+namespace Gizmo.StreamOverlay.Elements.Gizmos
 {
-    public class Explosion: Element
+    public class Explosion : Element
     {
         public override string Sprite => "other/explosion";
         public override void OnPostInit(ref Instance self)

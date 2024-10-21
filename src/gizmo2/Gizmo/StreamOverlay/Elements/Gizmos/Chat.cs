@@ -3,9 +3,9 @@ using Gizmo.Engine.Builtin;
 using Gizmo.Engine.Data;
 using System.Numerics;
 
-namespace Gizmo.StreamOverlay.Elements
+namespace Gizmo.StreamOverlay.Elements.Gizmos
 {
-    public class Chat: Squareish
+    public class Chat : Squareish
     {
         public override string Sprite => "WHITE";
         public override float Drag(Instance i) => .9f;

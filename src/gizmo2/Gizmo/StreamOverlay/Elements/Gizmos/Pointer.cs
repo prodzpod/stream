@@ -5,9 +5,9 @@ using Gizmo.Engine.Graphic;
 using Gizmo.Engine.Util;
 using System.Numerics;
 
-namespace Gizmo.StreamOverlay.Elements
+namespace Gizmo.StreamOverlay.Elements.Gizmos
 {
-    public class Pointer: Element
+    public class Pointer : Element
     {
         public override float Bounciness(Instance i) => 0;
         public override void OnInit(ref Instance self)
@@ -29,7 +29,7 @@ namespace Gizmo.StreamOverlay.Elements
                     self.Gravity = Vector2.UnitY * 3000;
                     self.Set("expired", true);
                 }
-            } 
+            }
             else
             {
                 self.Rotation -= 360 * deltaTime * Math.Sign(self.Rotation);
