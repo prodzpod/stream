@@ -1,4 +1,4 @@
-const { send, src } = require("../..");
+const { send, src, data } = require("../..");
 const { getIdentifier, safeAssign, split, randomHex } = require("../../common");
 const { log, debug } = require("../../commonServer");
 const { args } = require("./chat");
@@ -27,7 +27,7 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
             chatter.web ??= {};
             chatter.web[category === "screen" ? "id" : category] = randomHex(16);
             register(chatter);
-            await send("web", "login", k, src().screen.screenData(chatter), chatter.web[category === "screen" ? "id" : category], category);
+            await send("web", "login", k, src().screen.screenData(chatter), chatter.web[category === "screen" ? "id" : category], category, data().stream.phase !== -1);
             _reply(`Registered to ${category}!`);
             return [0, ""];
         }

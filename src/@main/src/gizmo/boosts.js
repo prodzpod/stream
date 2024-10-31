@@ -1,5 +1,6 @@
 const { send, data } = require("../..");
 const { numberish } = require("../../common");
+const { log } = require("../../commonServer");
 const { args } = require("../chat/chat");
 
 module.exports.predicate = "!boosts";

@@ -4,36 +4,40 @@ const { log } = require("../../commonServer");
 
 const SIGIL_NORMAL = "🌌🎑";
 const SIGIL_CLONE = "🌙";
+const OVERRIDE = "";
 
 module.exports.execute = async (prompt) => {
     if (!nullish((await send("twitch", "raw", "GET", "streams?user_id=866686220"))?.data?.[0])) return [0, {error: "clonk is not on"}];
     let promptSelected = prompts.find(x => x._name === /@\w+/.exec(prompt)?.[0].slice(1)) ?? prompts[random(unentry(Object.entries(prompts).map(x => [x[0], x[1].weight])))];
     let ret = { ...promptSelected.chatter(data().user["140410053"]) };
-    const system = ret.system(prompt) ?? "default message";
-    log("prompt recieved:", promptSelected._name, system.length + Math.sum((ret.example ?? []).map(x => x.length)) + prompt.length, "characters");
-    if (system !== "") ret.res = await send("gpt", "ask", system, ...(ret.example ?? []), prompt);
-    if (ret.postprocess) ret.res = ret.postprocess(ret.res);
-    if (ret.res instanceof Promise) ret.res = await ret.res;
-    let originalText = ret.res;
     ret.hexes = [];
-    let chance = .2;
-    while (random() < chance) {
-        let hex = random(hexes);
-        ret.hexes.push(hex.name);
-        ret.res = hex.fn(ret.res);
+    if (OVERRIDE.length) { ret.sigil = SIGIL_NORMAL + SIGIL_CLONE; ret.res = OVERRIDE; }
+    else {
+        const system = ret.system(prompt) ?? "default message";
+        log("prompt recieved:", promptSelected._name, system.length + Math.sum((ret.example ?? []).map(x => x.length)) + prompt.length, "characters");
+        if (system !== "") ret.res = await send("gpt", "ask", system, ...(ret.example ?? []), prompt);
+        if (ret.postprocess) ret.res = ret.postprocess(ret.res);
         if (ret.res instanceof Promise) ret.res = await ret.res;
-        if (hex.name === "ELBERETH") { ret.hexes = [hex.name]; ret.res = originalText; break; }
-        if (hex.name === "ESUNA") ret.res = originalText;
-        chance /= 5;
+        let originalText = ret.res;
+        let chance = .2;
+        while (random() < chance) {
+            let hex = random(hexes);
+            ret.hexes.push(hex.name);
+            ret.res = hex.fn(ret.res);
+            if (ret.res instanceof Promise) ret.res = await ret.res;
+            if (hex.name === "ELBERETH") { ret.hexes = [hex.name]; ret.res = originalText; break; }
+            if (hex.name === "ESUNA") ret.res = originalText;
+            chance /= 5;
+        }
+        if (ret.hexes.includes("DIGITAL")) {
+            ret.name = "Hexadigital";
+            ret.color = "#AED673";
+            ret.sigil = ret.sigil.replace(SIGIL_NORMAL, "💻").replace(SIGIL_CLONE, "");
+        }
+        // if (ret.hexes.includes("KOBY")) (ask clonk for mod perms???)
+        ret.sigil = WASD.toString(ret.sigil); ret.res = WASD.toString(ret.res);
     }
-    if (ret.hexes.includes("DIGITAL")) {
-        ret.name = "Hexadigital";
-        ret.color = "#AED673";
-        ret.sigil = ret.sigil.replace(SIGIL_NORMAL, "💻").replace(SIGIL_CLONE, "");
-    }
-    // if (ret.hexes.includes("KOBY")) (ask clonk for mod perms???)
     delete ret.system; delete ret.example; delete ret.postprocess;
-    ret.sigil = WASD.toString(ret.sigil); ret.res = WASD.toString(ret.res);
     return [0, ret];
 }
 const prompts = [
@@ -586,6 +590,9 @@ const hexes = [
         fn: text => text
     }, {
         name: "ESUNA",
+        fn: text => text
+    }, {
+        name: "MANIAC",
         fn: text => text
     }
 ];

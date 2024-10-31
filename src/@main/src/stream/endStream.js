@@ -11,9 +11,5 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
     src().obs.brb(); src().obs.end();
     for (const module of streamModules) end(module, true);
     src().startWeekly.end();
-    log("Removing Previous Backup");
-    if (fileExists("src/gizmo2/Gizmo/StreamOverlay/backup.txt")) unlinkSync(path("src/gizmo2/Gizmo/StreamOverlay/backup.txt"));
-    log("Removing Song Files");
-    for (let s of (await listFiles("src/@main/data/song")).filter(x => x.startsWith("_"))) unlinkSync(path("src/@main/data/song", s));
     return [0, ""];
 }

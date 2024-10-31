@@ -8,7 +8,7 @@ block body
     p TIP: Click the <u>underlined text</u> to <em>/ponder/</em>...
     h1 The Lore 
     p Welcome to <em>the pod</em>, see the <a href="https://prod.kr/v">v page</a> for the setting and introduction of myself but we do go live every <em class='time'>Thursday 20:00 GMT</em> and <em class='time'>Monday 20:00 GMT</em>.
-    p we give way too much control to the viewers, talk in an unapologetically insane manner and <u>barely program</u>.
+    p we give way too much control to the viewers, talk in an unapologetically insane manner and <u><s>barely</s> somewhat program</u>.
     h2 The Gizmo
     p one of the main feature of the broadcast is the high-effort homemade gizmo (the Monstrous Project) we have going on. the source of this project is available under <a href="https://github.com/prodzpod/stream">github</a>.
     h3 The Chat
@@ -29,9 +29,9 @@ block body
         li: p <em>&lt;font=arcaoblique&gt;</em>: sets the font. see <em>!font</em> for the list of fonts.
         li: p <em>&lt;wave amp=4 period=16 freq=1&gt;</em>: makes the text wave up and down.
         li: p <em>&lt;shake amp=1&gt;</em>: makes the text shaky.
-        li: p <em>&lt;sprite=blank x=0 y=0&gt;</em>: insert a sprite as if it is text, taking up the specified amount of space.
+        li: p <em>&lt;sprite=blank x=0 y=0&gt;</em>: insert a sprite as if it is text, taking up the specified amount of space. (this is meant to be used in games as we're making it a game engine, may not work great in chat)
     h3: a(href="https://prod.kr/discord") The Discord 
-    p Our discord has a single channel (kind of) and is fully connected with Twitch Chat. by logging in within discord, you can also execute twitch commands within the discord server.
+    p Our discord has a single channel (kind of) and is fully connected with Twitch Chat. by logging in within discord, you can also execute twitch commands within the discord server. type <em>!login</em> in discord to link your discord account with twitch.
     p Additionally, thanks to <a href="https://colonq.computer">our progenitor</a>, the same channel is also <u>available under IRC</u> through <em>colonq.computer:26697</em> (over TLS) at <em>#prodarea</em> channel.
     p you can also use the stream commands FROM colonq.computer irc via <em>!loginirc</em>.
     h3: a(href="https://prod.kr/v/screen") The Screen
@@ -40,24 +40,35 @@ block body
     p <em>click</em>: click on the screen. this can be used to straighten or close windows, turn prod into 2d, or drop chat window into z-fighting hell.
     p <em>fling</em>: drag windows and prod around, throw chat messages and windows as well.
     p <em>spawn window</em>: spawns a window with title and content. you can also spawn a special window by typing <em>Joel</em> or using the <em>!song</em> command.
+    p <em>spawn draw window</em> / <em>draw</em>: opens a window that allows you to draw.
+    p <em>pin</em>: makes an element immune from gravity and killing, broken upon fling.
     p <em>kill</em>: removes all windows in this position.
-    // p <em>pin</em>: fixes window from moving or falling. can be reversed by flinging.
+    p <em>remove triangle</em>: removes a random triangle from prod (3d).
+    p <em>song</em>: spawns a media window that plays song based on a superset of <a href="https://pub.colonq.computer/~bezelea/bells/">Bells of Bezelea</a> that supports <u>multiple instruments and some extra compression</u>.
+    p <em>furrow the mare of eidola</em>: "chase idol dream", creates a window of your profile picture on stream.
+    p <em>gravity</em>: throws all open windows and objects into one direction.
     h3 Twitch Commands
     p All the screen commands can also be used in twitch chat directly without logging in (TBD). we also have some extra commands.
-    p <em>!removetriangle [number]</em>: removes a random triangle from prod (3d).
-    p <em>!song</em>: spawns a media window that plays song based on a superset of <a href="https://pub.colonq.computer/~bezelea/bells/">Bells of Bezelea</a> that supports <u>multiple instruments and some extra compression</u>.
-    p <em>!furrowthemareofeidola</em>: "chase idol dream", creates a window of your profile picture on stream.
-    p <em>!gravity [up/down/left/right]</em>: throws all open windows and objects into one direction.
+    p <em>!boosts [person] / !clonkspotleaderboard [page]</em>: shows clonkspotting info, see <a href="">the pubnix page</a> for details/downloads.
+    p <em>!vote &lt;option&gt; / !bet &lt;option&gt; &lt;amount&gt;</em>: participate in vote/prediction.
+    p <em>!volume &lt;0 to 1&gt;</em>: sets the volume of gizmo.
+    p <em>!palette [from] [to] / !accessory [name]</em>: toggles palette swap and accessories.
+    p <em>!randomize</em>: randomizes the palette and accessories.
+    p <em>!unlockicon</em>: unlocks a random icon with <em>4000 iu</em>. can also be accessed in screen via the left menu.
+    p <em>!tranquility</em>: omm...
     h3 Shimeji Commands
     p this is your primary representation of yourself on screen, it inherits your chat behaviour as its AI, you can customize its stats and appearance, and it battles with other shimejis. currently not much can be done with it as we haven't properly started season 1.
-    p <em>!spawnshimeji [x] [y]</em>: spawns your shimeji on screen.
-    p <em>!moveshimeji [x] [y]</em>: sets the target destination your shimeji will attempt to move towards.
+    p <em>spawn shimeji</em>: spawns your "little guy". can be customized by sending your spritesheet in #help (!discord).
+    p <em>move shimeji</em>: sets the target destination your shimeji will attempt to move towards.
+    p <em>spawn fan/antifan</em>: spawns a physics object that affects shimejis.
     h3 Information Commands
     p various information.
     p <em>!inst</em>: lists the instruments you can use for <em>!song</em> (see that for details).
     p <em>!font</em>: lists the fonts you can use in chat. see the above section for details.
     p <em>!v</em>, <em>!screen</em>, <em>!lore</em>: links you to various sections of this website.
     p <em>!vod</em>, <em>!discord</em>: links you to helpful external websites.
+    p <em>!ping [module]</em>: check the connectivity of each module.
+    p <em>!commands</em>: shows the list of commands.
     h2 The actual glossary part of the website 
     p due to prod's insane speeches, we get some words that might be wholly unintelligible for many. this is a compilation.
     p a lot of prod's speeches are from the <a href="https://pub.colonq.computer/~prod/toy/glossary#learn-the-language">progenitor zone</a>, please refer to the appropriate section in the glossary there (also written by me).
@@ -249,8 +260,25 @@ block body
     p: u End of coreZONE
     c Hypertext Bestiary 12
     h4 (male, (male, nil))
+    yt K7tCw6jbOgg
     yt xSZiGkVqKYE
     p: u B1 GOAL STREAM - VIDEOMODE
+    c Between the Wires 12
+    h4 you can make curry or currying while programming
+    yt d6zg_txf-7o
+    p: u Revival of the woolly mammoth
+    c Hypertext Bestiary 13
+    h4 non... sincerely... GET OUT!!!!!!!!!!!!!!!!!!
+    yt PyWwzhehES0
+    p: u Witscord ATTACK??? (we attack them)
+    c prod zed pod SPECIAL session
+    h4 you were a gamer before vstyle
+    yt _5tCXO7K2WQ
+    p: u TETR.IO Super Streamer Lobby 5
+    c Between the Wires 13
+    h4 THIS IS OPERA GX????
+    yt Ir6Z5pUXHzI
+    p: u The Story of Undertale(ModTool)
     div#toc-wrapper
         h2(style="padding: 16px; cursor: pointer;" class="noscroll" onclick="toggleTOC()") Warp Zone
         div#toc-outer: div#toc
@@ -263,7 +291,9 @@ block body
             p You have Stopped Seeing, and Started Looking. You feel zooted...
         .card
             h3 Stream Dev
-            p at the time (Season 0), we mostly focus on stream overlay dev (sort of). in the future, we may expand into other types of making stuff like art, video editing, or even game dev.
+            p currently on <em>Season 1</em>, on thursdays, we mostly work on <em>The Gizmo</em>, our overlay/stream thing. see below for the extent of what it does.
+            h3 Game Dev
+            p we are currently on an arc to complete <a href="https://prodzpod.itch.io/startellers">Startellers</a>, my videogame project that needs to be completed til like this year at the very least. we do that on mondays often.
         .card 
             h3 How to Join IRC
             p see <a href="https://pub.colonq.computer/~fabius/pages/irc.html">the pubnix guide</a> by noted clonkhead fabius for how to join IRC.
@@ -615,7 +645,7 @@ block body
             p the rorsesh continues and we get an msm attack at the first minute, the pricing system did its wonders and stopped it before real start
             p we debug clonkspotting and also literally play freecell on stream
             p we fix downpour hypercrit and goose and look into the wwise void
-            p raid
+            p i think we raided uwo and then got double raided?? lmk if this true
         .card
             p prod is GHOULISH ?? the dead speaks today
             p we talk about the continuation of the fan incident and how i have literally died physically from taking on too many things (they will continue to do this)
@@ -637,13 +667,13 @@ block body
             p they decide to do various small fixes style today and fixes vs16 error and mention emote issue
             p and then witcord user machka6 finds a critical flaw where autoclicker in 1ms range would actively give you weekly money instant, leading to accumulation of 10 million immaculate units
             p entire icon shop is bought and then the inv got reset, finally unlocking the first quest icon of defrag (unlock condition being "break the gizmo")
-            p raid
+            p i think we raided digbycat but they were gone gone so we went to <a href="https://www.twitch.tv/digi_shell">digi zone</a> ??
         .card
             p prod is tiara style today
             p prod talks about the situation with the sleep schedule and how fixing it lead to Bad Things actually
             p they also talk about the Why issue incident and how they peaked as a developer
             p we find another vulnerability in that emotes are drawn one by one which leads to joelspam on something like a windowzone being insanely bad for gizmo (including a ws crash)
-            p raid
+            p raid <a href="https://www.twitch.tv/practicalnpc">yeah</a>
         .card
             p prod MISSES thursday stream due to literal internet outage (lol)
             p instead prod does a makeup stream on friday 1 HOUR before the comptuerzone
@@ -690,6 +720,35 @@ block body
             p we watch that and then the real actual project which being the "bitcoin video" which is probably up on clonk's channel soon
             p we also talk about like the game dev zone and how yapping is meta on twitch i think
             p mo momo momo <a href="https://www.twitch.tv/momomovt">momomo</a> momo
+        .card
+            p prod is a star teller guy today NEW MODEL alert
+            p today we "revival of the woolly mammoth" and debug star teller
+            p more specifically we fix the physics issue with steep slopes (kind of) and add jelly tile, also showcase the game
+            p we also do camera stuff and make the player2 wander range
+            p overall like, really productive day not much banter (this will be contrasted with next week's monday)
+            p r <a href="https://www.twitch.tv/NovaLiminal">a</a> id
+        .card
+            p prod is GOOGLE SHEET docket today, slightly bone deficient
+            p we talk about the Energy Reading (that has gone awry since the ascension and videomode), the end of Sleep Schedule Era, and talk about Copying Others for Practice and Idol Dream (stream ini manami For Real for real)
+            p we get side tracked into various audio talks before we address the crux of the issue: the Weight of the "Becoming Real" - hoping november will free me somewhat
+            p we also address the new development in Table Tech - the Illegal Mod (hot glue) (it is still present)
+            p on the actual programming side of things - we implement Custom Palette and Accessory - giving john chatters ability to customize them as they wish. this also gave prod an excuse to not make a new look today (lol)
+            p raid ? <a href="https://www.twitch.tv/AlmantasVT">stream outer wilds</a>
+        .card
+            p prod SATURDAY ?? today we DOUBLE DISTRACTION
+            p this was supposed to be like an after dark thing but the contract was we stream so we were on live
+            p prod signs up for a tetris event 2 hours before it starts bc they thought it was monday (L), and decides to "screen up" on the occasion
+            p the screen havers easily defeated prod with windows style, and various lagspikes handled the rest
+            p prod did get like 70th on realgame and 21st on the first postgame with minimal screen distraction in the end
+            p we were going to raid the organizer but we couldnt raid due to affiliate zone, <a href="https://www.twitch.tv/BixiaVT">so we raided our friend</a> on the other other
+        .card
+            p new command: !randomize, prod comes out randomized today available for everyone. for the most part prod stays a purple eye guy
+            p continuation of "star teller" arc where we make the first level, except we talk a whole lot about the story of Game Maker
+            p we go over the evolution of Game, the badness of GML, the Subscription Saga and the Opera GX Games Moment. we also talk briefly about Open GMK and World Faller (the final frontier).
+            p then we suddenly get into Lost Media Recovery as we found out that the First Document png was lost and the only remnant was an extremely low res google doc thumbnail, and we start AI upscaling it except the AI is us
+            p we eventually find the original image on a dm on an old alt of discord and it is on the help channel now
+            p we also do the 1-1 btw but yeah our stream really isnt good for productive game dev lmao
+            p raid <a href="https://www.twitch.tv/KotaruComplex">no way we havent raided you yet</a>
 block postbody 
     style.
         li { margin-left: 32px; display: block; }

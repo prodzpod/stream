@@ -12,12 +12,12 @@ module.exports._init = async (ws, query, body) => {
         return user;
     }
 }
-module.exports._login = async (k, chatter, hash) => {
+module.exports._login = async (k, chatter, hash, streaming) => {
     const ws = loginWS[k];
     userWS[chatter.id] = ws;
     delete loginWS[k];
     log("[screen] WS logged in:", chatter.name);
-    ws.send(WASD.pack("login", chatter, hash));
+    ws.send(WASD.pack("login", chatter, hash, streaming));
 }
 module.exports._info = (chatter, msg, iserror=false) => {
     if (!userWS[chatter]) return 1; userWS[chatter].send(WASD.pack(iserror ? "error" : "info", msg)); return 0;

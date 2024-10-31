@@ -26,7 +26,7 @@ namespace Gizmo.StreamOverlay
         public static Dictionary<string, Instance> Shimeji = [];
         public override void Init()
         {
-            if (ModelHandler.useSecondaryModel) ModelHandler.ModelWVRM = new("../../../model/test_data.json");
+            if (ModelHandler.useSecondaryModel) ModelHandler.ModelWVRM = new("../../../model/p1_data.json");
             else ModelHandler.ModelWVRM = new("../../../model/model_data.json");
             StreamWebSocket.Init();
             if (MetaP.Platform == OSPlatform.Windows)
@@ -90,7 +90,7 @@ namespace Gizmo.StreamOverlay
             if (InputP.KeyPressed(0x63))
             {
                 if (ModelHandler.useSecondaryModel) ModelHandler.ModelWVRM = new("../../../model/model_data.json");
-                else ModelHandler.ModelWVRM = new("../../../model/test_data.json");
+                else ModelHandler.ModelWVRM = new("../../../model/p1_data.json");
                 ModelHandler.useSecondaryModel = !ModelHandler.useSecondaryModel;
             }
             if (!Mouse.Left && ClickedInstance != null)

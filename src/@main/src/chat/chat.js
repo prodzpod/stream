@@ -56,7 +56,7 @@ module.exports.command = async (from, chatter, message, text, emote, reply) => {
         const res = unentry(await Promise.all(processes.map(async x => {
             debug("[message]", "processing command", x);
             const _reply = getReply(from, chatter, message, text, emote, reply);
-            if (!module.exports.checkPerms(src()[x].permission, from, chatter, message, text, emote, reply)){
+            if (!module.exports.checkPerms(src()[x]?.permission, from, chatter, message, text, emote, reply)){
                 _reply("Insufficient Permission");
                 return [x, [1, "insufficient permission"]];
             }
@@ -69,7 +69,7 @@ module.exports.command = async (from, chatter, message, text, emote, reply) => {
 } 
 
 module.exports.checkPerms = (source, from, chatter, message, text, emote, reply) => {
-    if (chatter.meta.permission.streamer) return true;
+    if (chatter.meta?.permission.streamer) return true;
     const permission = array(trueish(source));
     let ret = false;
     switch (realtype(permission)) {

@@ -122,9 +122,11 @@ block postbody
                 if (o.streaming) e("offline").style.display = "none"
                 user = o;
             },
-            login: (o, hash) => {
+            login: (o, hash, streaming) => {
                 user = o;
+                user.streaming = streaming;
                 localStorage.setItem("screen", hash);
+                if (o.streaming) e("offline").style.display = "none"
                 setState("idle");
             },
             error: o => error(o),
@@ -425,6 +427,7 @@ block postbody
             e("audioClick").play();
         }
         function error(msg) {
+            console.error(msg);
             const el = insertElement("div", "error", "overlay", msg).with("style", "min-height: 0; background-color: rgba(255, 0, 0, 0.25); color: var(--text);");
             setTimeout(() => { el.style.animation = "fade 4s forwards"; }, 4000);
             setTimeout(() => { removeElement(el); }, 8000);
@@ -432,6 +435,7 @@ block postbody
             e("audioError").play();
         }
         function info(msg) {
+            console.log(msg);
             const el = insertElement("div", "error", "overlay", msg).with("style", "min-height: 0; background-color: rgba(0, 0, 255, 0.25); color: var(--text);");
             setTimeout(() => { el.style.animation = "fade 2s forwards"; }, 2000);
             setTimeout(() => { removeElement(el); }, 4000);

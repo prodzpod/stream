@@ -32,13 +32,13 @@ namespace ProdModel.Puppet
 
         public static string GetExpression(WorseVRM wvrm, int index, string pose, float time)
         {
-            if (useSecondaryModel) return "0"; // disable for ck
             // quirky stuff here
             switch (index)
             {
                 case 0: // eyes
                 case 1:
                     if (EyeSinceLastOne[index] < 10) return "0";
+                    if (useSecondaryModel) return TrackingData.Blink[index] > 0.6f ? "1" : "x";
                     if (TrackingData.Blink[index] > 0.9f) return "1";
                     if (TrackingData.Blink[index] > 0.7f) return "3";
                     if (TrackingData.Blink[index] > 0.6f) return "4";
@@ -48,7 +48,6 @@ namespace ProdModel.Puppet
             }
             return "0";
         }
-
         public static void SetPose(ref WorseVRM wvrm, string id, ref Vector3 translate, ref Vector3 rotate, ref Vector3 scale)
         {
             // quirky stuff here

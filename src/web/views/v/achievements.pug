@@ -1,0 +1,64 @@
+extends ../template/base.pugtemplate
+
+block meta
+    - v = true
+    - title = 'hall of fame'
+    - description = 'the achievements'
+block body 
+    h1 Hall of Fame
+    p <em>Uncommon</em> icons can only be gotten by completing certain achievements within the streams. here are the list of them and the list of achievers so far.
+    h2 defrag
+    p: em Break the Gizmo. (frontend crashes dont count)
+    ul
+        li: p asquared31415 - Could've priviledge escalated in season 0
+        li: p machka6 - Achieved infinite iu (illegitimately)
+    h2 dollar
+    p: em Achieve 1 Million units. (legitimately)
+    ul
+        li: c none yet!
+    h2 handshake
+    p: em Create a companion gizmo.
+    ul
+        li: p CR4ZYK1TTY - <a href="https://pub.colonq.computer/~crazykitty/">song repository</a>
+    h2 icon_up
+    p: em Become Elephanted on a non-witcord server.
+    ul
+        li: c none yet!
+    h2 vt
+    p: em Appear on the broadcast (we're open!)
+    ul
+        li: p LCOLONQ - <a href="https://www.youtube.com/watch?v=xSZiGkVqKYE">(male, (male, nil))</a>
+    h2 entity_1
+    p: em Create your own Guy (by yourself)
+    ul
+        li: p ctrl_o (ASCII Fish)
+        li: p Venorrak (TV Guy)
+        li: p nichepenguin (NP)
+        li: p mickynoon (CH47)
+    h2 entity_2
+    p: em Discover a secret feature
+    ul
+        li: c none yet!
+    h2 sword
+    p: em Defeat an opponent (thank you nichepenguin)
+    ul
+        li: c none yet!
+    h2 graduation
+    p: em ?????????????????????????
+    ul
+        li: c none yet!
+    br
+    p: c more to come ...
+block postbody 
+    style.
+        li { margin-left: 32px; display: block; }
+        h2 img {
+            width: 64px;
+            image-rendering: crisp-edges;
+        }
+    script.
+        addEvent('onload', () => {
+            for (let el of q('h2')) {
+                el.innerHTML = `<img src="/data/icon/uncommon/${el.innerText}.png"> ${el.innerHTML}`;
+            }
+        });

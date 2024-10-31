@@ -33,6 +33,7 @@ namespace Gizmo.StreamOverlay.Commands
             NineSlice? ns = Resource.NineSlices["window/window"];
             var children = i.Get<Instance[]>("children");
             children[1].Position = new(-size.X / 2 + ns.innerLeft + OFFSET, -size.Y / 2 + ns.innerTop + OFFSET * 1.5f);
+            i.Alpha = 0.1f;
             return i;
         }
     }

@@ -18,7 +18,11 @@ namespace ProdModel.Object.Sprite
         public static int TriangleRemoved = 0;
         public static bool Busy = false;
         public static bool Ready = false;
-        public static string[] accessories = ["skirt_default"];
+        public static List<string> PreviousAccessories = [];
+        public static List<string> FixedAccessories = ["skirt_default", "ear_middle"];
+        public static List<string> Accessories = [];
+        public static List<ColorP> PreviousColor = [];
+        public static Dictionary<ColorP, ColorP> ColorReplace = [];
         public static void DrawTriangles(List<Triangle> triangles)
         {
             /*
@@ -44,7 +48,7 @@ namespace ProdModel.Object.Sprite
                 for (int x = xa; x < xb; x++) for (int y = ya; y < yb; y++)
                 {
                     var _z = triangle.ZAt(new Vector2(x, y));
-                    if (_z > z[x][y]) { z[x][y] = _z; var hsv = ((triangle.color) + new ColorP(0, 0, 0, 0)).HSV; pixels[x][y] = ColorP.FromHSV(hsv.X, hsv.Y, hsv.Z, triangle.color.A); };
+                    if (_z > z[x][y]) { z[x][y] = _z; var hsv = ((triangle.color) + new ColorP(0, 0, 0, 0)).HSV; pixels[x][y] = ColorP.FromHSV(hsv.X, hsv.Y, hsv.Z, triangle.color.A / 255f); };
                 }
             }
             // outline 
@@ -55,13 +59,15 @@ namespace ProdModel.Object.Sprite
                     x < Width - 1 && z[x + 1][y] - z[x][y] > OUTLINE_DEPTH ||
                     y > 0 && z[x][y - 1] - z[x][y] > OUTLINE_DEPTH ||
                     y < Height - 1 && z[x][y + 1] - z[x][y] > OUTLINE_DEPTH)
-                    pixels[x][y] = ColorP.BLACK * 0.5f;
+                    pixels[x][y] = ColorP.BLACK;
             }
+            PreviousColor.Clear();
             for (int x = 0; x < Width; x++) for (int y = 0; y < Height; y++)
             {
-                // var hsv = pixels[x][y].HSV;
-                // var color = ColorP.FromHSV(MathP.PosMod((x + y) * 2f / (Width + Height) * 360f - (15f * Game.Time), 360f), hsv.Y / 2, hsv.Z, pixels[x][y].A / 255f);
-                image.DrawPixel(x, y, pixels[x][y] * MathP.Min(1, 6f - 6f * y / Height));
+                var color = pixels[x][y];
+                if (!PreviousColor.Contains(color)) PreviousColor.Add(color);
+                if (ColorReplace.ContainsKey(color)) color = ColorReplace[color];
+                image.DrawPixel(x, y, color * MathP.Min(1, 6f - 6f * y / Height));
             }
         }
         public static Triangle[] GetTriangles(WorseVRM.Model model) => model.f.Select(x => new Triangle()
@@ -110,7 +116,8 @@ namespace ProdModel.Object.Sprite
             image.ClearBackground(ColorP.TRANSPARENT);
             WorseVRM wvrm = new(ModelHandler.ModelWVRM);
             string pose = wvrm.poses.ContainsKey(ModelHandler.Pose) ? ModelHandler.Pose : "DEFAULT";
-            foreach (var k in wvrm.accessories.Except(accessories).Except(wvrm.poses[pose].accessories))
+            PreviousAccessories = [..wvrm.accessories];
+            foreach (var k in wvrm.accessories.Except(Accessories).Except(FixedAccessories).Except(wvrm.poses[pose].accessories))
                 foreach (var c in GetAllChildrenAndItself(wvrm, k))
                     wvrm.model.Remove(c);
             List<string> expressions = wvrm.poses[pose].expression.Select((x, i) => x ?? ModelHandler.GetExpression(wvrm, i, pose, ModelHandler.Time)).ToList();

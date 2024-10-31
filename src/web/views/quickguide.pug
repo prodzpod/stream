@@ -1,0 +1,34 @@
+extends ./template/base.pugtemplate
+block meta
+    - v = true
+    - title = 'STREAMERLOBBY QUICK GUIDE'
+    - description = 'how to interact with "The Gizmo" (trademark pending)'
+block body 
+    h1 STREAMERLOBBY QUICK GUIDE 
+    p how to interact with "The Gizmo" (trademark pending)
+    img(src="/data/emote/prod/_p_hi_.png")
+    p welcome! this is <em>prod</em> (they/them, adult, en/kr). we normally do programming streams but this game appears fairly often.
+    p our overlay is a bit special and it's called <em>the gizmo</em>. its a bespoke <a href="https://github.com/prodzpod/stream">raylib/node gadget</a> that is set up in a way that all <em>you're seeing on the stream is what i'm seeing</em>. this is the "rub" of the stream - the <em>"Double Distraction"</em>. today, you are the "double" and the game is the "distraction".
+    p feel free to block my screen, draw over it, play songs, throw little guy (trademark pending)s around and generally have a good time !
+    h2 HOW TO ENTER <a href="https://prod.kr/screen">"THE SCREEN"</a>
+    p <a href="https://prod.kr/screen">"the screen"</a> is a twitch interface that is custom built to be easy to redeem stuff on my channel. you can redeem anything by <em>!commands</em>, but this should be more approachable (and spammable).
+    ul
+        li: p 1. enter <a href="https://prod.kr/screen">"the screen"</a>.
+        li: img(src="/images/a1.PNG")
+        li: p 2. copy the passcode given to you on first entry.
+        li: img(src="/images/a2.PNG")
+        li: p 3. paste it on stream chat (on twitch), this will link your account with the screen. (if buttons doesnt work, try refreshing your page)
+        li: img(src="/images/a3.PNG")
+        li: p 4. click the bottom right "action" tab, and explore the options. (highlighted are some of the more impactful "redeem"s.)
+        li: img(src="/images/a4.png")
+    h2 why are you ss
+    p i did some warm up game and exploded (-500 tr LOL)
+    h2 other links
+    p: a(href="https://prod.kr/discord") discord server (cool)
+    p: a(href="https://prod.kr/yt") youtube channel
+    p: a(href="https://prod.kr/vod") vod channel
+block postbody  
+    style.
+        li { margin-left: 32px; display: block; }
+        c + h2, c + h3, c + h4 { margin-top: 0; }
+        c { margin-top: 3.33em; display: block; }

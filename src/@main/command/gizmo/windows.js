@@ -44,6 +44,21 @@ let RULE = {
         name: "%NAME%:Chrome_WidgetWin_1:r2modman.exe",
         window: null,
     },
+    gms: {
+        rule: name => name.includes(" - GameMaker"),
+        name: "%NAME%:SDL_app:GameMaker.exe",
+        window: null,
+    },
+    stelldev: {
+        rule: name => name === "Startellers DEV",
+        name: "%NAME%:YYGameMakerYY:Startellers.exe",
+        window: null,
+    },
+    stelldemo: {
+        rule: name => name === "Startellers DEMO",
+        name: "%NAME%:YYGameMakerYY:Startellers.exe",
+        window: null,
+    },
     // art
     aseprite: {
         rule: name => name.includes("Aseprite"),
@@ -168,11 +183,11 @@ module.exports.execute = async (...args) => {
     let indices = Object.entries(RULE).filter(x => x[1].window).sort((a, b) => a[1].window.i - b[1].window.i).map(x => [x[0], x[1].window.i, update?.find(y => x[1].window.id === y.id)?.i ?? x[1].window.i]);
     let prev = indices.sort((a, b) => a[1] - b[1]).map(x => x[0]); 
     let cur = indices.sort((a, b) => a[2] - b[2]).map(x => x[0]); 
-    // log(prev, cur);
+    // log("window:", prev, cur);
     for (let i = 0; i < cur.length; i++) {
         if (prev[i] === cur[i]) continue;
-        debug("Order Changed:", prev[i], cur[i]);
-        send("obs", "send", "SetSceneItemIndex", "stream::sources", cur[i], {"sceneItemIndex": Object.keys(RULE).length - 1 - i});
+        debug("Order Changed:", i, prev[i], cur[i]);
+        send("obs", "send", "SetSceneItemIndex", "stream::sources", cur[i], {"sceneItemIndex": Object.keys(RULE).length - i});
         prev = [cur[i], ...prev.filter(x => x !== cur[i])];
     }
     for (let w of indices) RULE[w[0]].window.i = w[2];
