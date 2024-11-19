@@ -133,6 +133,13 @@ block postbody
             info: o => info(o),
             respond: (id, o) => {
                 switch (state) {
+                    case "user":
+                        let row;
+                        for (let i = 0; i < o.shimeji.length; i++) {
+                            let stat = o.shimeji[i];
+                            insertElement("p", "shimeji-stats-" + (i % 2 === 0 ? "left" : "right"), null, stat);
+                        }
+                        break;
                     case "today":
                         e("return").innerHTML = `Today we're making [${o}]!`;
                         break;
@@ -150,6 +157,19 @@ block postbody
                         break;
                     case "stats":
                         e("return").innerHTML = Object.entries(o).map(x => `${x[0]}: ${x[1]}`).join("\n");
+                        break;
+                    case "changepalette":
+                        if (realtype(o) !== "array") break;
+                        for (let color of o)
+                            insertElement("option", "color-from", null, color);
+                        break;
+                    case "changeaccessory":
+                        if (realtype(o) !== "array") break;
+                        for (let acc of o)
+                            insertElement("option", "accessory", null, acc);
+                        break;
+                    default:
+                        console.log(id, o);
                         break;
                 }
             },
@@ -193,10 +213,15 @@ block postbody
                 insertElement("h3", pointer, "center", user.pointers[0] ?? "Pointer");
                     insertElement("img", pointer, "center").with("src", `https://prod.kr/data/pointer/${user.pointer.point ?? "cursor"}_point.png`).with("style", "width: 64px; transform: translate(-25%, -25%); margin: -16px auto;");
                 const rm = insertElement("div", "screen", "top bottom right vlist hard").with("style", "min-width: 50%;");
-                const statChatter = insertElement("div", insertElement("div", rm).with("style", "margin: 16px;"), "overlay vlist").with("style", "width: 100%; height: 100%;");
+                const statChatter = insertElement("div", insertElement("div", rm).with("style", "margin: 16px;"), "overlay vlist").with("style", "width: 100%; height: 100%;")
                 insertElement("h3", statChatter, "center", "Chatter Stats");
-                const statShimeji = insertElement("div", insertElement("div", rm).with("style", "margin: 16px;"), "overlay vlist").with("style", "width: 100%; height: 100%;");
+                insertElement("div", statChatter, "vlist hard spacer").with("style", "overflow-y: scroll; height: 0;").with("id", "chatter-stats");
+                const statShimeji = insertElement("div", insertElement("div", rm).with("style", "margin: 16px;"), "overlay vlist").with("style", "width: 100%; height: 100%;")
                 insertElement("h3", statShimeji, "center", "Shimeji Stats");
+                const statShimejiInner = insertElement("div", statShimeji, "hlist hard spacer").with("style", "overflow-y: scroll; height: 0;").with("id", "shimeji-stats");
+                insertElement("div", statShimejiInner, "vlist hard").with("id", "shimeji-stats-left");
+                insertElement("div", statShimejiInner, "vlist hard").with("id", "shimeji-stats-right");
+                send("fetch", "user");
             },
             icon: () => {
                 addSimpleButton("bottom left", "user", "back");
@@ -239,7 +264,7 @@ block postbody
                     "mouse": ["Point", "Click", "Fling", "Draw", "Pin", "Kill"],
                     "window": ["Spawn Window (10)", "Spawn Fan", "Spawn Anti Fan", "Song (100)", "Spawn Draw Window (100)", "Furrow the Mare of Eidola (10)"],
                     "shimeji": ["Spawn Shimeji", "Move"],
-                    "misc": ["Remove Triangle", "Gravity"],
+                    "misc": ["Remove Triangle", "Gravity", "Randomize", "Change Palette", "Change Accessory"],
                     "help": ["Help", "Today", "Uptime", "Stats"],
                 }
                 const row = insertElement("div", "screen", "left bottom hlist hard").with("style", "right: 128px;");
@@ -330,6 +355,27 @@ block postbody
             levelupprod: () => { send("credits"); setState("action"); },
             removetriangle: () => { send("removetriangle", 1); setState("action"); },
             gravity: () => { addGenericPointerScreen("Click on the direction you want to throw.", "gravity"); },
+            randomize: () => { send("randomize"); setState("action"); },
+            changepalette: () => {
+                addSimpleButton("bottom right", "action", "back");
+                const input = insertElement("div", "screen", "overlay bottom left right hlist").with("style", "margin: 0 160px; border-radius: 64px").with("onclick", "event?.stopPropagation();");
+                insertElement("p", input, "middle", "From");
+                insertElement("select", input, "spacer").with("id", "color-from").with("style", "border-radius: 64px; padding: 16px; height: 64px; margin: 16px;");
+                insertElement("p", input, "middle", "To");
+                insertElement("input", input, "spacer").with("id", "color-to").with("type", "color").with("style", "border-radius: 64px; padding: 16px; height: 64px; margin: 16px;");
+                let btn = insertElement("button", input, null, "Go").with("id", "go");
+                addEvent("onclick", () => { send("palette", e("color-from").value, e("color-to").value); }, btn);
+                send("fetch", "palette");
+            },
+            changeaccessory: () => {
+                addSimpleButton("bottom right", "action", "back");
+                const input = insertElement("div", "screen", "overlay bottom left right hlist").with("style", "margin: 0 160px; border-radius: 64px").with("onclick", "event?.stopPropagation();");
+                insertElement("p", input, "middle", "Toggle");
+                insertElement("select", input, "spacer").with("id", "accessory").with("style", "border-radius: 64px; padding: 16px; height: 64px; margin: 16px;");
+                let btn = insertElement("button", input, null, "Go").with("id", "go");
+                addEvent("onclick", () => { send("accessory", e("accessory").value); }, btn);
+                send("fetch", "accessory");
+            },
             help: () => {
                 addSimpleButton("bottom right", "action", "back");
                 const tl = insertElement("div", "screen", "overlay top left");

@@ -21,6 +21,9 @@ async function check() {
     for (let id of users) {
         chatter = await initialize(id);
         if (chatter?.twitch.id) data(`user.${chatter.twitch.id}.economy.iu`, Number(chatter.economy.iu) + MINUTELY_IU);
+        if (chatter?.shimeji?.ai) {
+            chatter.shimeji.ai.dexterity.max += 1;
+        }
     }
     log("User Check Finished, Users: ", users.join(", "));
     data("stream.users", users);

@@ -1,0 +1,74 @@
+extends ../template/base.pugtemplate
+
+block meta
+    - v = true
+    - title = 'docket for today'
+    - description = 'hii :3'
+block body 
+    h1 Docket
+    img(src="https://cdn.discordapp.com/attachments/142865419991121920/1306418572901220392/image.png?ex=6737415b&is=6735efdb&hm=17cb0d30490c09b28b365d33a809a2c5c8f766993191f550fa0f23ebdf6607a3&")
+    p how did we not do this yet
+    br
+    h2 hii
+    img(src="https://cdn.discordapp.com/attachments/801420472998166529/1306331885437325373/image.png?ex=6737995f&is=673647df&hm=5d070a4fddbb3f39bf6f8c4c0ee4c3a9882d7ef0b26d12bacb272c96e971faa8&")
+    h2 pebble I: the "post-october" lifestyle
+    p we actually begin making game
+    video(src="https://cdn.discordapp.com/attachments/1219954701726912586/1305263124630470728/2024-11-11_05-08-56.mp4?ex=673701c3&is=6735b043&hm=323de319eb8b35062dca9fa33affef717f912f58c3afb06ea834fa76cbefc77f&" controls)
+    video(src="https://cdn.discordapp.com/attachments/1219954701726912586/1306087051090853989/2024-11-13_11-43-01.mp4?ex=67375e1a&is=67360c9a&hm=0af7b737b94675d0f500ef44cc1c4abac5743c74548a7a50f8f1453c19d31a71&" controls)
+    p i keep remaking the first 2 stages (perfectionism(bad))
+    p i also did some art styles and code styles
+    p we also optimize the game ?!!
+    ul
+        li: p culls off-screen elements
+        li: p stops physics calculations for off-screen elements
+        li: p optimize particle rendering
+        li: p optimize 2p collision checks (twice)
+    h2 pebble II: the "block game" lifestyle
+    iframe(width="512" height="384" src="https://www.youtube.com/embed/TF3nDvPsyW0" title="TETRIS FOREVER MULTIPLAYER! Wumbo VS Star Time Warp" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen)
+    img(src="https://cdn.discordapp.com/attachments/515678821408571392/1306681555783122944/image.png?ex=67378d87&is=67363c07&hm=fc5a2e841fe4929b29257efe2c5ca45e28a333aab52baaa792304712700cc0ea&")
+    br
+    br
+    p legally dubious tetris clone update
+    img(src="https://cdn.discordapp.com/attachments/515678821408571392/1306681832808513649/image.png?ex=67378dc9&is=67363c49&hm=ac9472a344deaa3081a0e258d14d9ffa5a94268839a64e400a2a264157da61ba&")
+    p i think i broke my arm from playing tetris
+    img(src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftechviral.net%2Fwp-content%2Fuploads%2F2018%2F02%2FARM-Wants-To-Put-This-AI-Chip-Everywhere-It-Can.jpg&f=1&nofb=1&ipt=c6f9f287c9b95e67507b0e566d8a42397898ec748c5d8e0ff63dc21917d1e983&ipo=images")
+    p fuck
+    h2 pebble III: the "twitch tuvalu" lifestyle
+    video(src="https://prod.kr/v2.mp4" controls)
+    p new prod unlocked (cool)
+    p maybe we should have a quest icon for this (joker basak mickynoon ck tyumici would get this too)
+    br
+    video(src="https://prod.kr/v1.mp4" controls)
+    p this guy made risk of rain btw
+    p velgress on stream real ???
+    br
+    h2 docket: the "hand cam"
+    p yeah so we're finally delving into mediapipe
+    br
+    p todo:
+    ul
+        li: p hack into openseeface (scary)
+        li: p smuggle the raw image data
+        li: p hook it up to mediapipe
+        li: p send mediapipe data to gizmozone
+        li: p implement inverse kinematics?!!!
+    br
+    p plans to "not literally make IK on stream"
+    ul
+        li: p we "don't have wrists"
+        li: p use wrist to start of middle finger vector as angle
+        li: p extend that angle to get elbow position
+        li: p use elbow and shoulder position to get upper arm angle
+        li: p render (hope that rotation isnt fucked still)
+    br
+    p if we get to having mediapipe working ill consider success, but we will keep going until 4h
+block postbody 
+    style.
+        li { margin-left: 32px; display: block; }
+        h2 img {
+            width: 64px;
+            image-rendering: crisp-edges;
+        }
+        video {
+            width: 512px;
+        }

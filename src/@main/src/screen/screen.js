@@ -18,11 +18,14 @@ module.exports.screenData = chatter => {
     return ret;
 }
 
-module.exports.fetch = subject => {
+module.exports.fetch = async (subject, user) => {
     switch (subject) {
         case "today": return [0, data().stream.subject];
         case "uptime": return [0, [data().stream.start, data().stream.phase]];
         case "stats": return [0, filterValue(data().global, x => nullish(x) !== null)];
+        case "palette": return [0, await send("gizmo", "previouscolor")];
+        case "accessory": return [0, await send("gizmo", "previousaccessories")];
+        case "user": return [0, {user: {}, shimeji: src().stats.calculate(user)}];
     }
     return [1, ""];
 }
@@ -82,8 +85,8 @@ const INFO_MESSAGES = {
             `It's been ${formatTime(BigInt(o[0]), "hhh:mm:ss")} since the broadcast, and its currently phase ${o[1]}!` :
             `Broadcast is currently offline. we go live every ${formatDate(nextStream + timezone, "WWWW H:mm HHH")} (${formatTime(nextStream, time(), "hhh:mm")} away!)`;
     },
-    stats: async () => {
-        let ret = module.exports.fetch("stats")[1];
+    globalstats: async () => {
+        let ret = (await module.exports.fetch("stats"))[1];
         let g = await send("gizmo", "fetch");
         if (g) for (let i = 0; i < g.length; i += 2) ret[g[i]] = g[i+1] ?? 0;
         return Object.entries(ret).map(x => `${x[0]}: ${x[1]}`).join("\n");
@@ -126,7 +129,7 @@ const INFO_MESSAGES = {
     songs: async () => "Current Songs: " + (await listFiles("src/@main/data/song")).filter(x => !x.startsWith("_")).map(x => x.slice(0, -".wmid".length)).join(", ")
 }
 module.exports.predicate = Object.keys(INFO_MESSAGES).map(x => "!" + x);
-module.exports.permission = 0;  
+module.exports.permission = true;  
 module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
     let ret = INFO_MESSAGES[split(text, " ", 1)[0].slice(1).toLowerCase().trim()](from, chatter, message, text, emote, reply);
     if (ret instanceof Promise) ret = await ret;

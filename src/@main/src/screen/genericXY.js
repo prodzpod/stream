@@ -3,7 +3,7 @@ const { split, Math, nullish } = require("../../common");
 const { log } = require("../../commonServer");
 const { args } = require("../chat/chat");
 
-module.exports.predicate = ["!spawn", "!window", "!spawnshimeji", "!moveshimeji"];
+module.exports.predicate = ["!spawn", "!window", "!moveshimeji"];
 module.exports.permission = 0;  
 module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
     const _cmd = split(text, " ", 1)[0].slice(1); const cmd = OVERRIDE[_cmd] ?? _cmd;

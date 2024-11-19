@@ -105,8 +105,8 @@ namespace Gizmo.StreamOverlay
                         float? angle = WASD.Assert<float>(args[2]);
                         string? author = WASD.Assert<string>(args[3]);
                         string? color = WASD.Assert<string>(args[4]);
-                        var i = Commands.SpawnShimeji._SpawnShimeji(x.Value, y.Value, author, color);
-                        i.Angle = angle.Value / 256f;
+                        // var i = Commands.SpawnShimeji._SpawnShimeji(x.Value, y.Value, author, color);
+                        // i.Angle = angle.Value / 256f;
                     }
                     break;
                 case "fan":

@@ -19,7 +19,7 @@ namespace ProdModel.Object.Sprite
         public static bool Busy = false;
         public static bool Ready = false;
         public static List<string> PreviousAccessories = [];
-        public static List<string> FixedAccessories = ["skirt_default", "ear_middle"];
+        public static List<string> FixedAccessories = ["skirt_default", "leaf"];
         public static List<string> Accessories = [];
         public static List<ColorP> PreviousColor = [];
         public static Dictionary<ColorP, ColorP> ColorReplace = [];

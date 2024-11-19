@@ -62,7 +62,7 @@ namespace Gizmo.Engine.Graphic
                         var k = kv[0];
                         string v = "";
                         if (kv.Length > 1) v = kv[1];
-                        if (i == 0) { k = k.ToLowerInvariant(); command = k; }
+                        if (i == 0) { k = k.ToLowerInvariant(); command = k; } // Lord Kelvin is my opp (\u212A.ToLowerInvariant == "k")
                         vars[k] = v;
                     }
                     ptr = end;

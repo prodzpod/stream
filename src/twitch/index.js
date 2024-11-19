@@ -12,5 +12,4 @@ catch (e) { error("twitch_token.wasd is invalid! please refresh and restart twit
 const test = await validate();
 if (test === 1) await require("./eventsub").init();
 info(`Twitch Module Loaded, total time: ${measureEnd(mGlobal)}ms`);
-
 })();} catch (e) { console.log(e.stack); }

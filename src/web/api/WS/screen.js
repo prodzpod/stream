@@ -33,7 +33,8 @@ module.exports.chat = async (ws, args) => {
     if (!user) return; await send("chat", user, args[0]); return true;
 }
 module.exports.fetch = async (ws, args) => {
-    return await send("fetch", args[0]);
+    const user = Object.keys(userWS).find(x => userWS[x] === ws);
+    return await send("fetch", args[0], user);
 }
 module.exports._all = async (ws, args, res) => {
     if (res) return res;

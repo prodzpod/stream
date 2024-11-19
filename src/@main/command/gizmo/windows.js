@@ -59,6 +59,11 @@ let RULE = {
         name: "%NAME%:YYGameMakerYY:Startellers.exe",
         window: null,
     },
+    emacs: {
+        rule: name => name.includes(" - GNU Emacs at "),
+        name: "%NAME%:Emacs:emacs.exe",
+        window: null,
+    },
     // art
     aseprite: {
         rule: name => name.includes("Aseprite"),
@@ -66,7 +71,7 @@ let RULE = {
         window: null,
     },
     blender: {
-        rule: name => name.startsWith("Blender"),
+        rule: name => name.includes(" - Blender"),
         name: "%NAME%:GHOST_WindowClass:blender.exe",
         window: null,
     },

@@ -39,8 +39,10 @@ function start() {
     py = spawn("python", [path("src/tracker/OpenSeeFace/facetracker.py")]);
     py.on("spawn", x => log("OpenSeeFace loaded"));
     py.stdout.on("data", x => {
+        // log(x.toString());
         i++; if (i % 1000 === 0) log("Tracker Heartbeat", x?.toString().slice(0, 10));
     });
+    py.stderr.on("data", x => { error(x.toString()); });
     py.on("close", x => {
         info("Face Tracker Closed", x);
         if (stop) return;

@@ -8,14 +8,13 @@ module.exports.execute = async (source, target) => {
     if (nullish(source) === null || nullish(target) === null) return [1, "invalid person"];
     if (source === target) return [1, "you can't spot yourself..."];
     source = await src().user.initialize(source, true);
-    if (BigInt(source.clonkspotting.last_boosted) / DAY !== time() / DAY) 
-        source.clonkspotting.boosted = [];
-    if (source.clonkspotting.boosted.includes(target)) return [1, "you already boosted this person"];
+    let t = time();
+    source.clonkspotting.spotted = source.clonkspotting.spotted.filter(x => BigInt(x.time) + DAY > t);
+    if (source.clonkspotting.spotted.some(x => x.id === target)) return [1, "you already boosted this person"];
     target = await src().user.initialize(target, true);
     source.clonkspotting.boost += 1;
     target.clonkspotting.boost += 1;
-    source.clonkspotting.boosted.push(target.twitch.id);
-    source.clonkspotting.last_boosted = time();
+    source.clonkspotting.spotted.push({id: target.twitch.id, time: t});
     data(`user.${source.twitch.id}`, source);
     data(`user.${target.twitch.id}`, target);
     return [0, "boosted this user"];

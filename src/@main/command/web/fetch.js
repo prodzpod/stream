@@ -1,5 +1,5 @@
 const { src } = require("../..");
 
-module.exports.execute = subject => {
-    return src().screen.fetch(subject);
+module.exports.execute = async (subject, user) => {
+    return await src().screen.fetch(subject, user);
 }

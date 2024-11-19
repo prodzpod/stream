@@ -3,7 +3,7 @@ const { numberish } = require("../../common");
 const { log } = require("../../commonServer");
 const { args } = require("../chat/chat");
 
-module.exports.predicate = "!boosts";
+module.exports.predicate = ["!boost", "!boosts"];
 module.exports.permission = 0;
 module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
     let _args = args(text);

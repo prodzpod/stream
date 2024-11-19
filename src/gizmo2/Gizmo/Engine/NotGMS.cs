@@ -68,13 +68,16 @@ namespace Gizmo.Engine
                 Game._DRAW_ORDER = Game._DRAW_ORDER.Intersect(Game._INSTANCES).ToList();
                 Game.DRAW_ORDER = [.. Game._DRAW_ORDER];
                 // input
-                KeyValuePair<WebSocket, byte[]>[] z = [.. WebSocket.ActiveWSMessages];
-                foreach (var m in z)
+                lock (WebSocket.ActiveWSMessages)
                 {
-                    WebSocket.ActiveWSMessages.Remove(m);
-                    m.Key.Recieve(m.Value);
+                    List<KeyValuePair<WebSocket, byte[]>> z = [.. WebSocket.ActiveWSMessages];
+                    foreach (var m in z)
+                    {
+                        WebSocket.ActiveWSMessages.Remove(m);
+                        m.Key.Recieve(m.Value);
+                    }
+                    WebSocket.ActiveWSMessages.Clear();
                 }
-                WebSocket.ActiveWSMessages.Clear();
                 Game.deltaTime = Time.GetFrameTime();
                 InputP.OnUpdate();
                 game.PreUpdate(Game.deltaTime);

@@ -87,6 +87,10 @@ module.exports.checkPerms = (source, from, chatter, message, text, emote, reply)
 
 module.exports.args = text => WASD.unpack(split(text, " ", 1)[1]);
 function onCommand(from, chatter, message, text, emote, reply) {
+    if (chatter?.shimeji?.ai) {
+        chatter.shimeji.ai.luck.max += 1;
+        chatter.shimeji.ai.luck.value += 1;
+    }
     return chatter;
 }
 function getReply(from, chatter, message, text, emote, reply) { switch (from) {
@@ -181,7 +185,7 @@ module.exports.chat = async (from, chatter, message, text, emote, reply) => {
     return [chatter, null];
 }
 function handleMeta(source, dest, text, emote) {
-    text = text.replaceAll("<emote=", "<emοte="); // abuse prevention (bad)
+    text = text.replace(/<[Ee][Mm][Oo][Tt][Ee]=/g, "<emοte="); // abuse prevention (bad)
     emote = JSON.parse(JSON.stringify(emote));
     let i = /<@([^:]+):(\d+)>/.exec(text);
     let temp = "";
@@ -218,8 +222,42 @@ function handleMeta(source, dest, text, emote) {
     }
     return [text, emote];
 }
+
 function onChat(from, chatter, message, text, emote, reply) {
-    log(text);
+    if (chatter?.shimeji?.ai) {
+        let alphaOnly = text.replace(/[^A-Za-z]+/g, "").split("");
+        chatter.shimeji.ai.wisdom.max += alphaOnly.length;
+        chatter.shimeji.ai.wisdom.value += alphaOnly.filter(x => ["a", "e", "i", "o", "u"].includes(x.toLowerCase())).length;
+        chatter.shimeji.ai.agility.max += 50;
+        chatter.shimeji.ai.agility.value += Math.max(0, 50 - text.length);
+        chatter.shimeji.ai.aggression.max += alphaOnly.length;
+        chatter.shimeji.ai.aggression.value += alphaOnly.filter(x => x === x.toUpperCase()).length;
+        chatter.shimeji.ai.jumpness.max += 1;
+        if (".,?!".split("").some(x => text.includes(x))) chatter.shimeji.ai.jumpness.value += 1;
+        chatter.shimeji.ai.jokerness.max += 1;
+        if ([":3", "x3", "meow", "mew", "miao", "miaow", "mrr", "mrp", "nya", "nyo"].some(x => text.toLowerCase().includes(x))) chatter.shimeji.ai.jokerness.value += 1;
+        chatter.shimeji.ai.strength.max += 1;
+        if (emote.length) chatter.shimeji.ai.strength.value += 1;
+        chatter.shimeji.ai.jumpheight.max += alphaOnly.length - 1;
+        chatter.shimeji.ai.jumpheight.value += alphaOnly.filter((x, i, arr) => { if (i === 0) return false; return x === arr[i - 1]; }).length;
+        chatter.shimeji.ai.camelness.max += text.length;
+        chatter.shimeji.ai.camelness.value += text.length - alphaOnly.length;
+        chatter.shimeji.ai.luck.max += 1;
+        chatter.shimeji.ai.dexterity.max += 1;
+        chatter.shimeji.ai.dexterity.value += 1;
+        chatter.shimeji.ai.bisonness.max += 1;
+        if (emote.some(x => ["joel", "jol", "leoj", "fish"].some(y => x.name.toLowerCase().toLowerCase().includes(y)))
+            || ["joel", "jol", "leoj", "fish"].some(x => text.toLowerCase().includes(x))) chatter.shimeji.ai.bisonness.value += 1;
+        let words = text.toLowerCase().replace(/[^a-z\s]+/g, "").split(/\s+/g).filter(x => x.length);
+        chatter.shimeji.ai.zebraness.max += words.length;
+        let bible = data().bible;
+        chatter.shimeji.ai.zebraness.value += words.reduce((p, x) => { 
+            let ret = bible[x] ?? 0;
+            if (ret > 1000) ret = 1000;
+            if (ret > 0) ret = 0.4 + (ret / 1000 * 0.6);
+            return p + Math.clamp(ret, 0, 1);
+        }, 0);
+    }
     const iu = numberish(text.length / 100 + emote.length / 10);
     if (realtype(iu) === "number" && chatter.twitch) {
         chatter.economy.iu = Number(chatter.economy.iu) + iu;

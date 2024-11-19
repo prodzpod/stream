@@ -27,6 +27,7 @@ namespace Gizmo.Engine.Data
         public ColorP(uint code) : this(Color.FromHex(code)) { }
         public ColorP(string hex) : this(0)
         {
+            if (hex == null) return;
             if (hex.StartsWith("#")) hex = hex[1..];
             System.Drawing.Color c = System.Drawing.Color.FromName(hex);
             if (c.IsKnownColor) { Color = new Color(c.R, c.G, c.B, c.A); return; }
@@ -43,8 +44,12 @@ namespace Gizmo.Engine.Data
                 case 8: break;
                 default: hex = hex[0..8]; break;
             }
-            byte[] ret = [..(new string[] { hex[0..2], hex[2..4], hex[4..6], hex[6..8] }).Select(x => (byte)int.Parse(x, System.Globalization.NumberStyles.HexNumber))];
-            Color = new Color(ret[0], ret[1], ret[2], ret[3]);
+            try
+            {
+                byte[] ret = [.. (new string[] { hex[0..2], hex[2..4], hex[4..6], hex[6..8] }).Select(x => (byte)int.Parse(x, System.Globalization.NumberStyles.HexNumber))];
+                Color = new Color(ret[0], ret[1], ret[2], ret[3]);
+            }
+            catch { Color = BLACK; }
         }
         public static ColorP FromHSV(Vector3 hsv) => FromHSV(hsv.X, hsv.Y, hsv.Z, 1);
         public static ColorP FromHSV(Vector3 hsv, float a) => FromHSV(hsv.X, hsv.Y, hsv.Z, a);

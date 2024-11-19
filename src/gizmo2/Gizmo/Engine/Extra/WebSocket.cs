@@ -14,6 +14,7 @@ namespace Gizmo.Engine.Extra
         public static List<KeyValuePair<WebSocket, byte[]>> ActiveWSMessages = [];
         public static int chunkSize = 4096;
         public static int pollDelay = 100;
+
         public WebSocket(string uri, Action<string> onRecieve) : this(uri, (b) => onRecieve(Encoding.UTF8.GetString(b ?? []))) { }
         public WebSocket(string uri, Action<byte[]> onRecieve)
         {
@@ -57,7 +58,7 @@ namespace Gizmo.Engine.Extra
                 }
                 for (int i = txt.Length - 1; i >= 0; i--) if (txt[i] != '\0') { txt = txt[..(i + 1)]; break; }
                 Logger.Debug("Websocket Recieved: " + Encoding.UTF8.GetString(txt));
-                ActiveWSMessages.Add(new(this, txt));
+                lock (ActiveWSMessages) ActiveWSMessages.Add(new(this, txt));
                 buffer = new byte[chunkSize];
             }
             OnClose?.Invoke();

@@ -36,6 +36,35 @@ module.exports.initialize = async (id, forceBlockUpdate=false) => {
     chatter.shimeji ??= {};
     chatter.shimeji.sprite ??= null;
     chatter.shimeji.ai ??= {};
+    for (let category of [
+        "dexterity", // how often do your guy move (min delay)
+        "jokerness", // variance of the delay between moves (max delay)
+        "agility", // how far do your guy move at once
+        "jumpness", // how often do your guy jump
+        "zebraness", // variance of jump height
+        "jumpheight", // how far do your guy jump
+        "camelness", // how far do your guy jump horizontally
+        "wisdom", // how often is your guy attracted to elements
+        "aggression", // how often do your guy try to hit stuff
+        "strength", // how far do your guy hit stuff
+        "bisonness", // how far do your guy hit stuff vertically
+        "luck", // variance of your guy hitting stuff distance
+        "appleness", // reserved
+        "banananess", // reserved
+        "orangeness", // reserved
+    ]) chatter.shimeji.ai[category] ??= { max: 2, value: 1 };
+    // combat stats
+    chatter.shimeji.ai.constitution ??= 100;
+    chatter.shimeji.ai.attack ??= 5;
+    chatter.shimeji.ai.defense ??= 1;
+    chatter.shimeji.ai.critchance ??= 1;
+    chatter.shimeji.ai.critdamage ??= 2;
+    chatter.shimeji.ai.multihit ??= 1;
+    chatter.shimeji.ai.attackspeed ??= 4;
+    chatter.shimeji.ai.oxness ??= 0; // how much your guy want to charge towards other guy
+    chatter.shimeji.ai.hipponess ??= 0.1; // how often do your guy like to engage combat
+    // chatter.shimeji.ai.loveliness ??= 5;
+    // chatter.shimeji.ai.eepiness ??= 5;
     chatter.shimeji.stats ??= {};
     chatter.shimeji.history ??= {};
     chatter.meta.last_chatted ??= 0;
@@ -55,8 +84,7 @@ module.exports.initialize = async (id, forceBlockUpdate=false) => {
     }
     chatter.clonkspotting ??= {};
     chatter.clonkspotting.boost ??= 0;
-    chatter.clonkspotting.boosted ??= [];
-    chatter.clonkspotting.last_boosted ??= 0;
+    chatter.clonkspotting.spotted ??= [];
     return chatter;
 }
 

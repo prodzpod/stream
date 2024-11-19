@@ -1,4 +1,5 @@
-const { src } = require("../..")
+const { src } = require("../..");
+const { log } = require("../../commonServer");
 
 module.exports.execute = async (o) => {
     return await src().chat.message(

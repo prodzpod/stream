@@ -9,7 +9,8 @@ module.exports.execute = async (apps, msg) => {
     };
     if (msg.author.bot) {
         ret.chatter.irc = {};
-        [_, ret.chatter.irc.name, ret.message.text] = (await handleEmotes(apps[0], msg.content))[0].match(/`<([^>]+)>` (.+)/);
+        [_, ret.chatter.irc.name, ret.message.text] = msg.content.match(/`<([^>]+)>` (.+)/);
+        [ret.message.text, ret.message.emotes] = await handleEmotes(apps[0], ret.message.text);
         ret.chatter.irc.id = ret.chatter.irc.name;
     } else {
         ret.chatter.discord = {};
