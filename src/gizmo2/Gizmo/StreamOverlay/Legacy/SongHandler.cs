@@ -1,4 +1,5 @@
 ﻿using Gizmo.Engine;
+using Gizmo.Engine.Data;
 using Gizmo.Engine.MIDI;
 using Gizmo.Engine.Util;
 
@@ -19,9 +20,9 @@ namespace ProdModel.Gizmo
                     Note ret = new()
                     {
                         instrument = args[0],
-                        startTime = float.Parse(args[1]),
-                        duration = float.Parse(args[2]),
-                        pitch = float.Parse(args[3]) + 60,
+                        startTime = MathP.SafeParse(args[1]),
+                        duration = MathP.SafeParse(args[2]),
+                        pitch = MathP.SafeParse(args[3]) + 60,
                         cutHead = false,
                         cutFeet = false,
                     };

@@ -17,7 +17,7 @@ module.exports.predicate = "!exec";
 module.exports.permission = false;
 module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
     try { 
-        let ret = eval(split(text, " ", 1)[1] ?? "");
+        let ret = eval(split(text, /\s+/, 1)[1] ?? "");
         if (ret instanceof Promise) ret = await ret;
         if (typeof ret === "object") ret = WASD.pack(ret);
         _reply(ret);

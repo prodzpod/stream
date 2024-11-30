@@ -12,6 +12,7 @@ namespace Gizmo.StreamOverlay.Rooms
         public static Instance Making;
         public static Instance MakingText;
         public static Instance Phase;
+        public static Instance Chat;
 
         public override void OnEnter(Room? room)
         {
@@ -21,8 +22,10 @@ namespace Gizmo.StreamOverlay.Rooms
             z.Position = new(960, 540);
             z.Depth = -100;
             */
-            StreamOverlay.Prod = Instance.New(nameof(Prod));
             Graphic.New(null, "layout/bg").Position = new(960, 540);
+            Chat = Graphic.New(null, "layout/chat");
+            Chat.Position = new(208, 689);
+            StreamOverlay.Prod = Instance.New(nameof(Prod));
             Graphic.New(null, "window/status").Position = new(93, 1056);
             Graphic.New(null, "window/tasks").Position = new(475, 1056);
             Making = Graphic.New(null, Resource.NineSlices["window/making"]);

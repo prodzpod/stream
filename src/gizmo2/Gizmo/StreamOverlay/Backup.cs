@@ -90,7 +90,7 @@ namespace Gizmo.StreamOverlay
                                 i.Set("lines", content.Split(' ').Select(x =>
                                 {
                                     var args = x.Split('/');
-                                    return new Line { a = new(float.Parse(args[0]), float.Parse(args[1])), b = new(float.Parse(args[2]), float.Parse(args[3])), color = new(args[4]) };
+                                    return new Line { a = new(MathP.SafeParse(args[0]), MathP.SafeParse(args[1])), b = new(MathP.SafeParse(args[2]), MathP.SafeParse(args[3])), color = new(args[4]) };
                                 }).ToList());
                             }
                             else i = Commands.Window.SpawnWindow(x.Value, y.Value, title, content);

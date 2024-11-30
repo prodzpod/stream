@@ -2,6 +2,7 @@
 using Gizmo.Engine.Data;
 using Gizmo.Engine.Util;
 using ProdModel.Puppet;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace Gizmo.StreamOverlay.Commands
@@ -24,16 +25,16 @@ namespace Gizmo.StreamOverlay.Commands
             float _palmx = WASD.Assert<float>(args[4]);
             float _palmy = WASD.Assert<float>(args[5]);
             float _palmz = WASD.Assert<float>(args[6]);
-            MatrixP corr = HandCorrection * MatrixP.Scale(.2f) * MatrixP.Translate(0, 0, .75f);
-            Vector3 palm = corr * new Vector3(_palmx, _palmy, 0.25f);
-            Vector3 wrist = corr * new Vector3(_wristx, _wristy, 0.25f);
-            Logger.Log($"Hand: {hand} @ {wrist}");
-            Vector3 elbow = wrist - (palm - wrist) / .08f * .25f;
+            MatrixP corr = MatrixP.Translate(0, .6f, 0) * MatrixP.Scale(.33f) * HandCorrection;
             Vector3 shoulder = hand == "Right" ? ModelHandler.LastRightShoulderPosition : ModelHandler.LastLeftShoulderPosition;
+            Vector3 wrist = MatrixP.Translate(0, 0, .6f) * corr * new Vector3(_wristx, _wristy, _wristz);
+            Vector3 palm = corr * new Vector3(_palmx, _palmy, _palmz);
+            palm.X = palm.X - ((palm.X - wrist.X) * 2);
+            if (hand == "Left") palm.Y = palm.Y - ((palm.Y - wrist.Y) * 2);
+            else palm.Z = palm.Z - ((palm.Z - wrist.Z) * 2);
+            Vector3 elbow = wrist - (palm - wrist) / .08f * .25f;
             // shoulder to elbow = (-0.35, 0, 0)
             // elbow to wrist = (-0.25, 0, 0)
-            var offset = (Vector3.Normalize(elbow - shoulder) * .35f) - elbow;
-            elbow += offset; wrist += offset;
             var r1 = GetRotations(shoulder, elbow);
             wrist = shoulder + MathP.InverseRotate(wrist - shoulder, r1);
             elbow = shoulder + MathP.InverseRotate(elbow - shoulder, r1);
@@ -43,6 +44,7 @@ namespace Gizmo.StreamOverlay.Commands
             ModelHandler.ArmTime = 0;
             lasthand = wrist;
             return null;
+
         }
 
         public static Vector3 GetRotations(Vector3 from, Vector3 to)

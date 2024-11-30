@@ -3,16 +3,15 @@ using Gizmo.Engine.Data;
 using Gizmo.Engine.Graphic;
 using Gizmo.Engine.Util;
 using Gizmo.StreamOverlay.Elements.Gizmos;
+using Gizmo.StreamOverlay.Rooms;
 using System.Numerics;
-using System.Security.Cryptography;
 using System.Text.RegularExpressions;
-using static PInvoke.User32;
 
 namespace Gizmo.StreamOverlay.Commands
 {
     public class Chat : Command
     {
-        public static Vector4 Bounds = new(54, 352, 352, 674);
+        public static Vector4 Bounds = new(54 - 208, 352 - 689, 352, 674);
         public static float OFFSET = 4;
         public override object?[]? Execute(params object?[] args)
         {
@@ -47,10 +46,10 @@ namespace Gizmo.StreamOverlay.Commands
             {
                 x.Position.Y -= h;
                 var size = x.Get<Vector2>("size");
-                if (x.Position.Y - size.Y / 2 < Bounds.Y) x.Destroy();
+                if (x.Position.Y - size.Y / 2 < (Bounds.Y + MainRoom.Chat.Position.Y)) x.Destroy();
             }
             IDrawable[] _i = [author, content, ..icons];
-            Instance i = Squareish.New(nameof(Elements.Gizmos.Chat), new(Bounds.X + Bounds.Z / 2, Bounds.Y + Bounds.W - h / 2), new(Bounds.Z, h), _i);
+            Instance i = Squareish.New(nameof(Elements.Gizmos.Chat), new((Bounds.X + MainRoom.Chat.Position.X) + Bounds.Z / 2, (Bounds.Y + MainRoom.Chat.Position.Y) + Bounds.W - h / 2), new(Bounds.Z, h), _i);
             Audio.Play(isFirstMessage ? "screen/join" : "screen/chat");
             Logger.Log("Chat Recieved:", id);
             i.Set("id", id);

@@ -47,7 +47,7 @@ namespace Gizmo.StreamOverlay.Commands
                 i.Height *= frames;
                 loop = new(FileP.Slurp(path + ".properties").Split('\n').Select(x => {
                     var z = x.Trim().Split('=');
-                    return new KeyValuePair<int, float>(int.Parse(z[0]), float.Parse(z[1]) * MetaP.TargetFPS);
+                    return new KeyValuePair<int, float>(int.Parse(z[0]), MathP.SafeParse(z[1]) * MetaP.TargetFPS);
                 }));
             }
             else i = Image.Load(path);

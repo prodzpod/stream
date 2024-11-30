@@ -263,8 +263,8 @@ block postbody
                 const ACTIONS = {
                     "mouse": ["Point", "Click", "Fling", "Draw", "Pin", "Kill"],
                     "window": ["Spawn Window (10)", "Spawn Fan", "Spawn Anti Fan", "Song (100)", "Spawn Draw Window (100)", "Furrow the Mare of Eidola (10)"],
-                    "shimeji": ["Spawn Shimeji", "Move"],
-                    "misc": ["Remove Triangle", "Gravity", "Randomize", "Change Palette", "Change Accessory"],
+                    "shimeji": ["Spawn Shimeji", "Move", "Jump"],
+                    "misc": ["Remove Triangle", "Gravity", "Randomize", "Change Palette", "Change Accessory", "Change Camera"],
                     "help": ["Help", "Today", "Uptime", "Stats"],
                 }
                 const row = insertElement("div", "screen", "left bottom hlist hard").with("style", "right: 128px;");
@@ -352,6 +352,7 @@ block postbody
             },
             spawnshimeji: () => { addGenericPointerScreen("Click on the position you want to spawn your shimeji at.", "spawnshimeji"); },
             move: () => { addGenericPointerScreen("Click on the position you want to move your shimeji to.", "moveshimeji"); },
+            jump: () => { send("jump", 1, 1); setState("action"); },
             levelupprod: () => { send("credits"); setState("action"); },
             removetriangle: () => { send("removetriangle", 1); setState("action"); },
             gravity: () => { addGenericPointerScreen("Click on the direction you want to throw.", "gravity"); },
@@ -374,6 +375,22 @@ block postbody
                 insertElement("select", input, "spacer").with("id", "accessory").with("style", "border-radius: 64px; padding: 16px; height: 64px; margin: 16px;");
                 let btn = insertElement("button", input, null, "Go").with("id", "go");
                 addEvent("onclick", () => { send("accessory", e("accessory").value); }, btn);
+                send("fetch", "accessory");
+            },
+            changecamera: () => {
+                addSimpleButton("bottom right", "action", "back");
+                const input = insertElement("div", "screen", "overlay bottom left right hlist").with("style", "margin: 0 160px; border-radius: 64px").with("onclick", "event?.stopPropagation();");
+                for (let entry of [["+5 X", "5, 0, 0, 0"], 
+                ["-5 X", "-5, 0, 0, 0"], 
+                ["+5 Y", "0, 5, 0, 0"], 
+                ["-5 Y", "0, -5, 0, 0"], 
+                ["+5 Z", "0, 0, 5, 0"], 
+                ["-5 Z", "0, 0, -5, 0"], 
+                ["+0.1x", "0, 0, 0, 0.1"], 
+                ["-0.1x", "0, 0, 0, -0.1"], 
+                ["Reset", "0, 0, 0, 0"]]) {
+                    insertElement("button", input, "middle spacer", entry[0]).with("onclick", "send('camera', " + entry[1] + "); e('audioClick').play(); setState('changecamera');");
+                }
                 send("fetch", "accessory");
             },
             help: () => {

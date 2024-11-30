@@ -55,7 +55,7 @@ namespace Gizmo.Engine.Builtin
                     Style = conductor.Style,
                     Color = conductor.Color,
                     Scale = conductor.Size,
-                    Size = new(float.Parse(_x), float.Parse(_y))
+                    Size = new(MathP.SafeParse(_x), MathP.SafeParse(_y))
                 };
                 if (bounds > 0 && conductor.Pen + ch.Size.X > bounds)
                     Helper.LineBreak(ref charNo, ref conductor, ref currentLine, ref currentY, ref lines);
@@ -152,7 +152,7 @@ namespace Gizmo.Engine.Builtin
             public override TextConductor Execute(ref Dictionary<Font, Dictionary<char, Vector2>> charMap, ref int charNo, TextConductor conductor, ref List<Character> currentLine, ref float currentY, ref List<List<Character>> lines, ref int ptr, ref string text, ref float bounds, Dictionary<string, string> args)
             {
                 if (!args.TryGetValue("tilt", out var tilt)) return conductor;
-                conductor.Angle = float.Parse(tilt);
+                conductor.Angle = MathP.SafeParse(tilt);
                 return conductor;
             }
         }
@@ -162,7 +162,7 @@ namespace Gizmo.Engine.Builtin
             public override TextConductor Execute(ref Dictionary<Font, Dictionary<char, Vector2>> charMap, ref int charNo, TextConductor conductor, ref List<Character> currentLine, ref float currentY, ref List<List<Character>> lines, ref int ptr, ref string text, ref float bounds, Dictionary<string, string> args)
             {
                 if (!args.TryGetValue("size", out var size)) return conductor;
-                conductor.Size = MathP.Max(float.Parse(size), 0);
+                conductor.Size = MathP.SafeParse(size, 0);
                 return conductor;
             }
         }
@@ -172,7 +172,7 @@ namespace Gizmo.Engine.Builtin
             public override TextConductor Execute(ref Dictionary<Font, Dictionary<char, Vector2>> charMap, ref int charNo, TextConductor conductor, ref List<Character> currentLine, ref float currentY, ref List<List<Character>> lines, ref int ptr, ref string text, ref float bounds, Dictionary<string, string> args)
             {
                 if (!args.TryGetValue("charspace", out var charspace)) return conductor;
-                conductor.Spacing.X = float.Parse(charspace);
+                conductor.Spacing.X = MathP.SafeParse(charspace);
                 return conductor;
             }
         }
@@ -182,7 +182,7 @@ namespace Gizmo.Engine.Builtin
             public override TextConductor Execute(ref Dictionary<Font, Dictionary<char, Vector2>> charMap, ref int charNo, TextConductor conductor, ref List<Character> currentLine, ref float currentY, ref List<List<Character>> lines, ref int ptr, ref string text, ref float bounds, Dictionary<string, string> args)
             {
                 if (!args.TryGetValue("lineheight", out var lineheight)) return conductor;
-                conductor.Spacing.Y = float.Parse(lineheight);
+                conductor.Spacing.Y = MathP.SafeParse(lineheight);
                 return conductor;
             }
         }

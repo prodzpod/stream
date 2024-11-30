@@ -6,6 +6,7 @@ using Gizmo.Engine.Util;
 using Gizmo.StreamOverlay.Elements.Gizmos;
 using Gizmo.StreamOverlay.Elements.Windows;
 using System.Numerics;
+using System.Runtime.InteropServices.Swift;
 
 namespace Gizmo.StreamOverlay.Elements.Entities
 {
@@ -25,7 +26,37 @@ namespace Gizmo.StreamOverlay.Elements.Entities
             self.Set("incombat", false);
             self.Set("tilnextmove", 0f);
             self.Set("tilnextattack", 0f);
+            self.Set("tilnextkick", 0f);
             self.Set("jumps", 1f);
+            self.Set("forcejump", false);
+            self.Set("forcestate", 0);
+            self.Set("forcestatetime", 0);
+        }
+        public override void OnPostInit(ref Instance self)
+        {
+            base.OnPostInit(ref self);
+            var ai = self.Get<Dictionary<string, float>>("ai");
+            self.Set("maxhp", ai["constitution"]);
+            self.Set("hp", ai["constitution"]);
+            self.Set("attack", ai["attack"]);
+            self.Set("defense", ai["defense"]);
+            self.Set("attackspeed", ai["attackspeed"]);
+            self.Set("critchange", ai["critchance"]);
+            self.Set("critdamage", ai["critdamage"]);
+            var maxhp = Graphic.New(self, Resource.NineSlices["WHITE"]);
+            maxhp.Set("size", new Vector2(128, 8));
+            maxhp.Position.X -= 11;
+            maxhp.Position.Y -= ((Sprite)self.Sprite).Size.Y / 2 - 28;
+            maxhp.Blend = ColorP.BLACK * .5f;
+            maxhp.Alpha = 0;
+            var hp = Graphic.New(self, Resource.NineSlices["WHITE"]);
+            hp.Set("size", new Vector2(128, 8));
+            hp.Position.X -= 11;
+            hp.Position.Y -= ((Sprite)self.Sprite).Size.Y / 2 - 28;
+            hp.Blend = new ColorP(0, 255, 0);
+            hp.Alpha = 0;
+            self.Set("e_maxhp", maxhp);
+            self.Set("e_hp", hp);
         }
         public static float MaxSpeed = 500;
         public override void OnDestroy(ref Instance self)
@@ -36,48 +67,61 @@ namespace Gizmo.StreamOverlay.Elements.Entities
         public override void OnUpdate(ref Instance self, float deltaTime)
         {
             base.OnUpdate(ref self, deltaTime);
+            var ai = self.Get<Dictionary<string, float>>("ai");
             if (self.Get<bool>("incombat"))
             {
                 // combat code
+                var t = self.Get<float>("tilnextattack") - deltaTime;
+                self.Set("tilnextattack", t);
+                var victim = self.Get<Instance>("victim");
+                if (t < 0) OnAttack(self, victim);
+                self.Set("hp", MathP.Min(self.Get<float>("maxhp"), self.Get<float>("hp") + (deltaTime * ai["appleness"])));
+            }
+            else self.Set("hp", self.Get<float>("maxhp"));
+            if (self.Var.ContainsKey("target"))
+            {
+                Vector2 target = self.Get<Vector2>("target");
+                self.Speed.X = MathP.Clamp((target.X - self.Position.X) * 5 + MathP.SExp(self.Speed.X - (target.X - self.Position.X) * 5, .01f, deltaTime), -MaxSpeed, MaxSpeed);
+                if (MathP.Abs(self.Speed.X) < 1 || self.Position.X < 8 || self.Position.X > (1920 - 8)) self.Var.Remove("target");
+                if (self.Speed.Y > MetaP.TargetFPS * 2) self.Frame = 3;
+                else self.Frame = (self.Frame + deltaTime * self.Speed.X / 16) % 3;
+                if (MathP.Abs(self.Speed.Y) < MetaP.TargetFPS)
+                    self.Rotation = MathP.Lerp(self.Rotation, -self.Angle * 5, .5f);
             }
             else
             {
-                var ai = self.Get<Dictionary<string, float>>("ai");
-                if (self.Var.ContainsKey("target"))
+                self.Set("tilnextkick", self.Get<float>("tilnextkick") - deltaTime);
+                var t = self.Get<float>("tilnextmove") - deltaTime;
+                if (self.Get<float>("jumps") > 0 && t < 0)
                 {
-                    Vector2 target = self.Get<Vector2>("target");
-                    self.Speed.X = MathP.Clamp((target.X - self.Position.X) * 5 + MathP.SExp(self.Speed.X - (target.X - self.Position.X) * 5, .01f, deltaTime), -MaxSpeed, MaxSpeed);
-                    if (MathP.Abs(self.Speed.X) < 1 || self.Position.X < 8 || self.Position.X > (1920 - 8)) self.Var.Remove("target");
-                    if (self.Speed.Y > MetaP.TargetFPS * 2) self.Frame = 3;
-                    else self.Frame = (self.Frame + deltaTime * self.Speed.X / 16) % 3;
-                    if (MathP.Abs(self.Speed.Y) < MetaP.TargetFPS)
-                        self.Rotation = MathP.Lerp(self.Rotation, -self.Angle * 5, .5f);
-                }
-                else
-                {
-                    self.Set("tilnextattack", self.Get<float>("tilnextattack") - deltaTime);
-                    var t = self.Get<float>("tilnextmove") - deltaTime;
-                    if (self.Get<float>("jumps") > 0 && t < 0)
+                    // jump check
+                    if (self.Get<bool>("forcejump") || RandomP.Chance(ai["jumpness"]))
                     {
-                        // jump check
-                        if (RandomP.Chance(ai["jumpness"]))
-                        {
-                            self.Set("jumps", self.Get<float>("jumps") - 1);
-                            self.Speed.Y = MathP.Lerp(-1600, -6400, ai["jumpheight"]) * RandomP.Random(ai["zebraness"], 1);
-                            var s = MathP.Sign(self.Speed.X);
-                            if (s == 0) s = RandomP.Chance(.5f) ? 1 : -1;
-                            self.Speed.X = s * (4000 * ai["camelness"]);
-                        }
-                        else
-                        {
-                            // move check
-                            self.Set("target", new Vector2(self.Position.X + ((RandomP.Chance(.5f) ? 1 : -1) * MathP.Lerp(50, 500 * ai["agility"], RandomP.Random(0, 1f))), self.Position.Y));
-                            var tick = 1 / ai["dexterity"];
-                            self.Set("tilnextmove", RandomP.Random(tick * .1f, tick * (.1f + ai["jokerness"])));
-                        }
+                        self.Set("forcejump", false);
+                        self.Set("jumps", self.Get<float>("jumps") - 1);
+                        self.Speed.Y = MathP.Lerp(-1600, -6400, ai["jumpheight"]) * RandomP.Random(ai["zebraness"], 1);
+                        var s = MathP.Sign(self.Speed.X);
+                        if (s == 0) s = RandomP.Chance(.5f) ? 1 : -1;
+                        self.Speed.X = s * (4000 * ai["camelness"]);
                     }
-                    else self.Set("tilnextmove", t);
+                    else
+                    {
+                        // move check
+                        if (self.Get<bool>("incombat"))
+                            self.Set("target", self.Get<Instance>("victim").Position + new Vector2(RandomP.Random(100, -100), RandomP.Random(100, -100)));
+                        else self.Set("target", new Vector2(self.Position.X + ((RandomP.Chance(.5f) ? 1 : -1) * MathP.Lerp(50, 500 * ai["agility"], RandomP.Random(0, 1f))), self.Position.Y));
+                        var tick = 1 / ai["dexterity"];
+                        self.Set("tilnextmove", RandomP.Random(tick * .1f, tick * (.1f + ai["jokerness"])));
+                    }
                 }
+                else self.Set("tilnextmove", t);
+            }
+            if (self.Get<int>("forcestate") != 0)
+            {
+                self.Frame = self.Get<int>("forcestate");
+                var t = self.Get<float>("forcestatetime") - deltaTime;
+                if (t < 0) self.Set("forcestate", 0);
+                else self.Set("forcestatetime", t);
             }
         }
         public static float StepAssist = 4;
@@ -97,7 +141,7 @@ namespace Gizmo.StreamOverlay.Elements.Entities
                 }
                 else self.Position.Y += i;
             }
-            if (other.Element is Squareish && !other.Get<bool>("pinned") && self.Var.ContainsKey("target") && self.Get<float>("tilnextattack") < 0)
+            if (other.Element is Squareish && !other.Get<bool>("pinned") && self.Var.ContainsKey("target") && self.Get<float>("tilnextkick") < 0)
             {
                 var ai = self.Get<Dictionary<string, float>>("ai");
                 if (!RandomP.Chance(ai["aggression"])) return;
@@ -116,8 +160,9 @@ namespace Gizmo.StreamOverlay.Elements.Entities
                 if (y >= 0) other.Speed.Y = Math.Max(y, other.Speed.Y);
                 else other.Speed.Y = Math.Min(y, other.Speed.Y);
                 other.Rotation = MathP.Lerp(-r, r, RandomP.Random(0f, 1f));
+                if (ai["aggression"] > .05f && RandomP.Chance(ai["aggression"])) other.Destroy();
                 Audio.Play("screen/kick");
-                self.Set("tilnextattack", .05f / ai["aggression"]);
+                self.Set("tilnextkick", .05f / ai["aggression"]);
             }
         }
 
@@ -132,6 +177,57 @@ namespace Gizmo.StreamOverlay.Elements.Entities
             if (self.Speed.X < 0) self.Scale.X *= -1;
             base.OnDraw(ref self, deltaTime);
             if (self.Speed.X < 0) self.Scale.X *= -1;
+            var e_maxhp = self.Get<Instance>("e_maxhp");
+            var e_hp = self.Get<Instance>("e_hp");
+            if (self.Get<bool>("incombat"))
+            {
+                var maxhp = self.Get<float>("maxhp");
+                var hp = self.Get<float>("hp");
+                e_maxhp.Alpha = 1;
+                e_hp.Alpha = 1;
+                e_hp.Set("size", new Vector2(256 * hp / maxhp, 8));
+                e_hp.Position.X = e_maxhp.Position.X - (128 - (128 * hp / maxhp));
+            }
+            else
+            {
+                e_maxhp.Alpha = 0;
+                e_hp.Alpha = 0;
+            }
+        }
+
+        public void OnAttack(Instance self, Instance victim)
+        {
+            if (!HitboxP.Check(self, victim)) return;
+            var damage = self.Get<float>("attack");
+            if (RandomP.Chance(self.Get<float>("critchance")))
+                damage *= self.Get<float>("critdamage");
+            var d = Game.DRAW_ORDER.ToList();
+            if (d.IndexOf(self) > d.IndexOf(victim)) {
+                OnHit(victim, self, RandomP.Random(0, damage), []);
+                Audio.Play("screen/kick");
+                self.Set("forcestate", 4);
+                self.Set("forcestatetime", .25f);
+            } else Audio.Play("screen/speak"); // todo: miss sound
+            var attackspeed = 1 / self.Get<float>("attackspeed");
+            self.Set("tilnextattack", RandomP.Random(attackspeed, attackspeed * 4));
+        }
+
+        public void OnHit(Instance self, Instance attacker, float damage, Dictionary<string, object> special)
+        {
+            self.Set("incombat", true);
+            self.Set("victim", attacker);
+            self.Set("target", self.Position);
+            self.Set("forcestate", 5);
+            self.Set("forcestatetime", .25f);
+            var hp = self.Get<float>("hp") - (damage - self.Get<float>("defense"));
+            self.Set("hp", hp);
+            if (hp <= 0)
+            {
+                attacker.Var.Remove("victim");
+                attacker.Set("incombat", false);
+                StreamWebSocket.Send("fightresult", attacker.Get<string>("author"));
+                self.Destroy();
+            }
         }
 
         public static Instance New(Sprite sprite, Vector2 pos, string author, ColorP color)

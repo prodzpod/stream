@@ -83,7 +83,7 @@ module.exports.init = async () => {
                 else if (nullish(res)) ws.send(WASD.pack("register", res));
             }
             ws.on("message", async msg => {
-                let [id, k, v] = split(msg, " ", 2); v = WASD.unpack(v);
+                let [id, k, v] = split(msg, /\s+/, 2); v = WASD.unpack(v);
                 if (k.startsWith("_")) ws.send(WASD.pack("respond", id, "no"));
                 let res = null;
                 if (api[k]) { res = api[k](ws, v); if (res instanceof Promise) res = await res; }

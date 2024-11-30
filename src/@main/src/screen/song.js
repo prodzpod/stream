@@ -8,9 +8,9 @@ module.exports.predicate = ["!song", "!sing", "!play", "!bell", "!bells", "!s"];
 module.exports.permission = 0;  
 module.exports.execute = async (_reply, from, chatter, message, text) => {
     if (!src().user.cost(_reply, chatter, 100)) return [0, ""];
-    let raw = split(text, " ", 1)[1], x, y;
-    if (typeof numberish(split(raw, " ", 1)[0]) === "number") {
-        [x, y, raw] = split(raw, " ", 2);
+    let raw = split(text, /\s+/, 1)[1], x, y;
+    if (typeof numberish(split(raw, /\s+/, 1)[0]) === "number") {
+        [x, y, raw] = split(raw, /\s+/, 2);
         x = Math.clamp(Math.round(Number(x)), 0, 1920), y = Math.clamp(Math.round(Number(y)), 0, 1080);
     } else { x = Math.floor(random(1, 1919)); y = Math.floor(random(1, 1079)); }
     raw = raw.trim(); const _raw = split(raw, ".wmid")[0]

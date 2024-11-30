@@ -5,7 +5,7 @@ const { log } = require("../../commonServer");
 module.exports.predicate = "!qat";
 module.exports.permission = true;
 module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
-    const html = await send("qat", "qat", split(text, " ", 1)[1]);
+    const html = await send("qat", "qat", split(text, /\s+/, 1)[1]);
     const start = html.indexOf("<div class=\"in\">", html.indexOf("<td class=\"l\">")) + "<div class=\"in\">".length;
     const end = html.indexOf("</div>", start);
     const div = html.slice(start, end).replaceAll("<br>", "\n");

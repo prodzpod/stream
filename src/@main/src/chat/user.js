@@ -49,16 +49,16 @@ module.exports.initialize = async (id, forceBlockUpdate=false) => {
         "strength", // how far do your guy hit stuff
         "bisonness", // how far do your guy hit stuff vertically
         "luck", // variance of your guy hitting stuff distance
-        "appleness", // reserved
         "banananess", // reserved
         "orangeness", // reserved
     ]) chatter.shimeji.ai[category] ??= { max: 2, value: 1 };
     // combat stats
+    chatter.shimeji.ai.appleness ??= 2;
     chatter.shimeji.ai.constitution ??= 100;
-    chatter.shimeji.ai.attack ??= 5;
-    chatter.shimeji.ai.defense ??= 1;
-    chatter.shimeji.ai.critchance ??= 1;
-    chatter.shimeji.ai.critdamage ??= 2;
+    chatter.shimeji.ai.attack ??= 10;
+    chatter.shimeji.ai.defense ??= 0;
+    chatter.shimeji.ai.critchance ??= 0.05;
+    chatter.shimeji.ai.critdamage ??= 2.5;
     chatter.shimeji.ai.multihit ??= 1;
     chatter.shimeji.ai.attackspeed ??= 4;
     chatter.shimeji.ai.oxness ??= 0; // how much your guy want to charge towards other guy

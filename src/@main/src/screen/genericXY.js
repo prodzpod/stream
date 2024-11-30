@@ -3,10 +3,10 @@ const { split, Math, nullish } = require("../../common");
 const { log } = require("../../commonServer");
 const { args } = require("../chat/chat");
 
-module.exports.predicate = ["!spawn", "!window", "!moveshimeji"];
+module.exports.predicate = ["!spawn", "!window", "!moveshimeji", "!jump"];
 module.exports.permission = 0;  
 module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
-    const _cmd = split(text, " ", 1)[0].slice(1); const cmd = OVERRIDE[_cmd] ?? _cmd;
+    const _cmd = split(text, /\s+/, 1)[0].slice(1); const cmd = OVERRIDE[_cmd] ?? _cmd;
     if (cmd === "window") text = await src().chat.emotesToGizmo(from, text, emote);
     const _args = args(text);
     if (!COST[cmd] || src().user.cost(_reply, chatter, COST[cmd])) {

@@ -22,7 +22,7 @@ module.exports.execute = async (_reply, from, chatter, message, text) => {
     return [0, ""];
 }
 
-const SIGIL_NORMAL = "🌌🎑";
+const SIGIL_NORMAL = "🌠🌌🎑";
 const SIGIL_CLONE = "🌙";
 const OVERRIDE = "";
 

@@ -19,10 +19,18 @@ namespace ProdModel.Object.Sprite
         public static bool Busy = false;
         public static bool Ready = false;
         public static List<string> PreviousAccessories = [];
-        public static List<string> FixedAccessories = ["skirt_default", "leaf"];
+        public static List<string> FixedAccessories = ["skirt_default", "flower"];
         public static List<string> Accessories = [];
         public static List<ColorP> PreviousColor = [];
         public static Dictionary<ColorP, ColorP> ColorReplace = [];
+
+        public static Vector3 CameraRotation = Vector3.Zero;
+        public static float CameraZoom = 1;
+        public static MatrixP Camera(string id)
+        {
+            if (id != "body") return MatrixP.IDENTITY;
+            return MatrixP.Rotate(CameraRotation) * MatrixP.Scale(CameraZoom);
+        }
         public static void DrawTriangles(List<Triangle> triangles)
         {
             /*
@@ -171,6 +179,7 @@ namespace ProdModel.Object.Sprite
                         * MatrixP.Translate(translate)
                         * MatrixP.Scale(scale)
                         * MatrixP.Rotate(rotate)
+                        * Camera(queue[0])
                         * MatrixP.Translate(-wvrm.model[queue[0]].pivot), target);
                     // Logger.Log("Pre:", wvrm.model["hand_right"].pivot, wvrm.model["hand_right"].v[0], wvrm.model["hand_right"].v[0] * matrices["hand_right"]);
                     queue.AddRange(wvrm.model[queue[0]].children);

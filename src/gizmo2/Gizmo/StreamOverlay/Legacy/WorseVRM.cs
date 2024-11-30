@@ -87,7 +87,7 @@ namespace ProdModel.Puppet
                 };
                 foreach (string k2 in wvrm.poses[k].pose.Keys) 
                 {
-                    float kf = k2.Equals("default", StringComparison.CurrentCultureIgnoreCase) ? -1 : float.Parse(k2);
+                    float kf = k2.Equals("default", StringComparison.CurrentCultureIgnoreCase) ? -1 : MathP.SafeParse(k2);
                     poses[k].pose[kf] = [];
                     foreach (string k3 in wvrm.poses[k].pose[k2].Keys)
                         poses[k].pose[kf][k3] = new(wvrm.poses[k].pose[k2][k3][0], wvrm.poses[k].pose[k2][k3][1], wvrm.poses[k].pose[k2][k3][2]);

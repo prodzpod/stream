@@ -85,7 +85,7 @@ module.exports.checkPerms = (source, from, chatter, message, text, emote, reply)
     return ret;
 }
 
-module.exports.args = text => WASD.unpack(split(text, " ", 1)[1]);
+module.exports.args = text => WASD.unpack(split(text, /\s+/, 1)[1]);
 function onCommand(from, chatter, message, text, emote, reply) {
     if (chatter?.shimeji?.ai) {
         chatter.shimeji.ai.luck.max += 1;
@@ -102,7 +102,7 @@ module.exports.emotesToGizmo = async (source, text, emote, offset=0) => {
     let _;
     emote = emote.map(x => { x.position -= offset; return x; }).filter(x => Math.between(0, x.position, text.length));
     [_, text, emote] = await module.exports.emotes(null, {}, {}, text, emote, null);
-    return WASD.toString(handleMeta(source, "gizmo", text, emote)[0]);
+    return WASD.toString(module.exports.handleMeta(source, "gizmo", text, emote)[0]);
 }
 module.exports.emotes = async (from, chatter, message, text, emote, reply) => {
     let emotes = data().emote;
@@ -163,12 +163,12 @@ module.exports.chat = async (from, chatter, message, text, emote, reply) => {
     const name = chatter.twitch?.name ?? Object.values(chatter).find(x => x.name).name;
     let source = Object.keys(message)[0] ?? "";
     if (!message.twitch) {
-        let meta = handleMeta(source, "twitch", text, emote);
+        let meta = module.exports.handleMeta(source, "twitch", text, emote);
         meta[1] = meta[1].map(x => { x.position += `@${name}: `.length; return x; });
         message.twitch = (await send("twitch", "send", null, `@${name}: ${meta[0]}`, meta[1], reply?.twitch?.id));
     }
     if (!message.discord) {
-        let meta = handleMeta(source, "discord", text, emote);
+        let meta = module.exports.handleMeta(source, "discord", text, emote);
         meta[1] = meta[1].map(x => { x.position += `\`<@${name}>\`: `.length; return x; });
         message.discord = (await send("discord", "send", null, `\`<@${name}>\`: ${meta[0]}`, meta[1], reply?.discord?.id));
     }
@@ -179,12 +179,12 @@ module.exports.chat = async (from, chatter, message, text, emote, reply) => {
         icons.push(icon);
         if (chatter.economy.icon.modifier) icons.push("modifier/" + chatter.economy.icon.modifier);
     } else icons.push("common/" + random(data().icon.common));
-    send("gizmo", "chat", message.twitch.id, icons.map(x => "icon/" + x), (chatter.twitch?.color ?? "#000000"), name, WASD.toString(handleMeta(source, "gizmo", text, emote)[0]), chatter.twitch && BigMath.between(chatter.meta.last_chatted, data().stream.start, time()) ? 1 : 0);
+    send("gizmo", "chat", message.twitch.id, icons.map(x => "icon/" + x), (chatter.twitch?.color ?? "#000000"), name, WASD.toString(module.exports.handleMeta(source, "gizmo", text, emote)[0]), chatter.twitch && BigMath.between(chatter.meta.last_chatted, data().stream.start, time()) ? 1 : 0);
     src().message.register(message, chatter);
     chatter = onChat(from, chatter, message, stringify(text), emote, reply);
     return [chatter, null];
 }
-function handleMeta(source, dest, text, emote) {
+module.exports.handleMeta = (source, dest, text, emote) => {
     text = text.replace(/<[Ee][Mm][Oo][Tt][Ee]=/g, "<emοte="); // abuse prevention (bad)
     emote = JSON.parse(JSON.stringify(emote));
     let i = /<@([^:]+):(\d+)>/.exec(text);

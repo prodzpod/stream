@@ -118,9 +118,14 @@ const INFO_MESSAGES = {
             return ret / (args.length * (args.length - 1));
         }
         let global = data().global;
-        let _gcp3 = (await module.exports.updateGCP())[1] * 100; // trigger this even after gcp3 is real
-        let c = coherence(global.gcp, global.gcp2, _gcp3);
-        return `${getEmote(global.gcp)} The network variance is ${getText(global.gcp)}. (${Math.prec(global.gcp)}%, gcp2: ${getEmote(global.gcp2)} ${Math.prec(global.gcp2)}%, gcp3*: ${getEmote(_gcp3)} ${Math.prec(_gcp3)}%, coherence: ${getEmote(c)} ${Math.prec(c)}%)`
+        let prod_gcp3 = (await module.exports.updateGCP())[1] * 100; // trigger this even after gcp3 is real
+        let venorrak_gcp3 = 0;
+        try { venorrak_gcp3 = Math.clamp((await (await (require("node-fetch")("https://server.venorrak.dev/api/joels/JCP/short?limit=1"))).json())[0].JCP / 10, 0, 1); } catch {}
+        let krzysckh_gcp3 = 0;
+        try { krzysckh_gcp3 = Math.clamp(((await (await (require("node-fetch")("https://api.blg.krzysckh.org/?q=last-gradus"))).json()).v + 4) / 26, 0, 1); } catch {}
+        let gcp3 = coherence(prod_gcp3, venorrak_gcp3, krzysckh_gcp3);
+        let c = coherence(global.gcp, global.gcp2, gcp3);
+        return `${getEmote(global.gcp)} The network variance is ${getText(global.gcp)}. (${Math.prec(global.gcp)}%, gcp2: ${getEmote(global.gcp2)} ${Math.prec(global.gcp2)}%, gcp3: ${getEmote(gcp3)} ${Math.prec(gcp3)}%, coherence: ${getEmote(c)} ${Math.prec(c)}%)`
     },
     inv: getInfo,
     inventory: getInfo,
@@ -131,7 +136,7 @@ const INFO_MESSAGES = {
 module.exports.predicate = Object.keys(INFO_MESSAGES).map(x => "!" + x);
 module.exports.permission = true;  
 module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
-    let ret = INFO_MESSAGES[split(text, " ", 1)[0].slice(1).toLowerCase().trim()](from, chatter, message, text, emote, reply);
+    let ret = INFO_MESSAGES[split(text, /\s+/, 1)[0].slice(1).toLowerCase().trim()](from, chatter, message, text, emote, reply);
     if (ret instanceof Promise) ret = await ret;
     _reply(ret);
     return [0, ""];

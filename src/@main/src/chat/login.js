@@ -15,7 +15,7 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
         _reply(`Send \`!login ${id}\` on the Twitch Chat to connect your account.`);
         return [0, ""];
     } else if (_args.length && chatter.twitch) {
-        const k = split(text, " ", 1)[1].trim().toLowerCase();
+        const k = split(text, /\s+/, 1)[1].trim().toLowerCase();
         if (logins[k]) {
             chatter = safeAssign(chatter, logins[k]);
             register(chatter);

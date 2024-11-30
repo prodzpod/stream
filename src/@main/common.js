@@ -125,6 +125,7 @@ module.exports.realtype = a => {
     if (a instanceof Set) return "set";
     if (a === null) return "null";
     if (Number.isNaN(a)) return "nan";
+    if (a instanceof RegExp) return "regex";
     return typeof a;
 }
 module.exports.looselyEqual = (a, b, replaceArrays=true) => {
@@ -147,6 +148,8 @@ module.exports.looselyEqual = (a, b, replaceArrays=true) => {
     if (type[0] === "function" && type[1] === "function") return a+"" === b+"";
     if (type[0] === "function") return module.exports.trueish(a(b));
     if (type[1] === "function") return module.exports.trueish(b(a));
+    if (type[0] === "regex") return a.test(b.toString());
+    if (type[1] === "regex") return b.test(a.toString());
     return a.toString().trim().toLowerCase() === b.toString().trim().toLowerCase();
 }
 //* #REGION number operation
@@ -239,15 +242,17 @@ module.exports.getIdentifier = () => {
 module.exports.split = (arr, sep, lim = 0) => {
     const isString = typeof arr === "string";
     if (!Array.isArray(sep)) sep = [sep];
+    for (let i = 0; i < sep.length; i++) if (module.exports.realtype(sep[i]) === "regex") sep[i] = new RegExp("^" + sep[i].source, sep[i].flags);
     let ret = [], ptr = 0, i = 0;
     while (i < arr.length) {
-        i++;
-        let s = sep.find(x => isString ? arr.startsWith(x, i) : module.exports.looselyEqual(arr[i], x));
+        let s = sep.find(x => isString ? (module.exports.realtype(x) === "regex" ? x.test(arr.slice(i)) : arr.startsWith(x, i)) : module.exports.looselyEqual(arr[i], x));
         if (s) {
+            if (module.exports.realtype(s) === "regex") s = s.exec(arr.slice(i))[0];
             ret.push(arr.slice(ptr, i));
-            ptr = i + (isString ? s.length : 1); i = ptr;
+            ptr = i + (isString ? (s.length) : 1); i = ptr - 1;
             if (lim > 0 && ret.length >= lim) break;
         }
+        i++;
     }
     ret.push(arr.slice(ptr));
     if (lim > 0) for (let i = arr.length; i <= lim; i++) ret.push("");

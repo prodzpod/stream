@@ -121,7 +121,7 @@ namespace Gizmo.Engine
                     }
                 }
                 var cap3 = k.Capture(@"(\-?((\d+\.?\d*)|(\d*\.\d+)))");
-                if (cap3.Length != 0) Sprites[key2].DefaultDepth = float.Parse(cap3[0]);
+                if (cap3.Length != 0) Sprites[key2].DefaultDepth = MathP.SafeParse(cap3[0]);
             }
             Logger.Info("Initialized", Sprites.Count, "Sprites");
             Logger.Info("Initialized", NineSlices.Count, "Nine Slices");

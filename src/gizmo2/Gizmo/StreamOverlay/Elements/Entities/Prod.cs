@@ -4,6 +4,7 @@ using Gizmo.Engine.Data;
 using Gizmo.Engine.Graphic;
 using Gizmo.StreamOverlay.Elements.Gizmos;
 using Gizmo.StreamOverlay.Elements.Windows;
+using Gizmo.StreamOverlay.Rooms;
 using ProdModel.Object.Sprite;
 using ProdModel.Puppet;
 using Raylib_CSharp.Textures;
@@ -30,7 +31,7 @@ namespace Gizmo.StreamOverlay.Elements.Entities
             self.Playback = 0;
             self.Depth = -1;
             base.OnInit(ref self);
-            self.Position.X = Commands.Chat.Bounds.X + Commands.Chat.Bounds.Z / 2;
+            self.Position.X = (Commands.Chat.Bounds.X + MainRoom.Chat.Position.X) + Commands.Chat.Bounds.Z / 2;
             Prod3D = new()
             {
                 Image = Texture2D.LoadFromImage(ModelSprite.image),
@@ -42,7 +43,7 @@ namespace Gizmo.StreamOverlay.Elements.Entities
         {
             base.OnUpdate(ref self, deltaTime);
             if (!OnTopOfChat && !Is2D) { self.Angle = 0; self.Gravity = Vector2.Zero; }
-            if (OnTopOfChat) self.Position.Y = MathP.SExp(self.Position.Y - Commands.Chat.Bounds.Y * .75f, .01f, deltaTime) + Commands.Chat.Bounds.Y * .75f;
+            if (OnTopOfChat) self.Position.Y = MathP.SExp(self.Position.Y - (Commands.Chat.Bounds.Y + MainRoom.Chat.Position.Y) * .75f, .01f, deltaTime) + (Commands.Chat.Bounds.Y + MainRoom.Chat.Position.Y) * .75f;
             if (OnTopOfChat && Is2D) self.Frame = 4;
             if (OnTopOfChat) ModelHandler.Pose = Pose;
             else
@@ -63,14 +64,18 @@ namespace Gizmo.StreamOverlay.Elements.Entities
         {
             base.OnRelease(ref self, position);
             if (self == null) return;
-            if (position.X < Commands.Chat.Bounds.X + Commands.Chat.Bounds.Z)
+            if (
+                MainRoom.Chat.Position.X > (1920 / 2) ?
+                position.X > (Commands.Chat.Bounds.X + MainRoom.Chat.Position.X) - Commands.Chat.Bounds.Z :
+                position.X < (Commands.Chat.Bounds.X + MainRoom.Chat.Position.X) + Commands.Chat.Bounds.Z
+                )
             {
                 Is2D = false;
                 OnTopOfChat = true;
                 self.Speed = Vector2.Zero;
                 self.Angle = 0;
                 self.Rotation = 0;
-                self.Position.X = Commands.Chat.Bounds.X + Commands.Chat.Bounds.Z / 2;
+                self.Position.X = (Commands.Chat.Bounds.X + MainRoom.Chat.Position.X) + Commands.Chat.Bounds.Z / 2;
                 self.Gravity = Vector2.Zero;
             }
             if (Is2D && !OnTopOfChat) self.Gravity = Vector2.UnitY * 2000;

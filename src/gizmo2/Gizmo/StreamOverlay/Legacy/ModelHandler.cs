@@ -65,6 +65,7 @@ namespace ProdModel.Puppet
             }
             return "0";
         }
+        public static Vector3 LastFacePosition = Vector3.Zero;
         public static Vector3 LastLeftShoulderPosition = Vector3.Zero;
         public static Vector3 LastRightShoulderPosition = Vector3.Zero;
         public static void SetPose(ref WorseVRM wvrm, string id, ref Vector3 translate, ref Vector3 rotate, ref Vector3 scale)
@@ -82,6 +83,7 @@ namespace ProdModel.Puppet
                         translate.Y += .15f;
                         rotate.Z -= .1f;
                     }
+
                     break;
                 case "skirt_default":
                     rotate.Y -= rotation.Y * 0.3f;
@@ -105,6 +107,9 @@ namespace ProdModel.Puppet
                     break;
                 case "hand_right":
                     if (RightArmAngle2 != Vector3.Zero) rotate = RightArmAngle2;
+                    break;
+                case "face":
+                    LastFacePosition = wvrm.model[id].pivot;
                     break;
                 case "shoulder_left":
                     LastLeftShoulderPosition = wvrm.model[id].pivot;

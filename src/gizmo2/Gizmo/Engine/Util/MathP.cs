@@ -272,5 +272,13 @@ namespace Gizmo.Engine.Data
         public static float Atan2(float ax, float ay, float bx, float by) => Atan2(bx - ax, by - ay);
         public static float Atan2(float x, float y) => PosMod(RadToDeg(MathF.Atan2(y, x)), 360);
         #endregion
+
+        public static float SafeParse(string x, float min = -1000000, float max = 1000000)
+        {
+            if (!float.TryParse(x, out float f)) return min;
+            if (float.IsNaN(f)) return min;
+            if (!float.IsFinite(f)) return f > 0 ? max : min;
+            return Clamp(f, min, max);
+        }
     }
 }
