@@ -2,6 +2,8 @@
 using Gizmo.Engine.Builtin;
 using Gizmo.Engine.Data;
 using Gizmo.Engine.Graphic;
+using Gizmo.Engine.Util;
+using Gizmo.StreamOverlay.Elements.Entities;
 using System.Numerics;
 
 namespace Gizmo.StreamOverlay.Elements.Gizmos
@@ -23,7 +25,30 @@ namespace Gizmo.StreamOverlay.Elements.Gizmos
                 children.Add(graphic);
             }
             ret.Set("children", children.ToArray());
+            ret.Set("kickedbytime", 0f);
             return ret;
+        }
+
+        public override void OnUpdate(ref Instance self, float deltaTime)
+        {
+            base.OnUpdate(ref self, deltaTime);
+            var t = self.Get<float>("kickedbytime");
+            if (t <= 0) return;
+            t -= deltaTime;
+            if (t <= 0) self.Var.Remove("kickedby");
+            self.Set("kickedbytime", t);
+        }
+
+        public override void OnCollide(ref Instance self, Instance other)
+        {
+            base.OnCollide(ref self, other);
+            if (other == null) return;
+            if (other.Element is Shimeji && self.Var.ContainsKey("kickedby"))
+            {
+                Instance attacker = self.Get<Instance>("kickedby");
+                if (attacker.Var.TryGetValue("victim", out object victim) && other == (Instance)victim)
+                    Shimeji.OnAttackNeverMiss(attacker, other);
+            }
         }
 
         public override void OnClick(ref Instance self, Vector2 position)

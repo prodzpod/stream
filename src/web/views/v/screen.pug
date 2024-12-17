@@ -12,7 +12,7 @@ block body
             .layer(style="background-color: #396ba5;")
             .layer#twitch-embed
             .layer#offline(style="background-color: #396ba5;")
-                img(src="/images/screen/offline.png" style="width: 100%; height: 100%;")
+                img(src="/images/screen/offline.png" style="width: 100%; height: 100%; image-rendering: pixelated;")
             .layer#loading(style="background-color: #396ba5;")
                 img(src="/images/screen/error.png" style="width: 100%; height: 100%;")
             .layer#screen(onclick="screen(event)" onauxclick="screen(event)" oncontextmenu="return false;")
@@ -92,9 +92,14 @@ block postbody
                 if (!COMMANDS[args[0]]) console.warn(args[0], "does not exist but recieved:", args);
                 else COMMANDS[args[0]](...args.slice(1));
             });
+            let currentCursor = null;
             setInterval(() => {
-                if (!cursor) e("cursor").with("style", "display: none;");
-                else e("cursor").with("src", `https://prod.kr/images/screen/${cursor}.png`).with("style", `display: block; left: ${mouse.x}px; top: ${mouse.y}px;`);
+                if (cursor != currentCursor) {
+                    if (!cursor) e("cursor").with("style", "display: none;");
+                    else e("cursor").with("src", `https://prod.kr/images/screen/${cursor}.png`);
+                    currentCursor = cursor;
+                }
+                if (currentCursor) e("cursor").with("style", `display: block; left: ${mouse.x}px; top: ${mouse.y}px;`);
             }, 33);
             (async () => {
                 let _icons = WASD.unpack(await (await fetch("https://prod.kr/data/icon.wasd")).text())[0]
@@ -160,11 +165,14 @@ block postbody
                         break;
                     case "changepalette":
                         if (realtype(o) !== "array") break;
+                        o.sort();
+                        if (o.includes("#00000000")) { o = remove(o, "#00000000"); o.push("#00000000"); }
                         for (let color of o)
                             insertElement("option", "color-from", null, color);
                         break;
                     case "changeaccessory":
                         if (realtype(o) !== "array") break;
+                        o.sort();
                         for (let acc of o)
                             insertElement("option", "accessory", null, acc);
                         break;
@@ -353,7 +361,7 @@ block postbody
             spawnshimeji: () => { addGenericPointerScreen("Click on the position you want to spawn your shimeji at.", "spawnshimeji"); },
             move: () => { addGenericPointerScreen("Click on the position you want to move your shimeji to.", "moveshimeji"); },
             jump: () => { send("jump", 1, 1); setState("action"); },
-            levelupprod: () => { send("credits"); setState("action"); },
+            levelupprod: () => { send("credits", ".861287561875618756479"); setState("action"); },
             removetriangle: () => { send("removetriangle", 1); setState("action"); },
             gravity: () => { addGenericPointerScreen("Click on the direction you want to throw.", "gravity"); },
             randomize: () => { send("randomize"); setState("action"); },
@@ -366,6 +374,10 @@ block postbody
                 insertElement("input", input, "spacer").with("id", "color-to").with("type", "color").with("style", "border-radius: 64px; padding: 16px; height: 64px; margin: 16px;");
                 let btn = insertElement("button", input, null, "Go").with("id", "go");
                 addEvent("onclick", () => { send("palette", e("color-from").value, e("color-to").value); }, btn);
+                let btn2 = insertElement("button", input, null, "Reset").with("id", "reset");
+                addEvent("onclick", () => { send("palette", e("color-from").value); }, btn2);
+                let btn3 = insertElement("button", input, null, "Reset All").with("id", "reset-all");
+                addEvent("onclick", () => { send("palette", "reset"); }, btn3);
                 send("fetch", "palette");
             },
             changeaccessory: () => {
@@ -375,6 +387,8 @@ block postbody
                 insertElement("select", input, "spacer").with("id", "accessory").with("style", "border-radius: 64px; padding: 16px; height: 64px; margin: 16px;");
                 let btn = insertElement("button", input, null, "Go").with("id", "go");
                 addEvent("onclick", () => { send("accessory", e("accessory").value); }, btn);
+                let btn2 = insertElement("button", input, null, "Reset All").with("id", "reset-all");
+                addEvent("onclick", () => { send("accessory", "reset"); }, btn2);
                 send("fetch", "accessory");
             },
             changecamera: () => {

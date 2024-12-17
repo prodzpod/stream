@@ -12,13 +12,12 @@ namespace Gizmo.StreamOverlay.Commands
     {
         public override object?[]? Execute(params object?[] args)
         {
-            if (args.Length == 0)
+            string? source = WASD.Assert<string>(args[0]);
+            if (source == null) 
             {
-                ModelSprite.Accessories = ["skirt_default"];
+                ModelSprite.Accessories = [..ModelSprite.FixedAccessories];
                 return ["reset all"];
             }
-            string? source = WASD.Assert<string>(args[0]);
-            if (source == null) return null;
             if (ModelSprite.Accessories.Contains(source))
             {
                 ModelSprite.Accessories.Remove(source);

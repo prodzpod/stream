@@ -3,9 +3,11 @@ using Gizmo.Engine.Builtin;
 using Gizmo.Engine.Data;
 using Gizmo.Engine.Graphic;
 using Gizmo.Engine.Util;
+using Gizmo.StreamOverlay.Elements.Entities;
 using Gizmo.StreamOverlay.Elements.Gizmos;
 using Gizmo.StreamOverlay.Rooms;
 using System.Numerics;
+using YamlDotNet.Core.Tokens;
 
 namespace Gizmo.StreamOverlay.Elements.Screens
 {
@@ -40,17 +42,55 @@ namespace Gizmo.StreamOverlay.Elements.Screens
             ((Sprite)self.Sprite).Draw(self.Frame, self.Position + new Vector2(self.Life * 32 % 64, self.Life * 32 % 64), self.Scale, self.Angle, self.Blend * self.Alpha);
         }
     }
-    public class RaidBoss : Squareish
+    public class RaidBoss : Shimeji
     {
         public override bool Immortal => true;
         public override string Sprite => "other/raidboss";
+        public override float Mass(Instance i) => 1;
+        public override float Drag(Instance i) => 1;
+        public override float Friction(Instance i) => .8f;
+        public override float Bounciness(Instance i) => .7f;
+        public override Vector2 Gravity(Instance i) => Vector2.Zero;
         public override void OnInit(ref Instance self)
         {
             base.OnInit(ref self);
-            self.Depth = 2;
+            self.Depth = 50;
+            self.Set("ai", new Dictionary<string, float>()
+            {
+                {  "dexterity", .5f },
+                {  "jokerness", .5f },
+                {  "agility", .5f },
+                {  "jumpness", .5f },
+                {  "zebraness", .5f },
+                {  "jumpheight", .5f },
+                {  "camelness", .5f },
+                {  "wisdom", .5f },
+                {  "aggression", .5f },
+                {  "strength", .5f },
+                {  "bisonness", .5f },
+                {  "luck", .5f },
+                {  "banananess", .5f },
+                {  "orangeness", .5f },
+                {  "appleness", 0f },
+                {  "constitution", 5000f },
+                {  "attack", 25f },
+                {  "defense", 0 },
+                {  "critchance", 0.4f },
+                {  "critdamage", 2.5f },
+                {  "multihit", 1 },
+                {  "attackspeed", 3 },
+                {  "oxness", 0 },
+                {  "hipponess", 0.1f },
+            });
+            self.Set("author", "prodzpod");
+            self.Set("color", "#ffffff");
+            StreamOverlay.Shimeji["prodzpod"] = self;
+            self.Set("tilnextmove", 999999f);
+            self.Set("tilnextkick", 999999f);
         }
         public override void OnUpdate(ref Instance self, float deltaTime)
         {
+            self.Set("jumps", 0f);
             base.OnUpdate(ref self, deltaTime);
             if (self.Life % 7 < 3) self.Frame = 0;
             else self.Frame = (self.Life - 3) * 2;

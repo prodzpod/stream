@@ -34,6 +34,7 @@ module.exports.initialize = async (id, forceBlockUpdate=false) => {
         for (const k of pointers) chatter.economy.pointer[k] = "cursor";
     }
     chatter.shimeji ??= {};
+    chatter.shimeji.autorespawn ??= false;
     chatter.shimeji.sprite ??= null;
     chatter.shimeji.ai ??= {};
     for (let category of [

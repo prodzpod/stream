@@ -13,9 +13,7 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
         return [0, ""];
     }
     if (_args[0].toLowerCase() === "reset") _args[0] = null;
-    {
-        let res = await send("gizmo", "toggleaccessory", _args[0]?.toLowerCase());
-        _reply(res[0]);
-    }
+    let res = await send("gizmo", "toggleaccessory", _args[0]?.toLowerCase());
+    _reply(res[0]);
     return [0, ""];
 }

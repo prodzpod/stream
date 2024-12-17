@@ -65,8 +65,9 @@ module.exports.handleEmotes = async (text, es) => {
     emotes = emotes.slice(0, 50);
     for (let i = 0; i < emotes.length; i++) if (emotes[i].id === undefined) {
         log("Creating New Emote", emotes[i].name, `(${emotes[i].url})`);
-        try { emotes[i].id = (await manager.create({ attachment: emotes[i].url, name: emotes[i].name.trim().replace(/\W/g, "_").slice(0, 32).padStart(2, "_") }))?.id; } 
-        catch (e) { error(e); emotes[i].id = false; } 
+        // try { emotes[i].id = (await manager.create({ attachment: emotes[i].url, name: emotes[i].name.trim().replace(/\W/g, "_").slice(0, 32).padStart(2, "_") }))?.id; } 
+        // catch (e) { error(e); emotes[i].id = false; } 
+        emotes[i].id = false;
         // emotes = emotes.map(x => { if (x.url === emotes[i].url && x !== emotes[i]) x.id = id; return x; }); 
     }
     for (let e of inPlaceSort(es, (a, b) => a.position - b.position).reverse()) {

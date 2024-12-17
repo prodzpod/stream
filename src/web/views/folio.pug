@@ -19,34 +19,7 @@ block body
                 span  ~ 
                 input#date-from(type='date', placeholder='To...')
             .spacer
-        .hlist
-            .filter-group: button.active#design(onclick='toggleCheckbox(this)')
-                .checkbox
-                span  Game Design
-            .filter-group: button.active#code(onclick='toggleCheckbox(this)')
-                .checkbox
-                span  Programming
-            .filter-group: button.active#mod(onclick='toggleCheckbox(this)')
-                .checkbox
-                span  Modding
-            .filter-group: button.active#manage(onclick='toggleCheckbox(this)')
-                .checkbox
-                span  Management
-            .filter-group: button.active#art(onclick='toggleCheckbox(this)')
-                .checkbox
-                span  Art
-            .filter-group: button.active#model(onclick='toggleCheckbox(this)')
-                .checkbox
-                span  Modeling
-            .filter-group: button.active#music(onclick='toggleCheckbox(this)')
-                .checkbox
-                span  Music
-            .filter-group: button.active#video(onclick='toggleCheckbox(this)')
-                .checkbox
-                span  Video
-            .filter-group: button.active#wip(onclick='toggleCheckbox(this)')
-                .checkbox
-                span  Show WIPs
+        .hlist#tags
     #result
 block postbody
     style.
@@ -62,6 +35,7 @@ block postbody
             }
         }
     script.
+        let TAGS = [];
         class Entry {
             constructor(name, thumb, url, desc, tag, start, end) {
                 this.name = name;
@@ -69,7 +43,8 @@ block postbody
                 if (url) this.url = url;
                 this.desc = desc;
                 if (typeof tag === 'string') tag = tag.split(',');
-                this.tag = tag.map(x => x.trim().toLowerCase());
+                this.tag = tag.map(x => x.trim());
+                for (let tag of this.tag) if (!TAGS.includes(tag)) TAGS.push(tag);
                 if (start !== undefined) this.start = new Date(start);
                 if (end !== undefined) this.end = new Date(end);
             }
@@ -114,22 +89,22 @@ block postbody
             new Entry(
                 'Psi: Ophiuchus', 'https://raw.githubusercontent.com/prodzpod/psi_ophiuchus/refs/heads/master/src/main/resources/assets/ophiuchus/textures/meta/logo_symbol.png', "https://github.com/prodzpod/psi_ophiuchus",
                 'PSI addon that adds new spells. minecraft mod (java). unfinished.', 
-                'code,mod,wip', '2022-02-29', '2022-06-23'
+                'code,mod,WIP', '2022-02-29', '2022-06-23'
             ),
             new Entry(
                 'Shapez Infinity', 'https://camo.githubusercontent.com/e813ec6b906a5b98c660ad2277208443ce62339f621e59ed2b5dc5edb82223d4/68747470733a2f2f692e696d6775722e636f6d2f72456a744954612e706e67', 'https://github.com/prodzpod/shapez.io/tree/shapez-infinity-prototype', 
                 'a [shapez.io](https://store.steampowered.com/app/1318690/shapez/) mod that aimed to expand the overall game through different methods of transportation, logistics, and new objectives. [A Spreadsheet](https://docs.google.com/spreadsheets/d/1ODLpB3Hg9pf7-ZFkKVQBCMyUlop6Qf0nfbkUR3Vf0x4/edit?usp=sharing) exists, but no code has been written and the project never really got anywhere since the announcement of [Shapez 2](https://store.steampowered.com/app/2162800/shapez_2/).', 
-                'design,mod,wip', '2020-12-04', '2020-12-07'
+                'design,mod,WIP', '2020-12-04', '2020-12-07'
             ),
             new Entry(
                 'Multichested', 'https://github.com/prodzpod/multichested/raw/main/icon.png', 'https://github.com/prodzpod/multichested', 
                 'a [Risk of Rain 1](https://store.steampowered.com/app/248820/Risk_of_Rain/) quality-of-life mod that scales number of chests and enemies based on the player count.', 
-                'code,mod,wip', '2021-01-16', '2021-01-16'
+                'code,mod,WIP', '2021-01-16', '2021-01-16'
             ),
             new Entry(
                 'rdtutorial', 'https://raw.githubusercontent.com/prodzpod/rdtutorial/refs/heads/main/docs/public/images/bg.png', "https://prodzpod.github.com/rdtutorial/tree/main",
                 'Static website, tutorial for [Rhythm Doctor] editing. ', 
-                'code,art,ui,wip', '2021-05-19', '2021-06-16'
+                'code,art,ui,WIP', '2021-05-19', '2021-06-16'
             ),
             new Entry(
                 'TSU-classmanager', 'https://prod.kr/images/folio/tsu.png', 'https://github.com/prodzpod/tsu-classmanager-issues', 
@@ -144,7 +119,7 @@ block postbody
             new Entry(
                 'adofaitimeline', "", "https://prodzpod.github.com/adofaitimeline/tree/main",
                 'static web (js) timeline editor that outputs json file for [adofai]() custom levels. unfinished.', 
-                'code,wip,ui', '2022-03-19', '2022-03-26'
+                'code,WIP,ui', '2022-03-19', '2022-03-26'
             ),
             new Entry(
                 '🔀🐦 (Shuffle Bird)', "", "https://prodzpod.github.io/shuffle-bird",
@@ -154,7 +129,7 @@ block postbody
             new Entry(
                 'Funny Looksy', "https://raw.githubusercontent.com/prodzpod/witness/refs/heads/master/data/favicon.png", "https://looksy.kro.kr/",
                 'Fork of [witnesspuzzles.com]() with community symbols and puzzles sourced from the witness community. v3 development ongoing.', 
-                'code,art,ui,design,featured', '2021-05-31', ''
+                'code,art,ui,design,Featured', '2021-05-31', ''
             ),
             new Entry(
                 'dlo', "https://firebasestorage.googleapis.com/v0/b/onedayonepuzl.appspot.com/o/31%2Fprod.png?alt=media&token=5e508571-095b-4266-8792-4c85e3767fec", "https://prodzpod.github.io/dlo/",
@@ -179,7 +154,7 @@ block postbody
             new Entry(
                 'Ghabi\'s Forest', "https://ghabi.kro.kr/images/logo_mini.png", "https://ghabi.kro.kr/",
                 'full stack character and art management service, discord support, written in js and sql.', 
-                'code,ui,comm,featured', '2019-04-03', '2019-12-18'
+                'code,ui,comm,Featured', '2019-04-03', '2019-12-18'
             ),
             new Entry(
                 'urobot', "https://raw.githubusercontent.com/prodzpod/urobot/refs/heads/master/urobot.ico", "https://github.com/prodzpod/urobot",
@@ -199,7 +174,7 @@ block postbody
             new Entry(
                 'Chambers of L', "https://raw.githubusercontent.com/prodzpod/chambers/refs/heads/final_build/docs/favicon.ico", "https://github.com/prodzpod/chambers/releases/tag/final",
                 'Entry for LCOLONQ Game Jam 2024, a roguelike written in gamemaker', 
-                'code,art,music,featured', '2024-01-31', '2024-02-07'
+                'code,art,music,Featured', '2024-01-31', '2024-02-07'
             ),
             new Entry(
                 'Kalimba Radio', "https://raw.githubusercontent.com/prodzpod/kalimba/refs/heads/main/kalimba.ico", "https://github.com/prodzpod/kalimba/releases/tag/r2",
@@ -214,7 +189,7 @@ block postbody
             new Entry(
                 'Stream', "", "https://prod.kr/v/",
                 'Multimedia project with interactive web console that affects the c# program for broadcasting. server written in js.', 
-                'code,art,model,music,ui,video,featured', '2024-03-17', ''
+                'code,art,model,music,ui,video,Featured', '2024-03-17', ''
             ),
             new Entry(
                 'Fishing Line', "", "https://onedayonepuzl.web.app/puzzle?week=32&id=prod",
@@ -439,7 +414,7 @@ block postbody
             new Entry(
                 'Idle Queer', "", "",
                 'an idle game and a custom engine for it written in js. unfinished', 
-                'code,art,ui,design,wip', '2021-12-03', '2021-12-03'
+                'code,art,ui,design,WIP', '2021-12-03', '2021-12-03'
             ),
             new Entry(
                 'Geiser.jar', "", "",
@@ -449,12 +424,12 @@ block postbody
             new Entry(
                 'I can\'t believe this is my first (released) game!', "", "",
                 'Made for [Secret Doctah 2022](), demo of a rhythm platformer. written in gamemaker.', 
-                'code,music,art,design,wip', '2022-12-30', '2023-01-05'
+                'code,music,art,design,WIP', '2022-12-30', '2023-01-05'
             ),
             new Entry(
                 'Stellae*', "", "",
                 'engine for an rpg-shoot-em-up hybrid game in progress. written in gamemaker.', 
-                'code,art,wip', '2023-12-27', '2023-12-27'
+                'code,art,WIP', '2023-12-27', '2023-12-27'
             ),
             new Entry(
                 'Creepy Castle: Ribbon of the Strategist', "", "https://www.youtube.com/watch?v=LeW8HZaZFN4",
@@ -465,17 +440,29 @@ block postbody
 
         addEvent('onload', () => {
             onEnter('search', search);
+            TAGS.sort(); 
+            TAGS = remove(TAGS, "WIP", "Featured"); TAGS.splice(0, 0, "Featured"); TAGS.push("WIP"); // WIP always included and at the end
+            for (let tag of TAGS) {
+                let isWIP = tag === "WIP";
+                let el = insertElement("button", insertElement("div", "tags", "filter-group"), "tag" + (isWIP ? "" : " active")).with("id", "tag-" + tag.toLowerCase().replace(/\W+/g, "")).with("onclick", "toggleCheckbox(this); search();");
+                insertElement("div", el, "checkbox");
+                insertElement("span", el, null, isWIP ? "Show WIPs" : tag);
+            }
+            insertElement("span", insertElement("button", insertElement("div", "tags", "filter-group"))
+                .with("onclick", "for (let tag of q(\".tag\")) { if (!tag.classList.contains(\"active\")) toggleCheckbox(tag); } toggleCheckbox(e(\"tag-featured\")); search(); "), null, "Check All");
+            insertElement("span", insertElement("button", insertElement("div", "tags", "filter-group"))
+                .with("onclick", "for (let tag of q(\".tag\")) { if (tag.classList.contains(\"active\")) toggleCheckbox(tag); } search(); "), null, "Uncheck All");
             search();
         });
 
         function search() {
             removeAllChildren('result');
-            let tags = [];
-            for (let tag of ['design', 'code', 'mod', 'manage', 'art', 'model', 'music', 'video']) if (e(tag).classList.contains('active')) tags.push(tag);
-            let allowWIPs = e('wip').classList.contains('active');
+            let tags = TAGS.filter(tag => e("tag-" + tag.toLowerCase().replace(/\W+/g, "")).classList.contains("active"));
+            let allowWIPs = tags.includes("WIP"); tags = remove(tags, "WIP");
+            let onlyFeatured = tags.includes("Featured"); tags = remove(tags, "Featured");
             ENTRIES
-                .filter(x => (allowWIPs || !x.tag.includes('wip')) && intersect(x.tag, tags)?.length)
-                .filter(x => x.name.includes(e('search').value) || x.url?.includes(e('search').value))
+                .filter(x => (allowWIPs || !x.tag.includes('WIP')) && (!onlyFeatured || x.tag.includes('Featured')) && intersect(x.tag, tags)?.length)
+                .filter(x => ["name", "desc", "url"].some(y => x[y]?.toLowerCase().includes(e('search').value.toLowerCase()) ?? false))
                 .sort((a, b) => b.start?.getTime() - a.start?.getTime())
                 .map(x => x.render());
         }

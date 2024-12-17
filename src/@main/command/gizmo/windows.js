@@ -64,6 +64,11 @@ let RULE = {
         name: "%NAME%:Emacs:emacs.exe",
         window: null,
     },
+    wwise: {
+        rule: name => name.includes(" - Wwise "),
+        name: "%NAME%:Afx#3A00007FF624FF0000#3A0#3A0000000000000000#3A0000000000000000#3A000000003C9D05EB:Wwise.exe",
+        window: null,
+    },
     // art
     aseprite: {
         rule: name => name.includes("Aseprite"),
@@ -155,6 +160,26 @@ let RULE = {
     ror2: {
         rule: name => name === "Risk of Rain 2",
         name: "%NAME%:UnityWndClass:Risk of Rain 2.exe",
+        window: null,
+    },
+    corekeeper: {
+        rule: name => name === "Core Keeper",
+        name: "%NAME%:UnityWndClass:CoreKeeper.exe",
+        window: null,
+    },
+    celeste: {
+        rule: name => name === "Celeste",
+        name: "%NAME%:WindowsForms10:Window.8.app.0.3a48e15_r13_ad1:Celeste.exe",
+        window: null,
+    },
+    hacknet: {
+        rule: name => name === "Hacknet",
+        name: "%NAME%:SDL_app:Hacknet.exe",
+        window: null,
+    },
+    infidhells: {
+        rule: name => name === "InfidHells",
+        name: "%NAME%:UnityWndClass:InfidHells.exe",
         window: null,
     }
 };

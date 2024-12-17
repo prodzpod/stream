@@ -4,9 +4,9 @@ using Gizmo.Engine.Data;
 using Gizmo.Engine.Graphic;
 using Gizmo.Engine.Util;
 using Gizmo.StreamOverlay.Elements.Gizmos;
+using Gizmo.StreamOverlay.Elements.Screens;
 using Gizmo.StreamOverlay.Elements.Windows;
 using System.Numerics;
-using System.Runtime.InteropServices.Swift;
 
 namespace Gizmo.StreamOverlay.Elements.Entities
 {
@@ -17,6 +17,7 @@ namespace Gizmo.StreamOverlay.Elements.Entities
         public override float Drag(Instance i) => .9f;
         public override float Friction(Instance i) => 1;
         public override Vector2 Gravity(Instance i) => Vector2.UnitY * 3000;
+        public override bool Immortal => true;
         public override void OnInit(ref Instance self)
         {
             base.OnInit(ref self);
@@ -31,6 +32,7 @@ namespace Gizmo.StreamOverlay.Elements.Entities
             self.Set("forcejump", false);
             self.Set("forcestate", 0);
             self.Set("forcestatetime", 0);
+            self.Set("statpoint", 0);
         }
         public override void OnPostInit(ref Instance self)
         {
@@ -41,7 +43,7 @@ namespace Gizmo.StreamOverlay.Elements.Entities
             self.Set("attack", ai["attack"]);
             self.Set("defense", ai["defense"]);
             self.Set("attackspeed", ai["attackspeed"]);
-            self.Set("critchange", ai["critchance"]);
+            self.Set("critchance", ai["critchance"]);
             self.Set("critdamage", ai["critdamage"]);
             var maxhp = Graphic.New(self, Resource.NineSlices["WHITE"]);
             maxhp.Set("size", new Vector2(128, 8));
@@ -61,7 +63,26 @@ namespace Gizmo.StreamOverlay.Elements.Entities
         public static float MaxSpeed = 500;
         public override void OnDestroy(ref Instance self)
         {
-            StreamOverlay.Shimeji.Remove(self.Get<string>("author"));
+            var _self = self;
+            List<Instance> attackers = StreamOverlay.Shimeji.Values.Where(x => x.Get<Instance>("victim") == _self).ToList();
+            foreach (var attacker in attackers)
+            {
+                attacker.Var.Remove("victim");
+                attacker.Set("incombat", false);
+            }
+            if (self.Element is RaidBoss) attackers = attackers[0..1];
+            if (attackers.Count > 0)
+            {
+                Audio.Play("screen/gong");
+                foreach (var attacker in attackers)
+                {
+                    attacker.Set("statpoint", attacker.Get<int>("statpoint") + 1);
+                    StreamWebSocket.Send("announce", $"{attacker.Get<string>("author")} has come out Victorious at the valiant fight against {self.Get<string>("author")}, use `!levelup [stat]` to level up");
+                }
+            }
+            var author = self.Get<string>("author");
+            StreamOverlay.Shimeji.Remove(author);
+            StreamWebSocket.Send("shimejideath", author);
             base.OnDestroy(ref self);
         }
         public override void OnUpdate(ref Instance self, float deltaTime)
@@ -75,9 +96,8 @@ namespace Gizmo.StreamOverlay.Elements.Entities
                 self.Set("tilnextattack", t);
                 var victim = self.Get<Instance>("victim");
                 if (t < 0) OnAttack(self, victim);
-                self.Set("hp", MathP.Min(self.Get<float>("maxhp"), self.Get<float>("hp") + (deltaTime * ai["appleness"])));
             }
-            else self.Set("hp", self.Get<float>("maxhp"));
+            self.Set("hp", MathP.Min(self.Get<float>("maxhp"), self.Get<float>("hp") + (deltaTime * ai["appleness"] / 2)));
             if (self.Var.ContainsKey("target"))
             {
                 Vector2 target = self.Get<Vector2>("target");
@@ -141,7 +161,7 @@ namespace Gizmo.StreamOverlay.Elements.Entities
                 }
                 else self.Position.Y += i;
             }
-            if (other.Element is Squareish && !other.Get<bool>("pinned") && self.Var.ContainsKey("target") && self.Get<float>("tilnextkick") < 0)
+            if (other.Element is Squareish && !other.Get<bool>("pinned") && !other.Get<bool>("racked") && self.Var.ContainsKey("target") && self.Get<float>("tilnextkick") < 0)
             {
                 var ai = self.Get<Dictionary<string, float>>("ai");
                 if (!RandomP.Chance(ai["aggression"])) return;
@@ -160,6 +180,8 @@ namespace Gizmo.StreamOverlay.Elements.Entities
                 if (y >= 0) other.Speed.Y = Math.Max(y, other.Speed.Y);
                 else other.Speed.Y = Math.Min(y, other.Speed.Y);
                 other.Rotation = MathP.Lerp(-r, r, RandomP.Random(0f, 1f));
+                other.Set("kickedby", self);
+                other.Set("kickedbytime", 5f);
                 if (ai["aggression"] > .05f && RandomP.Chance(ai["aggression"])) other.Destroy();
                 Audio.Play("screen/kick");
                 self.Set("tilnextkick", .05f / ai["aggression"]);
@@ -195,24 +217,28 @@ namespace Gizmo.StreamOverlay.Elements.Entities
             }
         }
 
-        public void OnAttack(Instance self, Instance victim)
+        public static void OnAttack(Instance self, Instance victim)
         {
             if (!HitboxP.Check(self, victim)) return;
-            var damage = self.Get<float>("attack");
-            if (RandomP.Chance(self.Get<float>("critchance")))
-                damage *= self.Get<float>("critdamage");
             var d = Game.DRAW_ORDER.ToList();
-            if (d.IndexOf(self) > d.IndexOf(victim)) {
-                OnHit(victim, self, RandomP.Random(0, damage), []);
-                Audio.Play("screen/kick");
-                self.Set("forcestate", 4);
-                self.Set("forcestatetime", .25f);
-            } else Audio.Play("screen/speak"); // todo: miss sound
+            if (self.Element is RaidBoss || d.IndexOf(self) > d.IndexOf(victim)) OnAttackNeverMiss(self, victim);
+            else Audio.Play("screen/speak"); // todo: miss sound
             var attackspeed = 1 / self.Get<float>("attackspeed");
             self.Set("tilnextattack", RandomP.Random(attackspeed, attackspeed * 4));
         }
 
-        public void OnHit(Instance self, Instance attacker, float damage, Dictionary<string, object> special)
+        public static void OnAttackNeverMiss(Instance self, Instance victim)
+        {
+            var damage = self.Get<float>("attack");
+            if (RandomP.Chance(self.Get<float>("critchance")))
+                damage *= self.Get<float>("critdamage");
+            OnHit(victim, self, RandomP.Random(0, damage), []);
+            Audio.Play("screen/kick");
+            self.Set("forcestate", 4);
+            self.Set("forcestatetime", .25f);
+        }
+
+        public static void OnHit(Instance self, Instance attacker, float damage, Dictionary<string, object> special)
         {
             self.Set("incombat", true);
             self.Set("victim", attacker);
@@ -221,13 +247,8 @@ namespace Gizmo.StreamOverlay.Elements.Entities
             self.Set("forcestatetime", .25f);
             var hp = self.Get<float>("hp") - (damage - self.Get<float>("defense"));
             self.Set("hp", hp);
-            if (hp <= 0)
-            {
-                attacker.Var.Remove("victim");
-                attacker.Set("incombat", false);
-                StreamWebSocket.Send("fightresult", attacker.Get<string>("author"));
-                self.Destroy();
-            }
+            self.Set("lastattacked", attacker);
+            if (hp <= 0) self.Destroy();
         }
 
         public static Instance New(Sprite sprite, Vector2 pos, string author, ColorP color)

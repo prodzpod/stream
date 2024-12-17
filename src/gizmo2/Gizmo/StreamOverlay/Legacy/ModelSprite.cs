@@ -19,8 +19,8 @@ namespace ProdModel.Object.Sprite
         public static bool Busy = false;
         public static bool Ready = false;
         public static List<string> PreviousAccessories = [];
-        public static List<string> FixedAccessories = ["skirt_default", "flower"];
-        public static List<string> Accessories = [];
+        public static List<string> FixedAccessories = ["skirt_default"];
+        public static List<string> Accessories = [.. FixedAccessories];
         public static List<ColorP> PreviousColor = [];
         public static Dictionary<ColorP, ColorP> ColorReplace = [];
 
@@ -75,7 +75,7 @@ namespace ProdModel.Object.Sprite
                 var color = pixels[x][y];
                 if (!PreviousColor.Contains(color)) PreviousColor.Add(color);
                 if (ColorReplace.ContainsKey(color)) color = ColorReplace[color];
-                image.DrawPixel(x, y, color * MathP.Min(1, 6f - 6f * y / Height));
+                image.DrawPixel(x, y, color /* * MathP.Min(1, 6f - 6f * y / Height)*/);
             }
         }
         public static Triangle[] GetTriangles(WorseVRM.Model model) => model.f.Select(x => new Triangle()
@@ -125,7 +125,7 @@ namespace ProdModel.Object.Sprite
             WorseVRM wvrm = new(ModelHandler.ModelWVRM);
             string pose = wvrm.poses.ContainsKey(ModelHandler.Pose) ? ModelHandler.Pose : "DEFAULT";
             PreviousAccessories = [..wvrm.accessories];
-            foreach (var k in wvrm.accessories.Except(Accessories).Except(FixedAccessories).Except(wvrm.poses[pose].accessories))
+            foreach (var k in wvrm.accessories.Except(Accessories).Except(wvrm.poses[pose].accessories))
                 foreach (var c in GetAllChildrenAndItself(wvrm, k))
                     wvrm.model.Remove(c);
             List<string> expressions = wvrm.poses[pose].expression.Select((x, i) => x ?? ModelHandler.GetExpression(wvrm, i, pose, ModelHandler.Time)).ToList();

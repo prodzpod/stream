@@ -1,20 +1,35 @@
 ﻿using Gizmo.Engine;
 using Gizmo.Engine.Builtin;
 using Gizmo.Engine.Data;
+using Gizmo.Engine.Util;
+using Gizmo.StreamOverlay.Elements.Gizmos;
 using Gizmo.StreamOverlay.Rooms;
+using System.Numerics;
 
 namespace Gizmo.StreamOverlay.Elements.Screens
 {
     public class StartingSoon : Element
     {
-        public override string Sprite => "layout/startingsoon";
+        public override string Sprite => "layout/startingsoon_bg";
         public override IHitbox? Hitbox => new AABBHitbox(Game.Room.Camera.XY(), Game.Room.Camera.ZW());
         public override string[] InteractsWith => [nameof(Mouse)];
-        public override void OnInit(ref Instance self)
+        public override void OnPostInit(ref Instance self)
         {
-            base.OnInit(ref self);
+            base.OnPostInit(ref self);
             StreamOverlay.Prod.Alpha = 0;
             self.Depth = -1;
+            for (int i = 0; i < 17; i++)
+            {
+                var stars = Graphic.New(self, "layout/stars");
+                stars.Position = new(-700, 540);
+                stars.Angle = RandomP.Random(0, 360f);
+                stars.Rotation = MathP.Sqr(RandomP.Random(0, 1f)) * 4;
+                var scale = RandomP.Random(2f, 4f);
+                stars.Scale = new(scale, scale);
+                stars.Blend = ColorP.FromHSV(RandomP.Random(0, 360), RandomP.Random(0, 1), 1);
+                stars.Alpha = MathP.Sqr(RandomP.Random(0, 1f));
+            }
+            self.Set("fg", Graphic.New(self, "layout/startingsoon_fg"));
         }
         public override void OnDestroy(ref Instance self)
         {

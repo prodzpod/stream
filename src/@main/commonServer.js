@@ -80,7 +80,7 @@ module.exports.setLogLevel = n => {
     LOG_LEVEL = n; return n;
 }
 const { performance } = require("node:perf_hooks");
-const { formatDate } = require("./common");
+const { formatDate, nullish } = require("./common");
 let perfs = {};
 let perfMarkers = 0;
 module.exports.measureStart = () => {
@@ -92,4 +92,27 @@ module.exports.measureEnd = k => {
     const ret = performance.now() - perfs[k];
     delete perfs[k];
     return ret;
+}
+module.exports.fetch = (header) => async (method, subdir, query, body, form = "application/json") => {
+    let options = {
+        method: method, mode: "cors",
+        headers: header
+    };
+    options.headers["Content-Type"] = form;
+    if (!subdir.startsWith("https://") && !subdir.startsWith("http://")) subdir = "https://" + subdir;
+    if (!["HEAD", "GET"].includes(method) && body) {
+        switch (form) {
+            case "application/json": options.body = JSON.stringify(body); break;
+            case "application/x-www-form-urlencoded": options.body = Object.entries(body).filter(x => x.every(y => nullish(y))).map(x => x.map(y => encodeURIComponent(String(y))).join("=")).join("&"); break;
+        }
+    }
+    if (nullish(query)) subdir = `${subdir}?${Object.entries(query)
+            .filter(x => x.every(y => nullish(y)))
+            .map(x => x.map(y => encodeURIComponent(String(y))).join("=")).join("&")}`;
+    let res = await (require("node-fetch"))(subdir, options);
+    let ret = "";
+    res.body.on('data', (chunk) => { ret += chunk.toString(); });
+    await new Promise(resolve => res.body.on('end', resolve)); 
+    if (res?.status === 502 && subdir.includes("/cgi-bin/")) { res = {status: 200}; ret = {}; }
+    try { let j = JSON.parse(ret); return [res.status, j]; } catch { return [res?.status, ret]; };
 }

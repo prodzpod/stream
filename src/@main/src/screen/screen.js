@@ -67,6 +67,7 @@ const INFO_MESSAGES = {
     lore: () => "https://prod.kr/v/lore",
     help: () => "https://prod.kr/v/lore",
     irc: () => "https://prod.kr/discord is also connected to IRC @ colonq.computer:26697 (over TLS) courtesy of the male @LCOLONQ - `/join #prodarea` after connecting",
+    vod: () => "https://prod.kr/vod",
     commands: getCommands,
     command: getCommands,
     insts: getInsts,
@@ -75,9 +76,9 @@ const INFO_MESSAGES = {
     instrument: getInsts,
     font: getFonts,
     fonts: getFonts,
-    today: () => data().stream.phase !== -1 ? `Today we're making [${module.exports.fetch("today")[1]}]!` : "Stream is currently offline. Check out more prod at https://prod.kr/discord !",
-    uptime: () => {
-        const o = module.exports.fetch("uptime")[1];
+    today: async () => data().stream.phase !== -1 ? `Today we're making [${(await module.exports.fetch("today"))[1]}]!` : "Stream is currently offline. Check out more prod at https://prod.kr/discord !",
+    uptime: async () => {
+        const o = (await module.exports.fetch("uptime"))[1];
         const HOUR = BigInt(1000*60*60); const WEEK = HOUR * 24n * 7n;
         const timezone = BigInt(-new Date("1970-01-01 0:0:0").getTime());
         const nextStream = BigMath.demod(time() - (29n * HOUR), WEEK) + (29n * HOUR) + WEEK - timezone;

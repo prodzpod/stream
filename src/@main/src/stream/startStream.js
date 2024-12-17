@@ -10,7 +10,9 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
     info("Starting Stream Sequence");
     send("gizmo", "startingsoon");
     src().marker.updateInfo(_args[0], _args[1], 0);
-    send("discord", "send", "1219958741495975936", "@everyone\n" + _args[2] + "\n\nhttps://prod.kr/live\nhttps://prod.kr/screen", []);
+    let announcement = _args.slice(2).join("\n");
+    send("discord", "send", "1219958741495975936", "@everyone\n" + announcement + "\n\nhttps://prod.kr/live\nhttps://prod.kr/screen", []);
+    src().post.execute(() => {}, from, chatter, message, "!post v " + announcement + "\n\nhttps://prod.kr/live\nhttps://prod.kr/screen", []);
     src().obs.start(); src().obs.brb();
     src().startWeekly.start();
     return [0, ""];
