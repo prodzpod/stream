@@ -1,6 +1,6 @@
-const { log } = require("../../commonServer")
+const { log, info } = require("../../commonServer")
 
 module.exports.execute = (id, name) => {
-    log("shoutout recieved:", name, id);
+    info("shoutout recieved:", name, id);
     return [0, ""];
 }

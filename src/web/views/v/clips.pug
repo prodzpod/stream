@@ -36,6 +36,12 @@ block body
         input.spacer(placeholder="channel name" id="make")
         button(onclick="make(e('make').value)") go
     #make-result
+    br
+    .hlist
+        h2 Latest Generated Clip
+        .spacer
+        button(onclick="e('lastclip').outerHTML += ' '") Refresh
+    iframe#lastclip(src="//prod.kr/data/temp.mp4")
 block postbody 
     style.
         .clip {
@@ -45,9 +51,9 @@ block postbody
         .thumb {
             width: 240px;
         }
-        #clip-result iframe {
-            width: calc(100vw - 128px);
-            height: calc((100vw - 128px) / 16* 9);
+        iframe {
+            width: min(calc(100vw - 128px), calc(100vh - 128px) * 16 / 9);
+            height: min(calc(100vw - 128px) / 16 * 9, calc(100vh - 128px));
         }
         .shoutout {
             max-width: 48px;

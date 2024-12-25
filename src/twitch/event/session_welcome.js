@@ -22,7 +22,7 @@ module.exports.execute = async req => {
 }
 
 const EVENTS = [
-    "channel.follow", "channel.shoutout.receive", "channel.raid.from", "channel.raid.to", 
+    "channel.follow", "channel.shoutout.create", "channel.shoutout.receive", "channel.raid.from", "channel.raid.to", 
     "channel.chat.message", "channel.chat.notification", "channel.chat.message_delete", "channel.ban", 
     /* //? AFFILIATE ZONE
     * "channel.cheer", "channel.channel_points_custom_reward_redemption.add", "channel.ad_break.begin", 

@@ -2,7 +2,7 @@ const { src, data, send } = require("../..");
 const { streamModules } = require("../../../..");
 const { info, fileExists, listFiles, path, log } = require("../../commonServer");
 const { end } = require("../@meta/module");
-const { unlinkSync } = require("fs");
+const fs = require("fs");
 module.exports.predicate = "!endstream";
 module.exports.permission = false;
 module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
@@ -11,9 +11,12 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
     src().obs.brb(); src().obs.end();
     for (const module of streamModules) end(module, true);
     src().startWeekly.end();
-    require("fs").writeFile(path("src/@main/data/backup.sh"), "#!/usr/bin/env sh\n" + (await listFiles("src/@main/data"))
-        .filter(x => x.endsWith(".wasd"))
-        .map(x => `scp ${path("src/@main/data", x)} ${"$p/../data/" + x}`)
-        .join("\n"), () => info("Backup shell script generated"));
+    module.exports.backup();
     return [0, ""];
+}
+
+module.exports.backup = async () => {
+    for (let f of (await listFiles("src/@main/data")).filter(x => x.endsWith(".wasd")))
+        await new Promise(resolve => fs.copyFile(path("src/@main/data", f), require("path").join(process.env.GIZMO_DATA_BACKUP_LOCATION, f), resolve));
+    info("Backup Completed");
 }

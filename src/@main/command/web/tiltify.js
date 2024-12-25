@@ -10,6 +10,6 @@ module.exports.execute = async (name, value, currency, comment) => {
     }
     comment ??= "FOR THE KIDS!!!!!!";
     info("Donate Submitted:", name, profile, value, currency, comment);
-    send("gizmo", "donate", name, profile, value, currency, comment);
+    // send("gizmo", "donate", name, profile, value, currency, comment);
     return [0, ""];
 }

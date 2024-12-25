@@ -474,6 +474,7 @@ module.exports.time = o => { // all TIME format will be bigints
         case "number": return BigInt(o);
         case "boolean": return o ? BigInt(Date.now()) : 0n;
         case "string":
+            o = o.replace("T", " ").replace("Z", " ").replace("t", " ").replace("z", " ");
             if (module.exports.occurance(o, ":") === 3) o = `1970-01-` + o.replace(":", " ");
             for (const str of [o, `1970-01-01 ${o}`, `1970 ${o}`]) {
                 const date = new Date(str + " GMT+00:00").getTime();
@@ -780,6 +781,6 @@ module.exports.Math = module.exports.safeAssign(Math, {
     hypot: (...a) => { let b = []; if (Array.isArray(a[0])) {b = a[1]; a = a[0];} else for (const _ of a) b.push(0); let ret = 0; for (let i = 0; i < Math.min(a.length, b.length); i++) ret += Math.abs((a[i] * a[i]) - (b[i] * b[i])); return ret; },
     dist: (...a) => Math.sqrt(module.exports.Math.hypot(...a)),
     sum: (...a) => { if (Array.isArray(a[0])) a = a[0]; return a.reduce((x, y) => x + y, 0); },
-    maxBy: (...x) => { let fn; if (typeof x.at(-1) === "function") { fn = x.at(-1); x = x.slice(-1); } else fn = (a, b) => a - b; return x.reduce((a, b) => fn(a, b) > 0 ? a : b, x[0]); },
-    minBy: (...x) => { let fn; if (typeof x.at(-1) === "function") { fn = x.at(-1); x = x.slice(-1); } else fn = (a, b) => a - b; return x.reduce((a, b) => -fn(a, b) > 0 ? a : b, x[0]); },
+    maxBy: (...x) => { let fn; if (typeof x.at(-1) === "function") { fn = x.at(-1); x = x.slice(0, -1); } else fn = (a, b) => a - b; return x.reduce((a, b) => fn(a, b) > 0 ? a : b, x[0]); },
+    minBy: (...x) => { let fn; if (typeof x.at(-1) === "function") { fn = x.at(-1); x = x.slice(0, -1); } else fn = (a, b) => a - b; return x.reduce((a, b) => -fn(a, b) > 0 ? a : b, x[0]); },
 });

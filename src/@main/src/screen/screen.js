@@ -36,7 +36,8 @@ const getCommands = (from, chatter, message, text, emote, reply) => "available c
         ["array", "string"].includes(realtype(x.predicate))
         && x.predicate.length > 0
         && checkPerms(x.permission, from, chatter, message, text, emote, reply))
-    .map(x => typeof x.predicate === "string" ? [x.predicate] : x.predicate)
+    .map(x => typeof x.predicate === "string" ? x.predicate : Math.minBy(...x.predicate, (a, b) => {
+        let i = a.length - b.length; if (i !== 0) return i; return x.predicate.indexOf(a) - x.predicate.indexOf(b); }))
     .flat().sort().join("`, `")
  + "`";
 const getInsts = async () => `available instruments: \`${
