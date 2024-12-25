@@ -4,6 +4,7 @@
     {
         public static string Path(params string[] path)
         {
+            if (path.Length == 1 && System.IO.Path.IsPathFullyQualified(path[0])) return path[0];
             var fullPath = new List<string> { NotGMS.WorkingDirectory }; fullPath.AddRange(path);
             return System.IO.Path.Combine(fullPath.ToArray());
         }

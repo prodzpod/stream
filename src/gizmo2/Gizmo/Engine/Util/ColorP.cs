@@ -46,7 +46,8 @@ namespace Gizmo.Engine.Data
             }
             try
             {
-                byte[] ret = [.. (new string[] { hex[0..2], hex[2..4], hex[4..6], hex[6..8] }).Select(x => (byte)int.Parse(x, System.Globalization.NumberStyles.HexNumber))];
+                byte[] ret = new byte[4];
+                for (int i = 0; i < 4; i++) ret[i] = (byte)int.Parse(hex[(i * 2)..(i * 2 + 2)], System.Globalization.NumberStyles.HexNumber);
                 Color = new Color(ret[0], ret[1], ret[2], ret[3]);
             }
             catch { Color = BLACK; }

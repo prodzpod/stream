@@ -181,6 +181,11 @@ let RULE = {
         rule: name => name === "InfidHells",
         name: "%NAME%:UnityWndClass:InfidHells.exe",
         window: null,
+    },
+    minecraft: {
+        rule: name => name.startsWith("Minecraft"),
+        name: "%NAME%:GLFW30:javaw.exe",
+        window: null,
     }
 };
 module.exports.execute = async (...args) => {

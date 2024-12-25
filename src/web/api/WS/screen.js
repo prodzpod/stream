@@ -1,11 +1,13 @@
 const { WASD } = require("../../common");
 const { log, send } = require("../../ws");
+const bcrypt = require("bcrypt");
 let loginWS = {};
 let userWS = {};
 
 module.exports._init = async (ws, query, body) => {
     log("[screen] WS initialized");
-    const user = await send("init", query.hash, "screen");
+    let user = await send("init", query.hash, "screen");
+    if (user && user.id && (!query.password || !await bcrypt.compare(user?.id + process.env.STREAM_WEB_SALT, query.password))) user = await send("init", null, "screen");
     if (user) {
         if (user.id) userWS[user.id] = ws;
         else loginWS[user.login] = ws;
@@ -17,7 +19,7 @@ module.exports._login = async (k, chatter, hash, streaming) => {
     userWS[chatter.id] = ws;
     delete loginWS[k];
     log("[screen] WS logged in:", chatter.name);
-    ws.send(WASD.pack("login", chatter, hash, streaming));
+    ws.send(WASD.pack("login", chatter, hash, await bcrypt.hash(chatter.id + process.env.STREAM_WEB_SALT, 10), streaming));
 }
 module.exports._info = (chatter, msg, iserror=false) => {
     if (!userWS[chatter]) return 1; userWS[chatter].send(WASD.pack(iserror ? "error" : "info", msg)); return 0;

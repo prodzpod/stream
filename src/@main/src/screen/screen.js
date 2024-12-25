@@ -132,7 +132,9 @@ const INFO_MESSAGES = {
     inventory: getInfo,
     me: getInfo,
     wallet: getInfo,
-    songs: async () => "Current Songs: " + (await listFiles("src/@main/data/song")).filter(x => !x.startsWith("_")).map(x => x.slice(0, -".wmid".length)).join(", ")
+    songs: async () => "Current Songs: " + (await listFiles("src/@main/data/song")).filter(x => !x.startsWith("_")).map(x => x.slice(0, -".wmid".length)).join(", "),
+    clonkspot: () => "https://pub.colonq.computer/~prod/toy/geiserxpi/",
+    clonkspotting: () => "https://pub.colonq.computer/~prod/toy/geiserxpi/",
 }
 module.exports.predicate = Object.keys(INFO_MESSAGES).map(x => "!" + x);
 module.exports.permission = true;  

@@ -34,7 +34,7 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
         _reply("Invalid Login");
         return [1, ""];
     } else {
-        _reply("This account is not logged in.");
+        _reply(from === "twitch" ? "Use \"!login\" in other chat (discord, screen and such) to link your account to your twitch identity." : "This account is not logged in.");
         return [1, ""];
     }
 }

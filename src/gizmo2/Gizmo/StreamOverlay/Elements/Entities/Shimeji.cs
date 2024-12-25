@@ -18,6 +18,7 @@ namespace Gizmo.StreamOverlay.Elements.Entities
         public override float Friction(Instance i) => 1;
         public override Vector2 Gravity(Instance i) => Vector2.UnitY * 3000;
         public override bool Immortal => true;
+        public static Dictionary<string, float> Guys = [];
         public override void OnInit(ref Instance self)
         {
             base.OnInit(ref self);
@@ -59,6 +60,7 @@ namespace Gizmo.StreamOverlay.Elements.Entities
             hp.Alpha = 0;
             self.Set("e_maxhp", maxhp);
             self.Set("e_hp", hp);
+            Guys[self.Get<string>("author")!] = Game.Time;
         }
         public static float MaxSpeed = 500;
         public override void OnDestroy(ref Instance self)
@@ -77,12 +79,18 @@ namespace Gizmo.StreamOverlay.Elements.Entities
                 foreach (var attacker in attackers)
                 {
                     attacker.Set("statpoint", attacker.Get<int>("statpoint") + 1);
-                    StreamWebSocket.Send("announce", $"{attacker.Get<string>("author")} has come out Victorious at the valiant fight against {self.Get<string>("author")}, use `!levelup [stat]` to level up");
+                    if (attacker.Element is RaidBoss) StreamWebSocket.Send("announce", $"{self.Get<string>("author")} has been defeated by the hands of the Raid Boss, you may !guy and fight again if you arent !autorespawn yet");
+                    else StreamWebSocket.Send("announce", $"{attacker.Get<string>("author")} has come out Victorious at the valiant fight against {self.Get<string>("author")}, use `!levelup [stat]` to level up");
                 }
             }
             var author = self.Get<string>("author");
             StreamOverlay.Shimeji.Remove(author);
-            StreamWebSocket.Send("shimejideath", author);
+            if (!self.Var.ContainsKey("forcenorespawn")) Task.Run(async () =>
+            {
+                await Task.Delay(2500);
+                StreamWebSocket.Send("shimejideath", author);
+            });
+            // Guys.Remove(self.Get<string>("author")!);
             base.OnDestroy(ref self);
         }
         public override void OnUpdate(ref Instance self, float deltaTime)

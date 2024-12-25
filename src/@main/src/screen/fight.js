@@ -13,8 +13,7 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
         return x.twitch?.id === t || x.twitch?.login === t.toLowerCase() || x.twitch?.name.toLowerCase() === t.toLowerCase();
     });
     if (nullish(target) === null) { _reply("invalid target"); return [0, ""]; }
-    if (await send("gizmo", "fight", chatter.twitch.name, target.twitch.name))
-        _reply("fight initiated");
-    else _reply("guys are not present");
+    let res = await send("gizmo", "fight", chatter.twitch.name, target.twitch.name);
+    _reply(res[1]);
     return [0, ""];
 }

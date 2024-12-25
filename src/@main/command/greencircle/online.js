@@ -3,9 +3,9 @@ const { WASD } = require("../../common");
 const { log } = require("../../commonServer");
 
 module.exports.execute = async (user) => {
-    log("GreenCircle Online:", user);
     let stream = await send("twitch", "stream", WASD.toString(user));
     if (!stream) return await require("./offline").execute(user);
+    log("GreenCircle Online:", user);
     if (user !== "prodzpod") {
         let announcement_mini = `[🌙] GreenFeed 🟢 ${stream?.user_name ?? user} has started a ${stream?.game_name ?? ""} stream, check it out at https://twitch.tv/${user} !`;
         let announcement_full = `<@&1270494916325277727>\n[🟢] **${stream?.user_name ?? user}** has started a **${stream?.game_name ?? ""}** stream, come hang out!\nhttps://twitch.tv/${user}`;

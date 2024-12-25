@@ -4,6 +4,7 @@ const { debug, verbose, download, log, path, fileExists } = require("../../commo
 
 module.exports.message = async (from, chatter, message, text, emote, reply) => {
     debug("message", from, chatter, message, text, emote, reply);
+    // if (from === "web") return [0, "sorry no web traffic for now"];
     // identify chatter
     chatter = src().user.identify(chatter);
     if (chatter.twitch) chatter = await src().user.initialize(chatter.twitch.id, true);
@@ -57,8 +58,10 @@ module.exports.command = async (from, chatter, message, text, emote, reply) => {
             debug("[message]", "processing command", x);
             const _reply = getReply(from, chatter, message, text, emote, reply);
             if (!module.exports.checkPerms(src()[x]?.permission, from, chatter, message, text, emote, reply)){
-                _reply("Insufficient Permission");
-                return [x, [1, "insufficient permission"]];
+                let message = "Insufficient Permission";
+                if (src()[x]?.permission === 0) message = "Your account is not linked to twitch, use `!login` to link your accounts";
+                _reply(message);
+                return [x, [1, message]];
             }
             let ret = src()[x].execute(_reply, from, chatter, message, text, emote, reply);
             if (ret instanceof Promise) ret = await ret;

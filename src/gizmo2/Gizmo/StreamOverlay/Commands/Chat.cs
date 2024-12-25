@@ -2,6 +2,7 @@
 using Gizmo.Engine.Data;
 using Gizmo.Engine.Graphic;
 using Gizmo.Engine.Util;
+using Gizmo.StreamOverlay.Elements.Entities;
 using Gizmo.StreamOverlay.Elements.Gizmos;
 using Gizmo.StreamOverlay.Rooms;
 using System.Numerics;
@@ -23,6 +24,7 @@ namespace Gizmo.StreamOverlay.Commands
             string? _content = WASD.Assert<string>(args[4]);
             float? _isFirstMessage = WASD.Assert<float>(args[5]);
             if (id == null || _icon == null || _color == null || _author == null || _content == null) return null;
+            if (Shimeji.Guys.ContainsKey(_author)) Shimeji.Guys[_author] = Game.Time;
             bool isFirstMessage = _isFirstMessage == 1;
             bool isEmote = new Regex(@"^<emote=[^>]+>$").IsMatch(_content);
             if (isEmote && _content.EndsWith("emote/7tv/Joel.gif>")) 

@@ -15,6 +15,7 @@ namespace Gizmo.StreamOverlay.Commands
             foreach (var c in ModelSprite.PreviousColor.ToArray())
                 ModelSprite.ColorReplace[c] = new(rnd.NextSingle(), rnd.NextSingle(), rnd.NextSingle(), c.A / 255f);
             ModelSprite.Accessories = [.. ModelSprite.FixedAccessories];
+            if (ModelSprite.Accessories.Count == 0) return null;
             var accessories = ModelSprite.PreviousAccessories.ToList();
             var chance = 1f;
             while (rnd.NextSingle() < chance) 

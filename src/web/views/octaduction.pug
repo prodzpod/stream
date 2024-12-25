@@ -1,0 +1,95 @@
+extends ./template/base.pugtemplate
+block meta
+    - title = 'octaduction (SPOILER)'
+block body 
+    h1 octaduction solver
+    p :3
+    #inputs
+block postbody
+    script.
+        let parent, string, pattern;
+        addEvent("onload", addRow);
+        function addRow() {
+            parent = insertElement("div", "inputs", "hlist");
+            string = insertElement("input", parent, "spacer").with("placeholder", "string...");
+            pattern = insertElement("input", parent, "spacer").with("placeholder", "pattern...");
+            onEnter(string, solve);
+            onEnter(pattern, solve);
+            insertElement("button", parent, null, "go").with("onclick", "solve()");
+            string.focus();
+        }
+        const RULES = [
+            [/(\d+)'/, (str, num) => cfor(str, num, c => {
+                if (c === "z") return "a";
+                return String.fromCodePoint(c.codePointAt(0) + 1)
+            })],
+            [/!/, (str) => str.split("").reverse().join("")],
+            [/-(\d+)/, (str, num) => {
+                let idx = ci(str, num);
+                return str.slice(0, idx) + str.slice(idx + 1);
+            }],
+            [/\+([a-z])(\d+)/, (str, ch, num) => str.slice(0, num - 1) + ch + str.slice(num - 1)],
+            [/(\d+)\/(\d+)/, (str, a, b) => {
+                a = ci(str, a);
+                b = ci(str, b);
+                [a, b] = [Math.min(a, b), Math.max(a, b)];
+                console.log(a, b);
+                return str.slice(0, a) + str[b] + str.slice(a + 1, b) + str[a] + str.slice(b + 1);
+            }],
+            [/(\d+)\/\/(\d+)/, (str, a, b) => {
+                let words = str.split(" ");
+                let temp = words[a - 1];
+                words[a - 1] = words[b - 1];
+                words[b - 1] = temp;
+                return words.join(" ");
+            }],
+            [/\"(\d+) *([a-z])\"/, (str, a, ch) => str.slice(0, ci(str, a)) + ch + str.slice(ci(str, a) + 1)],
+            [/\"([a-z]) *([a-z])\"/, (str, a, b) => str.replaceAll(a, b)],
+            [/\"([a-z])(\d+) *([a-z])\"/, (str, from, a, to) => {
+                let start = str.indexOf(from);
+                for (let i = 0; i < (a - 1) % occurance(str, from); i++) start = str.indexOf(from, start + 1);
+                return str.slice(0, start) + to + str.slice(start + 1);
+            }],
+            [/(\d+)\^/, (str, a) => cfor(str, a, c => {
+                const cs = "qwertyuiopasdfghjklzxcvbnm";
+                const idx = cs.indexOf(c) + 1;
+                if (idx == cs.length) idx = 0;
+                return cs[idx];
+            })]
+        ];
+        function ci(str, k) { let ptr = 0; for (let i = 0; i < k - 1; i++) { ptr = (ptr + 1) % str.length; if (str[ptr] === " ") i--; } return ptr; }
+        function cfor(str, k, fn) {
+            let ptr = 0;
+            for (let i = 0; i < k; i++) {
+                if (str[ptr] === " ") i--;
+                else str = str.slice(0, ptr) + fn(str[ptr], i) + str.slice(ptr + 1);
+                ptr = (ptr + 1) % str.length;
+            }
+            return str;
+        }
+        function solve() {
+            let str = string.value;
+            let ps = [], stack = [];
+            for (let p of pattern.value.split(",").map(x => x.trim())) {
+                if (p.startsWith("#")) {
+                    let k = numberish(p.slice(1)); if (realtype(k) !== "number") k = 1;
+                    for (let i = 0; i < k; i++) ps = [...ps, ...stack];
+                    stack = [];
+                    continue;
+                }
+                ps.push(p);
+                stack.push(p);
+            }
+            for (let p of ps) {
+                for (let rule of RULES) {
+                    let e = rule[0].exec(p);
+                    if (e) {
+                        let _str = rule[1](str, ...e.slice(1));
+                        console.log("rule applied: ", str, ` >(${p})> `, _str);
+                        str = _str;
+                    }
+                }
+            }
+            parent.innerHTML = `${string.value} // ${pattern.value} = ${str}`;
+            addRow();
+        }

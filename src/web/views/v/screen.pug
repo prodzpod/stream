@@ -77,11 +77,25 @@ block postbody
     script.
         let ws;
         let cursor = null, mouse = {x: 0, y: 0};
+        const PALETTE = {
+            "Black": "#000000",
+            "White": "#FFFFFF",
+            "Blush": "#F9FFB2",
+            "Hair": "#FF9800",
+            "Skin": "#FFD253",
+            "Mouth": "#CC8787",
+            "Ribbon": "#000001",
+            "Ribbon(Inner)": "#FEFEFE",
+            "Clothes": "#0066FF",
+            "Arms": "#FFC943",
+            "Socks": "#010000",
+            "Transparent": "#00000000",
+        }
         addEvent('onload', () => {
             e("start").style.animation = "";
             let url = "wss://prod.kr/screen";
             const hash = localStorage.getItem("screen");
-            if (hash) url += `?hash=${hash}`;
+            if (hash) url += `?hash=${hash}&password=${localStorage.getItem("password")}`;
             ws = new WebSocket(url);
             ws.addEventListener("open", () => {
                 console.log("WebSocket opened");
@@ -127,10 +141,11 @@ block postbody
                 if (o.streaming) e("offline").style.display = "none"
                 user = o;
             },
-            login: (o, hash, streaming) => {
+            login: (o, hash, password, streaming) => {
                 user = o;
                 user.streaming = streaming;
                 localStorage.setItem("screen", hash);
+                localStorage.setItem("password", password);
                 if (o.streaming) e("offline").style.display = "none"
                 setState("idle");
             },
@@ -165,8 +180,17 @@ block postbody
                         break;
                     case "changepalette":
                         if (realtype(o) !== "array") break;
-                        o.sort();
-                        if (o.includes("#00000000")) { o = remove(o, "#00000000"); o.push("#00000000"); }
+                        o = o.map(x => Object.keys(PALETTE).find(y => PALETTE[y] === x) ?? x);
+                        o.sort((a, b) => {
+                            let k = Object.keys(PALETTE);
+                            let ia = k.indexOf(a);
+                            let ib = k.indexOf(b);
+                            if (ia === -1 && ib === -1) return a.localeCompare(b);
+                            if (ia === -1) ia = k.length;
+                            if (ib === -1) ib = k.length;
+                            return ia - ib;
+                        });
+                        if (o.includes("Transparent")) { o = remove(o, "Transparent"); o.push("Transparent"); }
                         for (let color of o)
                             insertElement("option", "color-from", null, color);
                         break;

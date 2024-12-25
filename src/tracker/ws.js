@@ -20,7 +20,7 @@ module.exports.init = async () => {
         ws.on("message", async msg => {
             let args = WASD.unpack(msg);
             const id = args[0], command = args[1]; args = args.slice(2);
-            module.exports.verbose("message recieved:", id, command, ...args);
+            // module.exports.verbose("message recieved:", id, command, ...args);
             let status, res;
             if (command === "respond") { module.exports.respond(id, ...args); return; }
             else try {
@@ -38,7 +38,7 @@ module.exports.init = async () => {
                     }
                 }
             } catch (e) { status = STATUS_ERR; res = WASD.pack(e.stack); }
-            module.exports.verbose(id, "message processed:", status, res);
+            // module.exports.verbose(id, "message processed:", status, res);
             ws.send(WASD.pack(id, "respond", status, res));        
         });
         ws.on("close", e => console.log(e));

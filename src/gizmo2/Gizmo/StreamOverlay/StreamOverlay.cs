@@ -25,10 +25,13 @@ namespace Gizmo.StreamOverlay
         public static Vector2 ClickedPosition = Vector2.Zero;
         public static Instance? Prod;
         public static Dictionary<string, Instance> Shimeji = [];
+        public static List<string> Models = [];
         public override void Init()
         {
-            if (ModelHandler.useSecondaryModel) ModelHandler.ModelWVRM = new("../../../model/p1_data.json");
-            else ModelHandler.ModelWVRM = new("../../../model/model_data.json");
+            Models = FileP.ListFiles("../../../model").Where(x => x.EndsWith(".json")).ToList();
+            var main = Models.FindIndex(x => x.EndsWith("model_data.json"));
+            Models = [.. Models[main..], .. Models[0..main]];
+            ModelHandler.ModelWVRM = new(Models[ModelHandler.modelNumber]);
             StreamWebSocket.Init();
             if (MetaP.Platform == OSPlatform.Windows)
             {
@@ -90,9 +93,9 @@ namespace Gizmo.StreamOverlay
             else if (InputP.KeyReleased(0x66)) Elements.Entities.Prod.Pose = "IDLE";
             if (InputP.KeyPressed(0x63))
             {
-                if (ModelHandler.useSecondaryModel) ModelHandler.ModelWVRM = new("../../../model/model_data.json");
-                else ModelHandler.ModelWVRM = new("../../../model/p1_data.json");
-                ModelHandler.useSecondaryModel = !ModelHandler.useSecondaryModel;
+                ModelHandler.modelNumber += 1;
+                if (ModelHandler.modelNumber == Models.Count) ModelHandler.modelNumber = 0;
+                ModelHandler.ModelWVRM = new(Models[ModelHandler.modelNumber]);
             }
             if (!Mouse.Left && ClickedInstance != null)
             {

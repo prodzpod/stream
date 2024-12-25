@@ -11,7 +11,7 @@ namespace Gizmo.StreamOverlay.Elements.Windows
     {
         public override float Drag(Instance i) => .9f;
         public override Vector2 Gravity(Instance i) => Vector2.UnitY * 3000;
-        public static Instance New(Vector2 pos, string _title, Sprite pfp, int viewers)
+        public static Instance New(Vector2 pos, string _title, Sprite pfp, int viewers, string title = "<wave>welcome raid ers!")
         {
             var ret = New(nameof(RaidWindow), pos, "<wave>" + _title, pfp.Size, true, pfp);
             Audio.Play("screen/join");
@@ -19,6 +19,7 @@ namespace Gizmo.StreamOverlay.Elements.Windows
             ret.Rotation = RandomP.Random(-7200, 7200);
             ret.Set("viewers", RandomP.Random(4, 10) + viewers);
             ret.Set("viewer", 0);
+            ret.Set("title2", title);
             return ret;
         }
         public override void OnUpdate(ref Instance self, float deltaTime)
@@ -28,10 +29,10 @@ namespace Gizmo.StreamOverlay.Elements.Windows
             int viewer = self.Get<int>("viewer");
             if (viewer < viewers && self.Life > viewer * (0.1f + 0.8f / (1 + viewers)))
             {
-                var joel = New(nameof(Window), self.Position, "<wave>welcome raid ers!", Resource.Sprites["other/joel"].Size, true, Resource.Sprites["other/joel"]);
+                var joel = New(nameof(Window), self.Position, self.Get<string>("title2")!, Resource.Sprites["other/joel"].Size, true, Resource.Sprites["other/joel"]);
                 Audio.Play("screen/join", RandomP.Random(.8f, 1.2f), MathP.Clamp((35 - viewers) / 30, .2f, 1f));
                 joel.Angle = self.Angle;
-                joel.Set("title", "<wave>welcome raid ers!");
+                joel.Set("title", self.Get<string>("title2")!);
                 joel.Set("content", "Joel");
                 viewer++;
                 self.Set("viewer", viewer);

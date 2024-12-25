@@ -6,6 +6,7 @@
 //?   [v] initialize all modules
 //?   [v] s t a y c u t e
 const fs = require('fs');
+const { fileExists, backupLog, path } = require('./src/@main/commonServer');
 const PNG = require('pngjs').PNG;
 
 const COLOR_CHANGE_NOT_REQUIRED = -1;
@@ -89,9 +90,18 @@ await require("./src/@main/index").init();
 if (process.argv.every(x => x !== "-m" && x !== "--minimal")) for (let k of module.exports.initModules) 
     require("./src/@main/src/@meta/module").start(k, process.argv.some(x => x === "-d" || x === "--debug"));
 })();
+let stop = false;
+let backupLogLoop = () => {
+    backupLog();
+    if (!stop) setTimeout(backupLogLoop, 60000);
+};
+if (fileExists("latest.log")) {
+    fs.copyFileSync(path("latest.log"), path((new Date()).toISOString().replaceAll(":", "-") + ".log"));
+    fs.unlinkSync(path("latest.log"));
+}
+backupLogLoop();
 
 module.exports.initModules = ["twitch", "discord", "web", "qat", "gpt", "gcp", "greencircle", "social"];
 module.exports.streamModules = ["obs", "tracker", "fl"];
-let stop = false;
 module.exports.stop = () => stop;
 module.exports.stopReal = () => stop = true;

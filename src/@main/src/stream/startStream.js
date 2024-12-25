@@ -1,6 +1,6 @@
 const { src, data, send } = require("../..");
 const { time } = require("../../common");
-const { info } = require("../../commonServer");
+const { info, log } = require("../../commonServer");
 const { args } = require("../chat/chat");
 module.exports.predicate = "!golive";
 module.exports.permission = false;

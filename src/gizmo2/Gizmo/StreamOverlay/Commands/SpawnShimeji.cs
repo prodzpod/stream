@@ -43,6 +43,7 @@ namespace Gizmo.StreamOverlay.Commands
             i.Set("color", _color);
             i.Set("ai", ai);
             Audio.Play("screen/join");
+            if (Fight.FightingRaidBoss.Contains(author)) StreamWebSocket.Commands["fight"]([author, "prodzpod"]);
             return i;
         }
     }

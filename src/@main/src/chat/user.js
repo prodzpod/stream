@@ -5,7 +5,7 @@ const { log, download } = require("../../commonServer");
 module.exports.identify = chatter => {
     const category = Object.keys(chatter)[0];
     if (!category) return null;
-    return Object.values(data().user ?? {}).find(x => x[category]?.id == chatter[category].id) ?? chatter;
+    return Object.values(data().user ?? {}).find(x => chatter[category] && x[category]?.id == chatter[category]?.id) ?? chatter;
 }
 module.exports.register = chatter => {
     if (!chatter.twitch) return;
@@ -13,7 +13,9 @@ module.exports.register = chatter => {
 }
 
 module.exports.initialize = async (id, forceBlockUpdate=false) => {
-    let chatter = Object.values(data().user ?? {}).find(x => x.twitch?.id == id) ?? { twitch: {id: id} };
+    let _name = id;
+    if (nullish(_name) !== null) _name = _name?.toString()?.toLowerCase(); else _name = null;
+    let chatter = Object.values(data().user ?? {}).find(x => x.twitch?.id == id || (_name !== null && (x.twitch?.login === _name || x.twitch?.name === _name))) ?? { twitch: {id: id} };
     let updateThis = nullish(chatter.meta) === null;
     chatter.meta ??= {};
     chatter.economy ??= {};
@@ -74,10 +76,10 @@ module.exports.initialize = async (id, forceBlockUpdate=false) => {
         updateThis = true;
     }
     chatter.meta.last_interacted ??= 0;
-    chatter.meta.permission = {
-        streamer: chatter.twitch?.badges?.includes("broadcaster-1") ?? false,
-        mod: chatter.twitch?.badges?.includes("moderator-1") ?? false,
-        vip: chatter.twitch?.badges?.includes("vip-1") ?? false,
+    chatter.meta.permission ??= {
+        streamer: chatter.twitch.login === "prodzpod",
+        mod: false,
+        vip: false,
     }
     if (updateThis && !forceBlockUpdate) {
         log("Updating User", chatter.twitch?.name);
@@ -91,6 +93,7 @@ module.exports.initialize = async (id, forceBlockUpdate=false) => {
 
 const TWITCH_UPDATE_PERIOD = BigInt(1000*60*60*24);
 const TWITCH_INFO_MAP = {
+    "id": "id",
     "login": "login",
     "display_name": "name",
     "description": "description",

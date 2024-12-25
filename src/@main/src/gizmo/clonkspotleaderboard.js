@@ -4,7 +4,7 @@ const { args } = require("../chat/chat");
 
 const PEOPLE_PER_PAGE = 10;
 module.exports.predicate = "!clonkspotleaderboard";
-module.exports.permission = 0;
+module.exports.permission = true;
 module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
     let _page = numberish(args(text)[0] ?? ""); let page = 0;
     let users = Object.values(data().user)

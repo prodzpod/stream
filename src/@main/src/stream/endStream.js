@@ -11,5 +11,9 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
     src().obs.brb(); src().obs.end();
     for (const module of streamModules) end(module, true);
     src().startWeekly.end();
+    require("fs").writeFile(path("src/@main/data/backup.sh"), "#!/usr/bin/env sh\n" + (await listFiles("src/@main/data"))
+        .filter(x => x.endsWith(".wasd"))
+        .map(x => `scp ${path("src/@main/data", x)} ${"$p/../data/" + x}`)
+        .join("\n"), () => info("Backup shell script generated"));
     return [0, ""];
 }

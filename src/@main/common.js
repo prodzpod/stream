@@ -107,17 +107,34 @@ module.exports.stringify = str => {
     if (typeof str === "string") return str;
     const type = module.exports.realtype(str);
     switch (type) {
-        case "array":
-        case "object":
-            return JSON.stringify(str);
-        case "map":
-        case "set":
-            return JSON.stringify(module.exports.array(str));
-        case "function":
-            return str + "";
-        default:
-            return String(str);
+        case "array": return JSON.stringify(stringifyArray(str));
+        case "object": return JSON.stringify(stringifyObject(str));
+        case "set": return JSON.stringify(stringifyArray(module.exports.array(str)));
+        case "map": return JSON.stringify(stringifyObject(module.exports.array(str)));
+        case "function": return str + "";
+        default: return String(str);
     }
+}
+function stringifyArray(arr) {
+    if (!Array.isArray(arr)) return String(arr);
+    return arr.map(x => {
+        const type = module.exports.realtype(x);
+        switch (type) {
+            case "array": return stringifyArray(x);
+            case "object": return stringifyObject(x);
+            case "set": return stringifyArray(module.exports.array(x));
+            case "map": return stringifyObject(module.exports.array(x));
+            case "function": return x + "";
+            case "bigint": return x.toString();
+            default: return x;
+        }
+    });
+}
+function stringifyObject(o) {
+    if (module.exports.realtype(o) !== "object") return String(o);
+    let ret = module.exports.transpose(Object.entries(o));
+    if (ret.length === 2) ret[1] = stringifyArray(ret[1]);
+    return module.exports.unentry(module.exports.transpose(ret));
 }
 module.exports.realtype = a => {
     if (Array.isArray(a)) return "array";
@@ -299,7 +316,8 @@ module.exports.unentry = kvpair => {
 module.exports.transpose = a => {
     a = module.exports.array(a);
     if (Array.isArray(a)) {
-        let length = Math.max(a.map(x => x.length));
+        if (a.length === 0) return [];
+        let length = Math.max(...a.map(x => x.length));
         let ret = [];
         for (let i = 0; i < length; i++) ret[i] = a.map(x => x[i]);
         return ret;

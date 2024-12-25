@@ -46,14 +46,16 @@ namespace Gizmo.StreamOverlay.Elements.Screens
     {
         public override bool Immortal => true;
         public override string Sprite => "other/raidboss";
-        public override float Mass(Instance i) => 1;
+        public override float Mass(Instance i) => 100;
         public override float Drag(Instance i) => 1;
-        public override float Friction(Instance i) => .8f;
-        public override float Bounciness(Instance i) => .7f;
-        public override Vector2 Gravity(Instance i) => Vector2.Zero;
+        public override float Friction(Instance i) => 0f;
+        public override float Bounciness(Instance i) => 0.9f;
+        public override Vector2 Gravity(Instance i) => Vector2.UnitY * 2000;
         public override void OnInit(ref Instance self)
         {
             base.OnInit(ref self);
+            var GuyAmount = MathP.Max(1, Guys.Where(x => Game.Time - x.Value <= 1800).Count());
+            Commands.Fight.FightingRaidBoss = [];
             self.Depth = 50;
             self.Set("ai", new Dictionary<string, float>()
             {
@@ -72,8 +74,8 @@ namespace Gizmo.StreamOverlay.Elements.Screens
                 {  "banananess", .5f },
                 {  "orangeness", .5f },
                 {  "appleness", 0f },
-                {  "constitution", 5000f },
-                {  "attack", 25f },
+                {  "constitution", 300 * GuyAmount },
+                {  "attack", 4 * GuyAmount },
                 {  "defense", 0 },
                 {  "critchance", 0.4f },
                 {  "critdamage", 2.5f },
@@ -87,6 +89,12 @@ namespace Gizmo.StreamOverlay.Elements.Screens
             StreamOverlay.Shimeji["prodzpod"] = self;
             self.Set("tilnextmove", 999999f);
             self.Set("tilnextkick", 999999f);
+        }
+
+        public override void OnDestroy(ref Instance self)
+        {
+            base.OnDestroy(ref self);
+            Commands.Fight.FightingRaidBoss = [];
         }
         public override void OnUpdate(ref Instance self, float deltaTime)
         {

@@ -6,20 +6,22 @@ namespace Gizmo.StreamOverlay.Commands
 {
     public class Fight : Command
     {
+        public static List<string> FightingRaidBoss = [];
         public override object?[]? Execute(params object?[] args)
         {
             string? attacker = WASD.Assert<string>(args[0]);
             string? defender = WASD.Assert<string>(args[1]);
-            if (!StreamOverlay.Shimeji.ContainsKey(attacker) || !StreamOverlay.Shimeji.ContainsKey(defender))
-                return [false];
+            if (!StreamOverlay.Shimeji.ContainsKey(attacker)) return [false, "you are currently not real, use !guy to summon a guy"];
+            if (!StreamOverlay.Shimeji.ContainsKey(defender)) return [false, "the target is currently not real"];
+            if (defender == "prodzpod" && !FightingRaidBoss.Contains(attacker)) FightingRaidBoss.Add(attacker);
             if (!StreamOverlay.Shimeji[defender].Var.ContainsKey("victim") || StreamOverlay.Shimeji[defender].Element is RaidBoss)
             {
                 StreamOverlay.Shimeji[attacker].Set("victim", StreamOverlay.Shimeji[defender]);
                 StreamOverlay.Shimeji[attacker].Set("incombat", true);
                 StreamOverlay.Shimeji[attacker].Set("target", StreamOverlay.Shimeji[defender].Position);
-                return [true];
+                return [true, "combat initiated"];
             }
-            return [false];
+            return [false, "your target is currently in battle (pj timer active)"];
         }
     }
 }

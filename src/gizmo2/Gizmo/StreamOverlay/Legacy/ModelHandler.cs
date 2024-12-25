@@ -22,7 +22,7 @@ namespace ProdModel.Puppet
         public static Vector3 RightArmAngle2 = Vector3.Zero;
         public static float ArmTime = 0;
 
-        public static bool useSecondaryModel = false;
+        public static int modelNumber = 0;
         public static void HandleTracker(string raw)
         {
             TrackingData = new(raw);
@@ -55,7 +55,7 @@ namespace ProdModel.Puppet
                 case 0: // eyes
                 case 1:
                     if (EyeSinceLastOne[index] < 10) return "0";
-                    if (useSecondaryModel) return TrackingData.Blink[index] > 0.6f ? "1" : "x";
+                    if (modelNumber != 0) return TrackingData.Blink[index] > 0.6f ? "1" : "x";
                     if (TrackingData.Blink[index] > 0.9f) return "1";
                     if (TrackingData.Blink[index] > 0.7f) return "3";
                     if (TrackingData.Blink[index] > 0.6f) return "4";
@@ -78,7 +78,7 @@ namespace ProdModel.Puppet
                     translate += (TrackingData.Translation.ZXY() - new Vector3(-3f, 1.5f, 0.3f)) * new Vector3(0.1f, 0.1f, 0.1f);
                     rotate.Y += rotation.Y * 0.3f;
                     rotate.X += rotation.X * 0.75f;
-                    if (useSecondaryModel)
+                    if (modelNumber != 0)
                     {
                         translate.Y += .15f;
                         rotate.Z -= .1f;

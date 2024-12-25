@@ -65,10 +65,19 @@ module.exports.download = (url, ...dir) => new Promise(resolve => {
 let LOG_LEVEL = 0;
 const LEVEL_TO_COLOR = { "-2": 237, "-1": 8, "0": 15, "1": 159, "2": 226, "3": 9 };
 const LEVEL_TO_TEXT = { "-999": "ALL", "-2": "VERBOSE", "-1": "DEBUG", "0": "LOG", "1": "INFO", "2": "WARN", "3": "ERROR", "999": "NONE" };
+let logs = [];
 module.exports._log = (arr, logLevel=0) => {
+    logs.push(arr.map(stringify).join(" "));
     if (LOG_LEVEL > logLevel) return;
     console.log(`\x1b[38;5;${LEVEL_TO_COLOR[logLevel]}m[${LEVEL_TO_TEXT[logLevel]}/${formatDate("hh:mm:ss")}]`, ...arr, "\x1b[0m");
 }
+module.exports.backupLog = () => new Promise(resolve => {
+    require("fs").appendFile(module.exports.path("latest.log"), logs.join("\n") + "\n", () => {
+        module.exports.info("logs backed up");
+        logs = [];
+        resolve(0);
+    });
+});
 module.exports.error = (...x) => module.exports._log(x, 3);
 module.exports.warn = (...x) => module.exports._log(x, 2);
 module.exports.info = (...x) => module.exports._log(x, 1);
@@ -80,7 +89,7 @@ module.exports.setLogLevel = n => {
     LOG_LEVEL = n; return n;
 }
 const { performance } = require("node:perf_hooks");
-const { formatDate, nullish } = require("./common");
+const { formatDate, nullish, stringify } = require("./common");
 let perfs = {};
 let perfMarkers = 0;
 module.exports.measureStart = () => {

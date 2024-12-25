@@ -64,7 +64,7 @@ block postbody
         addEvent("onload", () => {
             let url = "wss://prod.kr/clip";
             const hash = localStorage.getItem("clip");
-            if (hash) url += `?hash=${hash}`;
+            if (hash) url += `?hash=${hash}&password=${localStorage.getItem("password")}`;
             ws = new WebSocket(url);
             ws.addEventListener("open", () => {
                 console.log("WebSocket opened");
