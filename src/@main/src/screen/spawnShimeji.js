@@ -15,5 +15,7 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
         if (typeof v !== "object") ai[c] = v;
         else ai[c] = v.value / v.max;
     }
-    return src().genericXY.execute(_reply, from, chatter, message, WASD.pack(...["!spawnshimeji", x, y, ai]), emote, reply);
+    let name = chatter.twitch.name;
+    if (chatter.shimeji.override) name = chatter.shimeji.override.replaceAll("$NAME$", chatter.twitch.name);
+    return src().genericXY.execute(_reply, from, chatter, message, WASD.pack(...["!spawnshimeji", x, y, ai, name]), emote, reply);
 }

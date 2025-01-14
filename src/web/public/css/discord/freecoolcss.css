@@ -1,0 +1,207 @@
+/* undo DTM-18's color overrides (to be compatible with other themepacks */
+body { background: var(--bg-overlay-2, var(--background-secondary)) !important; }
+[aria-label="Message Actions"] > [class*="popover_"], [class*="hoverBarButton_"], span[class*="content_"] { background: var(--bg-overlay-chat,var(--background-primary)) !important; }
+[aria-label="Message Actions"] > [class*="popover_"]::before { background: linear-gradient(90deg, transparent, var(--bg-overlay-chat,var(--background-primary)) 6px); }
+[class*="bg_"], [class*="footer_"] { background: var(--bg-overlay-app-frame, var(--background-tertiary)) !important; }
+[class*="upperBadge_"], [class*="guilds_"] { background-color: var(--background-tertiary) !important; }
+#channel-attach, .theme-dark nav[class*="container_"], [class*="privateChannels_"] { background: var(--bg-overlay-3, var(--background-secondary)) !important; }
+[aria-label="User area"] > [class*="container_"], [aria-label="User area"] > div > [class*="container_"] { background: var(--bg-overlay-1, var(--background-secondary-alt)) !important; }
+[aria-label="Channel header"] { background: var(--bg-overlay-2, var(--__header-bar-background)) !important; }
+[class*="unreadPill_"], [class*="chatContent_"] { background: var(--bg-overlay-chat, var(--background-primary)) !important; }
+[class*="members_"] { background: var(--bg-overlay-chat, var(--background-secondary)) !important;}
+[class*="channelTextArea_"] { background-color: transparent !important; }
+[class*="themedBackground_"] { background: var(--bg-overlay-3, var(--channeltextarea-background)) !important; }
+[class*="modeSelected_"] [class*="link_"], [class*="modeSelected_"]:hover [class*="link_"] { background: var(--background-floating, var(--background-modifier-selected)) !important; }
+[class*="menu_"] { background: var(--background-floating) !important; }
+[class*="selected_"] [class*="header_"], [class*="clickable_"] [class*="header_"]:hover { background-color: var(--background-modifier-hover) !important; }
+[data-list-id*="roles-"] { background: transparent !important; }
+[class*="bar_"]:has(> [class*="unreadIcon_"]) { background-color: var(--background-floating) !important; }
+[class*="searchResultsWrap_"] [class*="searchHeader_"], main > [class*="container_"] { background: var(--bg-overlay-2,var(--__header-bar-background)) !important; }
+[class*="searchResult_"] { border-color: transparent !important; background: var(--background-floating) !important; }
+[class*="videoControls_"] [class*="caretButtonContainer_"] svg:has(path[d=" M-0.6899999976158142,0.6899999976158142 C0.6679999828338623,2.0480000972747803 1.5089999437332153,3.5239999294281006 1.840000033378601,4.736000061035156 C2.187999963760376,6.011000156402588 1.8919999599456787,6.564000129699707 1.7280000448226929,6.728000164031982 C1.5640000104904175,6.892000198364258 1.0110000371932983,7.188000202178955 -0.2639999985694885,6.840000152587891 C-1.4759999513626099,6.508999824523926 -2.9519999027252197,5.668000221252441 -4.309999942779541,4.309999942779541 C-5.668000221252441,2.9519999027252197 -6.510000228881836,1.4759999513626099 -6.840000152587891,0.2639999985694885 C-7.188000202178955,-1.0110000371932983 -6.892000198364258,-1.5640000104904175 -6.728000164031982,-1.7280000448226929 C-6.564000129699707,-1.8919999599456787 -6.011000156402588,-2.187999963760376 -4.736000061035156,-1.840000033378601 C-3.5239999294281006,-1.5089999437332153 -2.0480000972747803,-0.6679999828338623 -0.6899999976158142,0.6899999976158142z M0.7239999771118164,-0.7239999771118164 C-2.3919999599456787,-3.8399999141693115 -6.361999988555908,-4.923999786376953 -8.142999649047852,-3.1429998874664307 C-8.6850004196167,-2.6010000705718994 -8.961000442504883,-1.8559999465942383 -8.996000289916992,-0.9940000176429749 C-8.996000289916992,-0.9940000176429749 -9,-1 -9,-1 C-9,-1 -10.163999557495117,7.921999931335449 -10.163999557495117,7.921999931335449 C-10.333999633789062,9.223999977111816 -9.223999977111816,10.333999633789062 -7.921999931335449,10.163999557495117 C-7.921999931335449,10.163999557495117 1,9 1,9 C1,9 0.9940000176429749,8.996000289916992 0.9940000176429749,8.996000289916992 C1.8559999465942383,8.961000442504883 2.6010000705718994,8.6850004196167 3.1429998874664307,8.142999649047852 C4.923999786376953,6.361999988555908 3.8399999141693115,2.3919999599456787 0.7239999771118164,-0.7239999771118164z"]) 
+    { background: inherit !important; }
+[class*="videoControls_"] [class*="caretButtonContainer_"] svg:has(path[d=" M-0.6899999976158142,0.6899999976158142 C0.6679999828338623,2.0480000972747803 1.5089999437332153,3.5239999294281006 1.840000033378601,4.736000061035156 C2.187999963760376,6.011000156402588 1.8919999599456787,6.564000129699707 1.7280000448226929,6.728000164031982 C1.5640000104904175,6.892000198364258 1.0110000371932983,7.188000202178955 -0.2639999985694885,6.840000152587891 C-1.4759999513626099,6.508999824523926 -2.9519999027252197,5.668000221252441 -4.309999942779541,4.309999942779541 C-5.668000221252441,2.9519999027252197 -6.510000228881836,1.4759999513626099 -6.840000152587891,0.2639999985694885 C-7.188000202178955,-1.0110000371932983 -6.892000198364258,-1.5640000104904175 -6.728000164031982,-1.7280000448226929 C-6.564000129699707,-1.8919999599456787 -6.011000156402588,-2.187999963760376 -4.736000061035156,-1.840000033378601 C-3.5239999294281006,-1.5089999437332153 -2.0480000972747803,-0.6679999828338623 -0.6899999976158142,0.6899999976158142z M0.7239999771118164,-0.7239999771118164 C-2.3919999599456787,-3.8399999141693115 -6.361999988555908,-4.923999786376953 -8.142999649047852,-3.1429998874664307 C-8.6850004196167,-2.6010000705718994 -8.961000442504883,-1.8559999465942383 -8.996000289916992,-0.9940000176429749 C-8.996000289916992,-0.9940000176429749 -9,-1 -9,-1 C-9,-1 -10.163999557495117,7.921999931335449 -10.163999557495117,7.921999931335449 C-10.333999633789062,9.223999977111816 -9.223999977111816,10.333999633789062 -7.921999931335449,10.163999557495117 C-7.921999931335449,10.163999557495117 1,9 1,9 C1,9 0.9940000176429749,8.996000289916992 0.9940000176429749,8.996000289916992 C1.8559999465942383,8.961000442504883 2.6010000705718994,8.6850004196167 3.1429998874664307,8.142999649047852 C4.923999786376953,6.361999988555908 3.8399999141693115,2.3919999599456787 0.7239999771118164,-0.7239999771118164z"]) g 
+    { display: block !important; } /* soundboard */
+
+/* destroy all duplicate / predatory features */
+/* top tab */
+[class*="notice_"]:has([aria-label="Dismiss"]), /* auto dismiss */
+a[href="https://support.discord.com"]:has(> [class*="iconWrapper_"]), /* "?" button in top tab */
+[class*="iconWrapper_"][aria-label="Notification Settings"], /* notification setting in top tab */
+[class*="iconWrapper_"]:first-child:has(~ [class*="caret_"]), [class*="titleWrapper_"]:has(+ [class*="caret_"]), [class*="titleWrapper_"] + [class*="caret_"], /* parent channelname on threads */
+[class*="iconWrapper_"][aria-label="Show User Profile (Unavailable)"], /* why are you showing me this button if its unavailable */
+/* left tab */
+[data-list-id="guildsnav"] [class*="footer_"] [class*="listItem_"]:has([data-list-item-id="guildsnav___guild-discover-button"]), /* discover button */
+[class*="guildIconV2Container_"]:has([class*="flowerStarContainer_"]), /* server status (community, verified, etc) */
+li:has([aria-label="Server Guide"]), /* server guide */
+li[class*="containerDefault_"]:has([aria-label="Clear"][class*="dismissWrapper_"]),
+li[class*="containerDefault_"]:has([aria-label="Clear"][class*="dismissWrapper_"]) + li,
+li[class*="containerDefault_"]:has([aria-label="Clear"][class*="dismissWrapper_"]) + li + [class*="sectionDivider_"], /* suggested channel */
+li:has(> [data-list-item-id*="channels___boosts-"]), /* boosts progress bar on channel tab */
+li:has(> [class*="wrapper_"] > [data-list-item-id*="channels___upcoming-events-"]), /* upcoming events */
+li:has(> [class*="wrapper_"] > [data-list-item-id*="channels___upcoming-events-"]) + [class*="sectionDivider_"], /* sidebar after upcoming events */
+:is(a[href*="/channels/"], a[data-list-item-id*="channels___"]) [class*="iconItem_"][aria-label="Create Invite"], /* create invite on channel (use right click on server) */
+li:has([data-list-item-id*="channels___members-"]), /* "members" button on channel list */
+#channels [class*="voiceChannelsButton_"]:has(> [class*="voiceChannelsToggleIcon_"]), /* hide voice channels */
+[class*="channelNotice_"]:has(> [aria-label="Dismiss"]), /* oh no! your server to lose a level */
+/* left tab: friends/dms */
+li:has([data-list-item-id*="___nitro"]), /* buy nitro */
+li:has([data-list-item-id*="___shop"]), /* buy nitro 2 */
+[class*="container_"]:has(> [class*="privateChannelsHeaderContainer_"]):has(> [class*="itemContainer_"]), /* play again */
+[class*="closeButton_"][aria-label="Close DM"], /* close dm button (use right click) */
+/* right tab */
+[class*="members_"] [class*="botTag_"], /* bot tags on memberlist */
+[role="button"]:has(> svg[aria-label*="Server boosting since "]), /* boost icon */
+/* message buttons */
+[class*="hoverBarButton_"]:not(:is([aria-label="Reply"], [aria-label="Add Reaction"], [aria-label="Edit"], [aria-label="Delete"])), /* nuke it all */
+/* right click menu: chat */
+[aria-label="Message Actions"] > [class*="scroller_"] > [role="group"]:has([id*="message-quickreact-"]), /* quick reacts */
+[aria-label="Message Actions"] > [class*="scroller_"] > [role="group"] [id="message-add-reaction"], /* add reacts (use hover) */
+[aria-label="Message Actions"] > [class*="scroller_"] > [role="group"] > #message-edit,
+[aria-label="Message Actions"] > [class*="scroller_"] > [role="group"]:has(> #message-delete),
+[aria-label="Message Actions"] > [class*="scroller_"] > [role="group"] > #message-reply, /* (use hover) */
+[aria-label="Message Actions"] > [class*="scroller_"] > [role="group"] > :has(> #message-save-for-later), 
+[aria-label="Message Actions"] > [class*="scroller_"] > [role="group"] > :has(> #message-apps),
+[aria-label="Message Actions"] > [class*="scroller_"] > [role="group"] > #message-mark-unread, 
+[aria-label="Message Actions"] > [class*="scroller_"] > [role="group"] > #message-configure, 
+[aria-label="Message Actions"] > [class*="scroller_"] > [role="group"] > #message-tts, /* why */
+[aria-label="Message Actions"] > [class*="scroller_"] > [class*="separator_"],
+/* right click menu: user */
+[aria-label="User Settings Actions"] > [class*="scroller_"] > [role="group"] #user-context-call, 
+[aria-label="User Settings Actions"] > [class*="scroller_"] > [role="group"] #user-context-note,
+[aria-label="User Settings Actions"] > [class*="scroller_"] > [role="group"] #user-context-apps,
+[aria-label="User Settings Actions"] > [class*="scroller_"] > [role="group"] #user-context-invite-to-server, /* scary stuffs */
+[aria-label="User Settings Actions"] > [class*="scroller_"] > [role="group"] #user-context-disable-video,
+[aria-label="User Settings Actions"] > [class*="scroller_"] > [role="group"] #user-context-mute, /* just set to 0% */
+[aria-label="User Settings Actions"] > [class*="scroller_"] > [role="group"] #user-context-mod-view, /* go to profile */
+[aria-label="User Settings Actions"] > [class*="scroller_"] > [role="group"] #user-context-timeout,
+[aria-label="User Settings Actions"] > [class*="scroller_"] > [role="group"] #user-context-kick,
+[aria-label="User Settings Actions"] > [class*="scroller_"] > [role="group"] #user-context-ban, /* use mod view */
+[aria-label="User Settings Actions"] > [class*="scroller_"] > [class*="separator_"],
+/* right click menu: channel */
+[aria-label="Channel Actions"] > [class*="scroller_"] > [role="group"] #channel-context-opt-into-channel, 
+[aria-label="Channel Actions"] > [class*="scroller_"] > [role="group"] #channel-context-opt-into-category, 
+[aria-label="Channel Actions"] > [class*="scroller_"] > [role="group"] #channel-context-opt-in-favorite-channel, /* favorite */
+[aria-label="Channel Actions"] > [class*="scroller_"] > [role="group"] #channel-context-opt-out-category, /* unfollow category */
+[aria-label="Channel Actions"] > [class*="scroller_"] > [role="group"] #channel-context-channel-copy-link, /* copy link */
+[aria-label="Channel Actions"] > [class*="scroller_"] > [role="group"] #channel-context-create-text-channel, 
+[aria-label="Channel Actions"] > [class*="scroller_"] > [role="group"] #channel-context-create-voice-channel, /* specific channel creates */
+[aria-label="Channel Actions"] > [class*="scroller_"] > [role="group"] #channel-context-open-chat, 
+[aria-label="Channel Actions"] > [class*="scroller_"] > [role="group"] #channel-context-hide-voice-names, /* misc vc settings */
+[aria-label="Channel Actions"] > [class*="scroller_"] > [role="group"] #channel-context-collapse-category, 
+[aria-label="Channel Actions"] > [class*="scroller_"] > [role="group"] #channel-context-collapse-all-categories, /* collapse category on rightclick */
+[aria-label="Channel Actions"] > [class*="scroller_"] > [class*="separator_"],
+[aria-label="Thread Actions"] > [class*="scroller_"] > [role="group"] #thread-context-archive-thread, 
+[aria-label="Thread Actions"] > [class*="scroller_"] > [class*="separator_"], /* thread settings */
+/* right click menu: server */
+[aria-label="Server Actions"] > [class*="scroller_"] > [role="group"]:has(> #guild-context-view-icon):not(:has(~ [role="group"] > [id*="guild-context-devmode-copy-id-"])), /* view icon in channel setting */
+[aria-label="Server Actions"] > [class*="scroller_"] > [role="group"]:has(~ [role="group"] > [id*="guild-context-devmode-copy-id-"]) > #guild-context-hide-muted-channels,
+[aria-label="Server Actions"] > [class*="scroller_"] > [role="group"]:has(~ [role="group"] > [id*="guild-context-devmode-copy-id-"]) > #guild-context-create-channel,
+[aria-label="Server Actions"] > [class*="scroller_"] > [role="group"]:has(~ [role="group"] > [id*="guild-context-devmode-copy-id-"]) > #guild-context-create-category,
+[aria-label="Server Actions"] > [class*="scroller_"] > [role="group"]:has(~ [role="group"] > [id*="guild-context-devmode-copy-id-"]) > #guild-context-create-event, /* use channel rightclicks */
+[aria-label="Server Actions"] > [class*="scroller_"] > [role="group"]:has(~ [role="group"] > [id*="guild-context-devmode-copy-id-"]) #guild-context-guild-settings,
+[aria-label="Server Actions"] > [class*="scroller_"] > [role="group"]:has(~ [role="group"] > [id*="guild-context-devmode-copy-id-"]) > #guild-context-vc-server-info,
+[aria-label="Server Actions"] > [class*="scroller_"] > [role="group"]:has(~ [role="group"] > [id*="guild-context-devmode-copy-id-"]) > #guild-context-change-nickname, /* use top menu */
+[aria-label="Server Actions"] > [class*="scroller_"] > [class*="separator_"],
+[id*="popout_"] [aria-label="Server Actions"] > [class*="scroller_"] > [role="group"] > #guild-header-popout-premium-subscribe, /* buy nitro 4 */
+[id*="popout_"] [aria-label="Server Actions"] > [class*="scroller_"] > [role="group"] > #guild-header-popout-invite-people,
+[id*="popout_"] [aria-label="Server Actions"] > [class*="scroller_"] > [role="group"] > #guild-header-popout-create-channel,
+[id*="popout_"] [aria-label="Server Actions"] > [class*="scroller_"] > [role="group"] > #guild-header-popout-create-category,
+[id*="popout_"] [aria-label="Server Actions"] > [class*="scroller_"] > [role="group"] > #guild-header-popout-create-event, /* use channel menu */
+[id*="popout_"] [aria-label="Server Actions"] > [class*="scroller_"] > [role="group"] > #guild-header-popout-application-directory,
+[id*="popout_"] [aria-label="Server Actions"] > [class*="scroller_"] > [role="group"] > #guild-header-popout-notifications,
+[id*="popout_"] [aria-label="Server Actions"] > [class*="scroller_"] > [role="group"] > #guild-header-popout-privacy, /* use server right click */
+/* settings: global */
+[aria-label="Family Center"], 
+[aria-label="Family Center"] + [class*="item_"], /* Authorized Apps */
+[aria-label="Connections"], 
+[aria-label="Clips"], 
+[aria-label="Gift Inventory"], 
+[aria-label="Subscriptions"], 
+[aria-label="Nitro"], 
+[aria-label="Clips"] + [class*="separator_"], 
+[aria-label="Clips"] + [class*="separator_"] + [class*="header_"], /* Nitro */
+[aria-label="Notifications"] + [class*="item_"] + [class*="item_"], /* Language */
+[aria-controls="overlay-tab"] + div + [class*="item_"],
+[class*="item_"]:has(+ [aria-label="Streamer Mode"]), /* Windows settings */
+[aria-label="Streamer Mode"],
+[aria-label="Advanced"],
+[aria-label="Activity Privacy"], 
+[aria-label="Activity Privacy"] + [class*="item_"] + [class*="item_"] + [class*="separator_"] + [class*="item_"], /* what's new */
+[aria-label="Merch"], 
+[aria-label="Merch"] ~ [class*="item_"], /* all the test features */
+[aria-label="Activity Privacy"] ~ [class*="separator_"],
+[class*="socialLinks_"], /* NO */
+/* settings: server */
+[class*="header_"]:has(+ [aria-label="Integrations"]),
+[aria-label="Integrations"],
+[aria-label="App Directory"],
+[aria-label="App Directory"] + [class*="separator_"], /* the entire apps category */
+[class*="item_"]:has(+ [aria-label="AutoMod"]), /* safety setup */
+[aria-label="AutoMod"], 
+[class*="header_"]:has(+ [aria-label="Enable Community"]),
+[aria-label="Enable Community"],
+[aria-label="Enable Community"] + [class*="separator_"], /* enable community "category" */
+[class*="header_"]:has(+ [aria-label="Server Subscriptions"]),
+[aria-label="Server Subscriptions"],
+[aria-label="Server Subscriptions"] + [class*="separator_"], /* monetization "category" */
+[aria-label="Server Boost Status"],
+[aria-label="Server Boost Status"] + [class*="separator_"], /* server boost "category" */
+/* others */
+[class*="channelBottomBarArea_"] [class*="buttons_"] button[aria-label="Send a gift"], /* buy nitro 3 */
+[class*="channelBottomBarArea_"] [class*="buttons_"] [class*="expression-picker-chat-input-button"]:has(+ button[aria-label="Send a gift"]), /* translation */
+[class*="emojiPickerListWrapper_"] [class*="categorySection_"]:has(path[d="M8 20a1 1 0 0 0-1 1v.5c0 .28.22.5.5.5h9a.5.5 0 0 0 .5-.5V21a1 1 0 0 0-1-1h-1a2 2 0 0 1-2-2v-.48c0-.95.7-1.73 1.5-2.23a5.7 5.7 0 0 0 1.23-1.08l2.3-.7A7 7 0 0 0 23 6.81V6a2 2 0 0 0-2-2h-2.24A2.85 2.85 0 0 0 16 2H8c-1.3 0-2.43.84-2.76 2H3a2 2 0 0 0-2 2v.82a7 7 0 0 0 4.96 6.7l2.31.7c.37.42.79.78 1.24 1.07.8.5 1.49 1.28 1.49 2.23V18a2 2 0 0 1-2 2H8Zm9.29-8.35.17-.05A5 5 0 0 0 21 6.82V6h-2.27a21.75 21.75 0 0 1-1.44 5.65Zm-10.58 0-.17-.05A5 5 0 0 1 3 6.82V6h2.27c.25 1.94.7 3.95 1.44 5.65Z"]),
+#emoji-picker-tab-panel [class*="scroller_"] [class*="categoryItemDefaultCategory_"][data-list-item-id="NO_LIST___expression-guild-0"], /* top emoji */
+[class*="videoGrid_"] [class*="tile_"]:has(button), /* youre the only one here */
+[class*="hoverButtonGroup_"]:has(> [aria-label="Edit Image with Apps"]) /* image on hover "ai" stuff */
+{ display: none !important; }
+
+/* style choices */
+/* layout: shorten width of side panels */
+:root { --custom-member-list-width: 150px !important; } /* left tab */
+section[aria-label="User area"] [class*="nameTag_"] { display: none !important; } /* name text in profile (to fit buttons in 150px) */
+section[aria-label="User area"] [aria-label="Set Status"] { min-width: 40px !important; }
+section[aria-label="User area"] [aria-label="Set Status"] + [class*="flex_"] { width: 88px !important;  } /* icons on bottom left */
+[class*="guilds_"] ~ [class*="base_"] > [class*="content_"] > [class*="sidebar_"] { width: 150px !important; } /* right tab */
+[class*="members_"] [class*="memberInner_"] { padding-left: 0 !important; }
+[class*="members_"] [class*="membersGroup_"] { padding-left: 8px !important; } /* give less margin on right tab */
+[class*="rtcConnectionStatusLabel_"], [class*="rtcConnectionStatus_"] + a[href*="/channels/"] { display: none !important; }
+[class*="inner_"]:has(> [class*="rtcConnectionStatusWrapper_"]) { flex: 0.3 !important; }
+[class*="voiceButtonsContainer_"] { margin: 0 !important; flex: 1 !important; }
+/* function: restore soundboard */
+[class*="actionButtons_"] div:has(> [aria-label="Open Soundboard"]) { display: block !important; }
+[class*="actionButtons_"] { display: flex; justify-content: space-around; transform: translate(-32px, 0); } /* fits buttons around, made to suit 150px leftbar */
+[class*="actionButtons_"] button, [class*="actionButtons_"] div:has(> button) { min-width: 32px !important; }
+[class*="voiceButtonsContainer_"] button[aria-label="Disconnect"] { transform: translate(64px, 0); } /* rearranges disconnect to be at rightmost */
+[class*="voiceButtonsContainer_"] button[aria-label="Disconnect"] svg { color: var(--status-danger); } /* makes it red also */
+/* layout: put chat messages closer together */
+.group-spacing-16 { --f-msg-spacing: 24px !important; }
+:is([class*="messageListItem_"], [class*="backgroundFlash_"], [class*="quotedChatMessage_"]):has(+ :is([class*="messageListItem_"], [class*="backgroundFlash_"]) :is([class*="groupStart_"], [class*="systemMessage_"])):after {
+    border-bottom: 0px solid transparent !important; } /* lines */
+/* layout: shorten height */
+[class*="standardSidebarView_"] [class*="divider_"] { margin-top: 20px; margin-bottom: 20px; }
+/* layout: expand emoji */
+[class*="expressionPickerPositionLayer_"] [class*="drawerSizingWrapper_"] {
+    transform: scale(0.5, 0.5); transform-origin: 0 0; width: min(200%, 400px) !important; } /* janky way to "zoom out" */
+[class*="expressionPickerPositionLayer_"] [class*="drawerSizingWrapper_"] [class*="contentWrapper_"] {
+    width: 200% !important; height: 200% !important; } /* make emojis fill up the expanded space */
+[class*="emojiPicker_"] [class*="input_"] { font-size: 28px; } /* emoji name preview */
+[class*="emojiPicker_"] [class*="input_"]::placeholder { color: var(--text-normal) !important; }
+/* style: uncolorize rolegroup */
+[class*="members_"] [class*="membersGroup_"] span { color: var(--channels-default) !important; }
+/* style: grad bg */
+[class*="layers_"] [class*="base_"] [class*="chat_"] { background-image: url("https://pub.colonq.computer/~prod/yume/bg.avif") !important; }
+[class*="chatContent_"] { background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.8)), linear-gradient(48.17deg, rgba(83, 72, 202, 0.5) 11.21%, rgba(20, 7, 48, 0.5) 61.92%) !important; }
+[class*="chatContent_"]::before { opacity: calc(1 - var(--custom-bg)); content: " "; position: absolute; left: 0; right: 0; top: 0; bottom: 0; background: var(--bg-overlay-chat, var(--background-primary)) !important; }
+/* super emergency opsec */
+[class*="settingsPage_"] span:has(button[aria-label="Reveal email address"])::before, 
+[class*="settingsPage_"] span:has(button[aria-label="Reveal phone number"])::before { content: "Hidden"; font-size: 16px; }
+[class*="formText_"]:has(> a[class*="phoneRevealer"])::before { content: "Your current phone number is: Hidden"; font-size: 14px; }
+[class*="settingsPage_"] span:has(button[aria-label="Reveal email address"]), 
+[class*="settingsPage_"] span:has(button[aria-label="Reveal phone number"]),
+[class*="formText_"]:has(> a[class*="phoneRevealer"]) { font-size: 0; }
+/* credits */
+[aria-label="Click to copy version"] > [class*="info_"]:before {
+    content: "DTM-18 Public V2.1.62\a\"Good Bits\" edit by prodzpod\aRevision 250105\a\a";
+    color: var(--text-muted);
+}

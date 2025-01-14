@@ -6,6 +6,7 @@ using Gizmo.Engine.Util;
 using Gizmo.StreamOverlay.Elements.Gizmos;
 using Gizmo.StreamOverlay.Elements.Screens;
 using Gizmo.StreamOverlay.Elements.Windows;
+using System.Data.Common;
 using System.Numerics;
 
 namespace Gizmo.StreamOverlay.Elements.Entities
@@ -34,6 +35,19 @@ namespace Gizmo.StreamOverlay.Elements.Entities
             self.Set("forcestate", 0);
             self.Set("forcestatetime", 0);
             self.Set("statpoint", 0);
+            self.Set("streak", 0);
+            self.Set("meleedamagedealt", 0f);
+            self.Set("rangedamagedealt", 0f);
+            self.Set("damagetaken", 0f);
+            self.Set("timesdodged", 0);
+            self.Set("distancewalked", 0f);
+            self.Set("timeskicked", 0);
+            self.Set("timesjumped", 0);
+            self.Set("timespeaced", 0);
+            self.Set("timespetted", 0);
+            self.Set("grounded", false);
+            self.Set("timeairborne", 0f);
+            self.Set("timegrounded", 0f);
         }
         public override void OnPostInit(ref Instance self)
         {
@@ -46,6 +60,7 @@ namespace Gizmo.StreamOverlay.Elements.Entities
             self.Set("attackspeed", ai["attackspeed"]);
             self.Set("critchance", ai["critchance"]);
             self.Set("critdamage", ai["critdamage"]);
+            self.Set("previousposition", self.Position);
             var maxhp = Graphic.New(self, Resource.NineSlices["WHITE"]);
             maxhp.Set("size", new Vector2(128, 8));
             maxhp.Position.X -= 11;
@@ -67,11 +82,8 @@ namespace Gizmo.StreamOverlay.Elements.Entities
         {
             var _self = self;
             List<Instance> attackers = StreamOverlay.Shimeji.Values.Where(x => x.Get<Instance>("victim") == _self).ToList();
-            foreach (var attacker in attackers)
-            {
-                attacker.Var.Remove("victim");
-                attacker.Set("incombat", false);
-            }
+            foreach (var attacker in attackers) EndCombat(attacker);
+            var author = self.Get<string>("author");
             if (self.Element is RaidBoss) attackers = attackers[0..1];
             if (attackers.Count > 0)
             {
@@ -79,11 +91,23 @@ namespace Gizmo.StreamOverlay.Elements.Entities
                 foreach (var attacker in attackers)
                 {
                     attacker.Set("statpoint", attacker.Get<int>("statpoint") + 1);
-                    if (attacker.Element is RaidBoss) StreamWebSocket.Send("announce", $"{self.Get<string>("author")} has been defeated by the hands of the Raid Boss, you may !guy and fight again if you arent !autorespawn yet");
-                    else StreamWebSocket.Send("announce", $"{attacker.Get<string>("author")} has come out Victorious at the valiant fight against {self.Get<string>("author")}, use `!levelup [stat]` to level up");
+                    if (attacker.Element is RaidBoss)
+                    {
+                        StreamWebSocket.Send("announce", $"{author} has been defeated by the hands of the Raid Boss, you may !guy and fight again if you arent !autorespawn yet");
+                        StreamWebSocket.Send("updatehistory", attacker.Get<string>("author"), "raidbossdeaths", 1);
+                    }
+                    else
+                    {
+                        StreamWebSocket.Send("announce", $"{attacker.Get<string>("author")} has come out Victorious at the valiant fight against {self.Get<string>("author")}, use `!levelup [stat]` to level up");
+                        self.Set("streak", self.Get<int>("streak") + 1);
+                        StreamWebSocket.Send("updatehistory", attacker.Get<string>("author"), "maxstreak", attacker.Get<int>("streak"));
+                        StreamWebSocket.Send("updatehistory", attacker.Get<string>("author"), "wins", 1);
+                        if (self.Element is RaidBoss) StreamWebSocket.Send("updatehistory", attacker.Get<string>("author"), "raidbosswins", 1);
+                    }
                 }
             }
-            var author = self.Get<string>("author");
+            if (!attackers.Any(x => x.Element is RaidBoss)) StreamWebSocket.Send("updatehistory", author, "losses", 1);
+            EndCombat(self);
             StreamOverlay.Shimeji.Remove(author);
             if (!self.Var.ContainsKey("forcenorespawn")) Task.Run(async () =>
             {
@@ -97,6 +121,8 @@ namespace Gizmo.StreamOverlay.Elements.Entities
         {
             base.OnUpdate(ref self, deltaTime);
             var ai = self.Get<Dictionary<string, float>>("ai");
+            if (self.Var.ContainsKey("incombatfor"))
+                self.Set("incombatfor", self.Get<float>("incombatfor") + deltaTime);
             if (self.Get<bool>("incombat"))
             {
                 // combat code
@@ -112,6 +138,9 @@ namespace Gizmo.StreamOverlay.Elements.Entities
                 self.Speed.X = MathP.Clamp((target.X - self.Position.X) * 5 + MathP.SExp(self.Speed.X - (target.X - self.Position.X) * 5, .01f, deltaTime), -MaxSpeed, MaxSpeed);
                 if (MathP.Abs(self.Speed.X) < 1 || self.Position.X < 8 || self.Position.X > (1920 - 8)) self.Var.Remove("target");
                 if (self.Speed.Y > MetaP.TargetFPS * 2) self.Frame = 3;
+                if (self.Get<bool>("grounded")) self.Set("timegrounded", self.Get<float>("timegrounded") + deltaTime);
+                else self.Set("timeairborne", self.Get<float>("timeairborne") + deltaTime);
+                if (Math.Abs(self.Speed.Y) > MetaP.TargetFPS * 2) self.Set("grounded", false);
                 else self.Frame = (self.Frame + deltaTime * self.Speed.X / 16) % 3;
                 if (MathP.Abs(self.Speed.Y) < MetaP.TargetFPS)
                     self.Rotation = MathP.Lerp(self.Rotation, -self.Angle * 5, .5f);
@@ -125,6 +154,7 @@ namespace Gizmo.StreamOverlay.Elements.Entities
                     // jump check
                     if (self.Get<bool>("forcejump") || RandomP.Chance(ai["jumpness"]))
                     {
+                        self.Set("timesjumped", self.Get<int>("timesjumped") + 1);
                         self.Set("forcejump", false);
                         self.Set("jumps", self.Get<float>("jumps") - 1);
                         self.Speed.Y = MathP.Lerp(-1600, -6400, ai["jumpheight"]) * RandomP.Random(ai["zebraness"], 1);
@@ -144,6 +174,8 @@ namespace Gizmo.StreamOverlay.Elements.Entities
                 }
                 else self.Set("tilnextmove", t);
             }
+            self.Set("distancewalked", self.Get<float>("distancewalked") + Math.Abs(self.Get<Vector2>("previousposition").X - self.Position.X));
+            self.Set("previousposition", self.Position);
             if (self.Get<int>("forcestate") != 0)
             {
                 self.Frame = self.Get<int>("forcestate");
@@ -168,6 +200,7 @@ namespace Gizmo.StreamOverlay.Elements.Entities
                     return;
                 }
                 else self.Position.Y += i;
+                self.Set("grounded", true);
             }
             if (other.Element is Squareish && !other.Get<bool>("pinned") && !other.Get<bool>("racked") && self.Var.ContainsKey("target") && self.Get<float>("tilnextkick") < 0)
             {
@@ -191,6 +224,7 @@ namespace Gizmo.StreamOverlay.Elements.Entities
                 other.Set("kickedby", self);
                 other.Set("kickedbytime", 5f);
                 if (ai["aggression"] > .05f && RandomP.Chance(ai["aggression"])) other.Destroy();
+                else self.Set("timeskicked", self.Get<int>("timeskicked") + 1);
                 Audio.Play("screen/kick");
                 self.Set("tilnextkick", .05f / ai["aggression"]);
             }
@@ -229,34 +263,69 @@ namespace Gizmo.StreamOverlay.Elements.Entities
         {
             if (!HitboxP.Check(self, victim)) return;
             var d = Game.DRAW_ORDER.ToList();
-            if (self.Element is RaidBoss || d.IndexOf(self) > d.IndexOf(victim)) OnAttackNeverMiss(self, victim);
-            else Audio.Play("screen/speak"); // todo: miss sound
+            if (self.Element is RaidBoss || d.IndexOf(self) > d.IndexOf(victim))
+            {
+                self.Set("meleedamagedealt", self.Get<float>("meleedamagedealt") + OnAttackNeverMiss(self, victim));
+            }
+            else
+            {
+                Audio.Play("screen/speak"); // todo: miss sound
+                victim.Set("timesdodged", victim.Get<int>("timesdodged") + 1);
+            }
             var attackspeed = 1 / self.Get<float>("attackspeed");
             self.Set("tilnextattack", RandomP.Random(attackspeed, attackspeed * 4));
         }
 
-        public static void OnAttackNeverMiss(Instance self, Instance victim)
+        public static float OnAttackNeverMiss(Instance self, Instance victim)
         {
             var damage = self.Get<float>("attack");
             if (RandomP.Chance(self.Get<float>("critchance")))
                 damage *= self.Get<float>("critdamage");
-            OnHit(victim, self, RandomP.Random(0, damage), []);
+            damage = RandomP.Random(0, damage);
+            OnHit(victim, self, damage, []);
             Audio.Play("screen/kick");
             self.Set("forcestate", 4);
             self.Set("forcestatetime", .25f);
+            return damage;
         }
 
         public static void OnHit(Instance self, Instance attacker, float damage, Dictionary<string, object> special)
         {
+            var damageReal = Math.Max(1, damage - self.Get<float>("defense"));
+            self.Set("damagetaken", self.Get<float>("damagetaken") + damageReal);
             self.Set("incombat", true);
-            self.Set("victim", attacker);
-            self.Set("target", self.Position);
+            if (!self.Var.ContainsKey("incombatfor"))
+            {
+                StreamWebSocket.Send("updatehistory", self.Get<string>("author"), "timesattackedupon", 1);
+                self.Set("incombatfor", 0f);
+            }
+            if (self.Get<Instance>("victim") != attacker)
+            {
+                self.Set("victim", attacker);
+                self.Set("target", attacker.Position);
+            }
             self.Set("forcestate", 5);
             self.Set("forcestatetime", .25f);
-            var hp = self.Get<float>("hp") - (damage - self.Get<float>("defense"));
+            var hp = self.Get<float>("hp") - damageReal;
             self.Set("hp", hp);
             self.Set("lastattacked", attacker);
             if (hp <= 0) self.Destroy();
+        }
+
+        public static void EndCombat(Instance guy)
+        {
+            StreamWebSocket.Send("updatehistory", guy.Get<string>("author"), "meleedamagedealt", guy.Get<float>("meleedamagedealt"));
+            StreamWebSocket.Send("updatehistory", guy.Get<string>("author"), "rangedamagedealt", guy.Get<float>("rangedamagedealt"));
+            StreamWebSocket.Send("updatehistory", guy.Get<string>("author"), "damagetaken", guy.Get<float>("damagetaken"));
+            StreamWebSocket.Send("updatehistory", guy.Get<string>("author"), "timesdodged", guy.Get<int>("timesdodged"));
+            StreamWebSocket.Send("updatehistory", guy.Get<string>("author"), "averagedps", (guy.Get<float>("meleedamagedealt") + guy.Get<float>("rangedamagedealt")) / guy.Get<float>("incombatfor"));
+            guy.Set("meleedamagedealt", 0f);
+            guy.Set("rangedamagedealt", 0f);
+            guy.Set("damagetaken", 0f);
+            guy.Set("timesdodged", 0);
+            guy.Set("incombatfor", 0f);
+            guy.Var.Remove("victim");
+            guy.Set("incombat", false);
         }
 
         public static Instance New(Sprite sprite, Vector2 pos, string author, ColorP color)
@@ -277,6 +346,18 @@ namespace Gizmo.StreamOverlay.Elements.Entities
 
         public override string Serialize(ref Instance self)
         {
+            StreamWebSocket.Send("updatehistory", self.Get<string>("author"), "distancewalked", self.Get<float>("distancewalked"));
+            StreamWebSocket.Send("updatehistory", self.Get<string>("author"), "timeskicked", self.Get<int>("timeskicked"));
+            StreamWebSocket.Send("updatehistory", self.Get<string>("author"), "timesjumped", self.Get<int>("timesjumped"));
+            StreamWebSocket.Send("updatehistory", self.Get<string>("author"), "timespetted", self.Get<int>("timespetted"));
+            StreamWebSocket.Send("updatehistory", self.Get<string>("author"), "timeairborne", self.Get<float>("timeairborne"));
+            StreamWebSocket.Send("updatehistory", self.Get<string>("author"), "timegrounded", self.Get<float>("timegrounded"));
+            self.Set("distancewalked", 0f);
+            self.Set("timeskicked", 0);
+            self.Set("timesjumped", 0);
+            self.Set("timespetted", 0);
+            self.Set("timeairborne", 0f);
+            self.Set("timegrounded", 0f);
             return WASD.Pack("shimeji", (int)self.Position.X, (int)self.Position.Y, (int)(self.Angle * 256), self.Get<string>("author"), self.Get<string>("color"));
         }
     }

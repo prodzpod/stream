@@ -1,0 +1,80 @@
+extends ./template/base.pugtemplate
+block meta
+    - title = 'Witmini #26'
+block body 
+    h1.center Witmini #26
+    p.center by prod
+    br
+    p.center hii
+    p.center so i didnt have enough time to playtest &amp; balance a lot of this so it may be Sucks and Bad so if ur stuck feel free to use the hint buttons !!
+    p.center some buttons reveal more if you click multiple times
+    br
+    br
+    p.center 1.
+    .hlist
+        .spacer
+        img(src="//prod.kr/images/ambigram1.png")
+        .spacer
+    .hlist
+        .spacer
+        button(style="color: #ff0000" onclick="reveal(this, 'hint1', 'prod.kr/hark')") dontcare
+        button(style="color: #00ff00" onclick="reveal(this, 'hint1', ['...o.......', '...op......', '...opp.....', '...oppo....', '...oppos...', '...opposi..', '...opposit.', '...opposite'])") dontcare
+        button(style="color: #0000ff" onclick="reveal(this, 'hint1', ['p.... sucks', 'pa... sucks', 'par.. sucks', 'paro. sucks', 'parol sucks'])") dontcare
+        .spacer
+    p.center#hint1
+    br
+    br
+    p.center 2.
+    .hlist
+        .spacer
+        img(src="//prod.kr/images/ambigram2.png")
+        .spacer
+    .hlist
+        .spacer
+        button(style="color: #ff0000" onclick="reveal(this, 'hint2', 'prod.kr/clyde')") dontcare
+        button(style="color: #00ff00" onclick="reveal(this, 'hint2', ['...j......', '...ju.....', '...jus....', '...just...', '...justi..', '...justic.', '...justice'])") dontcare
+        button(style="color: #0000ff" onclick="reveal(this, 'hint2', ['p.... sucks sucks', 'pl... sucks sucks', 'pla.. sucks sucks', 'plai. sucks sucks', 'plain sucks sucks'])") dontcare
+        .spacer
+    p.center#hint2
+    br
+    br
+    p.center 3.
+    .hlist
+        .spacer
+        img(src="//prod.kr/images/ambigram3.png")
+        .spacer
+    .hlist
+        .spacer
+        button(style="color: #ff0000" onclick="reveal(this, 'hint3', 'prod.kr/ethan')") dontcare
+        button(style="color: #00ff00" onclick="reveal(this, 'hint3', ['...p.....', '...pa....', '...par...', '...park..', '...parke.', '...parked'])") dontcare
+        button(style="color: #0000ff" onclick="reveal(this, 'hint3', ['e......[1:-1] sucks', 'el.....[1:-1] sucks', 'ele....[1:-1] sucks', 'elev...[1:-1] sucks', 'eleva..[1:-1] sucks', 'elevat.[1:-1] sucks', 'elevate[1:-1] sucks'])") dontcare
+        .spacer
+    p.center#hint3
+    br
+    br
+    p.center 4.
+    .hlist
+        .spacer
+        img(src="//prod.kr/images/ambigram4.png")
+        .spacer
+    .hlist
+        .spacer
+        button(style="color: #ff0000" onclick="reveal(this, 'hint4', 'prod.kr/ishmael')") dontcare
+        button(style="color: #00ff00" onclick="reveal(this, 'hint4', ['...e....', '...en...', '...ent..', '...entr.', '...entry'])") dontcare
+        button(style="color: #0000ff" onclick="reveal(this, 'hint4', ['a.. sucks', 'ac. sucks', 'ac? sucks'])") dontcare
+        .spacer
+    p.center#hint4
+    br
+    br
+    .hlist
+        .spacer
+        button(style="color: #ffffff" onclick="reveal(this, 'hint5', ['generator', 'credits generator', '.... credits generator', 'c... credits generator', 'ca.. credits generator', 'car. credits generator', 'carf credits generator'])") dontcare
+        .spacer
+    p.center#hint5
+block postbody
+    script.
+        function reveal(el, i, txt) { 
+            e(i).style.color = el.style.color; 
+            if (typeof txt === "string") e(i).innerText = txt; 
+            else e(i).innerText = txt[Math.min(txt.indexOf(e(i).innerText) + 1, txt.length - 1)];
+        }

@@ -45,6 +45,7 @@ namespace Gizmo.Engine
                 Time.SetTargetFPS(value);
             }
         }
+        public static int MaxFPS = int.MaxValue; // <=0 = VSYNC 
         public static int GetFPS() => Time.GetFPS();
         public static string GetClipboard() => Window.GetClipboardText();
         public static void SetClipbord(string str) => Window.SetClipboardText(str);

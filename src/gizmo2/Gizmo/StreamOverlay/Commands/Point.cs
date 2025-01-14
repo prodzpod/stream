@@ -4,6 +4,7 @@ using Gizmo.Engine.Data;
 using Gizmo.StreamOverlay.Elements.Entities;
 using Gizmo.StreamOverlay.Elements.Gizmos;
 using System.Numerics;
+using System.Linq;
 
 namespace Gizmo.StreamOverlay.Commands
 {
@@ -19,9 +20,10 @@ namespace Gizmo.StreamOverlay.Commands
             string? author = WASD.Assert<string>(args[0]);
             if (x == null || y == null || icon == null || _color == null || author == null) return null;
             ColorP color = new(_color);
-            Instance[] iToCheck = [StreamOverlay.Prod, ..Game.INSTANCES.Where(x => x.Element is Shimeji)];
-            Pointer.New(new((float)x, (float)y), icon, 
-               iToCheck.Any(i => HitboxP.Check(i, new PointHitbox(new Vector2(x.Value, y.Value)))) ? 3 : 0, author, color);
+            Instance[] iToCheck = [StreamOverlay.Prod, .. Game.INSTANCES.Where(x => x.Element is Shimeji)];
+            iToCheck = iToCheck.Where(i => HitboxP.Check(i, new PointHitbox(new Vector2(x.Value, y.Value)))).ToArray();
+            foreach (var i in iToCheck) if (i.Element is Shimeji) i.Set("timespetted", i.Get<int>("timespetted") + 1);
+            Pointer.New(new((float)x, (float)y), icon, iToCheck.Length > 0 ? 3 : 0, author, color);
             Audio.Play("screen/point");
             return null;
         }

@@ -28,6 +28,7 @@ namespace Gizmo.StreamOverlay
         public static List<string> Models = [];
         public override void Init()
         {
+            MetaP.MaxFPS = 120;
             Models = FileP.ListFiles("../../../model").Where(x => x.EndsWith(".json")).ToList();
             var main = Models.FindIndex(x => x.EndsWith("model_data.json"));
             Models = [.. Models[main..], .. Models[0..main]];

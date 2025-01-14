@@ -23,4 +23,5 @@ src/gizmo/lib/classic-1/
 src/gizmo/lib/icons_win2k_sp4_en/
 src/@main/data/temp.mp4
 src/web/public/images/*.mp4
+src/web/public/images/**/*.mp4
 src/web/public/images/temp*.png

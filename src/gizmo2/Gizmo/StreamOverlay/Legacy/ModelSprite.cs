@@ -19,10 +19,12 @@ namespace ProdModel.Object.Sprite
         public static bool Busy = false;
         public static bool Ready = false;
         public static List<string> PreviousAccessories = [];
-        public static List<string> FixedAccessories = ["skirt_default"];
+        public static List<string> FixedAccessories = ["skirt_default", "juicebox"];
         public static List<string> Accessories = [.. FixedAccessories];
         public static List<ColorP> PreviousColor = [];
         public static Dictionary<ColorP, ColorP> ColorReplace = [];
+        public static bool YieldIfLowFPS = true;
+        public static float ToleranceRate = 1f/12f;
 
         public static Vector3 CameraRotation = Vector3.Zero;
         public static float CameraZoom = 1;
@@ -116,6 +118,7 @@ namespace ProdModel.Object.Sprite
         }
         public static async void Draw() => await Task.Run(() =>
         {
+            if (YieldIfLowFPS && NotGMS.drawOperations < (MetaP.TargetFPS * ToleranceRate)) return;
             if (!Raylib_CSharp.Windowing.Window.IsReady()) return;
             if (Busy) { if (!Ready) Logger.Warn("Model Drawing is overloading!"); return; }
             Busy = true;

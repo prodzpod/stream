@@ -47,7 +47,10 @@ namespace Gizmo.StreamOverlay.Elements.Gizmos
             {
                 Instance attacker = self.Get<Instance>("kickedby");
                 if (attacker.Var.TryGetValue("victim", out object victim) && other == (Instance)victim)
-                    Shimeji.OnAttackNeverMiss(attacker, other);
+                {
+                    var damage = Shimeji.OnAttackNeverMiss(attacker, other);
+                    attacker.Set("rangedamagedealt", attacker.Get<float>("rangedamagedealt") + damage);
+                }
             }
         }
 

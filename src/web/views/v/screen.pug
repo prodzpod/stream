@@ -16,6 +16,7 @@ block body
             .layer#loading(style="background-color: #396ba5;")
                 img(src="/images/screen/error.png" style="width: 100%; height: 100%;")
             .layer#screen(onclick="screen(event)" onauxclick="screen(event)" oncontextmenu="return false;")
+            .layer#overlay(style="pointer-events: none;")
             .layer#start(style="background-color: var(--background); transition: background-color 2s;")
                 .vlist(style="height: 100%;")
                     .spacer
@@ -49,6 +50,7 @@ block postbody
         #screen > .right { right: -32px; }
         #screen > .top { top: -32px; }
         #screen > .bottom { bottom: -32px; }
+        #overlay > * { pointer-events: all; }
         .overlay {
             background-color: var(--hover);
             padding: 16px;
@@ -206,7 +208,13 @@ block postbody
                 }
             },
             iu: o => { if (e("iu")) e("iu").innerText = Math.prec(o) + "iu"; if (e("unlock")) e("unlock").innerText = `Unlock (${Math.prec(o) + "iu"})`; user.iu = o; },
-            icon: (o, o2) => { user.icon = o; if (o2) user.icons[o] = o2; if (state === "icon") setState("icon") }
+            icon: (o, o2) => { user.icon = o; if (o2) user.icons[o] = o2; if (state === "icon") setState("icon") },
+            voteStart: (title, options) => {
+                let voteScreen = insertElement("div", "overlay", "vlist center").with("id", "vote");
+                insertElement("p", voteScreen, null, title);
+                for (let option of options) insertElement("button", voteScreen, null, option).with("onclick", `send("vote", "${option}")`);
+            },
+            voteEnd: () => { removeElement("vote"); }
         }
         function getWired() {
             button();

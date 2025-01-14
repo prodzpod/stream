@@ -1,4 +1,5 @@
 ﻿using Gizmo.Engine.Data;
+using Gizmo.StreamOverlay.Elements.Entities;
 using Gizmo.StreamOverlay.Elements.Windows;
 
 namespace Gizmo.StreamOverlay.Commands
@@ -15,10 +16,10 @@ namespace Gizmo.StreamOverlay.Commands
             var defenderHP = StreamOverlay.Shimeji[defender].Get<float>("hp") / StreamOverlay.Shimeji[defender].Get<float>("maxhp");
             if (attackerHP >= defenderHP)
             {
-                StreamOverlay.Shimeji[attacker].Var.Remove("victim");
-                StreamOverlay.Shimeji[defender].Var.Remove("victim");
-                StreamOverlay.Shimeji[attacker].Set("incombat", false);
-                StreamOverlay.Shimeji[defender].Set("incombat", false);
+                StreamOverlay.Shimeji[attacker].Set("timespeaced", StreamOverlay.Shimeji[attacker].Get<int>("timespeaced") + 1);
+                StreamWebSocket.Send("updatehistory", StreamOverlay.Shimeji[attacker].Get<string>("author"), "timespeaced", StreamOverlay.Shimeji[attacker].Get<int>("timespeaced"));
+                Shimeji.EndCombat(StreamOverlay.Shimeji[attacker]);
+                Shimeji.EndCombat(StreamOverlay.Shimeji[defender]);
                 return [true, "peace has returned to the lands"];
             }
             else return [false, "running away is futile (you are currently losing)"];

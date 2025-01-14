@@ -70,6 +70,27 @@ module.exports.initialize = async (id, forceBlockUpdate=false) => {
     // chatter.shimeji.ai.eepiness ??= 5;
     chatter.shimeji.stats ??= {};
     chatter.shimeji.history ??= {};
+    for (let category of [
+        "wins",
+        "losses",
+        "maxstreak",
+        "raidbosswins",
+        "raidbossdeaths",
+        "meleedamagedealt",
+        "rangedamagedealt",
+        "damagetaken",
+        "timesdodged",
+        "averagedps",
+        "distancewalked",
+        "timeskicked",
+        "timesjumped",
+        "timesattacked",
+        "timespeaced",
+        "timesattackedupon",
+        "timespetted",
+        "timeairborne",
+        "timegrounded",
+    ]) chatter.shimeji.history[category] ??= 0;
     chatter.meta.last_chatted ??= 0;
     if (chatter.twitch && (time() - BigInt(chatter.twitch.last_updated ?? 0)) > TWITCH_UPDATE_PERIOD) {
         chatter = await twitchUpdate(chatter);

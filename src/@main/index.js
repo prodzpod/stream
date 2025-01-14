@@ -49,7 +49,7 @@ module.exports.init = async () => {
             msg = WASD.unpack(msg.toString());
             if (msg.length < 2) { this.log(name, 3, "message has insufficient params:", msg); return; };
             const id = msg[0], command = msg[1].toString().trim().toLowerCase(); let args = [...fullname.split("/").slice(1), ...msg.slice(2)];
-            this.log(fullname, -2, "message recieved:", command, ...args);
+            if (fullname !== "tracker" || command !== "data") this.log(fullname, -2, "message recieved:", command, ...args);
             let status, res;
             if (command === "log") { module.exports.log(fullname, ...args); return; }
             else if (command === "respond") { module.exports.respond(fullname, id, ...args); return; }

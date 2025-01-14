@@ -15,6 +15,10 @@ namespace Gizmo.Engine
     public static class NotGMS
     {
         public static string WorkingDirectory;
+        public static double lastTime = 0;
+        public static double secondsCounter = 0;
+        public static int _drawOperations = 0;
+        public static int drawOperations = 0;
 
         public static void Init(Game game)
         {
@@ -59,11 +63,22 @@ namespace Gizmo.Engine
                 MetaP.Mouse.Position = Mouse.RealPosition;
                 return true;
             };
-
             game.PostInit();
-            static void apply(int i) { Graphics.BeginShaderMode(Game.SHADERS[i].OnShader()); }
+            lastTime = Time.GetTime();
+            Main(game);
+        }
+        public static void Dispose()
+        {
+            Resource.Dispose();
+            Window.Close();
+            AudioDevice.Close();
+        }
+        public static async void Main(Game game)
+        {
             while (!Window.ShouldClose())
             {
+                double start = Time.GetTime();
+                static void apply(int i) { Graphics.BeginShaderMode(Game.SHADERS[i].OnShader()); }
                 Game.INSTANCES = [.. Game._INSTANCES];
                 Game._DRAW_ORDER = Game._DRAW_ORDER.Intersect(Game._INSTANCES).ToList();
                 Game.DRAW_ORDER = [.. Game._DRAW_ORDER];
@@ -79,31 +94,42 @@ namespace Gizmo.Engine
                     WebSocket.ActiveWSMessages.Clear();
                 }
                 Game.deltaTime = Time.GetFrameTime();
+                var time = Time.GetTime();
+                secondsCounter += time - lastTime;
+                lastTime = time;
+                while (secondsCounter >= 1)
+                {
+                    // Logger.Verbose("Second passed, draw operations:", _drawOperations);
+                    secondsCounter -= 1;
+                    drawOperations = _drawOperations;
+                    _drawOperations = 0;
+                }
                 InputP.OnUpdate();
                 game.PreUpdate(Game.deltaTime);
                 // collision
                 Game.COLLISION.Clear();
-                for (int i = 0; i < Game.INSTANCES.Length; i++) 
+                for (int i = 0; i < Game.INSTANCES.Length; i++)
                 {
                     Game.INSTANCES[i].Position += Game.INSTANCES[i].Speed * Game.deltaTime;
                     Game.INSTANCES[i].Angle += Game.INSTANCES[i].Rotation * Game.deltaTime;
                 }
                 var _i = Game.INSTANCES.Where(x => x.Hitbox != null).Reverse().ToArray();
                 foreach (var x in _i) foreach (var y in _i.Where(z => x.InteractsWith.Contains(z.Element) && x != z))
-                {
-                    if (!Game.COLLISION.TryGetValue(new(y, x), out bool ch))
                     {
-                        ch = HitboxP.Check(x, y);
+                        if (!Game.COLLISION.TryGetValue(new(y, x), out bool ch))
+                        {
+                            ch = HitboxP.Check(x, y);
+                            Game.COLLISION[new(x, y)] = ch;
+                        }
+                        if (ch) x.OnCollide(y);
                         Game.COLLISION[new(x, y)] = ch;
                     }
-                    if (ch) x.OnCollide(y);
-                    Game.COLLISION[new(x, y)] = ch;
-                }
                 // logic
                 game.Update(Game.deltaTime);
                 Game._Update(Game.deltaTime);
                 game.PostUpdate(Game.deltaTime);
                 // graphics
+                _drawOperations += 1;
                 Graphics.BeginDrawing();
                 if (MetaP.ClearScreen) Graphics.ClearBackground(ColorP.TRANSPARENT);
                 if (Game.SHADERS.Count > 0) apply(0);
@@ -111,28 +137,26 @@ namespace Gizmo.Engine
                 Game._Draw(Game.deltaTime);
                 game.PostDraw(Game.deltaTime);
                 if (Game.SHADERS.Count > 1) for (int i = 1; i < Game.SHADERS.Count; i++)
-                { // bad code for multiple shaders
-                    Image temp = Image.LoadFromScreen();
-                    Texture2D temp2 = Texture2D.LoadFromImage(temp);
-                    Graphics.ClearBackground(ColorP.TRANSPARENT);
-                    apply(i);
-                    Graphics.DrawTexture(temp2, 0, 0, ColorP.WHITE);
-                    temp2.Unload();
-                    temp.Unload();
-                } 
+                    { // bad code for multiple shaders
+                        Image temp = Image.LoadFromScreen();
+                        Texture2D temp2 = Texture2D.LoadFromImage(temp);
+                        Graphics.ClearBackground(ColorP.TRANSPARENT);
+                        apply(i);
+                        Graphics.DrawTexture(temp2, 0, 0, ColorP.WHITE);
+                        temp2.Unload();
+                        temp.Unload();
+                    }
                 if (Game.SHADERS.Count > 0) Graphics.EndShaderMode();
                 Graphics.EndDrawing();
                 // audio
-                Audio._INSTANCES = [..Audio.INSTANCES];
+                Audio._INSTANCES = [.. Audio.INSTANCES];
                 foreach (var ae in Audio._INSTANCES) if (!ae.Tick(Game.deltaTime)) Audio.INSTANCES.Remove(ae);
                 Game.Time += Game.deltaTime;
+                double duration = Time.GetTime() - start;
+                double minFrameTime = MetaP.MaxFPS; if (MetaP.MaxFPS <= 0) minFrameTime = MetaP.TargetFPS;
+                duration = (1.0 / minFrameTime) - duration;
+                if (duration > 0) Time.WaitTime(duration);
             }
-        }
-        public static void Dispose()
-        {
-            Resource.Dispose();
-            Window.Close();
-            AudioDevice.Close();
         }
     }
 }

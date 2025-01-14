@@ -19,8 +19,11 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
         }
         module.exports.startVote(_args[0], options);
         _reply("Vote started! Title: " + _args[0]);
+        send("gizmo", "vote", _args[0], _args[1], _args[2]);
+        send("web", "vote", _args[0], _args[1]);
         await Promise.any([delay((_args[2] ?? 60) * 1000), new Promise(resolve => { currentVoteForceEnd = resolve })]);
         _reply(module.exports.printVote());
+        module.exports.endVote();
         currentVote = null;
         currentVoteForceEnd = null;
     } else { // vote
@@ -58,4 +61,8 @@ module.exports.printVote = () => {
     return `Title: ${currentVote.title} \n${Object.keys(currentVote.options).map(x => `${x}: ${currentVote.options[x].length}`).join(" \n")}`;
 }
 
-module.exports.endVote = () => currentVoteForceEnd?.();
+module.exports.endVote = () => {
+    send("gizmo", "voteEnd", currentVote.options);
+    send("web", "voteEnd", currentVote.options);
+    currentVoteForceEnd?.();
+}

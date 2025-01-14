@@ -1,0 +1,1 @@
+python .\compilestreamermode.py superstreamermode

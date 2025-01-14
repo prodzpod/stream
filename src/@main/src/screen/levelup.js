@@ -6,7 +6,7 @@ const { args } = require("../chat/chat");
 module.exports.predicate = ["!levelup", "!lvup", "!lvlup", "!level", "!lvl", "!lv"];
 module.exports.permission = true;
 module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
-    let stat = args(text)?.[0].toLowerCase().trim();
+    let stat = args(text)?.[0]?.toLowerCase().trim();
     switch (stat) {
         case "hp":
         case "maxhp":
@@ -35,12 +35,16 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
         case "criticalchance":
             stat = "critchance";
             break;
-        default:
+        case "":
+        case undefined:
             stat = random(["maxhp", "attack", "critchance"]);
             break;
+        default:
+            _reply("available stats are 'hp', 'attack' and 'crit'");
+            return [0, ""];
     }
     let result = await send("gizmo", "levelup", chatter?.twitch?.name, stat);
     if (result[1]) _reply(`Leveled up the guy's ${stat}`);
-    else _reply("invalid levelup");
+    else _reply("you do not have a stat point, win a combat to gain stat points");
     return [0, ""];
 }

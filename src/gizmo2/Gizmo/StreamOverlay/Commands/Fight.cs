@@ -19,6 +19,8 @@ namespace Gizmo.StreamOverlay.Commands
                 StreamOverlay.Shimeji[attacker].Set("victim", StreamOverlay.Shimeji[defender]);
                 StreamOverlay.Shimeji[attacker].Set("incombat", true);
                 StreamOverlay.Shimeji[attacker].Set("target", StreamOverlay.Shimeji[defender].Position);
+                StreamOverlay.Shimeji[attacker].Set("incombatfor", 0f);
+                StreamWebSocket.Send("updatehistory", StreamOverlay.Shimeji[attacker].Get<string>("author"), "timesattacked", 1);
                 return [true, "combat initiated"];
             }
             return [false, "your target is currently in battle (pj timer active)"];

@@ -1,0 +1,501 @@
+/**
+* @name free cool css
+* @author prodzpod
+* @version 240404
+* @description makes discord actually usable lol, use with DTM-18
+* @authorId 384658485867970560
+*/
+.form_a7d72e:after {
+    content: "";
+    line-height: 0;
+    height: 0;
+}
+
+.base__3e6af:before {
+    content: "";
+}
+
+.spriteGreyscale__7b70f {
+    background-image: none;
+}
+
+.spriteColored_b1c6ab {
+    background-image: url(/assets/f46d6b0cbeeea15ecd81.png);
+}
+
+.info_eb92a8 > div {
+    margin-top: -6px;
+}
+
+.avatarDecoration_ae35e3 {
+    display: none;
+}
+
+.connection__5bb32 .channel_d7d412 {
+    display: none;
+}
+
+.panels_a4d4d9 .wrapper_fea3ef {
+    margin-bottom: -12px;
+}
+
+.divider_d5deea {
+    margin: 8px 20px !important;
+}
+
+.panels_a4d4d9 .wrapper_fea3ef > div {
+    border-bottom: 0px solid transparent;
+}
+
+.actionButtons__85e3c {
+    top: 56px;
+}
+
+.actionButtons__85e3c .button_b82d53 {
+    border-bottom: 1px var(--background-modifier-accent) solid;
+    padding: 2px 2px;
+}
+
+.container_e1958d {
+    padding: 8px 10px 0;
+}
+
+.container_e1958d:has(.actionButtons__85e3c) > .connection__38593 {
+    margin-bottom: 38px;
+}
+
+.cozy_f5c119.mentioned__58017 .contents_f41bb2 .markup_a7e664:after {
+    display: none;
+}
+
+/* remove discord bs on setting*/
+[aria-label="Family Center"], [aria-label="Connections"], [aria-label="Clips"], [aria-label="Gift Inventory"], [aria-label="Subscriptions"], [aria-label="Nitro"], [aria-label="Clips"] + .item__48dda + .separator_fdbcfd, [aria-label="Clips"] + .item__48dda + .separator_fdbcfd + .header_f72511, [aria-label="Merch"], [aria-label="Merch"] + .item__48dda, [aria-controls="overlay-tab"] + div + .item__48dda, .socialLinks_c1fc99 {
+    display: none;
+}
+
+.info_c5a741:before {
+    content: "DTM-18 Public V260\a\"Good Bits\" edit by prodzpod\aRevision 241101\a\a";
+    color: var(--text-muted);
+}
+
+.sidebar_a4d4d9, .container_ee69e0  , .members_cbd271  {
+    width: 180px;
+}
+
+.profileColors_ac6ab4 .section__6f61e:has(.markup_a7e664) > * {
+    z-index: 20;
+    position: relative;
+}
+
+.membersGroup_cbd271 span {
+    color: var(--text-muted) !important; 
+}
+.membersGroup_cbd271 > span {
+    font-size: 80%;
+}
+.membersGroup_cbd271 img {
+    width: 12px;
+}
+
+.membersWrap_cbd271  {
+    min-width: 180px;
+}
+
+.userPopoutOuter_d739b2 .userProfileInner__8065b:before {
+    height: 10px;
+}
+
+.avatarWrapper_b2ca13 {
+    min-width: 30px !important;
+}
+
+.avatarWrapper_b2ca13 > .nameTag_b2ca13 {
+    display: none;
+}
+
+[aria-label$="Send a gift"] {
+    display: none;
+}
+
+.link__95dc0 {
+    padding: 5px 8px;
+}
+
+.section__6f61e .markup_a7e664 code {
+    background: rgba(0,0,0,.3);
+}
+
+.icon__13ad2 {
+    margin-right: 0.2rem;
+}
+
+.group-spacing-16 {
+    --f-msg-spacing: 16px;
+}
+
+:is(.messageListItem_d5deea, .backgroundFlash__28f42, .quotedChatMessage_d0497b):has(+ :is(.messageListItem_d5deea, .backgroundFlash__28f42) :is(.groupStart_d5deea, .systemMessage_fced96)):after {
+    display: none !important;
+}
+
+:is(.messageListItem_d5deea, .backgroundFlash_d5deea, .quotedChatMessage_d5deea):has(+ :is(.messageListItem_d5deea, .backgroundFlash_d5deea) :is(.groupStart_d5deea, .systemMessage_d5deea), + .divider_d5deea) .wrapper_f9f2ca {
+    margin: 16px 0 !important;
+}
+
+.panels_a4d4d9 .button__4f306 .contents_fb6220 svg, .children__32014 .iconWrapper_af9215 .icon__4cb88 {
+    width: 20px;
+    height: 20px;
+}
+
+.children__32014 .iconWrapper_af9215 .icon__4cb88 {
+    margin-right: 6px;
+}
+
+.nicknameIcons_c32acf:has(button[aria-label="Add Note"]) {
+    display: none;
+}
+
+.avatarWrapper_b2ca13 .panelSubtextContainer_b2ca13, .panels_a4d4d9 .avatarWrapper_b2ca13:has(.customStatus_b2ca13) .panelTitleContainer_b2ca13:after, .base_a4d4d9:before {
+    display: none;
+}
+
+.icon__4cb88 {
+    width: 20px;
+}
+
+.button_d553e5 {
+    width: 20px;
+    margin-left: 6px;
+}
+
+.tutorialContainer__890ea + .lookFilled__19298.colorBrand_b2253e {
+    background-color: transparent;
+    color: var(--text-muted);
+}
+
+.tutorialContainer__890ea + .button_afdfd9 {
+    margin: -12px 0 4px 9px !important;
+    padding-top: 0 !important;
+}
+
+.username_f9f2ca {
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.reaction__4a43f {
+    border: 1px rgba(220, 221, 222, 0.2) solid;
+    background: transparent;
+    margin: -1px 3px 3px -1px;    
+    border-radius: var(--radius-xsa);
+}
+
+.reaction__4a43f:hover {
+    margin: -1px 3px 3px -1px !important;  
+    border: 1px transparent solid;
+}
+
+.reaction__4a43f.reactionMe__0fffc, .reaction__4a43f.reactionMe__0fffc:hover {
+    border-color: var(--brand-experiment-30a);
+    background: transparent;
+}
+
+.avatarWrapper_f77579 {
+    left: 20px;
+}
+
+[class^="channelAppLauncher_"] {
+    display: none;
+}
+
+.userText__3e8b7 .userTagUsernameNoNickname_d6e61f, .nickname__3d1d7, .userText__3e8b7 .userTagWithNickname__1eba9 .username__2cac3, .userText__3e8b7 .userTagWithNickname__1eba9 .discrimBase_e0c4c5, .userText__3e8b7 .userTagUsernameBase__75fb1, .pronouns__8bcdb, .customStatusText_f5aa9a, .lineClamp2Plus_d4306b {
+    background-color: rgba(47, 49, 54, 0.5) !important;
+    padding: 4px;
+}
+
+.usernameSection__53868 {
+    min-height: 75px;
+}
+
+.botText__19848 {
+    text-shadow: none;
+}
+
+.theme-light.userProfileOuterThemed__6eb84:not(:has(.activity__20c1e)) .bannerSVGWrapper__3e7b0 {
+    min-height: 200px !important;
+    z-index: 1;
+    width: 340px;
+}
+
+.reaction__4a43f .reactionCount__2c34d, .reaction__4a43f:hover .reactionCount__2c34d {
+    color: var(--interactive-normal);
+}
+
+.tooltip__01384 {
+    font-size: 16px;
+    line-height: 20px;
+}
+
+.bannerSVGWrapper__3e7b0 .header__39b23 {
+    margin-bottom: 2px;
+}
+
+.wrapper_edb6e0:is([aria-label$="Inaktiv"],[aria-label$="Abwesend"],[aria-label$="Idle"],[aria-label$="Ausente"],[aria-label$="Inactif"],[aria-label$="U mirovanju"],[aria-label$="Inattivo"],[aria-label$="Pasitraukęs"],[aria-label$="Tétlen"],[aria-label$="Inactief"],[aria-label$="Inaktiv"],[aria-label$="Zaraz wracam"],[aria-label$="Ausente"],[aria-label$="Inactiv"],[aria-label$="Toimeton"],[aria-label$="Inaktiv"],[aria-label$="Chờ"],[aria-label$="Nečinný"],[aria-label$="Boşta"],[aria-label$="Αδρανής"],[aria-label$="Не се използва"],[aria-label$="Неактивен"],[aria-label$="Відійшов"],[aria-label$="एक्टिव नहीं"],[aria-label$="ไม่อยู่"],[aria-label$="闲置"],[aria-label$="退席中"],[aria-label$="閒置"],[aria-label$="자리 비움"]):before {
+    background-color: var(--background-secondary);
+    border: 2px solid #f4c96f;
+}
+
+foreignObject[mask*="idle"] .status__1c26d {
+    background-color: var(--primary-660) !important;
+    background-image: var(--colorblind-idle);
+}
+
+.theme-dark, .theme-light {
+    --text-muted: hsl(220,calc(var(--saturation-factor, 1)*3.0%),50%);
+    --colorblind-idle: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2710%27%20height%3D%2710%27%20viewBox%3D%270%200%2010%2010%27%3E%0A%20%20%20%20%20%20%20%20%3Cmask%20id%3D%27svg-mask-status-idle2%27%20maskContentUnits%3D%27objectBoundingBox%27%20viewBox%3D%270%200%201%201%27%3E%3Ccircle%20fill%3D%27white%27%20cx%3D%270.5%27%20cy%3D%270.5%27%20r%3D%270.5%27%3E%3C%2Fcircle%3E%3Ccircle%20fill%3D%27black%27%20cx%3D%270.25%27%20cy%3D%270.25%27%20r%3D%270.375%27%3E%3C%2Fcircle%3E%3C%2Fmask%3E%0A%20%20%20%20%20%20%20%20%3Crect%20width%3D%2710%27%20height%3D%2710%27%20x%3D%270%27%20y%3D%270%27%20fill%3D%27%23f0b232%27%20mask%3D%27url%28%23svg-mask-status-idle2%29%27%3E%3C%2Frect%3E%0A%20%20%20%20%3C%2Fsvg%3E");
+    --user-text-shadow: none;
+}
+
+.scrollerSpacer__9cd32 {
+    height: 4px;
+}
+
+.embedTitle__31740 {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+[lang=en-GB] .divider__01aed .unreadPill__1b4fa:after, [lang=en-US] .divider__01aed .unreadPill__1b4fa:after {
+    content: "> new <";
+    font-size: 10px;
+}
+
+.form__13a2c {
+    box-shadow: none;
+}
+
+html {
+    font-smooth: never !important;
+    image-rendering: -webkit-optimize-contrast !important;
+}
+
+/*Revert Emoji from DTM18*/
+/*Alien*/[alt="👽"], [alt=":alien:"], 
+/*Angry*/[alt="😠"], [alt=":angry:"], 
+/*Anguished*/[alt="😧"], [alt=":anguished:"], 
+/*Astonished*/[alt="😲"], [alt=":astonished:"], 
+/*Blush*/[alt="😊"], [alt=":blush:"], 
+/*Clap*/[alt="👏"], [alt=":clap:"], 
+[alt="👏🏻"], [alt=":clap_tone1:"], 
+[alt="👏🏼"], [alt=":clap_tone2:"], 
+[alt="👏🏽"], [alt=":clap_tone3:"], 
+[alt="👏🏾"], [alt=":clap_tone4:"], 
+[alt="👏🏿"], [alt=":clap_tone5:"], 
+/*Cold Sweat*/[alt="😖"], [alt=":cold_sweat:"], 
+/*Confounded*/[alt="😖"], [alt=":confounded:"], 
+/*Confused*/[alt="😕"], [alt=":confused:"], 
+/*Cry*/[alt="😢"], [alt=":cry:"], 
+/*Crying Cat Face*/[alt="😿"], [alt=":crying_cat_face:"], 
+/*Disappointed*/[alt="😞"], [alt=":disappointed:"], 
+/*Disappointed Relieved*/[alt="😥"], [alt=":disappointed_relieved:"], 
+/*Dizzy Face*/[alt="😵"], [alt=":dizzy_face:"], 
+/*Eye*/[alt="👁️"], [alt=":eye:"], 
+/*Eyes*/[alt="👀"], [alt=":eyes:"], 
+/*Expressionless*/[alt="😑"], [alt=":expressionless:"], 
+/*Fearful*/[alt="😨"], [alt=":fearful:"], 
+/*Flushed*/[alt="😳"], [alt=":flushed:"], 
+/*Frowning*/[alt="😦"], [alt=":frowning:"], 
+/*Frowning2*/[alt="☹"], [alt=":frowning2:"], 
+/*Ghost*/[alt="👻"], [alt=":ghost:"], 
+/*Grimacing*/[alt="😬"], [alt=":grimacing:"], 
+/*Grin*/[alt="😁"], [alt=":grin:"], 
+/*Grinning*/[alt="😀"], [alt=":grinning:"], 
+/*Gun*/[alt="🔫"], [alt=":gun:"], 
+/*Head Bandage*/[alt="🤕"], [alt=":head_bandage:"], 
+/*Heart Eyes*/[alt="😍"], [alt=":heart_eyes:"], 
+/*Heart Eyes Cat*/[alt="😻"], [alt=":heart_eyes_cat:"], 
+/*Hugging*/[alt="🤗"], [alt=":hugging:"], 
+/*Hushed*/[alt="😯"], [alt=":hushed:"], 
+/*Imp*/[alt="👿"], [alt=":imp:"], 
+/*Innocent*/[alt="😇"], [alt=":innocent:"], 
+/*Japanese Goblin*/[alt="👺"], [alt=":japanese_goblin:"], 
+/*Japanese Ogre*/[alt="👹"], [alt=":japanese_ogre:"], 
+/*Joy*/[alt="😂"], [alt=":joy:"], 
+/*Joy Cat*/[alt="😹"], [alt=":joy_cat:"], 
+/*Kissing*/[alt="😗"], [alt=":kissing:"], 
+/*Kissing Cat*/[alt="😽"], [alt=":kissing_cat:"], 
+/*Kissing Closed Eyes*/[alt="😚"], [alt=":kissing_closed_eyes:"], 
+/*Kissing Heart*/[alt="😘"], [alt=":kissing_heart:"], 
+/*Kissing Smiling Eyes*/[alt="😙"], [alt=":kissing_smiling_eyes:"], 
+/*Laughing*/[alt="😆"], [alt=":laughing:"], 
+/*Mask*/[alt="😷"], [alt=":mask:"], 
+/*Money Mouth*/[alt="🤑"], [alt=":money_mouth:"], 
+/*Nerd*/[alt="🤓"], [alt=":nerd:"], 
+/*Neutral Face*/[alt="😐"], [alt=":neutral_face:"], 
+/*No Mouth*/[alt="😶"], [alt=":no_mouth:"], 
+/*Open Mouth*/[alt="😮"], [alt=":open_mouth:"], 
+/*Pensive*/[alt="😔"], [alt=":pensive:"], 
+/*Persevere*/[alt="😣"], [alt=":persevere:"], 
+/*Pleading Face*/[alt="🥺"], [alt=":pleading_face:"], 
+/*Poop*/[alt="💩"], [alt=":poop:"], 
+/*Pouting Cat*/[alt="😾"], [alt=":pouting_cat:"], 
+/*Punch*/[alt="👊"], [alt=":punch:"], 
+[alt="👊🏻"], [alt=":punch_tone1:"], 
+[alt="👊🏼"], [alt=":punch_tone2:"], 
+[alt="👊🏽"], [alt=":punch_tone3:"], 
+[alt="👊🏾"], [alt=":punch_tone4:"], 
+[alt="👊🏿"], [alt=":punch_tone5:"], 
+/*Rage*/[alt="😡"], [alt=":rage:"], 
+/*Raised Hands*/[alt="🙌"], [alt=":raised_hands:"], 
+[alt="🙌🏻"], [alt=":raised_hands_tone1:"], 
+[alt="🙌🏼"], [alt=":raised_hands_tone2:"], 
+[alt="🙌🏽"], [alt=":raised_hands_tone3:"], 
+[alt="🙌🏾"], [alt=":raised_hands_tone4:"], 
+[alt="🙌🏿"], [alt=":raised_hands_tone5:"], 
+/*Relaxed*/[alt="☺"], [alt=":relaxed:"], 
+/*Relieved*/[alt="😌"], [alt=":relieved:"], 
+/*Robot*/[alt="🤖"], [alt=":robot:"], 
+/*Rolling Eyes*/[alt="🙄"], [alt=":rolling_eyes:"], 
+/*Scream*/[alt="😱"], [alt=":scream:"], 
+/*Scream Cat*/[alt="🙀"], [alt=":scream_cat:"], 
+/*Skull*/[alt="💀"], [alt=":skull:"], 
+/*Sleeping*/[alt="😴"], [alt=":sleeping:"], 
+/*Sleepy*/[alt="😪"], [alt=":sleepy:"], 
+/*Slight Frown*/[alt="🙁"], [alt=":slight_frown:"], 
+/*Slight Smile*/[alt="🙂"], [alt=":slight_smile:"], 
+/*Smile*/[alt="😄"], [alt=":smile:"], 
+/*Smile Cat*/[alt="😸"], [alt=":smile_cat:"], 
+/*Smiley*/[alt="😃"], [alt=":smiley:"], 
+/*Smiley Cat*/[alt="😺"], [alt=":smiley_cat:"], 
+/*Smiling Imp*/[alt="😈"], [alt=":smiling_imp:"], 
+/*Smirk*/[alt="😏"], [alt=":smirk:"], 
+/*Smirk Cat*/[alt="😼"], [alt=":smirk_cat:"], 
+/*Sob*/[alt="😏"], [alt=":sob:"], 
+/*Stuck Out Tounge*/[alt="😛"], [alt=":stuck_out_tongue:"], 
+/*Stuck Out Tounge Closed Eyes*/[alt="😝"], [alt=":stuck_out_tongue_closed_eyes:"], 
+/*Stuck Out Tounge Winking Eye*/[alt="😜"], [alt=":stuck_out_tongue_winking_eye:"], 
+/*Sunglasses*/[alt="😎"], [alt=":sunglasses:"], 
+/*Sweat*/[alt="😓"], [alt=":sweat:"], 
+/*Sweat Smile*/[alt="😅"], [alt=":sweat_smile:"], 
+/*Thermometer Face*/[alt="🤒"], [alt=":thermometer_face:"], 
+/*Thinking*/[alt="🤔"], [alt=":thinking:"], 
+/*Thumbs Down*/[alt="👎"], [alt^=":thumbsdown:"], [alt=":-1:"], [alt=":thumbdown:"], 
+[alt="👎🏻"], [alt=":thumbsdown_tone1:"], 
+[alt="👎🏼"], [alt=":thumbsdown_tone2:"], 
+[alt="👎🏽"], [alt=":thumbsdown_tone3:"], 
+[alt="👎🏾"], [alt=":thumbsdown_tone4:"], 
+[alt="👎🏿"], [alt=":thumbsdown_tone5:"], 
+/*Thumbs Up*/[alt="👍"], [alt^=":thumbsup:"], [alt=":+1:"], [alt=":thumbup:"], 
+[alt="👍🏻"], [alt=":thumbsup_tone1:"], 
+[alt="👍🏼"], [alt=":thumbsup_tone2:"], 
+[alt="👍🏽"], [alt=":thumbsup_tone3:"], 
+[alt="👍🏾"], [alt=":thumbsup_tone4:"], 
+[alt="👍🏿"], [alt=":thumbsup_tone5:"], 
+/*Tired Face*/[alt="😫"], [alt=":tired_face:"], 
+/*Triumph*/[alt="😤"], [alt=":triumph:"], 
+/*Unamused*/[alt="😒"], [alt=":unamused:"], 
+/*Upside Down*/[alt="🙃"], [alt=":upside_down:"], 
+/*Wave*/[alt="👋"], [alt=":wave:"], 
+[alt="👋🏻"], [alt=":wave_tone1:"], 
+[alt="👋🏼"], [alt=":wave_tone2:"], 
+[alt="👋🏽"], [alt=":wave_tone3:"], 
+[alt="👋🏾"], [alt=":wave_tone4:"], 
+[alt="👋🏿"], [alt=":wave_tone5:"], 
+/*Weary*/[alt="😩"], [alt=":weary:"], 
+/*Wink*/[alt="😉"], [alt=":wink:"], 
+/*Worried*/[alt="😟"], [alt=":worried:"], 
+/*Yum*/[alt="😋"], [alt=":yum:"], 
+/*Zipper Mouth*/[alt="🤐"], [alt=":zipper_mouth:"], 
+/*zzz*/[alt="💤"], [alt=":zzz:"] {
+    content: unset !important;
+}
+
+[aria-label="Send a personalized Nitro gift to spread holiday cheer!"] {
+    display: none;
+}
+
+.expressionPickerPositionLayer_bdf0de .drawerSizingWrapper_af5dbb {
+    transform: scale(0.5, 0.5);
+    transform-origin: 0 0;
+    width: min(200%, 400px) !important;
+}
+
+.expressionPickerPositionLayer_bdf0de .drawerSizingWrapper_af5dbb .contentWrapper_af5dbb {
+    width: 200% !important;
+    height: 200% !important;
+}
+
+
+.channel__0aef5:has(.link__3a950[href="/store"]), .channel__0aef5:has(.link__3a950[href="/shop"]), .channel__0aef5:has(.link__3a950[href="/family-center"]) {
+    display: none;
+}
+
+ul[aria-label="Channels"] .containerDefault_ae2ea4:has(path[d="M3 3a1 1 0 0 0 0 2h18a1 1 0 1 0 0-2H3ZM2 8a1 1 0 0 1 1-1h18a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1ZM3 11a1 1 0 1 0 0 2h11a1 1 0 1 0 0-2H3ZM2 16a1 1 0 0 1 1-1h8a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1ZM3 19a1 1 0 1 0 0 2h8a1 1 0 1 0 0-2H3Z"]), ul[aria-label="Channels"] .containerDefault_ae2ea4:has(path[d="M3 3a1 1 0 0 0 0 2h18a1 1 0 1 0 0-2H3ZM2 8a1 1 0 0 1 1-1h18a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1ZM3 11a1 1 0 1 0 0 2h11a1 1 0 1 0 0-2H3ZM2 16a1 1 0 0 1 1-1h8a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1ZM3 19a1 1 0 1 0 0 2h8a1 1 0 1 0 0-2H3Z"]) + .sectionDivider__9dbcb {
+    display: none;
+}
+
+.container__686c4:has(.artContainer__394fc[role="presentation"]) {
+    display: none;
+}
+
+#authorized-apps-tab .formNotice__0a16b, .formNotice__0a16b:has(a[href="//discord.com/streamkit"]) {
+    display: none;
+}
+
+.wrapper_ac2306:has(.guildBoostGemWrapper__8ebc3), .text-sm-normal__95a78:has(a[href="https://support.discord.com/hc/en-us/articles/360028038352"]) {
+    display: none;
+}
+
+.wrapper__70ed0:has(a[href="https://support.discord.com/hc/en-us/articles/360028038352"]) {
+    margin-bottom: 0;
+}
+
+.anchorUnderlineOnHover__03b72[href="https://support.discord.com"], .socialLinks_c44e94 {
+    display: none;
+}
+
+.children__563f2:has(.iconItem__56989[aria-label="Create Invite"]), .section__62b44:has(.inputDefault__22335[type="text"]) {
+    display: none;
+}
+
+.labelContainer_d90b3d#user-context-user-profile, .labelContainer_d90b3d#user-context-call, .labelContainer_d90b3d#user-context-note, .labelContainer_d90b3d#user-context-add-friend-nickname, .labelContainer_d90b3d#user-context-apps, .labelContainer_d90b3d#user-context-invite-to-server, .layer__6b5c3 .separator__174fc, #guild-header-popout-premium-subscribe, #guild-header-popout-application-directory, #guild-header-popout-create-channel, #guild-header-popout-create-category, #guild-header-popout-create-event, #guild-context-guild-settings, #guild-context-privacy, #guild-context-vc-server-profile, #guild-context-create-channel, #guild-context-create-category, #guild-context-create-event {
+    display: none;
+}
+
+.button_f7e168[aria-label="Bookmark Message"], .button_f7e168[aria-label="Forward"], .button_f7e168[aria-label="Copy Message ID"], .button_f7e168[aria-label="Mark Unread"], .button_f7e168[aria-label="Quick Mention"], .button_f7e168[aria-label="Translate"], .button_f7e168[aria-label="More"], .button_f7e168[aria-label="Copy Link"], .wrapper__01a96:has(.customItem__3f15f .button_bfb8e1), .labelContainer_d90b3d#message-add-reaction, .labelContainer_d90b3d#message-save-for-later, .labelContainer_d90b3d#message-edit, .labelContainer_d90b3d#message-apps, .labelContainer_d90b3d#message-mark-unread, .labelContainer_d90b3d#message-tts, .labelContainer_d90b3d#message-reply, .labelContainer_d90b3d#message-delete {
+    display: none;
+}
+
+img.profileBadge22_e4866d {
+    min-width: 1em;
+    max-height: 1.5em;
+}
+
+.listItem__48528:has(.circleIconButton__05cf2[aria-label="Explore Discoverable Servers"]) {
+    display: none;
+}
+
+div[aria-label="Toggle Picture in Picture"] {
+    display: none;
+}
+
+.button_f7e168 {
+    width: 18px;
+    height: 24px;
+}
+
+.profileMutuals__95dc2 {
+    margin: 4px 8px;
+}
+
+.categoryItem__4a642[aria-label="top guild emoji"], .categorySection__6f1c3:has(path[d="M8 20a1 1 0 0 0-1 1v.5c0 .28.22.5.5.5h9a.5.5 0 0 0 .5-.5V21a1 1 0 0 0-1-1h-1a2 2 0 0 1-2-2v-.48c0-.95.7-1.73 1.5-2.23a5.7 5.7 0 0 0 1.23-1.08l2.3-.7A7 7 0 0 0 23 6.81V6a2 2 0 0 0-2-2h-2.24A2.85 2.85 0 0 0 16 2H8c-1.3 0-2.43.84-2.76 2H3a2 2 0 0 0-2 2v.82a7 7 0 0 0 4.96 6.7l2.31.7c.37.42.79.78 1.24 1.07.8.5 1.49 1.28 1.49 2.23V18a2 2 0 0 1-2 2H8Zm9.29-8.35.17-.05A5 5 0 0 0 21 6.82V6h-2.27a21.75 21.75 0 0 1-1.44 5.65Zm-10.58 0-.17-.05A5 5 0 0 1 3 6.82V6h2.27c.25 1.94.7 3.95 1.44 5.65Z"]) {
+    display: none;
+}
+
+[aria-label="Server Subscriptions"], .header_a0:has(+ [aria-label="Server Subscriptions"]), .separator_a0:has(+ .header_a0 + [aria-label="Server Subscriptions"]), 
+[aria-label="Enable Community"], .header_a0:has(+ [aria-label="Enable Community"]), .separator_a0:has(+ .header_a0 + [aria-label="Enable Community"]) {
+    display: none;
+}
+
+.wrapper_a24e84:has([id*="message-quickreact"]) {
+    display: none;
+}

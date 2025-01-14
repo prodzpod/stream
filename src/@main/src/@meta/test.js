@@ -6,5 +6,6 @@ const { args } = require("../chat/chat");
 module.exports.predicate = "!test";
 module.exports.permission = false;
 module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
+    require("../../command/gizmo/updatehistory").execute("prodzpod", "maxstreak", 5);
     return [0, ""];
 }

@@ -49,6 +49,7 @@ const condition = {
     "channel.chat.message_delete": { broadcaster_user_id: STREAMER_ID, user_id: STREAMER_ID },
 
     "channel.follow": { broadcaster_user_id: STREAMER_ID, moderator_user_id: STREAMER_ID },
+    "channel.shoutout.create": { broadcaster_user_id: STREAMER_ID, moderator_user_id: STREAMER_ID },
     "channel.shoutout.receive": { broadcaster_user_id: STREAMER_ID, moderator_user_id: STREAMER_ID },
 
     "channel.raid.from": { from_broadcaster_user_id: STREAMER_ID },
