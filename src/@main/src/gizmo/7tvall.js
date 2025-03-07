@@ -18,5 +18,5 @@ module.exports.execute = async (_reply, from, chatter, message, text) => {
     }
     if (count > 0) data("emote.7tv", ret);
     _reply(`Loaded ${count} emotes from ${res.name}!`);
-    return [0, ""];
+    return [0, ret];
 }

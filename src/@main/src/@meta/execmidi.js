@@ -9,5 +9,5 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
     let _args = args(text);
     let ret = await send("fl", "send", _args[0], _args[1], _args[2] ?? 0);
     _reply(ret);
-    return [0, ""];
+    return [0, ret];
 }

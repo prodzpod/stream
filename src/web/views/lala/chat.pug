@@ -1,0 +1,33 @@
+extends ../template/base.pugtemplate
+block meta
+    - v = true
+    - title = ':3c'
+    - description = 'hii'
+    - icon = "https://prod.kr/images/icon/lala.png"
+block css
+block wholebody
+block commonjs
+    script(src="https://prod.kr/js/lala.js")
+    script.
+        let seventvEmotes = [];
+        addEvent("onload", async () => {
+            let seventv = (await (await fetch("https://7tv.io/v3/users/01H4YMKF7G000216GE7S5Z6BRS")).json())
+                .connections.find(x => x.platform === "TWITCH" && x.username === "lala_amanita")
+                .emote_set.emotes;
+            seventvEmotes = seventv.map(x => ({
+                name: x.name,
+                url: {
+                    small_animated: `https://cdn.7tv.app/emote/${x.id}/1x.avif`,
+                    big_animated: `https://cdn.7tv.app/emote/${x.id}/3x.avif`,
+                    small_static: `https://cdn.7tv.app/emote/${x.id}/1x.avif`,
+                    big_static: `https://cdn.7tv.app/emote/${x.id}/3x.avif`,
+                }
+            }))
+            ws = new WebSocket("wss://prod.kr/lala");
+            ws.addEventListener("open", () => {
+                console.log("WebSocket opened");
+            });
+            ws.addEventListener("message", event => {
+                message(WASD.unpack(event.data)[0]);
+            });
+        });

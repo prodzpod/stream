@@ -186,7 +186,17 @@ let RULE = {
         rule: name => name.startsWith("Minecraft"),
         name: "%NAME%:GLFW30:javaw.exe",
         window: null,
-    }
+    },
+    spc: {
+        rule: name => name === "Super Puzzled Cat",
+        name: "%NAME%:SDL_app:Super Puzzled Cat.exe",
+        window: null,
+    },
+    mgba: {
+        rule: name => name.startsWith("mGBA - "),
+        name: "%NAME%:Qt51511QWindowIcon:mGBA.exe",
+        window: null,
+    },
 };
 module.exports.execute = async (...args) => {
     let update = WASD.unpack(args[0]).map(x => {

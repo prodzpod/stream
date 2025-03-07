@@ -64,7 +64,7 @@ namespace Gizmo.StreamOverlay.Elements.Windows
                 // fetch data
                 var size = ((Sprite)children[3].Sprite).Size;
                 var cpu = CPUCounter.NextValue() / 100f;
-                var ram = RAMCounter.NextValue() / (32f * 1024);
+                var ram = RAMCounter.NextValue() / (64f * 1024);
                 self.Set("lastUpdate", self.Life);
                 // bar graph
                 children[4].Position = new Vector2(53 + (33 / 2), 99 + 37 * (1 - cpu / 2)) - (size / 2);

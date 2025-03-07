@@ -1,4 +1,4 @@
-const { send, data } = require("../..");
+const { send, data, src } = require("../..");
 const { numberish, nullish } = require("../../common");
 const { log, warn } = require("../../commonServer");
 const { args } = require("../chat/chat");
@@ -16,5 +16,8 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
     let channel = await send("twitch", "channel", user.id)
     log("raid recieved:", user.name, user.id, [channel.game_name], [channel.title], channel.tags);
     await send("gizmo", "raid", user.name, _args[1], user.profile ?? "");
-    return [0, ""];
+    user.raided ??= 0;
+    src().locateClip.execute(content => send("twitch", "send", null, "[🌙] " + content, []), from, {meta: {permission: {streamer: true}}}, message, "!getclip " + user.login + " " + (user.raided + 1));
+    data("user." + user.id + ".twitch.raided", user.raided + 1);
+    return [0, user];
 }

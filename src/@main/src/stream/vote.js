@@ -43,7 +43,7 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
             _reply(`You have voted for ${positionTo} \n${module.exports.printVote()}`);
         }
     }
-    return [0, ""];
+    return [0, currentVote];
 }
 
 let currentVote = null;

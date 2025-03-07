@@ -2,25 +2,28 @@
     1219954701726912583 // prod
     141643881723723777 // witscord
     1064660360071745686 // cyberspace
+    432768839504232458 // backups
 
-    1135088200713510982 // jake
-    342443769268011010 // exo
     1192851843181719613 // micky
+    1199146981008887870 // tyumici
     981012870319976488 // salad
+    1012794845452046447 // kinsky
+    1135088200713510982 // jake
     1240502814632050738 // malphon
     1163671011741421639 // lala
     677864454301679627 // yellowberry
+    1318989195632709662 // bigbug
+    342443769268011010 // exo
     1152176764701917275 // bugvt
-    993756331636961311 // setolyx
-    840771612882108436 // yukievt
-    279144251705655296 // hexadigital
+    354072617424257024 // meisaka
     1273368333483511838 // crazykitty
 
-    1026210827059081419 // digishell
+    1026210827059081419 // digi
     1093056155644874762 // beryl
-    990180001909469234 // echorin
-    1259410386827083817 // rotsuki
+    990180001909469234 // echo
+    1259410386827083817 // uro
     1034577723131179131 // nicchi
+    974761750564061238 // rei
     907121695779856394 // ynogeneral
     939527111482413116 // cugeneral
 
@@ -30,10 +33,16 @@
     955327984351449118 // gamenight
     307359835815411712 // hacknet
     298144862736482305 // hacknetmodding
+
+    840771612882108436 // yukievt
+    279144251705655296 // hexadigital
+    993756331636961311 // setolyx
+    742086783709216799 // jams
+
     652362733093912577 // hubtalk
     812906479786524713 // mathemagician
     494242418602803201 // taiji
-
+    
     195348494117109761 // fern
     825952118442557440 // shin
     1123346488005763142 // uwo
@@ -46,26 +55,26 @@
     1116930666685268000 // psg
     1269775966893379636 // gizmo emote server
 */
-
 /* hide all private servers */
 div[aria-label="Servers"] > [class*="listItem_"], div[aria-label="Servers"] > [class*="isExpanded_"] > ul > [class*="listItem_"] { display: none; }
-div[aria-label="Servers"] [class*="listItem_"]:has(div[data-list-item-id="guildsnav___@$servers"])  { display: flex !important; }
+div[aria-label="Servers"] [class*="listItem_"]:has(:is(div[data-list-item-id="guildsnav___@$servers$"], div[data-list-item-id="guildsnav___$"])) { display: flex !important; }
 [class*="closedFolderIconWrapper_"] > [class*="guildIcon_"] { display: none; } /* server list */
+#emoji-picker-grid [class*="header_"] img { display: none; }
 #emoji-picker-grid [class*="header_"] span::before { content: "A Server"; font-size: 14px; }
 #emoji-picker-grid [class*="header_"] span { font-size: 0; } /* emoji heading */
 #emoji-picker-tab-panel div:has(> div > [class*="categoryItemGuildCategory_"]) { display: none; } /* emoji list */
-#emoji-picker-tab-panel div:has(> div > [class*="categoryItemGuildCategory_"] img[src*="https://cdn.discordapp.com/icons/@$servers"])  { display: flex !important; }
+#emoji-picker-tab-panel div:has(> div > [class*="categoryItemGuildCategory_"] :is(img[src*="https://cdn.discordapp.com/icons/@$servers$"], img[src*="https://cdn.discordapp.com/icons/$"])) { display: flex !important; }
 [class*="picker_"] [class*="listWrapper_"][role="grid"] [class*="sectionContainer_"] div:has(> svg img) { display: none; }
 [class*="picker_"] [class*="listWrapper_"][role="grid"] [class*="sectionContainer_"] h1::before { content: "A Server"; font-size: 12px; }
 [class*="picker_"] [class*="listWrapper_"][role="grid"] [class*="sectionContainer_"] h1 { font-size: 0; } /* soundboard heading */
 [class*="picker_"] [class*="listWrapper_"][role="grid"] ul:has([class*="soundAddInfoRefresh_"]) { display: none; } /* add sound */
 [class*="picker_"] [class*="listItems_"] [class*="category_"] { display: none; } /* soundboard list */
-[class*="picker_"] [class*="listItems_"] [class*="category_"]:has(img[src*="https://cdn.discordapp.com/icons/@$servers"])  { display: flex !important; }
+[class*="picker_"] [class*="listItems_"] [class*="category_"]:has(:is(img[src*="https://cdn.discordapp.com/icons/@$servers$"], img[src*="https://cdn.discordapp.com/icons/$"])) { display: flex !important; }
 #sticker-picker-grid [aria-label="Upload a sticker to this server"] { display: none; } /* add a sticker */
 #sticker-picker-grid [class*="packHeader_"] span::before { content: "A Server"; font-size: 12px; }
 #sticker-picker-grid [class*="packHeader_"] span { font-size: 0; } /* sticker heading */
 #sticker-picker-grid + [class*="categoryList_"] div:has(> [class*="stickerCategory_"]) { display: none; }
-#sticker-picker-grid + [class*="categoryList_"] div:has(> [class*="stickerCategory_"] img[src*="https://cdn.discordapp.com/icons/@$servers"])  { display: flex !important; }
+#sticker-picker-grid + [class*="categoryList_"] div:has(> [class*="stickerCategory_"] :is(img[src*="https://cdn.discordapp.com/icons/@$servers$"], img[src*="https://cdn.discordapp.com/icons/$"])) { display: flex !important; }
 /* hide dms */
 [class*="channel_"]:has(a[data-list-item-id*="private-channels"]), [class*="peopleColumn_"], [class*="nowPlayingColumn_"]::before, div[aria-label="New Group DM"], div[aria-label="Inbox"], [class*="inviteToolbar_"], [class*="privateChannelRecipientsInviteButtonIcon_"], [class*="searchBarComponent_"], [class*="base_"]:has(ul[aria-label="Direct Messages"]) [class*="messagesWrapper_"] 
     { display: none; }
@@ -116,21 +125,3 @@ button[aria-label="Reveal email address"], button[aria-label="Reveal phone numbe
 [aria-label="User Settings"] [aria-label="Activity Privacy"] + [class*="item_"], /* Activity Privacy */
 [aria-label="User Settings"] [aria-label="Activity Privacy"] + [class*="item_"] + [class*="item_"] /* Game Overlay */
 { display: none; }
-/* unmodified discord bit */
-.vc-settings::before { content: "Ordinary Unmodified Discord" !important; }
-[class*="header_"]:has(+ .vc-settings)::before { content: "ᴏʀᴅɪɴᴀʀʏ ᴜɴᴍᴏᴅɪғɪᴇᴅ ᴅɪsᴄᴏʀᴅ" !important; font-weight: bold; }
-[class*="header_"]:has(+ .vc-settings) > [class*="headerText_"] { display: none; }
-.vc-settings-donate h2 { color: transparent; }
-.vc-settings-donate h2::before { content: "what is this animal doing here"; color: var(--header-secondary); }
-.vc-settings-donate [class*="formText_"] { color: transparent; }
-.vc-settings-donate [class*="contents_"] { font-size: 0; margin: 0; }
-.vc-settings-donate [class*="contents_"]::after { content: " ?"; font-size: 14px; }
-.vc-settings-donate [class*="button_"] { transform: translateX(-2em) !important; }
-#vencordsettings-tab > div:first-child > h2:first-child::before { content: "Ordinary Unmodified Discord Settings"; font-size: 16px; }
-#vencordsettings-tab > div:first-child > h2:first-child { font-size: 0; }
-#vencordsettings-tab div:last-of-type > [class*="sectionTitle_"] h2::before { content: "Ordinary Unmodified Discord Notifications"; font-size: 12px; }
-#vencordsettings-tab div:last-of-type > [class*="sectionTitle_"] h2 { font-size: 0; }
-.vc-settings-card a[href="https://betterdiscord.app/themes"]::before { content: "CompletelyNormalDiscord Themes"; font-size: 16px; }
-.vc-settings-card a[href="https://betterdiscord.app/themes"] { font-size: 0; }
-[aria-label="Click to copy version"] > [class*="info_"] > span:nth-child(2)::before { content: "Ordinary Unmodified Discord 0fd76ab (Standalone)"; font-size: 12px; }
-[aria-label="Click to copy version"] > [class*="info_"] > span:nth-child(2) { font-size: 0; }

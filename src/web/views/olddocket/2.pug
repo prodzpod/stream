@@ -1,0 +1,50 @@
+extends ../template/base.pugtemplate
+
+block meta
+    - v = true
+    - title = 'get clips'
+    - description = 'screw you twitch korea'
+block body 
+    h1 ClipMaster 30XX (BETA)
+    p Screw you Twitch Korea
+    h2 this page is XNDXR CXNSTRXCTXXN!!!
+    p you are prod??? idk
+    h2 Search a clip
+    .hlist
+        p from
+        input.spacer(placeholder="channel name" id="search")
+        button(onclick="go(e('search').value)") go
+    .hlist
+        .spacer
+        #clip-result
+        .spacer
+block postbody 
+    style.
+        .clip {
+            width: 240px;
+            padding: 8px;
+        }
+        .thumb {
+            width: 240px;
+        }
+        iframe {
+            width: min(calc(100vw - 128px), calc(100vh - 128px) * 16 / 9);
+            height: min(calc(100vw - 128px) / 16 * 9, calc(100vh - 128px));
+        }
+        .shoutout {
+            max-width: 48px;
+            padding: 4px;
+            border-radius: 50%;
+            border: 4px solid var(--text);
+            line-height: 0;
+        }
+        .shoutout img { 
+            width: 100%;
+            border-radius: 50%;
+        }
+    script.
+        addEvent("onload", () => { onEnter("search", (_, el) => go(el.value)); });
+        function go(str) {  
+            removeAllChildren("clip-result");
+            insertElement("iframe", "clip-result").with("src", `//prod.kr/images/clips/${str}.mp4`);
+        }

@@ -86,4 +86,5 @@ module.exports.init = async () => {
         }
         catch (e) { error(e, key, id); return null; }
     }
+    social.validate = async (agent, txt, images, tags) => (txt?.length ?? 0) < 280;
 }

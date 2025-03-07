@@ -8,5 +8,5 @@ module.exports.execute = (_reply, from, chatter, message, text, emote, reply) =>
     require("../../command/gizmo/windows").reset();
     send("gizmo", "resetwindows");
     _reply("Reset Windows");
-    return [0, ""];
+    return [0, true];
 }

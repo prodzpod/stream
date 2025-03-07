@@ -12,7 +12,7 @@ let serverHTTP, serverHTTPS, clientFunctions;
 module.exports.init = async () => {
     clientFunctions = Object.entries(require(path("src/@main/common"))).map(x => {
         if (x[0] === "Math")
-            return Object.entries(x[1]).map(kv => `Math.${kv[0]} = ${(kv[1] + '').replace(/this\./g, "Math.")};`).join('\n');
+            return Object.entries(x[1]).map(kv => `Math.${kv[0]} = ${(kv[1] + '').replace(/module\.exports\.Math\./g, "Math.")};`).join('\n');
         else if (x[0] === "String") // custom handling for String prototype extensions
             return Object.entries(x[1]).map(kv => `String.prototype.${kv[0]} = ${(kv[1] + "").replace(/\(_this(?:,)?/, "(").replace(/_this/g, "this")};`).join("\n");
         else if (typeof x[1] === "object") // custom function objects: superstringify this

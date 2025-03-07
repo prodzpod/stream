@@ -10,5 +10,5 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
     const ret = await src().icon.grantRandom(chatter.twitch.id);
     _reply(`UNLOCKED: ${ret[0]}! you can swap equipped icons via screen.`);
     send("web", "changeIcon", chatter.twitch.id, ret[0], ret[1]);
-    return [0, ""];
+    return [0, ret];
 }

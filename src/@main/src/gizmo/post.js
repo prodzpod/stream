@@ -17,14 +17,14 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
     for (let r of indices.reverse()) txt = txt.slice(0, r[0]) + txt.slice(r[1]);
     for (let i = 0; i < images.length; i++) images[i] = await downloadAndDataify(images[i].trim(), "temp" + i);
     let tags = HASHTAGS.find(x => x[0].includes(audience.trim().toLowerCase()))?.[1];
-    if (!tags) { _reply("invalid target"); return [0, ""]; }
-    await send("social", "post", {
+    if (!tags) { _reply("invalid target"); return [1, ""]; }
+    let data = {
         "text": txt?.trim() ?? "",
         "images": images,
         "tags": tags
-    });
-    _reply("done!");
-    return [0, ""];
+    };
+    _reply(await send("social", "post", data));
+    return [0, data];
 }
 
 async function downloadAndDataify(url, name) {

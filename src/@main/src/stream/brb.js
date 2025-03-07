@@ -7,5 +7,5 @@ module.exports.execute = (_reply, from, chatter, message, text, emote, reply) =>
     info("Toggling BRB");
     src().obs.brb();
     send("gizmo", "brb");
-    return [0, ""];
+    return [0, true];
 }

@@ -31,14 +31,13 @@ module.exports.fetch = async (subject, user) => {
 }
 
 const getCommands = (from, chatter, message, text, emote, reply) => "available commands: `"
- + Object.values(src())
+ + [...Object.values(src())
     .filter(x => 
         ["array", "string"].includes(realtype(x.predicate))
         && x.predicate.length > 0
         && checkPerms(x.permission, from, chatter, message, text, emote, reply))
-    .map(x => typeof x.predicate === "string" ? x.predicate : Math.minBy(...x.predicate, (a, b) => {
-        let i = a.length - b.length; if (i !== 0) return i; return x.predicate.indexOf(a) - x.predicate.indexOf(b); }))
-    .flat().sort().join("`, `")
+    .map(x => typeof x.predicate === "string" ? x.predicate : x.predicate[0])
+    .flat(), ...Object.keys(INFO_MESSAGES).filter(x => !["v", "help", "commands", "insts", "inst", "instruments", "fonts", "inventory", "inv", "wallet", "clonkspotting"].includes(x)).map(x => "!" + x)].sort().join("`, `")
  + "`";
 const getInsts = async () => `available instruments: \`${
     (await listFiles("src/gizmo2/Gizmo/StreamOverlay/@Content/instruments"))
@@ -89,8 +88,7 @@ const INFO_MESSAGES = {
     },
     globalstats: async () => {
         let ret = (await module.exports.fetch("stats"))[1];
-        let g = await send("gizmo", "fetch");
-        if (g) for (let i = 0; i < g.length; i += 2) ret[g[i]] = g[i+1] ?? 0;
+        ret["windowcount"] = await send("gizmo", "fetch", "windowcount") ?? 0;
         return Object.entries(ret).map(x => `${x[0]}: ${x[1]}`).join("\n");
     },
     gcp: async () => {
@@ -112,22 +110,8 @@ const INFO_MESSAGES = {
             if (v > 5) return "strongly increased";
             return "significantly large";
         }
-        function coherence(...args) {
-            if (args.length < 1) return 100;
-            let ret = 0;
-            for (let i = 0; i < args.length; i++) for (let j = i + 1; j < args.length; j++)
-                ret += 100 - Math.abs(args[i] - args[j]);
-            return ret / (args.length * (args.length - 1));
-        }
-        let global = data().global;
-        let prod_gcp3 = (await module.exports.updateGCP())[1] * 100; // trigger this even after gcp3 is real
-        let venorrak_gcp3 = 0;
-        try { venorrak_gcp3 = Math.clamp((await (await (require("node-fetch")("https://server.venorrak.dev/api/joels/JCP/short?limit=1"))).json())[0].JCP / 10, 0, 1); } catch {}
-        let krzysckh_gcp3 = 0;
-        try { krzysckh_gcp3 = Math.clamp(((await (await (require("node-fetch")("https://api.blg.krzysckh.org/?q=last-gradus"))).json()).v + 4) / 26, 0, 1); } catch {}
-        let gcp3 = coherence(prod_gcp3, venorrak_gcp3, krzysckh_gcp3);
-        let c = coherence(global.gcp, global.gcp2, gcp3);
-        return `${getEmote(global.gcp)} The network variance is ${getText(global.gcp)}. (${Math.prec(global.gcp)}%, gcp2: ${getEmote(global.gcp2)} ${Math.prec(global.gcp2)}%, gcp3: ${getEmote(gcp3)} ${Math.prec(gcp3)}%, coherence: ${getEmote(c)} ${Math.prec(c)}%)`
+        let gcp = await module.exports.getGCP();
+        return `${getEmote(gcp[1])} The network variance is ${getText(gcp[1])}. (${Math.prec(gcp[1])}%, gcp2: ${getEmote(gcp[2])} ${Math.prec(gcp[2])}%, gcp3: ${getEmote(gcp[3])} ${Math.prec(gcp[3])}%, coherence: ${getEmote(gcp[0])} ${Math.prec(gcp[0])}%)`
     },
     inv: getInfo,
     inventory: getInfo,
@@ -143,7 +127,7 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
     let ret = INFO_MESSAGES[split(text, /\s+/, 1)[0].slice(1).toLowerCase().trim()](from, chatter, message, text, emote, reply);
     if (ret instanceof Promise) ret = await ret;
     _reply(ret);
-    return [0, ""];
+    return [0, ret];
 }
 
 const fs = require("fs");
@@ -160,3 +144,32 @@ module.exports.updateGCP = async () => {
     log(`[GCP3] Pulled a ${ch} from ${files}! (${Math.prec(ret * 100)}%)`);
     return [ch, ret];
 }
+let lastGCP3 = {};
+module.exports.getGCP = async () => {
+    function coherence(...args) {
+        if (args.length < 1) return 100;
+        let ret = 0;
+        for (let i = 0; i < args.length; i++) for (let j = i + 1; j < args.length; j++)
+            ret += 100 - Math.abs(args[i] - args[j]);
+        return ret / (args.length * (args.length - 1));
+    }
+    let global = data().global;
+    const GCP3_GETS = {
+        "prod": async () => (await module.exports.updateGCP())[1] * 100,
+        "Venorrak": async () => Math.clamp((await (await fetch("https://server.venorrak.dev/api/joels/JCP/short?limit=1")).json())[0].JCP, 0, 100),
+        "krzysckh": async () => Math.clamp(((await (await fetch("https://api.blg.krzysckh.org/?q=last-gradus")).json()).v + 4) * 100 / 26, 0, 100),
+        "nichePenguin": async () => Math.clamp((await (await fetch("https://pub.colonq.computer/~nichepenguin/cgi-bin/np-gfp")).json()).gfp, 0, 1) * 100,
+    };
+    for (let k in GCP3_GETS) {
+        if (lastGCP3[k] === undefined || random() < 0.5) {
+            let res = GCP3_GETS[k]();
+            if (res instanceof Promise) res = await res;
+            lastGCP3[k] = res;
+        }
+    }
+    log("GCP3 DATA:", lastGCP3);
+    let gcp3 = coherence(...Object.values(lastGCP3));
+    let c = coherence(global.gcp, global.gcp2, gcp3);
+    return [c, global.gcp, global.gcp2, gcp3];
+}
+module.exports.isScreenOn = (_reply) => { let res = require("../../index").sockets().includes("gizmo"); if (!res) _reply?.("gizmo is not active"); return res; }

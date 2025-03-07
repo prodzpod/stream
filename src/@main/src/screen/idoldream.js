@@ -5,6 +5,7 @@ const { args } = require("../chat/chat");
 module.exports.predicate = ["!furrowthemareofeidola"];
 module.exports.permission = 0;  
 module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
+    if (!src().screen.isScreenOn(_reply)) return [1, ""];
     text = await src().chat.emotesToGizmo(from, text, emote);
     const _args = args(text);
     let x = Math.clamp(Math.round(Number(_args[0])), 0, 1920), y = Math.clamp(Math.round(Number(_args[1])), 0, 1080);

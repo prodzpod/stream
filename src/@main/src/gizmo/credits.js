@@ -4,7 +4,7 @@ const { log } = require("../../commonServer");
 const { args } = require("../chat/chat");
 
 module.exports.predicate = ["!credits"];
-module.exports.permission = true;
+module.exports.permission = false;
 module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
     return [0, ""]; // no
     if (args(text)?.[0] == ".861287561875618756479" && chatter?.twitch?.name) {

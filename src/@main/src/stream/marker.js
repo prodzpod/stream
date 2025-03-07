@@ -8,7 +8,7 @@ module.exports.execute = (_reply, from, chatter, message, text, emote, reply) =>
     const _args = args(text);
     info("Starting Stream Sequence");
     module.exports.updateInfo(_args[0], _args[1]);
-    return [0, ""];
+    return [0, data().stream];
 }
 
 module.exports.updateInfo = (category, name, phase) => {

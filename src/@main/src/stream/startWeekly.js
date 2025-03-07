@@ -7,7 +7,7 @@ module.exports.predicate = "!startweekly";
 module.exports.permission = false;
 module.exports.execute = (_reply, from, chatter, message, text, emote, reply) => {
     module.exports.start();
-    return [0, ""];
+    return [0, true];
 }
 
 let loop = null;

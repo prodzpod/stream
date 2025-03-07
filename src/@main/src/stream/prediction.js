@@ -43,7 +43,7 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
         }
         else { _reply("Insufficient Balance"); return [1, ""]; }
     }
-    return [0, ""];
+    return [0, currentPrediction];
 }
 
 let currentPrediction = null;

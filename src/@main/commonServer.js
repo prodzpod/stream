@@ -6,19 +6,22 @@ module.exports.path = (...dir) => path.join(__dirname, "../../", ...dir).replace
 module.exports.fileExists = (...p) => { try { fs.accessSync(module.exports.path(...p)); return true; } catch (e) { return false; }}
 module.exports.listFiles = (...dir) => {
     async function openDir(dirname, basepath = "") {
-        let dir = fs.readdirSync(dirname, { withFileTypes: true });
-        let i = 0;
-        while (i < dir.length) {
-            if (dir[i].isFile()) dir[i] = basepath + dir[i].name;
-            else if (dir[i].isDirectory()) {
-                const files = await openDir(path.join(dirname, dir[i].name), basepath + dir[i].name + "/");
-                dir.splice(i, 1, ...files);
-                i += files.length - 1;
+        try {
+            let dir = fs.readdirSync(dirname, { withFileTypes: true });
+            let i = 0;
+            while (i < dir.length) {
+                if (dir[i].isFile()) dir[i] = basepath + dir[i].name;
+                else if (dir[i].isDirectory()) {
+                    const files = await openDir(path.join(dirname, dir[i].name), basepath + dir[i].name + "/");
+                    dir.splice(i, 1, ...files);
+                    i += files.length - 1;
+                }
+                else { dir.splice(i, 1); i--; }
+                i++;
             }
-            else { dir.splice(i, 1); i--; }
-            i++;
+            return dir;
         }
-        return dir;
+        catch { return []; }
     }
     return new Promise(resolve => openDir(module.exports.path(...dir)).then(resolve));
 }

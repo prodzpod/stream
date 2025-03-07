@@ -8,7 +8,7 @@ module.exports.identify = chatter => {
     return Object.values(data().user ?? {}).find(x => chatter[category] && x[category]?.id == chatter[category]?.id) ?? chatter;
 }
 module.exports.register = chatter => {
-    if (!chatter.twitch) return;
+    if (!chatter?.twitch) return;
     data(`user.${chatter.twitch.id}`, chatter);
 }
 

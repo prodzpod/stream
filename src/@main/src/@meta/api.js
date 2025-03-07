@@ -11,5 +11,5 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
     if (typeof ret === "object") ret = WASD.pack(ret);
     if (_args[4] == "silent") info(ret);
     else _reply(ret);
-    return [0, ""];
+    return [0, _args[4] == "silent" ? "" : ret];
 }

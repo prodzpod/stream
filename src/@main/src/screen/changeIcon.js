@@ -17,5 +17,5 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
     });
     send("web", "changeIcon", chatter.twitch.id, chatter.economy.icon);
     _reply("icon changed");
-    return [0, ""];
+    return [0, chatter.economy.icon];
 }

@@ -14,24 +14,26 @@ namespace ProdModel.Object.Sprite
         public static int Pixels = 4;
         public static int Width = 200;
         public static int Height = 200;
+        public static bool ResolutionUpdated = false;
         public static Image image = Image.GenColor(Width, Height, ColorP.TRANSPARENT);
         public static int TriangleRemoved = 0;
         public static bool Busy = false;
         public static bool Ready = false;
         public static List<string> PreviousAccessories = [];
-        public static List<string> FixedAccessories = ["skirt_default", "juicebox"];
+        public static List<string> FixedAccessories = ["skirt_default"];
         public static List<string> Accessories = [.. FixedAccessories];
         public static List<ColorP> PreviousColor = [];
         public static Dictionary<ColorP, ColorP> ColorReplace = [];
         public static bool YieldIfLowFPS = true;
         public static float ToleranceRate = 1f/12f;
 
+        public static Vector3 CameraTranslation = Vector3.Zero;
         public static Vector3 CameraRotation = Vector3.Zero;
         public static float CameraZoom = 1;
         public static MatrixP Camera(string id)
         {
             if (id != "body") return MatrixP.IDENTITY;
-            return MatrixP.Rotate(CameraRotation) * MatrixP.Scale(CameraZoom);
+            return MatrixP.Rotate(CameraRotation) * MatrixP.Scale(CameraZoom) * MatrixP.Translate(CameraTranslation);
         }
         public static void DrawTriangles(List<Triangle> triangles)
         {
@@ -39,22 +41,24 @@ namespace ProdModel.Object.Sprite
             ProdModel.Log("Triangles");
             ProdModel.Log(string.Join("\n", triangles.Select(x => x.ToString())));
             */
+            int w = Width;
+            int h = Height;
             // populate
-            float[][] z = new float[Width][];
-            for (int i = 0; i < z.Length; i++) z[i] = new float[Height];
+            float[][] z = new float[w][];
+            for (int i = 0; i < z.Length; i++) z[i] = new float[h];
             for (int i = 0; i < z.Length; i++) Array.Fill(z[i], float.NegativeInfinity);
-            ColorP[][] pixels = new ColorP[Width][];
-            for (int i = 0; i < pixels.Length; i++) pixels[i] = new ColorP[Height];
+            ColorP[][] pixels = new ColorP[w][];
+            for (int i = 0; i < pixels.Length; i++) pixels[i] = new ColorP[h];
             for (int i = 0; i < pixels.Length; i++) Array.Fill(pixels[i], ColorP.TRANSPARENT);
             // buffer
             for (int i = 0; i < triangles.Count; i++)
             {
                 // used to be premature optimization but turned out to be a good call
                 Triangle triangle = triangles[i];
-                int xa = Math.Clamp((int)MathP.Min(triangle.a.X, triangle.b.X, triangle.c.X), 0, Width);
-                int xb = Math.Clamp((int)MathP.Max(triangle.a.X, triangle.b.X, triangle.c.X) + 1, 0, Width);
-                int ya = Math.Clamp((int)MathP.Min(triangle.a.Y, triangle.b.Y, triangle.c.Y), 0, Height);
-                int yb = Math.Clamp((int)MathP.Max(triangle.a.Y, triangle.b.Y, triangle.c.Y) + 1, 0, Height);
+                int xa = Math.Clamp((int)MathP.Min(triangle.a.X, triangle.b.X, triangle.c.X), 0, w);
+                int xb = Math.Clamp((int)MathP.Max(triangle.a.X, triangle.b.X, triangle.c.X) + 1, 0, w);
+                int ya = Math.Clamp((int)MathP.Min(triangle.a.Y, triangle.b.Y, triangle.c.Y), 0, h);
+                int yb = Math.Clamp((int)MathP.Max(triangle.a.Y, triangle.b.Y, triangle.c.Y) + 1, 0, h);
                 for (int x = xa; x < xb; x++) for (int y = ya; y < yb; y++)
                 {
                     var _z = triangle.ZAt(new Vector2(x, y));
@@ -63,21 +67,21 @@ namespace ProdModel.Object.Sprite
             }
             // outline 
             const float OUTLINE_DEPTH = .1f;
-            for (int x = 0; x < Width; x++) for (int y = 0; y < Height; y++)
+            for (int x = 0; x < w; x++) for (int y = 0; y < h; y++)
             {
                 if (x > 0 && z[x - 1][y] - z[x][y] > OUTLINE_DEPTH ||
-                    x < Width - 1 && z[x + 1][y] - z[x][y] > OUTLINE_DEPTH ||
+                    x < w - 1 && z[x + 1][y] - z[x][y] > OUTLINE_DEPTH ||
                     y > 0 && z[x][y - 1] - z[x][y] > OUTLINE_DEPTH ||
-                    y < Height - 1 && z[x][y + 1] - z[x][y] > OUTLINE_DEPTH)
+                    y < h - 1 && z[x][y + 1] - z[x][y] > OUTLINE_DEPTH)
                     pixels[x][y] = ColorP.BLACK;
             }
             PreviousColor.Clear();
-            for (int x = 0; x < Width; x++) for (int y = 0; y < Height; y++)
+            for (int x = 0; x < w; x++) for (int y = 0; y < h; y++)
             {
                 var color = pixels[x][y];
                 if (!PreviousColor.Contains(color)) PreviousColor.Add(color);
                 if (ColorReplace.ContainsKey(color)) color = ColorReplace[color];
-                image.DrawPixel(x, y, color /* * MathP.Min(1, 6f - 6f * y / Height)*/);
+                image.DrawPixel(x, y, color /* * MathP.Min(1, 6f - 6f * y / h)*/);
             }
         }
         public static Triangle[] GetTriangles(WorseVRM.Model model) => model.f.Select(x => new Triangle()
@@ -118,6 +122,7 @@ namespace ProdModel.Object.Sprite
         }
         public static async void Draw() => await Task.Run(() =>
         {
+            if (ResolutionUpdated) Image.GenColor(Width, Height, ColorP.TRANSPARENT);
             if (YieldIfLowFPS && NotGMS.drawOperations < (MetaP.TargetFPS * ToleranceRate)) return;
             if (!Raylib_CSharp.Windowing.Window.IsReady()) return;
             if (Busy) { if (!Ready) Logger.Warn("Model Drawing is overloading!"); return; }

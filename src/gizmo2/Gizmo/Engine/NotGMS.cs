@@ -1,6 +1,7 @@
 ﻿using Gizmo.Engine.Builtin;
 using Gizmo.Engine.Data;
 using Gizmo.Engine.Extra;
+using Gizmo.StreamOverlay.Elements.Entities;
 using Raylib_CSharp;
 using Raylib_CSharp.Audio;
 using Raylib_CSharp.Images;
@@ -116,6 +117,8 @@ namespace Gizmo.Engine
                 var _i = Game.INSTANCES.Where(x => x.Hitbox != null).Reverse().ToArray();
                 foreach (var x in _i) foreach (var y in _i.Where(z => x.InteractsWith.Contains(z.Element) && x != z))
                     {
+                        if (x.Element is Mouse) x.Position = Mouse.RealPosition;
+                        if (y.Element is Mouse) y.Position = Mouse.RealPosition;
                         if (!Game.COLLISION.TryGetValue(new(y, x), out bool ch))
                         {
                             ch = HitboxP.Check(x, y);

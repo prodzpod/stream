@@ -1,5 +1,6 @@
 ﻿using Raylib_CSharp.Audio;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 
 namespace Gizmo.Engine.Data
 {
@@ -8,7 +9,14 @@ namespace Gizmo.Engine.Data
         public string Path = "[Generated]";
         public Sound Sound;
         public float Duration;
-        public string Group;
+        private string group;
+        public string Group {
+            get { return group; } set
+            {
+                group = value;
+                if (!SoundGroups.ContainsKey(group)) SoundGroups[group] = 1;
+            }
+        }
         public List<Sound> Aliases;
         public static Audio Load(string path, string group = "") => new(path, group);
         public Audio(string path, string group = "")
@@ -18,7 +26,6 @@ namespace Gizmo.Engine.Data
             Duration = (float)wave.FrameCount / wave.SampleRate;
             Sound = Sound.LoadFromWave(wave);
             Group = group.ToLowerInvariant();
-            if (!SoundGroups.ContainsKey(Group)) SoundGroups[Group] = 1;
             Aliases = [];
             for (int i = 0; i < MetaP.DefaultAudioAliases; i++) Aliases.Add(Sound.LoadAlias(Sound));
         }

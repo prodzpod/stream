@@ -7,7 +7,10 @@ block meta
 block body 
     h1 The Hollow Decks
     p were kinda like the Knights rn
-    h2 Feed
+    .hlist
+        h2 Feed
+        .spacer
+        button(onclick="toggleTeal(this)") Hide Adjacent Lands
     .hlist#feed(style="min-height: 30vh;")
     hr
     .hlist
@@ -110,6 +113,42 @@ block postbody
         let online = [];
         let streams = {};
         let midpoint = {x: 0, y: 0};
+        const GREENCIRCLE = [ // commented: exists in greencircle.live but does not get captured by greenfeed
+            "LCOLONQ",
+            "prodzpod",
+            "Tyumici",
+            "ellg",
+            "JakeCreatesStuff",
+            "badcop_",
+            "basie",
+            "Hexadigital",
+            "Venorrak",
+            "zulleyy3",
+            "vasher_1025",
+            "CR4ZYK1TTY",
+            "yellowberryHN",
+            // "KotaruComplex",
+            "yiffweed",
+            "BigGayMikey",
+            "37LN37",
+            "vesdev",
+            "bvnanana",
+            "YukieVT",
+            "Colinahscopy_",
+            "NovaLiminal",
+            "Meisaka",
+            "NineteenNinetyX",
+            "Ricardo_Stryki",
+            "exodrifter_",
+            "RayMarch",
+            // "SaladForrest",
+            "bigbookofbug",
+            "CipherLunis",
+            "liquidcake1",
+            "mickynoon",
+            "imgeiser",
+            "KinskyUnplugged",
+        ];
 
         function open() {
             ws = new WebSocket("wss://prod.kr/dex");
@@ -132,12 +171,8 @@ block postbody
 
         addEvent("onload", async () => {
             open(); 
-            online = parseSexpRubbish((await (await fetch("https://api.colonq.computer/api/circle")).text()));
-            streams = filterKey(streams, x => online.includes(x));
-            for (let i of online.filter(x => !Object.keys(streams).includes(x))) {
-                let data = await send("fetch", i);
-                streams[i] = data;
-            }
+            online = (await (await fetch("https://prod.kr/api/user?select=twitch.login&where=twitch.streaming=1")).json()).map(x => x.twitch.login);
+            streams = await send("fetch", online.filter(x => !Object.keys(filterKey(streams, x => online.includes(x))).includes(x)));
             reloadFeed();
             midpoint = {x: e("multiview").clientWidth / 2, y: e("multiview").clientHeight / 2};
             let mvRaw = localStorage.getItem("multiview");
@@ -160,15 +195,17 @@ block postbody
 
         function reloadFeed() {
             removeAllChildren("feed");
-            if (online.length == 0) insertElement("c", "feed", null, "The circle sleeps in tranquility...");
-            else for (let k of online.sort()) {
+            let _online = online;
+            if (!teal) _online = online.filter(x => GREENCIRCLE.map(x => x.toLowerCase()).includes(x.toLowerCase()));
+            if (_online.length == 0) insertElement("c", "feed", null, "The circle sleeps in tranquility...");
+            else for (let k of _online.sort()) {
                 let stream = streams[k];
                 let block = insertElement("div", "feed", "feed vlist");
                 insertElement("div", block, "spacer");
                 insertElement("p", insertElement("a", block).with("href", "#multiview").with("style", "text-decoration: none;").with("onclick", `addStream("${stream.user_login}"); saveViews();`), null, stream.title).with("title", "Add Stream to MultiView");
-                insertElement("img", insertElement("a", block).with("href", "#multiview").with("onclick", `addStream("${stream.user_login}"); saveViews();`), "thumb center").with("src", stream.thumbnail_url.replaceAll("{width}", "440").replaceAll("{height}", "248")).with("title", "Add Stream to MultiView");
+                insertElement("img", insertElement("a", block).with("href", "#multiview").with("onclick", `addStream("${stream.user_login}"); saveViews();`), "thumb center").with("src", (stream.thumbnail_url ?? "https://prod.kr/images/mrgreen.webp").replaceAll("{width}", "440").replaceAll("{height}", "248")).with("title", "Add Stream to MultiView");
                 let nameRow = insertElement("div", insertElement("a", block).with("href", `//twitch.tv/${stream.user_login}`), "hlist").with("title", "Go to Channel");
-                insertElement("img", nameRow, "pfp").with("src", stream.user.profile_image_url);
+                insertElement("img", nameRow, "pfp").with("src", `https://prod.kr/data/user/${stream.user_id}.twitch.png`);
                 insertElement("div", nameRow, "spacer");
                 insertElement("p", nameRow, null, stream.user_name);
                 let buttonRow = insertElement("div", block, "hlist");
@@ -346,3 +383,10 @@ block postbody
             }
             localStorage.setItem("multiview", WASD.pack(ret));
         }
+
+        let teal = true;
+        function toggleTeal(el) {
+            teal = !teal;
+            el.innerText = (teal ? "Hide" : "Show") + " Adjacent Lands";
+            reloadFeed();
+        } 

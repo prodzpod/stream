@@ -6,6 +6,7 @@ using Gizmo.Engine.Util;
 using Gizmo.StreamOverlay.Elements.Gizmos;
 using Gizmo.StreamOverlay.Elements.Screens;
 using Gizmo.StreamOverlay.Elements.Windows;
+using Gizmo.StreamOverlay.Rooms;
 using System.Data.Common;
 using System.Numerics;
 
@@ -48,6 +49,7 @@ namespace Gizmo.StreamOverlay.Elements.Entities
             self.Set("grounded", false);
             self.Set("timeairborne", 0f);
             self.Set("timegrounded", 0f);
+            self.Set("stun", 0f);
         }
         public override void OnPostInit(ref Instance self)
         {
@@ -65,7 +67,7 @@ namespace Gizmo.StreamOverlay.Elements.Entities
             maxhp.Set("size", new Vector2(128, 8));
             maxhp.Position.X -= 11;
             maxhp.Position.Y -= ((Sprite)self.Sprite).Size.Y / 2 - 28;
-            maxhp.Blend = ColorP.BLACK * .5f;
+            maxhp.Blend = ColorP.BLACK * (MainRoom.COLLAB_MODE ? 1 : .5f);
             maxhp.Alpha = 0;
             var hp = Graphic.New(self, Resource.NineSlices["WHITE"]);
             hp.Set("size", new Vector2(128, 8));
@@ -120,6 +122,11 @@ namespace Gizmo.StreamOverlay.Elements.Entities
         public override void OnUpdate(ref Instance self, float deltaTime)
         {
             base.OnUpdate(ref self, deltaTime);
+            if (self.Get<float>("stun") > 0)
+            {
+                self.Set("stun", self.Get<float>("stun") - deltaTime);
+                return;
+            }
             var ai = self.Get<Dictionary<string, float>>("ai");
             if (self.Var.ContainsKey("incombatfor"))
                 self.Set("incombatfor", self.Get<float>("incombatfor") + deltaTime);
@@ -234,6 +241,7 @@ namespace Gizmo.StreamOverlay.Elements.Entities
         {
             base.OnClick(ref self, position);
             self.Var.Remove("target");
+            if (StreamOverlay.ClickedInstance != self) self.Set("stun", .5f);
         }
 
         public override void OnDraw(ref Instance self, float deltaTime)
@@ -291,8 +299,6 @@ namespace Gizmo.StreamOverlay.Elements.Entities
 
         public static void OnHit(Instance self, Instance attacker, float damage, Dictionary<string, object> special)
         {
-            var damageReal = Math.Max(1, damage - self.Get<float>("defense"));
-            self.Set("damagetaken", self.Get<float>("damagetaken") + damageReal);
             self.Set("incombat", true);
             if (!self.Var.ContainsKey("incombatfor"))
             {
@@ -304,11 +310,18 @@ namespace Gizmo.StreamOverlay.Elements.Entities
                 self.Set("victim", attacker);
                 self.Set("target", attacker.Position);
             }
+            self.Set("lastattacked", attacker);
+            Damage(self, damage, special);
+        }
+
+        public static void Damage(Instance self, float damage, Dictionary<string, object> special)
+        {
+            var damageReal = Math.Max(1, damage - self.Get<float>("defense"));
+            self.Set("damagetaken", self.Get<float>("damagetaken") + damageReal);
             self.Set("forcestate", 5);
             self.Set("forcestatetime", .25f);
             var hp = self.Get<float>("hp") - damageReal;
             self.Set("hp", hp);
-            self.Set("lastattacked", attacker);
             if (hp <= 0) self.Destroy();
         }
 
@@ -339,7 +352,7 @@ namespace Gizmo.StreamOverlay.Elements.Entities
             var nametag = Graphic.New(i, t);
             nametagBG.Position.X -= 11;
             nametagBG.Position.Y -= sprite.Size.Y / 2 - 13;
-            nametagBG.Blend = ColorP.BLACK * .75f;
+            nametagBG.Blend = ColorP.BLACK * (MainRoom.COLLAB_MODE ? 1 : .75f);
             nametag.Position.Y -= sprite.Size.Y / 2 - 26;
             return i;
         }

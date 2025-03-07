@@ -1,0 +1,393 @@
+extends ../template/base.pugtemplate
+block meta
+    - v = true
+    - title = 'Starting Soon'
+    - description = 'bro do you watch FWMC'
+    - icon = "https://prod.kr/images/icon/malphon.webp"
+block body-outer
+    #canvas
+block postbody
+    svg#glow__svg_(width='0', height='0')
+      filter#glow
+        fegaussianblur#glow__svg__res(in='SourceGraphic', stdDeviation='4', result='glow__svg__blur')
+        fecolormatrix(type='saturate', in='glow__svg__blur', values='2', result='glow__svg__sat')
+        feblend#glow__svg__resBlend(in='SourceGraphic', in2='glow__svg__sat')
+    style.
+        @import url('https://fonts.googleapis.com/css2?family=Alata&display=swap');
+        * { transition: 0s !important; }
+        header, footer { display: none !important; }
+        body, .main { overflow: hidden; }
+        #canvas { transform: scale(0.5) translate(-960px, -540px); image-rendering: crisp-edges; }
+        .picture-wrapper { 
+            position: absolute; 
+            width: 0; height: 0;
+        }
+        .picture { position: absolute; }
+        .shadow { mix-blend-mode: multiply; }
+        .invert { filter: invert(); }
+        #title { width: 1500px; height: 800px; font-size: 1000%; }
+        #twitch { width: 1200px; height: 200px; font-size: 400%; }
+        #chat { width: 1000px; height: 400px; }
+        #tillycounter { width: 1000px; height: 400px; }
+        #tillycounter .text { opacity: 1; font-size: 300%; }
+        .text {
+            font-family: "Alata", serif;
+            font-weight: 400;
+            font-style: normal;
+            color: white !important;
+            text-shadow: 0 0 8px white, 0 0 32px white, 0 0 4px #A78DDA, 0 0 8px #A78DDA, 0 0 16px #A78DDA, 0 0 32px #A78DDA; 
+            opacity: 0;
+            line-height: 1;
+        }
+        @keyframes title-enter {
+            from { opacity: 0; transform: translate(0, 32px); }
+            to { opacity: 1; transform: translate(0, -16px); }
+        }
+        @keyframes title-hover {
+            from { transform: translate(0, -16px); }
+            to { transform: translate(0, 16px); }
+        }
+        @keyframes title-exit {
+            from { opacity: 1; transform: translate(0, 16px); }
+            to { opacity: 0; transform: translate(0, -32px); }
+        }
+        .text.entering { animation: title-enter 0.6s ease-out forwards; }
+        #title .text.active { opacity: 1; animation: title-hover 5s ease-in-out alternate infinite; }
+        #twitch .text.active { opacity: 1; animation: title-hover 12s ease-in-out alternate infinite; }
+        .text.exiting { animation: title-exit 0.6s ease-in forwards; }
+        #chat .text {
+            opacity: 1;
+            color: #99afda !important;
+            text-shadow: unset !important;
+        }
+        #chat-author { font-size: 200%; } #chat-message { font-size: 300%; }
+        @keyframes chat-transition {
+            from { transform: translate(0, 0); opacity: 1; }
+            49% { transform: translate(0, -16px); opacity: 0; }
+            51% { transform: translate(0, 16px); opacity: 0; }
+            to { transform: translate(0, 0); opacity: 1; }
+        }
+        .text.transition { animation: chat-transition 1s ease-in-out forwards; }
+    script.
+        let P = {}; let tillies = []; let totalTillies = 1; // all tillies are 40px apart
+        let title = ""; let chatAuthor = ""; let chatMessage = ""; let ws; let animator = [];
+        class Picture {
+            async init(id, x, y, parent = null, px = null, py = null, override = null) {
+                this.id = id; this.var = {};
+                this.x = x; this.y = y; this.z = 0;
+                this.parent = P[parent]; this.px = px; this.py = py;
+                this.wrapper = insertElement("div", this.parent?.wrapper ?? "canvas", "picture-wrapper").with("id", this.id);
+                this.image = insertElement("img", this.wrapper, "picture").with("id", this.id + "-img").with("src", "//prod.kr/images/malphon/" + (override ?? this.id) + ".png");
+                this.animation = {}; this.animationFrame = 0;
+                await new Promise(resolve => { this.image.onload = resolve; this.image.onerror = () => { this.image.src = ""; resolve(); } });
+                this.w = this.image.width ?? 0; this.h = this.image.height ?? 0; this.a = 0; this.alpha = 1;
+                if (nullish(this.px) !== null) { this.px -= this.w / 2; this.x += this.px / 2; } else this.px = 0;
+                if (nullish(this.py) !== null) { this.py -= this.h / 2; this.y += this.py / 2; } else this.py = 0;
+                let par = this.parent;
+                while (par) { this.x -= par.x; this.y -= par.y; par = par.parent; }
+                this.applyMovement();
+                P[this.id] = this;
+                return this;
+            }
+            getPos() { 
+                let x = 0; let y = 0; let a = 0; 
+                let el = this; while (el) {
+                    if (el.a !== 0) {
+                        let r = Math.hypot(x, y); let theta = Math.atan2(y, x);
+                        x = r * Math.cos(theta + (el.a / 180 * Math.PI));
+                        y = r * Math.sin(theta + (el.a / 180 * Math.PI));
+                    }
+                    x += el.x; y += el.y; a += el.a;
+                    el = el.parent; 
+                }
+                return {x: x, y: y, a: a}; 
+            }
+            setPos(x, y) { if (nullish(x) !== null) this.x = x; if (nullish(y) !== null) this.y = y; this.applyMovement(); return this; }
+            move(x, y) { if (nullish(x) !== null) this.x += x; if (nullish(y) !== null) this.y += y; this.applyMovement(); return this; }
+            setDepth(z) { this.z = z; this.wrapper.style.zIndex = this.z; this.image.style.zIndex = this.z; return this; }
+            rotate(a, absolute=false) { this.a = absolute ? a : this.a + a; this.applyMovement(); return this; }
+            applyMovement() { 
+                this.wrapper.style.transform = `translate(${this.x * 2}px, ${this.y * 2}px) rotate(${this.a}deg)`; 
+                this.image.style.transform = `translate(${-(this.px + (this.w / 2))}px, ${-(this.py + (this.h / 2))}px)`; 
+                return this;
+            }
+            setAlpha(a) { this.alpha = a; this.wrapper.style.opacity = this.alpha; return this; }
+            setSprite(src) {
+                this.image.with("src", "//prod.kr/images/malphon/" + src + ".png");
+                this.image.onload = () => {
+                    this.w = this.image.width; this.h = this.image.height;
+                    this.applyMovement();
+                };
+                return this;
+            }
+            setAnimation(anim) {
+                if (animator.includes(this)) return this; animator.push(this);
+                this.animation = anim; this.animationFrame = 0;
+                return this;
+            }
+            addClass(cl) { this.image.classList.toggle(cl); return this; }
+            destroy() { removeElement(this.wrapper); delete P[this.id]; for (let z of Object.keys(P).filter(x => P[x].parent === this)) P[z].destroy(); }
+        }
+        addEvent("onload", init);
+        async function init() {
+            // sky
+            (await new Picture().init("bg_1", 960, 540, null)).setDepth(-1000);
+            (await new Picture().init("bg_2", 960, 540, "bg_1"));
+            (await new Picture().init("bg_3", 960, 540, "bg_1"));
+            (await new Picture().init("stars", 960, 540, null)).setDepth(-1000);
+            (await new Picture().init("bg_4", 955, 264, "stars"));
+            (await new Picture().init("bg_5", 1048, 246, "stars"));
+            (await new Picture().init("bg_6", 953, 300, "stars"));
+            // trees
+            (await new Picture().init("trees", 960, 540, null)).setDepth(-100);
+            (await new Picture().init("fg_1", 1734, 340, "trees"));
+            (await new Picture().init("fg_2", 320, 262, "trees"));
+            (await new Picture().init("fg_3", 520, 325, "trees"));
+            (await new Picture().init("fg_4", 1495, 334, "trees"));
+            (await new Picture().init("fg_5", 1826, 444, "trees"));
+            (await new Picture().init("fg_6", 137, 448, "trees"));
+            // mountains
+            (await new Picture().init("mountains", 960, 540, null)).setDepth(-100);
+            (await new Picture().init("fg_7", 1260, 563, "mountains"));
+            (await new Picture().init("fg_8", 853, 494, "mountains"));
+            // ground
+            (await new Picture().init("gd_1", 960, 540, null)).setDepth(-100);
+            (await new Picture().init("gd_2", 960, 540, "gd_1"));
+            (await new Picture().init("chat", 1419-250, 690-100, "gd_1"));
+            (await new Picture().init("gd_2", 960, 540, "gd_1")).setAlpha(0.5);
+            (await new Picture().init("gd_3", 960, 540, "gd_1"));
+            // malphon
+            (await new Picture().init("sh_1", 960, 540, null)).addClass("shadow").setDepth(-100);
+            (await new Picture().init("m_body", 491, 517, null, 138, 302)).setDepth(-1);
+            (await new Picture().init("m_pelvis", 514, 599, "m_body", 96, 50)).setDepth(0);
+            // arms
+            (await new Picture().init("m_arml", 483, 539, "m_body", 36, 33)).setDepth(6);
+            (await new Picture().init("m_handl", 603, 639, "m_arml", 37, 39)).setDepth(5);
+            (await new Picture().init("m_shoulderl", 478, 525, "m_arml")).setDepth(7);
+            (await new Picture().init("m_armr", 537, 516, "m_body", 18, 19)).setDepth(-3);
+            (await new Picture().init("m_handr", 621, 583, "m_armr", 19, 18)).setDepth(-4);
+            (await new Picture().init("m_shoulderr", 526, 501, "m_armr")).setDepth(-2);
+            // legs
+            (await new Picture().init("m_legl", 619, 587, "m_pelvis", 38, 136)).setDepth(4);
+            (await new Picture().init("m_footl", 783, 603, "m_legl", 36, 32)).setDepth(3);
+            (await new Picture().init("m_legr", 633, 603, "m_pelvis", 37, 68)).setDepth(2);
+            (await new Picture().init("m_footr", 849, 611, "m_legl", 44, 53)).setDepth(1);
+            // head
+            (await new Picture().init("m_neck", 480, 419, "m_body", 51, 105)).setDepth(8);
+            (await new Picture().init("m_ring", 476, 437, "m_neck")).setDepth(9);
+            (await new Picture().init("m_head", 513, 386, "m_neck", 24, 162)).setDepth(10);
+            (await new Picture().init("m_hair", 499, 360, "m_head")).setDepth(12);
+            (await new Picture().init("m_ear", 451, 386, "m_head", 109, 77)).setDepth(13);
+            (await new Picture().init("m_face", 520, 395, "m_head")).setDepth(11);
+            (await new Picture().init("m_ahoge", 521, 283, "m_hair", 26, 65)).setDepth(14);
+            (await new Picture().init("m_hair2", 551, 352, "m_hair", 110, 139)).setDepth(15);
+            // tree (front)
+            (await new Picture().init("sh_2", 960, 540, null)).addClass("shadow");
+            (await new Picture().init("sh_4", 960, 540, null)).addClass("shadow");
+            (await new Picture().init("tr_1", 960, 540, null));
+            (await new Picture().init("tentacles", 499, 360, null));
+            (await new Picture().init("m_tentacles", 491, 333, "tentacles"));
+            // tree (back)
+            (await new Picture().init("sh_3", 960, 540, null)).addClass("shadow");
+            (await new Picture().init("sh_5", 960, 540, null)).addClass("shadow");
+            (await new Picture().init("tr_2", 960, 540, null));
+            // other elements
+            (await new Picture().init("tillies", 555, 563, null)); // tillies.push(await new Picture().init("tilly", 555, 563, null));
+            (await new Picture().init("flower", 0, 0, null)).setSprite("gd_4").var.timer = random(150); P.flower.var.dir = 45;
+            (await new Picture().init("moon", 1330, 95, null)).setSprite("mn_1").var.timer = random(240);
+            (await new Picture().init("shootingstar", 960, 540, null)).setDepth(-200).var.timer = 0;
+            (await new Picture().init("butterfly1", 2066, 285, null)).setSprite("bf_1");
+            (await new Picture().init("butterfly2", 2086, 318, null)).setSprite("bf_4");
+            // texts
+            (await new Picture().init("title", 1029-400, 294-250, null)).setDepth(100); e("title").classList.add("vlist");
+            (await new Picture().init("twitch", 1029-300, 294+150, null)).setDepth(100); e("twitch").classList.add("hlist");
+            P.chat.addClass("vlist").rotate(2); e("chat").style.transform = e("chat").style.transform + " skewX(30deg)";
+            insertElement("p", "chat", "chattext text", "").with("id", "chat-author");
+            insertElement("p", "chat", "chattext text", "").with("id", "chat-message");
+            changeTitle();
+            initTwitchPlug();
+            // ws
+            ws = new WebSocket("wss://prod.kr/malphon");
+            ws.addEventListener("open", () => {
+                console.log("WebSocket opened");
+            });
+            ws.addEventListener("message", event => {
+                const args = WASD.unpack(event.data);
+                console.log("recieved message: " + args);
+                if (!COMMANDS[args[0]]) console.warn(args[0], "does not exist but recieved:", args);
+                else COMMANDS[args[0]](...args.slice(1));
+            });
+            // begin animation
+            update();
+            // setInterval(() => { console.log("frames: ", frameCount); frameCount = 0; }, 1000);
+        }
+
+        let targetFPS = 60; let tickSpeed = 1; let pause = false;
+        let frameTime = time(); let frameCount = 0; let tick = 0;
+        async function update() {
+            let deltaTime = Number(time() - frameTime) / 1000 * tickSpeed;
+            frameTime = time(); frameCount++; tick += deltaTime;
+            if (!pause) {
+                // stars
+                P.bg_2.rotate(deltaTime / 2.5);
+                // slow nod (20s)
+                P.m_head.rotate(Math.sin(tick / 15) * 5, true);
+                // lean (1.2m)
+                P.m_body.rotate(Math.sin(tick / 65 + 1.44) * 3, true);
+                P.m_pelvis.rotate(-Math.sin(tick / 65 + 1.44) * 3, true);
+                P.m_handl.rotate(-Math.sin(tick / 65 + 1.44) * 3, true);
+                P.m_handr.rotate(-Math.sin(tick / 65 + 1.44) * 3, true);
+                // head bob (5m)
+                P.m_head.setPos(null, -17.75 + Math.sin(tick / 300 + 0.32));
+                // leg sweep (3m)
+                P.m_legl.rotate(Math.sin(tick / 222 + 0.44) * 2, true);
+                P.m_footl.rotate(-Math.sin(tick / 222 + 0.44) * 2, true);
+                P.m_legr.rotate(Math.sin(tick / 222 + 0.44) * 2, true);
+                P.m_footr.rotate(-Math.sin(tick / 222 + 0.44) * 2, true);
+                P.tillies?.setPos(null, 563 + Math.sin(tick / 65 + 1.44) * 2 + Math.sin(tick / 222 + 0.44));
+                // butterfly
+                if (P.butterfly1.x < -128) { 
+                    P.butterfly1.setPos(random(2066, 8000), random(285-128, 285+128)); 
+                    P.butterfly2.setPos(P.butterfly1.x + 20, P.butterfly1.y + 33);
+                } else {
+                    P.butterfly1.move(-deltaTime * 10, deltaTime * Math.sin(tick / 77));
+                    P.butterfly2.move(-deltaTime * 10, deltaTime * Math.sin(tick / 77));
+                }
+                if (!animator.includes(P.butterfly1)) P.butterfly1.setAnimation({ 0: "bf_1", 0.7: "bf_2", 1.4: "bf_3", 2.1: null });
+                if (!animator.includes(P.butterfly2)) P.butterfly2.setAnimation({ 0: "bf_4", 0.2: "bf_5", 0.4: "bf_6", 0.6: null });
+                // flower fall
+                if (tick >= P.flower.var.timer) {
+                    P.flower.var.timer += random(120, 180);
+                    P.flower.setAlpha(1);
+                    P.flower.setPos(0, 0);
+                    P.flower.var.dir = 60;
+                }
+                if (P.flower.alpha > 0) {
+                    let variance = 10; let speed = 120;
+                    P.flower.setAlpha(P.flower.alpha - (deltaTime / 7));
+                    P.flower.var.dir = Math.clamp(P.flower.var.dir + random(-deltaTime * variance, deltaTime * variance), 0, 135);
+                    P.flower.move(speed * deltaTime * Math.cos(P.flower.var.dir / 180 * Math.PI), speed * deltaTime * Math.sin(P.flower.var.dir / 180 * Math.PI));
+                    P.flower.rotate(P.flower.var.dir * deltaTime);
+                }
+                // shooting star
+                if (tick >= P.shootingstar.var.timer) {
+                    P.shootingstar.setPos(random(0, 1920), random(0, 1080));
+                    // TODO: make shooting star anims
+                    P.shootingstar.var.timer += random(60, 90);
+                }
+                // moon eye open
+                if (tick >= P.moon.var.timer) {
+                    P.moon.setAnimation({ 0: "mn_1", 0.2: "mn_2", 0.4: "mn_3", 0.6: "mn_4", 0.8: "mn_5", 10: "mn_4", 10.2: "mn_3", 10.4: "mn_2", 10.6: "mn_1", 10.8: null });
+                    P.moon.var.timer += random(180, 300);
+                }
+                // set tentacle to match
+                let pos = P.m_hair.getPos();
+                P.tentacles.setPos(pos.x, pos.y); P.tentacles.rotate(pos.a, true);
+                // animation
+                let toDeleteMeta = [];
+                for (let el of animator) {
+                    el.animationFrame += deltaTime;
+                    const keys = Object.keys(el.animation).map(numberish);
+                    const toDelete = keys.filter(x => x <= el.animationFrame);
+                    if (toDelete.length === 0) continue;
+                    const key = Math.max(...toDelete); 
+                    if (el.animation[key] !== null) el.setSprite(el.animation[key]);
+                    else toDeleteMeta.push(el);
+                    for (const k of toDelete) delete el.animation[k];
+                }
+                animator = remove(animator, ...toDeleteMeta);
+            }
+            setTimeout(update, 1000 / targetFPS);
+        }
+
+        async function changeTitle(newTitle) {
+            newTitle ??= "  Starting      \n        Soon...";
+            if (title !== "") {
+                foreachElement("titletext", el => {
+                    setTimeout(() => {
+                        el.classList.toggle("active");
+                        el.classList.toggle("exiting"); 
+                    }, random(0, 200));
+                })
+                await delay(700);
+                removeAllChildren("title");
+            }
+            title = newTitle;
+            insertElement("div", "title", "spacer");
+            let i = 0; let row = insertElement("div", "title", "hlist center"); let rows = [row];
+            for (let c of title.split("")) {
+                if (c === "\n") { row = insertElement("div", "title", "hlist center"); rows.push(row); continue; }
+                if (c === " ") c = "&nbsp;"
+                let el = insertElement("span", row, "text titletext", c);
+                if (c !== "&nbsp;") { el.with("id", "title-char-" + i); i++; };
+            }
+            insertElement("div", "title", "spacer");
+            for (let k = 0; k < i; k++) {
+                e("title-char-" + k).classList.toggle("entering");
+                setTimeout(() => { e("title-char-" + k).classList.toggle("entering"); e("title-char-" + k).classList.toggle("active"); }, 600);
+                await delay(250);
+            }
+        }
+
+        async function initTwitchPlug() {
+            await delay(50);
+            let i = 0;
+            for (let c of "%BrighterMalphon".split("")) 
+                { insertElement("span", "twitch", "text", c).with("id", "twitch-char-" + i); i++; }
+            e("twitch-char-0").innerHTML = `<svg fill="#ffffff" width="96px" height="96px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg"><title>twitch</title><path d="M26.711 14.929l-4.284 4.284h-4.285l-3.749 3.749v-3.749h-4.82v-16.067h17.138zM8.502 1.004l-5.356 5.356v19.279h6.427v5.356l5.356-5.356h4.284l9.641-9.64v-14.996zM21.356 6.895h2.142v6.427h-2.142zM15.464 6.895h2.143v6.427h-2.144z"/></svg>`;
+            e("twitch-char-0").style.filter = "url(#glow)";
+            insertElement("div", "twitch", "spacer");
+            for (let k = 0; k < i; k++) {
+                e("twitch-char-" + k).classList.toggle("active");
+                await delay(250);
+            }
+        }
+
+        async function changeChat(newAuthor, newMessage) {
+            e("chat-author").classList.toggle("transition");  
+            e("chat-message").classList.toggle("transition"); 
+            setTimeout(() => {
+                e("chat-author").classList.toggle("transition");   
+                e("chat-message").classList.toggle("transition");
+            }, 1100);
+            await delay(500);
+            chatAuthor = newAuthor;
+            chatMessage = newMessage;
+            e("chat-author").innerText = newAuthor;
+            e("chat-message").innerText = newMessage;
+        }
+
+        async function setTillies(n) {
+            P.tillies.destroy(); tillies = [];
+            (await new Picture().init("tillies", 555, 563, null)); 
+            let y = 563;
+            let isNegative = Math.sign(n) < 0;
+            for (let i = 0; i < Math.abs(Math.clamp(n, -15, 15)); i++) {
+                let tilly = await new Picture().init("tilly", 555, y, "tillies");
+                if (isNegative) tilly.addClass("invert");
+                tillies.push(tilly);
+                y -= isNegative ? -40 : 40;
+            }
+            if (Math.abs(n) > 15) {
+                await new Picture().init("tillycounter", 665, isNegative ? 1000 : 20, "tillies");
+                let counter = insertElement("span", "tillycounter", "text", "(total: " + n + ")");
+                if (isNegative) counter.classList.toggle("invert");
+            }
+            totalTillies = n;
+        }
+        
+        let ID = 0, waitList = {};
+        function send(...msg) {
+            if (ws?.readyState !== 1) return new Promise(resolve => { resolve(undefined); }); ID++;
+            ws.send(WASD.pack(ID, ...msg));
+            return new Promise(resolve => waitList[ID] = resolve);
+        }
+        const COMMANDS = {
+            error: o => console.error(o),
+            info: o => console.log(o),
+            respond: (id, o) => { if (waitList[id]) { waitList[id](o); delete waitList[id]; }},
+            exec: eval,
+            settillies: setTillies,
+            settitle: changeTitle,
+            setchat: changeChat,
+        }

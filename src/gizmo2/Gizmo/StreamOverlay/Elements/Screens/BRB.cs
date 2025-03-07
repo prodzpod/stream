@@ -110,6 +110,5 @@ namespace Gizmo.StreamOverlay.Elements.Screens
                 Pointer.New(MathP.Rotate(rpos, self.Angle) * self.Scale + self.Position, "pointer/cursor", 1, "", new ColorP(RandomP.Random(0f, 1), RandomP.Random(0f, 1), RandomP.Random(0f, 1)));
             }
         }
-
     }
 }

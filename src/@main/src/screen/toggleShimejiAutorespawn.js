@@ -12,5 +12,5 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
     chatter.shimeji.autorespawn = !!ret;
     data(`user.${chatter.twitch.id}.shimeji.autorespawn`, chatter.shimeji.autorespawn);
     _reply("toggled auto respawn to " + chatter.shimeji.autorespawn);
-    return [0, ""];
+    return [0, chatter.shimeji.autorespawn];
 }

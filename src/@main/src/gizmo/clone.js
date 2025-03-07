@@ -18,8 +18,9 @@ module.exports.execute = async (_reply, from, chatter, message, text) => {
         forceHexes = _args[0];
         _args = _args.slice(1);
     }
-    _reply((await module.exports.prompt(WASD.pack(..._args), forceCategory, forceHexes)).res);
-    return [0, ""];
+    let res = (await module.exports.prompt(WASD.pack(..._args), forceCategory, forceHexes)).res;
+    _reply(res);
+    return [0, res];
 }
 
 const SIGIL_NORMAL = "🌠🌌🎑";

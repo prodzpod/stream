@@ -69,22 +69,8 @@ namespace Gizmo.StreamOverlay
             if (InputP.KeyPressed(0x68)) StreamWebSocket.Send("echo", 127);
             if (InputP.KeyReleased(0x68)) StreamWebSocket.Send("echo", 0);
             if (InputP.KeyHeld(0x61) && InputP.Codes.Count > InputP.LastCodes.Count) Logger.Log("Keyboard:", InputP.Codes.Except(InputP.LastCodes).Select(x => $"0x{x:X2}").Join(", "));
-            if (!ModelSprite.Busy && InputP.KeyPressed(0x64))
-            {
-                ModelSprite.Width -= 10;
-                ModelSprite.Height -= 10;
-                Logger.Log("Resized to", ModelSprite.Width, ModelSprite.Height);
-                Elements.Entities.Prod.Prod3D.Size = new(ModelSprite.Width, ModelSprite.Height);
-                ModelSprite.image = Image.GenColor(ModelSprite.Width, ModelSprite.Height, ColorP.TRANSPARENT);
-            }
-            if (!ModelSprite.Busy && InputP.KeyPressed(0x65))
-            {
-                ModelSprite.Width += 10;
-                ModelSprite.Height += 10;
-                Logger.Log("Resized to", ModelSprite.Width, ModelSprite.Height);
-                Elements.Entities.Prod.Prod3D.Size = new(ModelSprite.Width, ModelSprite.Height);
-                ModelSprite.image = Image.GenColor(ModelSprite.Width, ModelSprite.Height, ColorP.TRANSPARENT);
-            }
+            if (InputP.KeyPressed(0x64)) Elements.Entities.Prod.Pose = "BLUSH";
+            else if (InputP.KeyReleased(0x64)) Elements.Entities.Prod.Pose = "IDLE";
             if (InputP.KeyPressed(0x67)) Elements.Entities.Prod.Pose = "HI";
             else if (InputP.KeyReleased(0x67)) Elements.Entities.Prod.Pose = "IDLE";
             if (InputP.KeyPressed(0x68)) Elements.Entities.Prod.Pose = "PROON";

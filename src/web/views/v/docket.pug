@@ -2,17 +2,18 @@ extends ../template/base.pugtemplate
 
 block meta
     - v = true
-    - title = 'get clips'
-    - description = 'screw you twitch korea'
+    - title = 'docket'
+    - description = 'docket'
 block body 
-    h1 ClipMaster 30XX (BETA)
-    p Screw you Twitch Korea
-    h2 this page is XNDXR CXNSTRXCTXXN!!!
+    h1 whois.mom
+    p find a person
+    br
     p you are prod??? idk
-    h2 Search a clip
+    h2 Find a person...
     .hlist
-        p from
+        p who is 
         input.spacer(placeholder="channel name" id="search")
+        p ?
         button(onclick="go(e('search').value)") go
     .hlist
         .spacer
@@ -27,9 +28,10 @@ block postbody
         .thumb {
             width: 240px;
         }
-        iframe {
+        img, iframe {
             width: min(calc(100vw - 128px), calc(100vh - 128px) * 16 / 9);
             height: min(calc(100vw - 128px) / 16 * 9, calc(100vh - 128px));
+            object-fit: contain;
         }
         .shoutout {
             max-width: 48px;
@@ -43,8 +45,34 @@ block postbody
             border-radius: 50%;
         }
     script.
+        const ELS = {
+            "brightermalphon": "<img src='https://cdn.discordapp.com/attachments/1219954701726912586/1335687471668920361/image.psd84.png?ex=67a264e5&is=67a11365&hm=794bf825e54168ef58db7b03fc6d3ae051bb39a04a2eeb9b920501980f74be04&'>",
+            "northernlion": "<img src='https://prod.kr/images/clips/docket1.png'>",
+            "lalaamanita": "<img src='https://prod.kr/images/clips/docket2.png'>",
+            "mushroomgirlcavern": "<img src='https://prod.kr/images/clips/docket3.png'>",
+            "worm": "<iframe src='https://bigbookofbug.com/misc/pod-tale-1'>",
+            "whiteman": "<iframe src='https://prod.kr/images/clips/docket4.mp4'>",
+            "trenttimothy": "<img src='https://prod.kr/images/clips/docket5.png'>",
+            "jfk": "<img src='https://cdn.discordapp.com/attachments/515678821408571392/1335956157872869436/mal1.png?ex=67a20da0&is=67a0bc20&hm=7af216571bc83c5d8ae77f4e60e3323527e43a45404d1a37a7999c0318cb0803&'>",
+            "gojosatoru": "<img src='https://cdn.discordapp.com/attachments/515678821408571392/1336019807803281409/mal2.png?ex=67a248e8&is=67a0f768&hm=f4f3ffdfc2bdf14b90cc552cde1f4c5590a06b5c8f1de5657198877c50254d0f&'>",
+            "energyreading": "<img src='https://prod.kr/images/clips/docket6.png'>",
+            "jakecreatesstuff": "<img src='https://media.discordapp.net/attachments/1317606557604778056/1335469533183610971/2025-02-01_21.42.00.png?ex=67a242ac&is=67a0f12c&hm=c0d4533cbf1f5d88d27520c8a2bee2c5a99dd62f20414d417c580c36c5926538&=&width=1296&height=687'>",
+            // new
+            "noita": "<img src='https://cdn.discordapp.com/attachments/1219957086675406880/1332002044331954288/guytila.gif?ex=67a57752&is=67a425d2&hm=6aea874be4f1854cd492256074fc9d48318ac16f7190a379cf6f10ac0f8dbbb8&'>",
+            "bigbookofbug": "<iframe src='https://prod.kr/images/clips/bigbookofbug.mp4'>",
+            "yukievt": "<img src='https://prod.kr/data/shimeji/YukieVT.3x2.png'>",
+            // comm update
+            "lilpa": "<img src='https://prod.kr/images/clips/docket7.png'>",
+            "shindigs": "<img src='https://prod.kr/images/clips/docket8.png'>",
+        };
         addEvent("onload", () => { onEnter("search", (_, el) => go(el.value)); });
         function go(str) {  
             removeAllChildren("clip-result");
-            insertElement("iframe", "clip-result").with("src", `//prod.kr/images/clips/${str}.mp4`);
+            if (str.trim() !== "") {
+                let rng1 = Math.floor(random(1, 300));
+                let rng2 = Math.floor(random(1, rng1 / 2 + 0.5));
+                insertElement("p", "clip-result", "center", `Found [${rng2 > 99 ? ">99" : rng2}/${rng1 > 99 ? ">99" : rng1}] result${rng2 <= 1 ? "" : "s"}.`);
+                insertElement("div", "clip-result", "result").innerHTML = ELS[str.replace(/[^A-Za-z]+/g, "").toLowerCase()] ?? "Person not found.";
+            }
+            e('search').value = "";
         }

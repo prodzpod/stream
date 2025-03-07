@@ -71,11 +71,11 @@ module.exports.permission = false;
 module.exports.execute = async (_reply, from, chatter, message, text) => {
     const _args = args(text);
     const target = Object.values(data().user).find(x => x.twitch?.login.toLowerCase() === _args[0].toLowerCase());
-    if (nullish(target) === null) { _reply("invalid target"); return [0, ""] }
+    if (nullish(target) === null) { _reply("invalid target"); return [1, ""] }
     const icon = split(_args[1], "/", 1);
-    if (!data().icon[icon[0]]?.includes(icon[1])) { _reply("invalid icon"); return [0, ""] }
+    if (!data().icon[icon[0]]?.includes(icon[1])) { _reply("invalid icon"); return [1, ""] }
     let ret = module.exports.grantType(target.twitch.id, icon.join("/"), false);
     _reply("granted " + icon.join("/") + " to " + target.twitch.name + "!");
     send("web", "changeIcon", target.twitch.id, ret[0], ret[1]);
-    return [0, ""];
+    return [0, ret];
 }

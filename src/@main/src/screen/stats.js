@@ -13,8 +13,9 @@ module.exports.execute = async (_reply, from, chatter, message, text) => {
         target = Object.values(data().user).find(x => x.twitch?.login.toLowerCase() === _args[0] || x.twitch?.name.toLowerCase() === _args[0] || x.twitch?.id === _args[0] || x.discord?.id === _args[0] || x.discord?.name.toLowerCase() === _args[0]);
         if (nullish(target) === null) return "Could not find chatter";
     } else target = chatter;    
-    _reply(target.twitch.name + "'s guy: \n" + module.exports.calculate(target.twitch.id).join(", \n"));
-    return [0, ""];
+    let data = module.exports.calculate(target.twitch.id).join(", \n");
+    _reply(target.twitch.name + "'s guy: \n" + data);
+    return [0, data];
 }
 
 module.exports.calculate = (id) => {

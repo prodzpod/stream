@@ -24,7 +24,16 @@ namespace Gizmo.StreamOverlay.Elements.Entities
         public static Sprite Prod3D;
         public static bool Is2D = false;
         public static bool OnTopOfChat = true;
-        public static string Pose = "IDLE";
+        private static string _Pose = "IDLE";
+        public static string Pose
+        {
+            get => _Pose;
+            set
+            {
+                _Pose = value;
+                Logger.Log("Setting pose to " + _Pose);
+            }
+        }
         public override void OnInit(ref Instance self)
         {
             self.Frame = 4;
@@ -50,6 +59,7 @@ namespace Gizmo.StreamOverlay.Elements.Entities
             {
                 if (Pose == "HI") ModelHandler.Pose = "SIT_HI";
                 else if (Pose == "POINT") ModelHandler.Pose = "SIT_POINT";
+                else if (Pose == "BLUSH") ModelHandler.Pose = "SIT_BLUSH";
                 else ModelHandler.Pose = "SIT";
             }
         }
@@ -64,11 +74,11 @@ namespace Gizmo.StreamOverlay.Elements.Entities
         {
             base.OnRelease(ref self, position);
             if (self == null) return;
-            if (
+            if (!MainRoom.COLLAB_MODE && (
                 MainRoom.Chat.Position.X > (1920 / 2) ?
                 position.X > (Commands.Chat.Bounds.X + MainRoom.Chat.Position.X) - Commands.Chat.Bounds.Z :
                 position.X < (Commands.Chat.Bounds.X + MainRoom.Chat.Position.X) + Commands.Chat.Bounds.Z
-                )
+                ))
             {
                 Is2D = false;
                 OnTopOfChat = true;

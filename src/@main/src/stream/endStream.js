@@ -12,7 +12,7 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
     for (const module of streamModules) end(module, true);
     src().startWeekly.end();
     module.exports.backup();
-    return [0, ""];
+    return [0, false];
 }
 
 module.exports.backup = async () => {

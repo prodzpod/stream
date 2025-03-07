@@ -30,9 +30,9 @@ block body
                     .spacer
         .spacer
 block postbody
-    audio(id="audioClick" controls): source(src="https://prod.kr/images/screen/click.ogg" type="audio/ogg; codecs=vorbis")
-    audio(id="audioError" controls): source(src="https://prod.kr/images/screen/error.ogg" type="audio/ogg; codecs=vorbis")
-    audio(id="audioInfo" controls): source(src="https://prod.kr/images/screen/info.ogg" type="audio/ogg; codecs=vorbis")
+    audio(id="audioClick" controls): source(src="https://prod.kr/images/screen/click.click.ogg" type="audio/ogg; codecs=vorbis")
+    audio(id="audioError" controls): source(src="https://prod.kr/images/screen/error.system.ogg" type="audio/ogg; codecs=vorbis")
+    audio(id="audioInfo" controls): source(src="https://prod.kr/images/screen/info.system.ogg" type="audio/ogg; codecs=vorbis")
     img.cursor#cursor
     style.
         audio { display: none; }
@@ -425,17 +425,35 @@ block postbody
             },
             changecamera: () => {
                 addSimpleButton("bottom right", "action", "back");
-                const input = insertElement("div", "screen", "overlay bottom left right hlist").with("style", "margin: 0 160px; border-radius: 64px").with("onclick", "event?.stopPropagation();");
-                for (let entry of [["+5 X", "5, 0, 0, 0"], 
-                ["-5 X", "-5, 0, 0, 0"], 
-                ["+5 Y", "0, 5, 0, 0"], 
-                ["-5 Y", "0, -5, 0, 0"], 
-                ["+5 Z", "0, 0, 5, 0"], 
-                ["-5 Z", "0, 0, -5, 0"], 
-                ["+0.1x", "0, 0, 0, 0.1"], 
-                ["-0.1x", "0, 0, 0, -0.1"], 
-                ["Reset", "0, 0, 0, 0"]]) {
+                const par = insertElement("div", "screen", "overlay bottom left right vlist").with("style", "margin: 0 160px; border-radius: 64px")
+                const input = insertElement("div", par, "hlist").with("onclick", "event?.stopPropagation();");
+                const input2 = insertElement("div", par, "hlist").with("onclick", "event?.stopPropagation();");
+                for (let entry of [
+                    ["+5px X", "{x: 0.05}"], 
+                    ["-5px X", "{x: -0.05}"], 
+                    ["+5px Y", "{y: 0.05}"], 
+                    ["-5px Y", "{y: -0.05}"], 
+                    ["+5px Z", "{z: 0.05}"], 
+                    ["-5px Z", "{z: -0.05}"], 
+                    ["+0.1x", "{zoom: 0.1}"], 
+                    ["-0.1x", "{zoom: -0.1}"], 
+                    ["+1 spp", "{pixel: 1}"], 
+                    ["-1 spp", "{pixel: -1}"]]) {
                     insertElement("button", input, "middle spacer", entry[0]).with("onclick", "send('camera', " + entry[1] + "); e('audioClick').play(); setState('changecamera');");
+                }
+                for (let entry of [
+                    ["+5˚ X", "{rx: 5}"], 
+                    ["-5˚ X", "{rx: -5}"], 
+                    ["+5˚ Y", "{ry: 5}"], 
+                    ["-5˚ Y", "{ry: -5}"], 
+                    ["+5˚ Z", "{rz: 5}"], 
+                    ["-5˚ Z", "{rz: -5}"], 
+                    ["+50px vw", "{vw: 50}"], 
+                    ["-50px vw", "{vw: -50}"], 
+                    ["+50px vh", "{vh: 50}"], 
+                    ["-50px vh", "{vh: -50}"], 
+                    ["Reset", "'reset'"]]) {
+                    insertElement("button", input2, "middle spacer", entry[0]).with("onclick", "send('camera', " + entry[1] + "); e('audioClick').play(); setState('changecamera');");
                 }
                 send("fetch", "accessory");
             },

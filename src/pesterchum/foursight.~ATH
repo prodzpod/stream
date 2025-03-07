@@ -1,0 +1,35 @@
+. #! .diff
+.
+. import websocket WS;
+. bifurcate THIS[
++   THIS,
+-   THIS
+. ]
++ import pesterchum P;
+- import javascript J;
+.
++ ~ATH(WS("ws://localhost:8129/in")) {
+- ~ATH(WS("ws://localhost:339/pesterchum")) {
++   ~ATH(!P.message) {} EXECUTE(
+-     J.message
++   )
+-   ~ATH(!J.message) {} EXECUTE(
++     P.message
+-   )
++ } EXECUTE(~ATH(
+-     THIS
++ ) {} EXECUTE(
+.   THIS
++ ));
+- } EXECUTE(~ATH(
++     THIS
+- ) {} EXECUTE(
+.   THIS
+- ));
+.
+. [
++   THIS,
+-   THIS
+. ].DIE();
+.
+# [PZPD] THE P_ND :: Prod Zed Pod EX:Periencing <<""[""f_ur"" ""sght""]"">> today with !screen, You and Me, Together, Sources Say

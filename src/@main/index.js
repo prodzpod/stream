@@ -162,3 +162,4 @@ function traverse(pth) {
     }
     return ret;
 }
+module.exports.sockets = () => Object.keys(sockets).filter(x => sockets[x]?.readyState === 1);

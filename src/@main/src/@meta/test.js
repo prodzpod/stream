@@ -6,6 +6,6 @@ const { args } = require("../chat/chat");
 module.exports.predicate = "!test";
 module.exports.permission = false;
 module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
-    require("../../command/gizmo/updatehistory").execute("prodzpod", "maxstreak", 5);
+    log((await fetch({})("GET", "https://pub.colonq.computer/~tyumici/analytics/"))[1]);
     return [0, ""];
 }

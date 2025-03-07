@@ -4,13 +4,23 @@ const { log, download, debug } = require("../../commonServer");
 const { args } = require("../chat/chat");
 
 module.exports.predicate = ["!locateclip", "!getclip", "!clipso"];
-module.exports.permission = false;
+module.exports.permission = true;
 module.exports.execute = async (_reply, from, chatter, message, text) => {
     const _args = args(text);
-    _args[1] = numberish(_args[1]);
-    if (realtype(_args[1]) !== "number") _args[1] = 1;
-    if (!_args[0]) { _reply("user not found"); return [1, "user not found"]; }
-    let user = await send("twitch", "user", _args[0]);
+    const clip = await module.exports.locate(_reply, _args[0], _args[1]);
+    if (Array.isArray(clip)) return clip;
+    if (chatter?.meta.permission.streamer) {
+        await module.exports.download(clip);
+        _reply("Located the optimal clip for this occasion: https://prod.kr/v/clips");
+    } else _reply("Located the optimal clip for this occasion: https://www.twitch.tv/" + _args[0] + "/clip/" + clip.id);
+    return [0, clip.id];
+}
+
+module.exports.locate = async (_reply, channel, number) => {
+    number = numberish(number);
+    if (realtype(number) !== "number") number = 1;
+    if (!channel) { _reply("user not found"); return [1, "user not found"]; }
+    let user = await send("twitch", "user", channel);
     if (!user) { _reply("user not found"); return [1, "user not found"]; }
     let res = await getClips(user.id, 31, true);
     if (!res.length) res = await getClips(user.id, undefined, true);
@@ -28,17 +38,20 @@ module.exports.execute = async (_reply, from, chatter, message, text) => {
         let mag = Math.log((a.view + 1) / (b.view + 1)) / Math.log(2);
         let res = Number(BigInt(Math.round(mag*30*24*60*60*1000)) + a.date - b.date);
         return res;
-    }).reverse()[(_args[1] - 1) % res.length];
+    }).reverse()[(number - 1) % res.length];
     log("Clip Found:", clip);
+    return clip;
+}
+
+module.exports.download = async (clip, name="temp") => {
     log("Downloading Video");
     await send("twitch", "remote", "VIDEO", clip.id);
     log("Sending Video to Local");
-    await download("https://pub.colonq.computer/~prod/temp.mp4", "temp.mp4");
+    await download("https://pub.colonq.computer/~prod/temp.mp4", name + ".mp4");
     log("Deleting Video in pubnix");
     await send("twitch", "remote", "VIDEO");
     log("Done");
-    _reply("Located the optimal clip for this occasion: https://prod.kr/v/clips");
-    return [0, ""];
+    return "https://prod.kr/data/" + name + ".mp4";
 }
 
 function getq(id, date, featured=false) {

@@ -13,7 +13,7 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
         const id = getIdentifier();
         logins[id] = chatter;
         _reply(`Send \`!login ${id}\` on the Twitch Chat to connect your account.`);
-        return [0, ""];
+        return [0, id];
     } else if (_args.length && chatter.twitch) {
         const k = split(text, /\s+/, 1)[1].trim().toLowerCase();
         if (logins[k]) {
@@ -21,7 +21,7 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
             register(chatter);
             delete logins[k];
             _reply(`Registered to ${chatter.twitch.name}!`);
-            return [0, ""];
+            return [0, chatter.twitch.id];
         } 
         for (let category in ids) if (ids[category].includes(k)) {
             chatter.web ??= {};
@@ -29,7 +29,7 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
             register(chatter);
             await send("web", "login", k, src().screen.screenData(chatter), chatter.web[category === "screen" ? "id" : category], category, data().stream.phase !== -1);
             _reply(`Registered to ${category}!`);
-            return [0, ""];
+            return [0, chatter.twitch.id];
         }
         _reply("Invalid Login");
         return [1, ""];

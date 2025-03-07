@@ -1,5 +1,5 @@
 const { src, send } = require("../..");
-const { nullish } = require("../../common");
+const { nullish, random } = require("../../common");
 const { path, log, info } = require("../../commonServer");
 module.exports.execute = async (name, value, currency, comment) => {
     let profile = path("src/@main/data/user/0.twitch.png");
@@ -10,6 +10,6 @@ module.exports.execute = async (name, value, currency, comment) => {
     }
     comment ??= "FOR THE KIDS!!!!!!";
     info("Donate Submitted:", name, profile, value, currency, comment);
-    // send("gizmo", "donate", name, profile, value, currency, comment);
+    send("web", "jake", random(["item", "enemy", "enemy", "enemy"]));
     return [0, ""];
 }

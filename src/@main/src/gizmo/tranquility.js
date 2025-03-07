@@ -18,5 +18,5 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
     if (random() < .5) txt += ".";
     if (random() < .33) txt += ".";
     _reply(txt);
-    return [0, ""];
+    return [0, txt];
 }

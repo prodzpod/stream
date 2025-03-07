@@ -1,13 +1,15 @@
 const { send, src, data } = require("../..");
-const { time, realtype, trueish, array, unentry, split, WASD, String, occurance, safeAssign, random, BigMath, stringify, numberish, Math, nullish } = require("../../common")
+const { time, realtype, trueish, array, unentry, split, WASD, String, occurance, safeAssign, random, BigMath, stringify, numberish, Math, nullish, filterValue, mapValue, mapKey } = require("../../common")
 const { debug, verbose, download, log, path, fileExists } = require("../../commonServer");
 
+const HISTORY_COUNT = 1000; let history = [];
+module.exports.history = () => history;
 module.exports.message = async (from, chatter, message, text, emote, reply) => {
     debug("message", from, chatter, message, text, emote, reply);
     // if (from === "web") return [0, "sorry no web traffic for now"];
     // identify chatter
     chatter = src().user.identify(chatter);
-    if (chatter.twitch) chatter = await src().user.initialize(chatter.twitch.id, true);
+    if (chatter?.twitch) chatter = await src().user.initialize(chatter.twitch.id, true);
     chatter = onInteraction(from, chatter, message, text, emote, reply);
     // identify reply
     if (reply) reply = src().message.identify(reply) ?? reply.fallback;
@@ -18,6 +20,15 @@ module.exports.message = async (from, chatter, message, text, emote, reply) => {
     if (!ret) [chatter, ret] = await module.exports.chat(from, chatter, message, text, emote, reply);
     await src().user.register(chatter);
     debug("chat result:", chatter, ret);
+    // history
+    let hchatter = chatter;
+    let identifier = ({"web": "twitch"})[from] ?? from;
+    if (hchatter) {
+        if (history.length >= HISTORY_COUNT) history.splice(0, 1);
+        const ids = Object.keys(chatter).filter(x => chatter[x]?.id !== undefined);
+        hchatter = unentry(ids.map(x => [x, chatter[x]?.id]));
+    }
+    history.push({from: from, chatter: hchatter, message: message?.[identifier]?.id, text: WASD.toString(stringify(text)), emote: emote, reply: reply?.[identifier]?.id});
     return ret ?? [0, ""];
 }
 
@@ -25,7 +36,7 @@ const WEEKLY_IU_PERIOD = BigInt(7*1000*60*60*24);
 const WEEKLY_IU = 5000;
 function onInteraction(from, chatter, message, text, emote, reply) {
     // every interaction
-    if (chatter.meta && data().stream.phase > -1) {    
+    if (chatter?.meta && data().stream.phase > -1) {    
         let _last_interacted = chatter.meta.last_interacted;
         let _time = time();
         if (nullish(_last_interacted) === null || BigMath.between(chatter.economy.weekly, _last_interacted, _time + 1n)) {
@@ -45,7 +56,6 @@ module.exports.command = async (from, chatter, message, text, emote, reply) => {
         switch (realtype(predicate)) {
             case "boolean": return predicate;
             case "string": return predicate === cmd;
-            let _time = time();
             case "array": return predicate.includes(cmd);
             case "function": return trueish(x.predicate(from, chatter, message, text, emote, reply));
         }
@@ -72,8 +82,9 @@ module.exports.command = async (from, chatter, message, text, emote, reply) => {
 } 
 
 module.exports.checkPerms = (source, from, chatter, message, text, emote, reply) => {
-    if (chatter.meta?.permission.streamer) return true;
+    if (chatter?.meta?.permission.streamer) return true;
     const permission = array(trueish(source));
+    if (!chatter) return permission === true;
     let ret = false;
     switch (realtype(permission)) {
         case "boolean": ret = permission; break;
@@ -99,7 +110,8 @@ function onCommand(from, chatter, message, text, emote, reply) {
 function getReply(from, chatter, message, text, emote, reply) { switch (from) {
     case "twitch": return content => send("twitch", "send", message.twitch.channel, "[🌙] " + content, [], message.twitch.id);
     case "discord": return content => send("discord", "send", message.discord.channel, WASD.toString(content), [], message.discord.id);
-    case "web": return content => send("web", "info", chatter.twitch?.id, WASD.toString(content));
+    case "web": return content => send("web", "info", chatter?.twitch?.id, WASD.toString(content));
+    case "witsend": return content => send("witsend", "send", "[🌙]", "#666688", "[unobtrusively] " + content);
 }}
 module.exports.emotesToGizmo = async (source, text, emote, offset=0) => {
     let _;
@@ -161,6 +173,7 @@ module.exports.reaction = async (from, chatter, message, text, emote, reply) => 
 }
 
 module.exports.chat = async (from, chatter, message, text, emote, reply) => {
+    if (!chatter) return [chatter, null];
     if ((message.twitch && message.twitch.channel != "140410053") ||
         (message.discord && message.discord.channel != "1219954701726912586")) return [chatter, null];
     const name = chatter.twitch?.name ?? Object.values(chatter).find(x => x.name).name;

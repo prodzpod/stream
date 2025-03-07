@@ -11,7 +11,7 @@ const STREAMER_LOGIN = "prodzpod";
 const STREAMER_ID = "140410053";
 const CLONK_ID = "866686220";
 const BOT_ID = "g584kjzcj1tr15ouxg0fko2ybnckxh";
-const getID = (name) => Object.values(data().user).find(x => x.twitch?.login.toLowerCase() === name.toLowerCase()).twitch.id;
+const getID = (name) => Object.values(data().user).find(x => x?.twitch?.login?.toLowerCase() === name?.toLowerCase())?.twitch?.id;
 
 module.exports.predicate = "!exec";
 module.exports.permission = false;

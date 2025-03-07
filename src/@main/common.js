@@ -72,7 +72,6 @@ module.exports.trueish = o => {
     switch (typeof o) {
         case "boolean": return o;
         case "number": case "bigint": return o > 0 ? o : 0;
-        case "function": return module.exports.trueish(o());
     }
     return o;
 }
@@ -87,7 +86,14 @@ module.exports.nullish = o => {
     }
     return o;
 }
-module.exports.numberish = o => { const ret = Number(o); return o?.toString().trim() === "" || Number.isNaN(ret) || !module.exports.Math.between(-Math.pow(2, 53), ret, Math.pow(2, 53)) ? o : ret; }
+module.exports.numberish = o => { 
+    if (Array.isArray(o)) return o; 
+    let str = o?.toString().trim();
+    if (str === "∞" || str === "♾") return Infinity; 
+    if (str === "-∞" || str === "-♾") return -Infinity; 
+    const ret = Number(o); 
+    return str === "" || Number.isNaN(ret) || !module.exports.Math.between(-Math.pow(2, 53), ret, Math.pow(2, 53)) ? o : ret; 
+}
 module.exports.array = o => { if (!Array.isArray(o) && o?.length) return o; if (typeof o === "string") return o; if (o instanceof Map) return module.exports.unentry(a.entries()); try { const ret = Array.from(o); return ret.length !== 0 ? ret : o; } catch { return o; }}
 module.exports.unstringify = str => {
     if (typeof str !== "string") return str;

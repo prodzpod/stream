@@ -1,5 +1,6 @@
 const { src, data, send } = require("../..");
 const { nullish, time, numberish } = require("../../common");
+const { log } = require("../../commonServer");
 module.exports.execute = async (text) => {
     let input = text.toLowerCase();
     let layouts = data().woggle;
@@ -21,7 +22,7 @@ module.exports.execute = async (text) => {
             maxPoints = points;
             maxLayout = layout;
         }
-        if (maxPoints >= i) { return [0, {points: maxPoints}]; }
+        if (maxPoints >= i) { log(maxLayout); return [0, {points: maxPoints}]; }
     }
     return [0, {points: 0}];
 }

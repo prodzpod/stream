@@ -13,5 +13,5 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
     const ret = await src().icon.grantFromUser(chatter.twitch.id, target.twitch.id);
     _reply(`${target.twitch.name} was gifted: ${ret[0]} by ${chatter.twitch.name}! you can swap equipped icons via screen.`);
     send("web", "changeIcon", target.twitch.id, ret[0], ret[1]);
-    return [0, ""];
+    return [0, ret];
 }

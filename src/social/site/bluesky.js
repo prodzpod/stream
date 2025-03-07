@@ -46,4 +46,5 @@ module.exports.init = async () => {
             return await agent.repost(id.uri, id.cid);
         } catch (e) { error(e, agent, id); return null; }
     }
+    social.validate = async (agent, txt, images, tags) => (txt?.length ?? 0) < 300;
 }

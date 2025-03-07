@@ -18,4 +18,5 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
     }
     users = users.slice(page * PEOPLE_PER_PAGE, (page + 1) * PEOPLE_PER_PAGE);
     _reply(users.map((x, i) => `${page * PEOPLE_PER_PAGE + 1 + i}. ${x.twitch.name} (${x.clonkspotting.boost})`).join(" \n"));
+    return [0, users.map((x, i) => ({rank: page * PEOPLE_PER_PAGE + 1 + i, id: x.twitch.id, name: x.twitch.name, amount: x.clonkspotting.boost}))];
 }

@@ -4,6 +4,7 @@ using Gizmo.Engine.Data;
 using Gizmo.StreamOverlay.Elements;
 using Gizmo.StreamOverlay.Elements.Entities;
 using Gizmo.StreamOverlay.Elements.Gizmos;
+using Gizmo.StreamOverlay.Elements.Screens;
 using PInvoke;
 using System.Numerics;
 
@@ -37,6 +38,7 @@ namespace Gizmo.StreamOverlay.Commands
                         Prod.Is2D = true;
                         StreamOverlay.Prod.Gravity = Vector2.UnitY * 3000;
                     }
+                    if (instance.Element is RaidBoss) Shimeji.Damage(instance, 1, []); // neutral :(
                 }
                 Game.INSTANCES[i] = instance;
             }

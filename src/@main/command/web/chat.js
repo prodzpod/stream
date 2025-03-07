@@ -1,5 +1,6 @@
 const { src } = require("../..");
 
 module.exports.execute = async (id, text) => {
-    return await src().chat.message("web", { twitch: { id: id }}, {}, text, [], null);
+    const chatter = id === -1 ? {} : { twitch: { id: id }};
+    return [0, await src().chat.message("web", chatter, {}, text, [], null)];
 }

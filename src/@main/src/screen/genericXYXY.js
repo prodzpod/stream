@@ -5,7 +5,8 @@ const { args } = require("../chat/chat");
 
 module.exports.predicate = ["!drawwindow", "!fan", "!antifan"];
 module.exports.permission = 0;
-module.exports.execute = (_reply, from, chatter, message, text, emote, reply) => {
+module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
+    if (!src().screen.isScreenOn(_reply)) return [1, ""];
     const _cmd = split(text, /\s+/, 1)[0].slice(1); const cmd = OVERRIDE[_cmd] ?? _cmd;
     const _args = args(text);
     if (!COST[_cmd] || src().user.cost(_reply, chatter, COST[_cmd])) {
@@ -14,8 +15,8 @@ module.exports.execute = (_reply, from, chatter, message, text, emote, reply) =>
         if (!nullish(x1) || !nullish(y1) || !nullish(x2) || !nullish(y2)) return [1, ""];
         log("Redeeming:", cmd, chatter.twitch.name, chatter.twitch.color ?? "#ffffff", x1, y1, x2, y2, ..._args.slice(4));
         _reply("it worked");
-        send("gizmo", cmd, chatter.twitch.name, chatter.twitch.color ?? "#ffffff", x1, y1, x2, y2, ..._args.slice(4)); return [0, ""];
-    } else return [0, ""];
+        return [0, await send("gizmo", cmd, chatter.twitch.name, chatter.twitch.color ?? "#ffffff", x1, y1, x2, y2, ..._args.slice(4))];
+    } else return [1, ""];
 }
 
 const OVERRIDE = {

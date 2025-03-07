@@ -4,9 +4,9 @@ const { log } = require("../../commonServer");
 const { args } = require("../chat/chat");
 
 module.exports.predicate = ["!randomize", "!randomise"];
-module.exports.permission = 0;  
+module.exports.permission = true;  
 module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
-    await send("gizmo", "randomize", text);
+    if (!src().screen.isScreenOn(_reply)) return [1, ""];
     _reply("done");
-    return [0, ""];
+    return [0, await send("gizmo", "randomize", text)];
 }

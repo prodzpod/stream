@@ -23,14 +23,12 @@ with open(fname + ".ccss", "r", encoding="utf8") as f:
             value = list()
             varsmode = True
         elif "@$" in line:
-            caps = re.findall(r"\@\$\w+", line)
+            caps = re.findall(r"\@\$\w+\$[^\$]+\$", line)
             while len(caps) > 0:
+                entry = caps[0][2:].split("$")
+                line = line.replace(caps[0], entry[1].join(args[entry[0]]))
                 print("Value Replaced", caps[0])
-                repl = line
-                if "  " in line:
-                    repl = line[:line.index("  ")]
-                line = line.replace(repl, ",".join([repl.replace(caps[0], x) for x in args[caps[0][2:]]]))
-                caps = re.findall(r"\@\$\w+", line)
+                caps = re.findall(r"\@\$\w+\$[^\$]+\$", line)
         txt += line
 print("Writing")
 with open(fname + ".css", "w", encoding="utf8") as f:

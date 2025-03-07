@@ -2,7 +2,7 @@ const fs = require("fs");
 const { Client, GatewayIntentBits, Partials } = require('discord.js');
 const { measureStart, listFiles, measureEnd, path, SERVER_EMOTES, WASD, SERVER, CHANNEL_REACTIONROLE, MESSAGE_REACTIONROLE, CHANNEL_GENERAL, inPlaceSort } = require('./common');
 const { info, log, verbose, warn, error } = require('./ws');
-const OPTIONS = { intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildMembers, GatewayIntentBits.MessageContent, GatewayIntentBits.DirectMessageReactions], partials: [Partials.Message, Partials.Channel, Partials.Reaction, Partials.GuildMember] };
+const OPTIONS = { intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildEmojisAndStickers, GatewayIntentBits.GuildMembers, GatewayIntentBits.MessageContent, GatewayIntentBits.DirectMessageReactions], partials: [Partials.Message, Partials.Channel, Partials.Reaction, Partials.GuildMember] };
 let app = undefined, app2 = undefined, commands = {};
 module.exports.init = async () => {
     await module.exports.end();
@@ -14,6 +14,7 @@ module.exports.init = async () => {
     log(`Loaded ${Object.keys(commands).length} events, duration: ${measureEnd(mEvents)}ms`);
     let ret = [];
     ret.push(new Promise(resolve => {
+        log("options: ", OPTIONS);
         app = new Client(OPTIONS);
         for (const fname of Object.keys(commands)) 
             app.on(fname, (...args) => {
@@ -44,6 +45,7 @@ module.exports.init = async () => {
     log("emotes:", emotes);
     info(`Apps Loaded, duration: ${measureEnd(mGlobal)}ms`);
     server = await app.guilds.fetch(SERVER);
+    emoteServer = await app.guilds.fetch(SERVER_EMOTES);
     generalChannel = await server.channels.fetch(CHANNEL_GENERAL);
     reactionRoleMessage = await (await server.channels.fetch(CHANNEL_REACTIONROLE)).messages.fetch(MESSAGE_REACTIONROLE);
     log("Contents Loaded:", server.name, generalChannel.name, reactionRoleMessage.content);
@@ -90,6 +92,8 @@ module.exports.end = async () => {
 
 let server = null;
 module.exports.server = () => server;
+let emoteServer = null;
+module.exports.emoteServer = () => emoteServer;
 let reactionRoleMessage = null;
 module.exports.reactionRoleMessage = () => reactionRoleMessage;
 let generalChannel = null;

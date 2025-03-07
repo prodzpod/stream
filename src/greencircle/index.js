@@ -6,8 +6,10 @@ let isOn = 0;
 try {(async () => {
 
 const mGlobal = measureStart();
+const EXTENDEDLIST_REFRESH_IN_MINUTES = 1; // disabled for now
 await init();
 openWS(); setInterval(() => { if (isOn === 0) openWS(); }, 5*60*1000);
+let _extendedListPage = 0; setInterval(() => { send("extendedlist", _extendedListPage % EXTENDEDLIST_REFRESH_IN_MINUTES, EXTENDEDLIST_REFRESH_IN_MINUTES); _extendedListPage += 1; }, 5*60*1000);
 info(`Green Circle Module Loaded, total time: ${measureEnd(mGlobal)}ms`);
 })();} catch (e) { console.log(e.stack); }
 

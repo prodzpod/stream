@@ -1,11 +1,12 @@
-const { send } = require("../..");
+const { send, src } = require("../..");
 const { split, random } = require("../../common");
 const { log } = require("../../commonServer");
 const { args } = require("../chat/chat");
 
 module.exports.predicate = ["!levelup", "!lvup", "!lvlup", "!level", "!lvl", "!lv"];
-module.exports.permission = true;
+module.exports.permission = 0;
 module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
+    if (!src().screen.isScreenOn(_reply)) return [1, ""];
     let stat = args(text)?.[0]?.toLowerCase().trim();
     switch (stat) {
         case "hp":
@@ -44,7 +45,12 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
             return [0, ""];
     }
     let result = await send("gizmo", "levelup", chatter?.twitch?.name, stat);
-    if (result[1]) _reply(`Leveled up the guy's ${stat}`);
-    else _reply("you do not have a stat point, win a combat to gain stat points");
-    return [0, ""];
+    if (result[1]) {
+        _reply(`Leveled up the guy's ${stat}`);
+        return [0, stat];
+    }
+    else {
+        _reply("you do not have a stat point, win a combat to gain stat points");
+        return [1, ""];
+    }
 }

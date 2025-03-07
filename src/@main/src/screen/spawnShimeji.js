@@ -3,7 +3,7 @@ const { split, Math, nullish, WASD, random } = require("../../common");
 const { log } = require("../../commonServer");
 const { args } = require("../chat/chat");
 
-module.exports.predicate = ["!guy", "!littleguy", "!spawn", "!spawnshimeji", "!gal"];
+module.exports.predicate = ["!guy", "!littleguy", "!spawn", "!spawnshimeji", "!gal", "!creature", "!creacher", "!creachre", "!chrechre", "!littlegal"];
 module.exports.permission = 0;  
 module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
     let _args = args(text);

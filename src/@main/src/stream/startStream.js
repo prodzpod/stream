@@ -15,5 +15,7 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
     src().post.execute(() => {}, from, chatter, message, "!post v " + announcement + "\n\nhttps://prod.kr/live\nhttps://prod.kr/screen", []);
     src().obs.start(); src().obs.brb();
     src().startWeekly.start();
-    return [0, ""];
+    require("../../command/gizmo/windows").reset();
+    send("gizmo", "resetwindows");
+    return [0, data().stream];
 }

@@ -7,6 +7,7 @@ class Social {
     validAccounts = [];
     _accounts = {};
     connect = async (id) => { error(`Social ${this._key}.connect() is not defined!`); return null; }
+    validate = async (account, txt, images=[], tags=[]) => true;
     post = async (account, txt, images=[], tags=[]) => { error(`Social ${this._key}.post() is not defined!`); return null; }
     repost = async (account, id) => { error(`Social ${this._key}.repost() is not defined!`); return null; }
     _handle = async(account, fn, word) => {
@@ -30,6 +31,11 @@ function getSocial(key) {
     if (SOCIALS[social]) return [SOCIALS[social], account];
     warn(social + " does not exist!");
     return null;
+}
+module.exports.validate = async (key, txt, images = [], tags = []) => {
+    let social = getSocial(key);
+    if (social) return await social[0].validate(null, txt, images, tags);
+    else return false;
 }
 module.exports.post = async (key, txt, images = [], tags = []) => {
     let social = getSocial(key);
