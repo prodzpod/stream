@@ -2,7 +2,7 @@ const { src } = require("../../..");
 const { remove } = require("../../../common");
 const { listFiles } = require("../../../commonServer");
 const { TYPE, Token } = require("../bsUtil");
-const { checkHead } = require("./bsScanUtil");
+const { checkHead, isWord } = require("./bsScanUtil");
 
 const FILE_EXCEPTIONS = ["bsScan", "bsScanUtil"];
 let STATE;
@@ -18,12 +18,19 @@ module.exports.scan = async (string, stack) => {
             temp = checkHead(string, "Infinity"); if (temp) return [temp.length, "", "init", [...tokens, new Token(TYPE.number, Infinity)]];
             if ("0123456789.".includes(c)) return [0, null, "numberPreDot"];
             // operator
-            temp = checkHead(string, "typeof"); if (temp) return [temp.length, "", "init", [...tokens, new Token(TYPE.operator, "typeof")]];
-            if ("+-*/%^=!&|?:<>".includes(c)) return [1, c, "operator"];
+            for (const keyword of ["in", "is", "typeof", "call", "query", "bool", "number", "string", "list", "dict", "sleep"]) 
+                { temp = checkHead(string, keyword); if (temp) return [temp.length, "", "init", [...tokens, new Token(TYPE.operator, keyword)]]; }
+            if ("+-*/%^=!&|?:<>~,;".includes(c)) return [1, c, "operator"];
             // string
             if (c === "\"") return [1, "", "string"];
+            // bool
+            temp = checkHead(string, "true"); if (temp) return [temp.length, "", "init", [...tokens, new Token(TYPE.bool, true)]];
+            temp = checkHead(string, "false"); if (temp) return [temp.length, "", "init", [...tokens, new Token(TYPE.bool, false)]];
+            temp = checkHead(string, "null"); if (temp) return [temp.length, "", "init", [...tokens, new Token(TYPE.null, null)]];
             // bracket
-            if ("(){}".includes(c)) return [1, "", "init", [...tokens, new Token(TYPE.bracket, c)]];
+            if ("(){}[]".includes(c)) return [1, "", "init", [...tokens, new Token(TYPE.bracket, c)]];
+            // symbol
+            if (isWord(c)) return [1, c, "symbol"];
             // ?
             return [1];
         }

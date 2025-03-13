@@ -39,19 +39,22 @@ module.exports.message = (author, color, message) => {
     fs.writeFileSync("./messages.txt", String(messagesSeen));
 }
 
+const TOTAL_REPLACES = {
+    "[gif of a seal flopping about happily]": "https://i.imgur.com/wN1pgoc.gif",
+    "[gif of the letter h doing a dance]": "https://i.imgur.com/xcHifiq.gif",
+    "[gif of a seal staring into the camera and then splashing everythwere]": "https://i.imgur.com/QwCjhJL.gif",
+}
+
 function transformFrom(message) {
-    if (message === "[gif of a seal flopping about happily]") return "https://i.imgur.com/wN1pgoc.gif";
-    if (message === "[gif of the letter h doing a dance]") return "https://i.imgur.com/xcHifiq.gif";
+    if (TOTAL_REPLACES[message]) return TOTAL_REPLACES[message];
     if (message.startsWith("[unobtrusively]")) message = message.slice("[unobtrusively]".length).trim();
     else if (message.startsWith("[obtrusively]")) message = "‍\n# " + message.slice("[obtrusively]".length).trim();
     return message.replace(/\[timestamp\/(\d+)\]/g, "<t:$1>");
 }
 
 function transformTo(message) {
-    message = message
-        .replaceAll("https://i.imgur.com/wN1pgoc.gif", "[gif of a seal flopping about happily]")
-        .replaceAll("https://i.imgur.com/xcHifiq.gif", "[gif of the letter h doing a dance]")
-        .replace(/<t\:(\d+)(?:\:\w*)?>/g, "[timestamp/$1]");
+    for (let k in TOTAL_REPLACES) message = message.replaceAll(TOTAL_REPLACES[k], k);
+    message = message.replace(/<t\:(\d+)(?:\:\w*)?>/g, "[timestamp/$1]");
     if (message.startsWith("# ")) message = "[obtrusively] " + message.slice("# ".length);
     else if (message.startsWith("-# ")) message = "[unobtrusively] " + message.slice("-# ".length);
     return message;

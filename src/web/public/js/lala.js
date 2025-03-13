@@ -408,7 +408,7 @@ window.addEventListener("load", async (event) => {
             animation: fadeOut 2s;
         }
 
-        .content img {
+        .content img:not(.emote-normal-size) {
           width: 100%;
         }
         
@@ -533,10 +533,10 @@ const MessageBox = async (message) => {
     return {
       name: message.text.slice(start, end + 1),
       url: {
-          small_animated: `https://static-cdn.jtvnw.net/emoticons/v2/${x.id}/animated/dark/1.0`,
-          big_animated: `https://static-cdn.jtvnw.net/emoticons/v2/${x.id}/animated/dark/3.0`,
-          small_static: `https://static-cdn.jtvnw.net/emoticons/v2/${x.id}/static/dark/1.0`,
-          big_static: `https://static-cdn.jtvnw.net/emoticons/v2/${x.id}/static/dark/3.0`,
+          small_animated: `https://static-cdn.jtvnw.net/emoticons/v2/${id}/animated/dark/1.0`,
+          big_animated: `https://static-cdn.jtvnw.net/emoticons/v2/${id}/animated/dark/3.0`,
+          small_static: `https://static-cdn.jtvnw.net/emoticons/v2/${id}/static/dark/1.0`,
+          big_static: `https://static-cdn.jtvnw.net/emoticons/v2/${id}/static/dark/3.0`,
       }
     }})];
   else message.emotes = seventvEmotes;

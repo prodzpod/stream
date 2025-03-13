@@ -1,5 +1,5 @@
 
-const { STREAMER_ID, CLONK_ID, MALPHON_ID, LALA_ID } = require("../common");
+const { STREAMER_ID, CLONK_ID, MALPHON_ID, LALA_ID, FORREST_ID } = require("../common");
 const { fetch } = require("../api");
 const { log, warn } = require("../ws");
 module.exports.execute = async req => {
@@ -30,13 +30,14 @@ const EVENTS = [
     * "channel.poll.begin", "channel.poll.progress", "channel.poll.end", 
     * "channel.prediction.begin", "channel.prediction.progress", "channel.prediction.lock", "channel.prediction.end", 
     */
-    "clonk.chat.message", "malphon.chat.message", "lala.chat.message", /* "malphon.channel_points_custom_reward_redemption.add" */
+    "clonk.chat.message", "malphon.chat.message", "lala.chat.message", "forrest.chat.message", /* "malphon.channel_points_custom_reward_redemption.add" */
 ];
 
 const type = {
     "clonk.chat.message": "channel.chat.message",
     "malphon.chat.message": "channel.chat.message",
     "lala.chat.message": "channel.chat.message",
+    "forrest.chat.message": "channel.chat.message",
     "malphon.channel_points_custom_reward_redemption.add": "channel.channel_points_custom_reward_redemption.add",
     "channel.raid.from": "channel.raid",
     "channel.raid.to": "channel.raid",
@@ -48,6 +49,7 @@ const condition = {
     "clonk.chat.message": { broadcaster_user_id: CLONK_ID, user_id: STREAMER_ID },
     "malphon.chat.message": { broadcaster_user_id: MALPHON_ID, user_id: STREAMER_ID },
     "lala.chat.message": { broadcaster_user_id: LALA_ID, user_id: STREAMER_ID },
+    "forrest.chat.message": { broadcaster_user_id: FORREST_ID, user_id: STREAMER_ID },
     "malphon.channel_points_custom_reward_redemption.add": { broadcaster_user_id: MALPHON_ID },
 
     "channel.chat.message": { broadcaster_user_id: STREAMER_ID, user_id: STREAMER_ID },

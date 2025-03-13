@@ -13,4 +13,5 @@ module.exports.STREAMER_ID = "140410053";
 module.exports.CLONK_ID = "866686220";
 module.exports.MALPHON_ID = "1070508385";
 module.exports.LALA_ID = "895949231";
+module.exports.FORREST_ID = "108372992";
 module.exports.BOT_ID = "g584kjzcj1tr15ouxg0fko2ybnckxh";

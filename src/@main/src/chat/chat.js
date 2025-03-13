@@ -112,6 +112,7 @@ function getReply(from, chatter, message, text, emote, reply) { switch (from) {
     case "discord": return content => send("discord", "send", message.discord.channel, WASD.toString(content), [], message.discord.id);
     case "web": return content => send("web", "info", chatter?.twitch?.id, WASD.toString(content));
     case "witsend": return content => send("witsend", "send", "[🌙]", "#666688", "[unobtrusively] " + content);
+    default: return from?._reply ?? (() => {});
 }}
 module.exports.emotesToGizmo = async (source, text, emote, offset=0) => {
     let _;
@@ -174,19 +175,21 @@ module.exports.reaction = async (from, chatter, message, text, emote, reply) => 
 
 module.exports.chat = async (from, chatter, message, text, emote, reply) => {
     if (!chatter) return [chatter, null];
-    if ((message.twitch && message.twitch.channel != "140410053") ||
-        (message.discord && message.discord.channel != "1219954701726912586")) return [chatter, null];
+    if (from?.from !== "blessscript" && ((message.twitch && message.twitch.channel != "140410053") ||
+        (message.discord && message.discord.channel != "1219954701726912586"))) return [chatter, null];
     const name = chatter.twitch?.name ?? Object.values(chatter).find(x => x.name).name;
     let source = Object.keys(message)[0] ?? "";
-    if (!message.twitch) {
+    if (!(from?.from !== "blessscript" && message.twitch && message.twitch.channel == "140410053") && from !== "witsend") {
         let meta = module.exports.handleMeta(source, "twitch", text, emote);
         meta[1] = meta[1].map(x => { x.position += `@${name}: `.length; return x; });
-        message.twitch = (await send("twitch", "send", null, `@${name}: ${meta[0]}`, meta[1], reply?.twitch?.id));
+        let res = (await send("twitch", "send", null, `@${name}: ${meta[0]}`, meta[1], reply?.twitch?.id));;
+        if (!message.twitch) message.twitch = res;
     }
-    if (!message.discord) {
+    if (!(from?.from !== "blessscript" && message.discord && message.discord.channel == "1219954701726912586")) {
         let meta = module.exports.handleMeta(source, "discord", text, emote);
         meta[1] = meta[1].map(x => { x.position += `\`<@${name}>\`: `.length; return x; });
-        message.discord = (await send("discord", "send", null, `\`<@${name}>\`: ${meta[0]}`, meta[1], reply?.discord?.id));
+        let res = (await send("discord", "send", null, (from === "witsend" ? "-# " : "") + `\`<@${name}>\`: ${meta[0]}`, meta[1], reply?.discord?.id));
+        if (!message.discord) message.discord = res;
     }
     let icons = [];
     if (chatter.economy?.icon) {

@@ -27,7 +27,7 @@ module.exports.execute = async (page, PAGES) => {
         // announcementzones
         let stream = liveData.find(x => x.login === logins[user]);
         if (!GREENCIRCLE.map(x => x.toLowerCase()).includes(logins[user].toLowerCase())) await send("discord", "send", "1270496759545593927", `[<:teal_circle:1343403517154431037>] **${stream.name}** has started a **${stream.game ?? ""}** stream, come hang out!\nhttps://twitch.tv/${stream.login}`, []);
-        if (logins[user] === "lala_amanita") await fetch("https://discord.com/api/webhooks/1343345252018290758/aUTtWb1rVOr0cWsmQxwf8O7LiQaaDv-Fi8B-lIdHHLHq--ab-N_StOG15LZK5kHjEiyp", {
+        if (logins[user] === "lala_amanita") await fetch("https://discord.com/api/webhooks/1343345252018290758/" + process.env.LALA_WEBHOOK_TOKEN, {
             method: "POST",
             headers: { "Content-Type": "application/json", },
             body: JSON.stringify({
@@ -233,7 +233,7 @@ const GREENCIRCLE = [ // commented: exists in greencircle.live but does not get 
     "vasher_1025",
     "CR4ZYK1TTY",
     "yellowberryHN",
-    // "KotaruComplex",
+    "KotaruComplex",
     "yiffweed",
     "BigGayMikey",
     "37LN37",
@@ -247,11 +247,19 @@ const GREENCIRCLE = [ // commented: exists in greencircle.live but does not get 
     "Ricardo_Stryki",
     "exodrifter_",
     "RayMarch",
-    // "SaladForrest",
+    "SaladForrest",
     "bigbookofbug",
     "CipherLunis",
     "liquidcake1",
     "mickynoon",
     "imgeiser",
     "KinskyUnplugged",
+
+    // not part of the greencircle.live website (we added them later)
+    "trap_exit",
+    "LainVT",
+    "FOSSUnleashed",
+    "h_ingles",
+    "The0x539",
+    "BrighterMalphon",
 ];

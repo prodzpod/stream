@@ -14,7 +14,7 @@ namespace Gizmo.StreamOverlay.Rooms
         public static Instance? Phase;
         public static Instance? Chat;
 
-        public const bool COLLAB_MODE = false;
+        public const bool COLLAB_MODE = true;
 
         public override void OnEnter(Room? room)
         {

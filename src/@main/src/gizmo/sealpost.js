@@ -1,5 +1,5 @@
 const { send } = require("../..");
-const { split } = require("../../common");
+const { split, random } = require("../../common");
 const { log } = require("../../commonServer");
 
 module.exports.predicate = ["!seal", "!sealpost", "!flopabout", "!gifofasealfloppingabouthappily"];
@@ -9,7 +9,13 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
     let name = chatter?.twitch?.name ?? Object.values(chatter).find(x => x?.name)?.name;
     let color = chatter?.twitch?.color ?? "";
     if (!name) { _reply("you dont exist?"); return [1, ""]; }
-    send("witsend", "send", name, color, "[gif of a seal flopping about happily]");
+    let msg = random(SEALPOSTS);
+    send("witsend", "send", name, color, msg[0]);
     _reply("posted!");
-    return [0, "https://i.imgur.com/wN1pgoc.gif"];
+    return [0, msg[1]];
 }
+
+const SEALPOSTS = [
+    ["[gif of a seal flopping about happily]", "https://i.imgur.com/wN1pgoc.gif"],
+    ["[gif of a seal staring into the camera and then splashing everythwere]", "https://i.imgur.com/QwCjhJL.gif"],
+]

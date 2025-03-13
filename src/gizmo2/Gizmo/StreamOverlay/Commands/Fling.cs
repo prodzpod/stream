@@ -4,6 +4,7 @@ using Gizmo.Engine.Data;
 using Gizmo.StreamOverlay.Elements;
 using Gizmo.StreamOverlay.Elements.Entities;
 using Gizmo.StreamOverlay.Elements.Gizmos;
+using Gizmo.StreamOverlay.Rooms;
 using System.Numerics;
 
 namespace Gizmo.StreamOverlay.Commands
@@ -36,7 +37,7 @@ namespace Gizmo.StreamOverlay.Commands
                     if (instance.Element is Prod && !Prod.Is2D)
                     {
                         Instance.New(nameof(Explosion), StreamOverlay.Prod.Position);
-                        Prod.Is2D = true;
+                        if (!MainRoom.COLLAB_MODE) Prod.Is2D = true;
                         StreamOverlay.Prod.Gravity = Vector2.UnitY * 3000;
                     } 
                 }

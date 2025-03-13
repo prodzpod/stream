@@ -15,5 +15,7 @@ module.exports.numberPostDot = (c, string, currentToken, tokens, stack) => {
     return exit(string, currentToken, tokens, stack);
 }
 
-function exit(string, currentToken, tokens, stack)
-    { return [0, "", "init", [...tokens, new Token(TYPE.number, Number(currentToken))]]; }
+function exit(string, currentToken, tokens, stack) { 
+    if (currentToken === ".") return [0, null, "operator"]; 
+    return [0, "", "init", [...tokens, new Token(TYPE.number, Number(currentToken))]]; 
+}

@@ -10,9 +10,11 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
     return await module.exports.run(split(text, " ", 1)[1], _reply, chatter, message);
 }
 
+// runs string raw
+// (string, string => (), "chatter" || null, "message" || null) => any
 module.exports.run = async (txt, _reply, chatter = null, message = null) => {
     let stack = new (src().bsUtil.StackData)();
-    stack.chatter = chatter; stack.message = message;
+    stack.chatter = chatter; stack.message = message; stack.from = { from: "blessscript", _reply: _reply };
     let tokens;
     [tokens, stack] = await src().bsScan.scan(txt, stack);
     const res = (await src().bsEval.eval(tokens, stack))[0];

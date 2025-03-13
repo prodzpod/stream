@@ -23,6 +23,8 @@ const DISALLOWED_COMMANDS = [
     "!api",
     "!end",
     "!start",
+    "!guy",
+    "!draw"
 ]
 
 module.exports.execute = async (txt, user, channel, id) => {
@@ -34,7 +36,7 @@ module.exports.execute = async (txt, user, channel, id) => {
     }
     else if (txt === "JoelCheck") send("twitch", "send", channel, "[🌙] JoelCheck RECIEVE");
     // new cmd system 
-    if (txt.startsWith("!") && DISALLOWED_COMMANDS.every(x => !txt.startsWith(x))) {
+    if (txt.startsWith("!") && DISALLOWED_COMMANDS.every(x => !txt.toLowerCase().trim().startsWith(x))) {
         let chatter = Object.values(data().user).find(x => x?.twitch?.id === id);
         chatter ??= await src().user.initialize(id);
         let message = { twitch: {id: null, channel: channel} };
