@@ -18,6 +18,7 @@ module.exports.initialize = async (id, forceBlockUpdate=false) => {
     let chatter = Object.values(data().user ?? {}).find(x => x.twitch?.id == id || (_name !== null && (x.twitch?.login === _name || x.twitch?.name === _name))) ?? { twitch: {id: id} };
     let updateThis = nullish(chatter.meta) === null;
     chatter.meta ??= {};
+    chatter.meta.extensionAllowed ??= false;
     chatter.economy ??= {};
     chatter.economy.weekly ??= 0;
     chatter.economy.iu ??= 0;
@@ -36,7 +37,7 @@ module.exports.initialize = async (id, forceBlockUpdate=false) => {
         for (const k of pointers) chatter.economy.pointer[k] = "cursor";
     }
     chatter.shimeji ??= {};
-    chatter.shimeji.autorespawn ??= false;
+    chatter.shimeji.autorespawn ??= true;
     chatter.shimeji.sprite ??= null;
     chatter.shimeji.ai ??= {};
     for (let category of [

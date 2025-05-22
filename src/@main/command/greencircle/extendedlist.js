@@ -27,11 +27,11 @@ module.exports.execute = async (page, PAGES) => {
         // announcementzones
         let stream = liveData.find(x => x.login === logins[user]);
         if (!GREENCIRCLE.map(x => x.toLowerCase()).includes(logins[user].toLowerCase())) await send("discord", "send", "1270496759545593927", `[<:teal_circle:1343403517154431037>] **${stream.name}** has started a **${stream.game ?? ""}** stream, come hang out!\nhttps://twitch.tv/${stream.login}`, []);
-        if (logins[user] === "lala_amanita") await fetch("https://discord.com/api/webhooks/1343345252018290758/" + process.env.LALA_WEBHOOK_TOKEN, {
+        if (logins[user] === "lala_amanita") await fetch("https://discord.com/api/webhooks/1349585446010749030/" + process.env.LALA_WEBHOOK_TOKEN, {
             method: "POST",
             headers: { "Content-Type": "application/json", },
             body: JSON.stringify({
-                "content": `@everyone\nhi guys lala is live${!stream.game ? "" : `with **${stream.game}**`} u should like come n watch the,m ,,,\n\n**${stream.title}**\nhttps://twitch.tv/lala_amanita`
+                "content": `@everyone\nhi guys lala is live${!stream.game ? "" : ` with **${stream.game}**`} u should like come n watch the,m ,,,\n\n**${stream.title}**\nhttps://twitch.tv/lala_amanita`
             })
         });
         data("user." + user + ".twitch.streaming", true);
@@ -74,6 +74,8 @@ const EXTENDEDLIST = [
     "basie",
     "vesdev",
     "BigGayMikey",
+    "lunarequest",
+    "MyriadMinds",
       // coolpeople
     "BrighterMalphon",
     "rotsuki",
@@ -85,7 +87,6 @@ const EXTENDEDLIST = [
       // idk if they streampeople
     "Ghorr",
     "TheJonyMyster",
-    "lunarequest",
     "pixelSorted",
     // banana tier
     "bvnanana", 
@@ -97,6 +98,7 @@ const EXTENDEDLIST = [
     "ExpiredPopsicle",
     "InternetRain",
     "enlynn_",
+    "AstatinChan",
     // GROUP 3: gamepeople (yume nikki > tetris > mahjong)
     "Wolfborgg",
     "Harvologist",
@@ -121,7 +123,7 @@ const EXTENDEDLIST = [
     "JamsVirtual",
     "MechaMozie",
     "NilbogLive",
-    "thisisgob",
+    "gyoglep",
     // bug tier
     "BugVT",
     // GROUP 6: malphpeople (cool people i met from malphzone)
@@ -133,11 +135,14 @@ const EXTENDEDLIST = [
     "HazmatVT",
     "omocide_",
     "Mold_Entity",
+    "churl_gm",
       // lala zones
-    "BigDaveCDXX",
     "catdeersnooz",
     "sunnyfaller",
+    "Cheftaku",
+    "KiritoNarukami_",
     "MeginoMagi",
+    "british_nep",
       // and beyond...
     "ReiRosenfeld",
     "RamnorTheWanderer",
@@ -155,7 +160,9 @@ const EXTENDEDLIST = [
     "Titanseek3r",
     "Outfrost",
     "FreshWaterFern",
-    "MyriadMinds",
+    "maidmagedev",
+    "KrypticKralo",
+    "ononano",
       // og adjacents
     "ConditionBleen",
     "Jazzahol",
@@ -172,19 +179,33 @@ const EXTENDEDLIST = [
     "stalkeralker",
     "KariChary",
     "StuxVT",
+    "PeetsEater",
       // extended malph zones
     "iLoidtupo",
     "AlpinAlbench",
     "fwofie",
       // extended forrest zones
+    "coffeetron_",
+    "mikemeows",
+    "TechBonus",
+    "RatCousin",
+    "InariReiju",
+    "EntityMorp",
+    "heckmaybe",
+    "westernstyleguy",
     "BigNoseBug",
-    "gyoglep",
+    "beribug",
+    "thisisgob",
+    "JeanMarcVGC",
       // digi zones
     "TrickorSweets",
     "TakamuraTakako",
       // various
     "Tameggy",
+    "RetroHomebrew",
+    "zoiteki",
     "3rdPT",
+    "joobijooni",
     "DaiyaDiamandis",
     "KeitaroCh",
     "AltoVT",
@@ -217,6 +238,7 @@ const EXTENDEDLIST = [
     // GROUP Y: idk if they streamtier
     "skyisfine",
     "Swaihilde",
+    "dn_panic",
 ];
 
 const GREENCIRCLE = [ // commented: exists in greencircle.live but does not get captured by greenfeed
@@ -254,12 +276,11 @@ const GREENCIRCLE = [ // commented: exists in greencircle.live but does not get 
     "mickynoon",
     "imgeiser",
     "KinskyUnplugged",
-
-    // not part of the greencircle.live website (we added them later)
     "trap_exit",
     "LainVT",
     "FOSSUnleashed",
     "h_ingles",
     "The0x539",
     "BrighterMalphon",
+    "physbuzz",
 ];

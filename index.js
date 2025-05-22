@@ -6,7 +6,7 @@
 //?   [v] initialize all modules
 //?   [v] s t a y c u t e
 const fs = require('fs');
-const { fileExists, backupLog, path } = require('./src/@main/commonServer');
+const { fileExists, backupLog, path, listFiles } = require('./src/@main/commonServer');
 const PNG = require('pngjs').PNG;
 
 const COLOR_CHANGE_NOT_REQUIRED = -1;
@@ -87,8 +87,12 @@ console.log("");
 if (process.argv.some(x => x === "-v" || x === "--verbose")) require("./src/@main/commonServer").setLogLevel("ALL");
 await require("./src/@main/index").init();
 // #REGION boot up the rest of the things
-if (process.argv.every(x => x !== "-m" && x !== "--minimal")) for (let k of module.exports.initModules) 
-    require("./src/@main/src/@meta/module").start(k, process.argv.some(x => x === "-d" || x === "--debug"));
+if (process.argv.every(x => x !== "-m" && x !== "--minimal")) {
+    for (let k of module.exports.initModules) 
+        require("./src/@main/src/@meta/module").start(k, process.argv.some(x => x === "-d" || x === "--debug"));
+    for (let k of fs.readdirSync(path("external"), { withFileTypes: true }).filter(x => x.isDirectory() && !x.name.startsWith("@")).map(x => x.name)) 
+        require("./src/@main/src/@meta/module").start(k, process.argv.some(x => x === "-d" || x === "--debug"), true);
+}
 })();
 let stop = false;
 let backupLogLoop = () => {

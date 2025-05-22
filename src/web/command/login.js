@@ -4,11 +4,11 @@ const { log } = require("../ws");
 
 module.exports.execute = async (k, chatter, hash, category, streaming = false) => {
     switch (category) {
-        case "screen":
-            await _login(k, chatter, hash, streaming);
-            break;
         case "clip":
             if (chatter.isProd) await _linkProd(k, chatter, hash);
+            break;
+        default:
+            await require("../api/WS/" + category)._login(k, chatter, hash, streaming);
             break;
     }
     return [0, ""];

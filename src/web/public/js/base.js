@@ -47,20 +47,25 @@ function setCSS(v, value) {
 }
 // url
 var query = Object.fromEntries(new URLSearchParams(window.location.search));
-async function send(method, url, query, body) {
-    if (typeof body === 'object') body = JSON.stringify(body);
-    else if (typeof body !== 'string') {
-        if (body) body = body.toString();
-        else body = {};
-    }
-    if (!isNullish(query)) query = '?' + encodeQuery(query);
-    else query = '';
-    let options = {};
-    options.method = method.toUpperCase();
-    if (!['GET', 'HEAD'].includes(options.method)) options.body = body;
-    try {
-        return await (await fetch(url + query, options)).json();
-    } catch { return null; }
+async function send(method, subdir = "", query, body, isEncoded = false) {
+    let options = {
+        method: method, mode: "cors",
+        headers: {
+            "Content-Type": isEncoded ? "application/x-www-form-urlencoded" : "application/json",
+            "Keep-Alive": "timeout=60"
+        }
+    };
+    if (!["HEAD", "GET"].includes(method) && body) options.body = isEncoded ? 
+        Object.entries(body).filter(x => x.every(y => nullish(y))).map(x => x.map(y => encodeURIComponent(String(y))).join("=")).join("&") : 
+        JSON.stringify(body);
+    if (nullish(query)) subdir = `${subdir}?${Object.entries(query)
+            .filter(x => x.every(y => nullish(y)))
+            .map(x => x.map(y => encodeURIComponent(String(y))).join("=")).join("&")}`;
+    let res = await fetch(subdir, options);
+    let ret = "";
+    if (res?.status === 502 && subdir.includes("/cgi-bin/")) { res = {status: 200}; ret = {}; }
+    else for await (const chunk of res.body) ret += chunk.toString();
+    try { let j = JSON.parse(ret); return [res.status, j]; } catch { return [res?.status, ret]; };
 }
 // event
 function addEvent(type, cb, subj = window) {

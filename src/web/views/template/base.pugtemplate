@@ -77,6 +77,7 @@ html
                     block header
                         .vlist.middle: b: a.center.title(href='https://prod.kr' style='font-size: 150%;') pr<span id='title-random' class='random'>o</span>d
                         .vlist.middle: a.center(href='https://prod.kr/v') livestream
+                        .vlist.middle: a.center(href='https://prodzpod.itch.io/startellers') game
                         .vlist.middle: a.center(href='https://prod.kr/folio') portfolio 
                         .vlist.middle: a.center(href='https://prod.kr/link') links
                         .vlist.middle: a.center(href='https://prod.kr/contact') contact

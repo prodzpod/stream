@@ -1,4 +1,5 @@
 const { stringify, realtype } = require("../../common");
+const { log, listFiles } = require("../../commonServer");
 
 module.exports.TYPE = { 
     // 
@@ -30,6 +31,7 @@ class Token {
     }
 }
 module.exports.Token = Token;
+module.exports.NULL = new Token(module.exports.TYPE.null, null);
 
 //* sort two "strings" windows folder style (taking "sub-number" into account)
 // (string || number || bool || list || null, string || number || bool || list || null) => int
@@ -75,14 +77,29 @@ module.exports.subSort = (a, b) => {
 // var = {string: any}
 // fuel = int
 // chatter = Gizmo<User>
-const MAX_FUEL = 5000;
+module.exports.MAX_FUEL = 5000;
 class StackData {
     constructor() {
-        this.var = {};
-        this.fuel = MAX_FUEL;
+        this.var = [{...DEFAULT_VARS}];
+        this.fuel = module.exports.MAX_FUEL;
         this.chatter = null;
         this.message = null;
         this.isReturnValue = true;
     }
 }
 module.exports.StackData = StackData;
+let DEFAULT_VARS = {
+    PI: Math.PI,
+    E: Math.E
+};
+(async () => {
+    for (let f of await listFiles("src/@main/src/blessscript/ffi")) {
+        let exp = require("./ffi/" + f);
+        for (let k of Object.keys(exp)) {
+            if (k.startsWith("_")) continue;
+            DEFAULT_VARS[k] = ffi(exp[k]);
+        }
+    }
+})();
+// ffi function: ([Token]: args, StackData: stack) => [[Token]: ret, StackData: stack];
+function ffi(fn) { return new Token(module.exports.TYPE.function, { args: "ffi", fn: fn }); }

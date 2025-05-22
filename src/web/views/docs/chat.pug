@@ -1,0 +1,89 @@
+extends ../template/base.pugtemplate
+
+block meta
+    - v = true
+    - title = 'Formatting Docs'
+    - description = 'The Documents'
+block body 
+    h1 The Chat
+    p since the beginning of Season 1, various bbcode-like syntax can be used to markup your text.
+    p basic syntax is <em>&lt;item key=value key2=value2&gt;text&lt;/&gt;</em>. notice the lack of label on the closing tag. tags that do not require a closing tag is labeled "self-closing". all key-values are optional and can be omitted. default value is shown for this documentation.
+    ul
+        li: p <em>&lt;reset&gt;</em>: resets any text modification.
+        li: p <em>&lt;br&gt;</em>: (self-closing) adds a newline (useful in twitch).
+        li: p <em>&lt;b&gt;</em>: makes the text bold (only supported by corresponding fonts).
+        li: p <em>&lt;i&gt;</em>: makes the text italic (only supported by corresponding fonts).
+        li: p <em>&lt;u&gt;</em>: puts underline on text.
+        li: p <em>&lt;s&gt;</em>: puts strikethrough on text.
+        li: p <em>&lt;color=#000000&gt;</em>: sets the color of the text.
+        li: p <em>&lt;tilt=0&gt;</em>: makes the text tilted (character by character).
+        li: p <em>&lt;size=26&gt;</em>: sets the font size.
+        li: p <em>&lt;charspace=0&gt;</em>: sets the number of extra pixels between characters.
+        li: p <em>&lt;lineheight=1&gt;</em>: sets the line height multiplier.
+        li: p <em>&lt;font=arcaoblique&gt;</em>: sets the font.
+        li: p <em>&lt;wave amp=4 period=16 freq=1&gt;</em>: makes the text wave up and down.
+        li: p <em>&lt;shake amp=1&gt;</em>: makes the text shaky.
+        li: p <em>&lt;sprite=blank x=0 y=0&gt;</em>: insert a sprite as if it is text, taking up the specified amount of space. (this is meant to be used in games as we're making it a game engine, may not work great in chat)
+    h2 List of Fonts
+    ul
+        li: p(style="font-family: 04b03;") &lt;font=04b03&gt;04b03&lt;/&gt;
+        li: p(style="font-family: alagard;") &lt;font=alagard&gt;alagard&lt;/&gt;
+        li: p(style="font-family: arcaoblique;") &lt;font=arcaoblique&gt;arcaoblique&lt;/&gt;
+        li: p(style="font-family: comfortaa;") &lt;font=comfortaa&gt;comfortaa&lt;/&gt;
+        li: p(style="font-family: comicsans;") &lt;font=comicsans&gt;comicsans&lt;/&gt;
+        li: p(style="font-family: constantia;") &lt;font=constantia&gt;constantia&lt;/&gt;
+        li: p(style="font-family: ferrite;") &lt;font=ferrite&gt;ferrite&lt;/&gt;
+        li: p(style="font-family: forresttts;") &lt;font=forresttts&gt;forresttts&lt;/&gt;
+        li: p(style="font-family: hexagon;") &lt;font=hexagon&gt;hexagon&lt;/&gt;
+        li: p(style="font-family: impact;") &lt;font=impact&gt;impact&lt;/&gt;
+        li: p(style="font-family: iosevka;") &lt;font=iosevka&gt;iosevka&lt;/&gt;
+        li: p(style="font-family: jua;") &lt;font=jua&gt;jua&lt;/&gt;
+        li: p(style="font-family: kirby;") &lt;font=kirby&gt;kirby&lt;/&gt;
+        li: p(style="font-family: minecraft;") &lt;font=minecraft&gt;minecraft&lt;/&gt;
+        li: p(style="font-family: nanumgothic;") &lt;font=nanumgothic&gt;nanumgothic&lt;/&gt;
+        li: p(style="font-family: nanumpen;") &lt;font=nanumpen&gt;nanumpen&lt;/&gt;
+        li: p(style="font-family: neodunggeunmo;") &lt;font=neodunggeunmo&gt;neodunggeunmo&lt;/&gt;
+        li: p(style="font-family: notdef;") &lt;font=notdef&gt;notdef&lt;/&gt;
+        li: p(style="font-family: noto;") &lt;font=noto&gt;noto&lt;/&gt;
+        li: p(style="font-family: papyrus;") &lt;font=papyrus&gt;papyrus&lt;/&gt;
+        li: p(style="font-family: pengita3n;") &lt;font=pengita3n&gt;pengita3n&lt;/&gt;
+        li: p(style="font-family: pop;") &lt;font=pop&gt;pop&lt;/&gt;
+        li: p(style="font-family: puzzleport;") &lt;font=puzzleport&gt;puzzleport&lt;/&gt;
+        li: p(style="font-family: quan;") &lt;font=quan&gt;quan&lt;/&gt;
+        li: p(style="font-family: rocket;") &lt;font=rocket&gt;rocket&lt;/&gt;
+        li: p(style="font-family: scratch;") &lt;font=scratch&gt;scratch&lt;/&gt;
+        li: p(style="font-family: script;") &lt;font=script&gt;script&lt;/&gt;
+        li: p(style="font-family: unifont;") &lt;font=unifont&gt;unifont&lt;/&gt;
+        li: p(style="font-family: wadang;") &lt;font=wadang&gt;wadang&lt;/&gt;
+block postbody
+    style.
+        @font-face { font-family: 04b03; src: url(https://prod.kr/data/@font/04b03.8.ttf); }
+        @font-face { font-family: alagard; src: url(https://prod.kr/data/@font/alagard.16.ttf); }
+        @font-face { font-family: arcaoblique; src: url(https://prod.kr/data/@font/arcaoblique.13.ttf); }
+        @font-face { font-family: comfortaa; src: url(https://prod.kr/data/@font/comfortaa.ttf); }
+        @font-face { font-family: comicsans; src: url(https://prod.kr/data/@font/comicsans.ttf); }
+        @font-face { font-family: constantia; src: url(https://prod.kr/data/@font/constantia.ttf); }
+        @font-face { font-family: ferrite; src: url(https://prod.kr/data/@font/ferrite.ttf); }
+        @font-face { font-family: forresttts; src: url(https://prod.kr/data/@font/forresttts.otf); }
+        @font-face { font-family: hexagon; src: url(https://prod.kr/data/@font/hexagon.ttf); }
+        @font-face { font-family: impact; src: url(https://prod.kr/data/@font/impact.ttf); }
+        @font-face { font-family: iosevka; src: url(https://prod.kr/data/@font/iosevka.ttf); }
+        @font-face { font-family: jua; src: url(https://prod.kr/data/@font/jua.ttf); }
+        @font-face { font-family: kirby; src: url(https://prod.kr/data/@font/kirby.8.ttf); }
+        @font-face { font-family: minecraft; src: url(https://prod.kr/data/@font/minecraft.10.otf); }
+        @font-face { font-family: nanumgothic; src: url(https://prod.kr/data/@font/nanumgothic.ttf); }
+        @font-face { font-family: nanumpen; src: url(https://prod.kr/data/@font/nanumpen.ttf); }
+        @font-face { font-family: neodunggeunmo; src: url(https://prod.kr/data/@font/neodunggeunmo.16.ttf); }
+        @font-face { font-family: notdef; src: url(https://prod.kr/data/@font/notdef.ttf); }
+        @font-face { font-family: noto; src: url(https://prod.kr/data/@font/noto.otf); }
+        @font-face { font-family: papyrus; src: url(https://prod.kr/data/@font/papyrus.ttf); }
+        @font-face { font-family: pengita3n; src: url(https://prod.kr/data/@font/pengita3n.ttf); }
+        @font-face { font-family: pop; src: url(https://prod.kr/data/@font/pop.ttf); }
+        @font-face { font-family: puzzleport; src: url(https://prod.kr/data/@font/puzzleport.6.ttf); }
+        @font-face { font-family: quan; src: url(https://prod.kr/data/@font/quan.ttf); }
+        @font-face { font-family: rocket; src: url(https://prod.kr/data/@font/rocket.ttf); }
+        @font-face { font-family: scratch; src: url(https://prod.kr/data/@font/scratch.ttf); }
+        @font-face { font-family: script; src: url(https://prod.kr/data/@font/script.ttf); }
+        @font-face { font-family: unifont; src: url(https://prod.kr/data/@font/unifont.32.ttf); }
+        @font-face { font-family: wadang; src: url(https://prod.kr/data/@font/wadang.ttf); }
+        li { margin-left: 32px; display: block; }

@@ -1,0 +1,56 @@
+extends ../template/base.pugtemplate
+block meta
+    - v = true
+    - title = 'price overlay'
+    - description = 'yeah'
+block wholebody
+    .hlist#headline-wrapper
+        #headline a
+        .spacer
+block commonjs
+    style.
+        body { overflow: hidden; margin: 0; } 
+        #headline-wrapper { 
+            background-color: #004466;
+            color: white; 
+            overflow: hidden;
+            transition: all 0.5s;
+        }
+        @keyframes marquee {
+            from { transform: translate(1920px, 0); }
+            to { transform: translate(-100%, 0); }
+        }
+        #headline { animation: marquee 25s linear infinite; }
+        .stock1 { color: lime; }
+        .stock1::before { content: "▲ "; }
+        .stock0 { color: gray; }
+        .stock-1 { color: red; }
+        .stock-1::before { content: "▼ "; }
+    script.
+        addEvent("onload", async () => {
+            e("headline-wrapper").style.transform = `translate(0, 1080px)`;
+            ws = new WebSocket("wss://prod.kr/jesusislit/overlay");
+            ws.addEventListener("open", () => {
+                console.log("WebSocket opened");
+            });
+            ws.addEventListener("message", event => {
+                let data = WASD.unpack(event.data);
+                switch (data[0]) {
+                    case "triggeroverlay":
+                        const table = WASD.unpack(data[1])[0];
+                        let txt = `<span class="stock${Math.sign(table.bugvt[1])}">$JESUS ${table.bugvt[0]} (${table.bugvt[1] > 0 ? "+" : ""}${Math.prec(table.bugvt[1], 1)}%)</span>`;
+                        if (table.mechamozie) txt += `, <span class="stock${Math.sign(table.mechamozie[1])}">$JUDAS ${table.mechamozie[0]} (${table.mechamozie[1] > 0 ? "+" : ""}${Math.prec(table.mechamozie[1], 1)}%)</span>`;
+                        txt += `, go to @prodzpod to buy/sell`;
+                        e("headline").innerHTML = txt;
+                        showOverlay();
+                        break;
+                }
+            });
+        });
+        function showOverlay() {
+            let rect = e("headline").getBoundingClientRect();
+            e("headline-wrapper").style.transform = `translate(0, ${1080-rect.height}px)`;
+            setTimeout(() => {
+                e("headline-wrapper").style.transform = `translate(0, 1080px)`;
+            }, 9500);
+        }

@@ -6,7 +6,7 @@ const { args } = require("../chat/chat");
 module.exports.predicate = ["!removetriangle"];
 module.exports.permission = true;  
 module.exports.execute = async (_reply, from, chatter, message, text) => {
-    if (!src().screen.isScreenOn(_reply)) return [1, ""];
+    if (!src().screen.isScreenOn(_reply, chatter, message)) return [1, ""];
     let amount = Math.floor(Math.max(args(text)[0], 1));
     if (!nullish(amount)) amount = 1;
     log("Redeeming:", "removetriangle", amount);

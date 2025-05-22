@@ -1,0 +1,74 @@
+extends ../template/base.pugtemplate
+
+block meta
+    - v = true
+    - title = '!guy Docs'
+    - description = 'The Documents'
+block body 
+    h1 What is guy
+    p you can summon your guy by typing <em>!guy</em> on the screen. you will be a white cat by default, but can change to be a custom guy by posting a spritesheet of 6 equally sized rectangle to the <a href="https://prod.kr/discord">!discord</a>.
+    p guy will walk around and jump at will, and can kick windows or chat messages around, sometimes deleting them in process.
+    h2 Guy Fighting
+    p you can <em>!war [twitch name]</em> to initiate combat with that person, given their guy is out as well.
+    p your guy will begin approaching the opponent and start attacking.
+    p if your guy attacks directly, this is considered <em>melee attacks</em>.
+    p there is a separate, <em>ranged attack</em> where a guy can kick a window towards the enemy and the enemy will be hurt when the window collides, but only from the person who is hostile.
+    p melee attacks attacks all character in a certain radius, unless they have never fought before ever since the last death. (considered "innocent")
+    p if you are successful in winning the fight, you will be given 1 stat point to increase the stat of your choosing.
+    h2 Raid Boss
+    p every brb session, there is a raid boss that appears on screen. you can <em>!fight prodzpod</em> to fight it.
+    p defeating the raid boss awards you an uncommon <em>pillar</em> achievement, but only to 1 person per raid.
+    p you can also click or cast "kill" on the raid boss to damage it, but this does not count towards your guy hitting it, and therefore the achievement.
+    p you are able to view your guy's stats by typing <em>!stats</em>, as well as other's by typing <em>!stats [twitch name]</em> at any time.
+    h2 "Everyday" stats
+    p these stats are determined by your activity within the stream and chat patterns (no actual chat data is recorded), and governs how the guy moves.
+    ul
+        li: p <em>Dexterity</em>: How often does the guy move, determined by percentage of time chatting vs lurking.
+        li: p <em>Jokerness</em>: Variance of the delay between movements, determined by amount of ":3" in chat messages.
+        li: p <em>Agility</em>: How far do does the guy move per 1 movement, determined by average length of chat messages.
+        li: p <em>Jumpness</em>: How often does the guy chooses to jump instead of move, determined by amount of punctuations in chat messages.
+        li: p <em>Jump Height</em>: The height of jump per 1 jump, determined by amount of repeated letter in messages.
+        li: p <em>Zebraness</em>: Variance of jump height per jump, determined by how biblical the message is.
+        li: p <em>Camelness</em>: How "diagonal" each jump is, determined by amount of special characters in messages.
+        li: p <em>Aggression</em>: How often does the guy push blocks around when moving, determined by amount of capital letters in messages.
+        li: p <em>Strength</em>: How far does the guy push blocks, determined by amount of emotes in messages.
+        li: p <em>Bisonness</em>: How vertical is the blocks pushed, determined by amount of Joels in messages.
+        li: p <em>Luck</em>: Variance of strength per attack, determined by how often you do commands versus chatting.
+        li: p <em>Wisdom</em>: How often does your guy spawn windows, determined by amount of vowels in messages. not implemented as of yet
+    h2 Combat stats
+    p these stats are not determined by chatter behaviour and you can increase them by defeating others in a <em>!war</em> and doing <em>!levelup</em>. note that all combat stats reset upon death or the start of a new stream.
+    ul
+        li: p <em>Constitution</em>: Max HP.
+        li: p <em>Attack</em>: The maximum attack damage per hit.
+        li: p <em>Defense</em>: Flat damage reduction per each hit.
+        li: p <em>Crit Chance</em>: Chance to critical hit. 
+        li: p <em>Crit Damage</em>: Damage multiplier upon critical hit. 
+        li: p <em>Multihits</em>: Average hits per attack attempt.
+        li: p <em>Attack Speed</em>: The maximum time to react again after attacking.
+        li: p <em>Oxness</em>: The willingness for each guy to approach the foe.
+        li: p <em>Hipponess</em>: The chance of randomly choosing a hostile and starting a war.
+        li: p <em>Appleness</em>: The regeneration rate.
+        li: p <em>Banananess</em> and <em>Orangeness</em>: reserved for now
+    h2 History
+    p these are historic stats with no functional benefit gained through guy activity. acculumation of these stats can get you achievements.
+    ul
+        li: p <em>Wins</em> and <em>Losses</em>: times you've been victorious or defeated in !war
+        li: p <em>Max Streak</em>: times you've won in a row without perishing
+        li: p <em>Raid Boss Wins</em> / <em>Losses</em>: times you've won or lost against Raid Boss
+        li: p <em>Melee Damage Dealt</em>: total amount of damage dealt with melee attacks
+        li: p <em>Ranged Damage Dealt</em>: total amount of damage dealt with ranged attacks
+        li: p <em>Damage Taken</em>: total amount of damage taken from all sources
+        li: p <em>Times Dodged</em>: total amount of times dodged from z-fighting
+        li: p <em>Average DPS</em>: average damage per second for this guy.
+        li: p <em>Distance Walked</em>: total amount of X displacement occured on land.
+        li: p <em>Times Kicked</em>: total amount of times you've kicked a window.
+        li: p <em>Times Jumped</em>: total amount of times you've jumped.
+        li: p <em>Times Attacked</em>: total amount of times you've attacked someone else.
+        li: p <em>Times Peaced</em>: total amount of times you've achieved peace with someone else.
+        li: p <em>Times Attacked Upon</em>: total amount of times you've been attacked by someone else.
+        li: p <em>Times Petted</em>: total amount of times your guy has been pet.
+        li: p <em>Time Airborne</em>: total amount of seconds you've spent in air.
+        li: p <em>Time Grounded</em>: total amount of seconds you've spent on ground.
+block postbody
+    style.
+        li { margin-left: 32px; display: block; }

@@ -4,6 +4,8 @@
  */
 /* destroy all duplicate / predatory features */
 /* top tab */
+#app-mount > [class*="appAsidePanelWrapper_"] > [class*="notAppAsidePanel_"] > [class*="app_"] > div > [class*="layers__"] > div > div > div { grid-template-rows: unset !important; }
+#app-mount > [class*="appAsidePanelWrapper_"] > [class*="notAppAsidePanel_"] > [class*="app_"] > div > [class*="layers__"] > div > div > div > [class*="bar_"], /* top bar in general */
 [class*="notice_"]:has([aria-label="Dismiss"]), /* auto dismiss */
 a[href="https://support.discord.com"]:has(> [class*="iconWrapper_"]), /* "?" button in top tab */
 [class*="iconWrapper_"][aria-label="Notification Settings"], /* notification setting in top tab */
@@ -158,7 +160,7 @@ li:has([data-list-item-id*="___shop"]), /* buy nitro 2 */
 
 /* style choices */
 /* layout: shorten width of side panels */
-:root { --custom-member-list-width: 150px !important; } /* left tab */
+body { --custom-member-list-width: 150px !important; --custom-guild-sidebar-width: 250px !important; } /* left tab */
 section[aria-label="User area"] [class*="nameTag_"] { display: none !important; } /* name text in profile (to fit buttons in 150px) */
 section[aria-label="User area"] [aria-label="Set Status"] { min-width: 40px !important; }
 section[aria-label="User area"] [aria-label="Set Status"] + [class*="flex_"] { width: 88px !important;  } /* icons on bottom left */
@@ -172,12 +174,13 @@ section[aria-label="User area"] [aria-label="Set Status"] + [class*="flex_"] { w
 [class*="actionButtons_"] div:has(> [aria-label="Open Soundboard"]) { display: block !important; }
 [class*="actionButtons_"] { display: flex; justify-content: space-around; transform: translate(-32px, 0); } /* fits buttons around, made to suit 150px leftbar */
 [class*="actionButtons_"] button, [class*="actionButtons_"] div:has(> button) { min-width: 32px !important; }
-[class*="voiceButtonsContainer_"] button[aria-label="Disconnect"] { transform: translate(64px, 0); } /* rearranges disconnect to be at rightmost */
+[class*="voiceButtonsContainer_"] button[aria-label="Disconnect"] { transform: translate(137px, 0); } /* rearranges disconnect to be at rightmost */
 [class*="voiceButtonsContainer_"] button[aria-label="Disconnect"] svg { color: var(--status-danger); } /* makes it red also */
 /* layout: put chat messages closer together */
 .group-spacing-16 { --f-msg-spacing: 24px !important; }
 :is([class*="messageListItem_"], [class*="backgroundFlash_"], [class*="quotedChatMessage_"]):has(+ :is([class*="messageListItem_"], [class*="backgroundFlash_"]) :is([class*="groupStart_"], [class*="systemMessage_"])):after {
     border-bottom: 0px solid transparent !important; } /* lines */
+[class*="formWithLoadedChatInput_"] [class*="buttons_"] { gap: 0 !important; } /* make buttons closer */
 /* layout: shorten height */
 [class*="standardSidebarView_"] [class*="divider_"] { margin-top: 20px; margin-bottom: 20px; }
 /* layout: expand emoji */
@@ -191,7 +194,7 @@ section[aria-label="User area"] [aria-label="Set Status"] + [class*="flex_"] { w
 [aria-label="User area"] [class*="actionButtons_"] {
     position: absolute;
     background: transparent;
-    transform: translate(24px, -40px);
+    transform: translate(112px, 5px);
     width: 64px;
 }
 [aria-label="User area"] [class*="actionButtons_"] button { background: transparent !important; padding: 0; }

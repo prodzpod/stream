@@ -3,10 +3,10 @@ const { split, Math, nullish, WASD, random, realtype } = require("../../common")
 const { log } = require("../../commonServer");
 const { args } = require("../chat/chat");
 
-module.exports.predicate = ["!autospawn", "!autorespawn", "!toggleautospawn", "!toggleautorespawn"];
+module.exports.predicate = ["!autospawn", "!autorespawn", "!toggleautospawn", "!toggleautorespawn", "!hardcore", "!hardcoremode"];
 module.exports.permission = 0;  
 module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
-    chatter.shimeji.autorespawn ??= false;
+    chatter.shimeji.autorespawn ??= true;
     var ret = args(text)[0];
     if (realtype(ret) !== "boolean" && realtype(ret) !== "number") ret = !chatter.shimeji.autorespawn;
     chatter.shimeji.autorespawn = !!ret;

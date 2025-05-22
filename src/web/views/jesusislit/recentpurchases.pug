@@ -1,0 +1,46 @@
+extends ../template/base.pugtemplate
+block meta
+    - v = true
+    - title = 'recent purchases'
+    - description = 'yeah'
+block wholebody
+    .vlist
+        .hlist
+            .spacer
+            .vlist#recentexchange-wrapper
+                p(style="text-align: center") Recent Exchanges
+                .vlist#recentexchange
+        .spacer
+block commonjs
+    style.
+        body { overflow: hidden; width: 1920px; height: 540px; mask-image: linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0)); }
+        #recentexchange-wrapper { padding: 16px; width: 512px; }
+        #recentexchange-wrapper > p, #recentexchange-wrapper .exchange { 
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 16px;
+            color: white;
+            border-radius: 16px;
+            margin: 4px 0;
+        }
+        .icon { width: 32px; margin-right: 4px; }
+    script.
+        addEvent("onload", async () => {
+            ws = new WebSocket("wss://prod.kr/jesusislit/recentpurchases");
+            ws.addEventListener("open", () => {
+                console.log("WebSocket opened");
+            });
+            ws.addEventListener("message", async event => {
+                let data = WASD.unpack(event.data);
+                let [action, id, isJudas, amount, price] = data; let isSelling = action === "recentsold";
+                const extra = (await (await fetch("https://prod.kr/api/user?select=twitch.name,special.dollar,special.jesus,special.judas&where=twitch.id=" + id)).json())[0];
+                const parent = insertElement("div", "recentexchange", "exchange");
+                const user = insertElement("div", parent, "hlist");
+                insertElement("img", user, "icon").with("src", "https://prod.kr/data/user/" + id + ".twitch.png");
+                insertElement("p", user, null, extra.twitch.name);
+                insertElement("div", user, "spacer");
+                const purchase = insertElement("div", parent, "hlist");
+                insertElement("p", purchase, null, `${isSelling ? "Sold" : "Bought"} <b>${amount}x${isJudas ? "$JUDAS" : "$JESUS"}</b> (${isSelling ? "+" : "-"}${price}$)`);
+                insertElement("div", purchase, "spacer");
+                setFirstSibling(parent);
+            });
+        });

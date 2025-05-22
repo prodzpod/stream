@@ -1,0 +1,58 @@
+extends ../template/base.pugtemplate
+
+block meta
+    - v = true
+    - title = '!song Docs'
+    - description = 'The Documents'
+block body 
+    h1 Songs
+    h2 What is songs
+    p you are able to play custom made music in the stream overlay by using the <em>!song</em> command or the <em>play song</em> action on <a href="https://prod.kr/v/screen">!screen</a>.
+    p the song format is a superset of @LCOLONQ stream's "Bells of Bezelea" redeems, and every redeem that works there also work here.
+    p the format also includes instrument support and other extended features.
+    h2 Basic Structure
+    p each song is comprised of multiple tracks, and each track is comprised of three parts in order: <em>[instrument][global modifier][notes]</em>, joined by the <em>|</em> (vertical bar) character.
+    p you can put <em>.[name]|</em> in front of the entire song to give it a name, and it can be played at any time by typing <em>!song [name]</em> thereafter.
+    p see: <em style="word-break: break-all;">.superidolgood|sine.gg[t]gfg[CScT[S[CTf[Cs[Cc]C[Cs]/[DFfd[FQ[DQf]D[Dg[Qf[Dsq]f[GBgd]B[Gs[GDc[Gs]G[Gs]/[SGc]G[Scg[Sg[St[dg[Sf[ss[SGgc]f[S[SGg[Sc[S[Sc[s[DFdQ]F[DQd[Dd[Dg]/[Dqg]/[Ss[S[S[S[S[FS[GQ[fs[gQ</em>
+    h2 Instrument
+    p currently available instruments are <em>sine</em>, <em>tri</em>, <em>sq50</em> and <em>drum</em>. when instruments are not provided (such as the original bells text), it defaults to <em>sine</em>.
+    h2 Global Modifier
+    p global modifiers modify all note in the following track. by default, C is C4, and bpm is 75.
+    ul 
+        li <em>'</em> increases default octave by 2, so that C is C6.
+        li <em>,</em> decreases default octave by 2, so that C is C2.
+        li <em>"</em> increases default octave by 1, so that C is C3. These symbols can be combined like <em>",</em> to decrease octave by 1, or <em>''</em> to increase octave by 4.
+        li <em>;</em> to double bpm.
+        li <em>:</em> to triple bpm.
+        li <em>-</em> to half bpm.
+        li <em>=</em> to third bpm. these can be combined as well.
+        li if you have a number in front of the global modifiers, it will take it as a speciifc BPM value, removing the need for bpm modifiers.
+        li <em>%</em> followed by number to set equal temperment that starts on C. for example, <em>%31</em> (31EDO) would make <em>C~F6#</em> a single octave.
+        li <em>&amp;</em> copies the previous track's global modifiers. useful for multi tracks with same bpm.
+        li <em>.</em> is a blank modifier, and is used to separate instrument from notes if no other modifiers are present.
+    h2 Notes
+    p each note consists of the tone and the note modifier that modifies the individual notes. by default, each note plays for a quarter note length.
+    br
+    ul
+        li <em>C D E F G A B</em> as well as <em>C# D# F# G# A#</em>(note the lack of flats) are supported as C4(unless specified in global modifier) to B4. instead of the sharp notes, <em>X S R T Q</em> can be used in its place respectively.
+        li <em>J K L M N H I</em> as well as <em>Y U O P W</em> can be used for C3 to B3, 1 octave lower than the ordinary tones.
+        li lowercase <em>c d e f g a b</em> and other represent C5 to B5, and <em>j k l m n h i</em> and other represent C6 to B6.
+        li chords can be represented by putting multiple notes in brackets such as <em>[GBd]</em>, and modifiers will apply to the entire chord.
+        li if modifiers are present at the end of a chord, you can omit the closing bracket.
+        li <em>?</em> is a special note that takes in global modifier as a modifier. this changes the global modifier mid staff, allowing for bpm shifts and such.
+    br
+    ul
+        li octave control from global modifier also works here so <em>C''</em> indicates C8.
+        li bpm control from global modifier works as a beat modifier here, so that <em>C;;</em> plays C4 for a whole note length.
+        li beats can also be added or deleted arithmetically by <em>+</em>, <em>~</em> (addition) or <em>_</em> (subtraction). where every term begins with 1 beat. <em>C++</em> becomes "C for 1 + 1 + 1 = 3 beats", <em>C=+_:-</em> becomes "C for 3 + 1 - 2/3 = 10/3 beats".
+        li much like octaves, beats can be specified by <em>@</em> followed by a number. like <em>C#@5.5</em>.
+        li <em>&lt;</em> and <em>&gt;</em> drops the attack and release of each note respectively, allowing for slide type action.
+        li <em>!</em> is a special modifier in that the note doesn't "advance the staff line", allowing for notes to overlap with different note lengths and whatnot without multi tracks. see the blank arpeggio (<em>W@12!/C@11!/S@10!/Q@9 P@12!/C@11!/S@10!/T@9</em>) as an example.
+    h2 Resources
+    ul
+        li: a(href="https://pub.colonq.computer/~bezelea/bells/") Demystifying the Bells: explanation on the original bells system
+        li: a(href="https://pub.colonq.computer/~prod/toy/dbkai/") dbkai: song repository and MIDI to song converter 
+        li: a(href="https://pub.colonq.computer/~crazykitty/") modern(prodzone exclusive) song repository courtesy of @CR4ZYK1TTY
+block postbody
+    style.
+        li { margin-left: 32px; display: block; }

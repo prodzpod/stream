@@ -7,95 +7,39 @@ block meta
 block body 
     h1 Hall of Fame
     p <em>Uncommon</em> icons can only be gotten by completing certain achievements within the streams. here are the list of them and the list of achievers so far.
-    h2 defrag
-    p: em Break the Gizmo. (frontend crashes dont count)
-    ul
-        li: p asquared31415 - Did priviledge escalated in season 1.5
-        li: p machka6 - Achieved infinite iu (illegitimately)
-    h2 dollar
-    p: em Achieve 1 Million units. (legitimately)
-    ul
-        li: c none yet!
-    h2 handshake
-    p: em Create a companion gizmo.
-    ul
-        li: p CR4ZYK1TTY - <a href="https://pub.colonq.computer/~crazykitty/">song repository</a>
-        li: p Venorrak - <a href="https://server.venorrak.dev/joels/JCP">JCP</a>
-        li: p krzysckh - <a href="https://pub.colonq.computer/~kpm/thing/index.html">Polish Temperature</a>
-    h2 icon_up
-    p: em Become Elephanted on a non-witcord server.
-    ul
-        li: p lala_amanita - <a href="https://discord.com/channels/1219954701726912583/1219957086675406880/1332121228219256892">!login</a>
-    h2 vt
-    p: em Appear on the broadcast (we're open!)
-    ul
-        li: p JakeCreatesStuff - <a href="https://www.youtube.com/watch?v=s8QpvPYC6zQ">hello geiser's mom</a>
-        li: p imgeiser - <a href="https://www.youtube.com/watch?v=s8QpvPYC6zQ">hello geiser's mom</a>
-        li: p zulleyy3 - <a href="https://www.youtube.com/watch?v=tyVKqIwsdLI">is anything REAL?</a>
-        li: p LCOLONQ - <a href="https://www.youtube.com/watch?v=xSZiGkVqKYE">(male, (male, nil))</a>
-        li: p BrighterMalphon - <a href="https://www.youtube.com/watch?v=C4s18zr3fH8">are you still pushing 25 or have you pushed out?</a>
-        li: p Tyumici - <a href="https://www.youtube.com/watch?v=C4s18zr3fH8">are you still pushing 25 or have you pushed out?</a>
-    h2 entity_1
-    p: em Create your own Guy (by yourself)
-    ul
-        li: p ctrl_o (ASCII Fish)
-        li: p Venorrak (TV Guy)
-        li: p nichepenguin (NP)
-        li: p mickynoon (CH47)
-        li: p LCOLONQ (mrgreen)
-        li: p bigbookofbug (big bug)
-        li: p YukieVT (Long Yook)
-        li: p kettlestew (Neco Arc)
-        li: p BrighterMalphon (Malphrend)
-        li: p caram3lnuke (Joel's Bipedal Adventure, ?????????????????)
-        li: p RayMarch (Gamut)
-        li: p JakeCreatesStuff (Millie my daughter)
-        li: p maradyne_ ("DIVINA"?)
-        li: p CR4ZYK1TTY ("cr4zyk3Hi")
-        li: p XorXavier (interim guy 1)
-        li: p liquidcake1 (interim guy 2)
-        li: p Tyumici (Train Conductor)
-        li: p KinskyUnplugged (melon)
-    h2 entity_2
-    p: em Discover a secret feature
-    ul
-        li: p asquared31415 (Clicking on Raid Boss damages them)
-        li: p caram3lnuke (!big)
-    h2 sword
-    p: em Score a 5 streak against an opponent (thank you nichepenguin)
-    ul
-        li: p ctrl_o
-        li: p mickynoon
-        li: p nichePenguin
-        li: p maradyne_
-        li: p asquared31415
-        li: p JakeCreatesStuff
-        li: p XorXavier
-    h2 sword_shield
-    p: em Achieve 100 total wins
-    ul
-        li: p nichePenguin
-    h2 pillar
-    p: em Defeat the Raid Boss
-    ul
-        li: p nichePenguin
-        li: p asrael_io
-        li: p BrighterMalphon
-        li: p caram3lnuke
-        li: p XorXavier
-        li: p LCOLONQ
-        li: p zSnails
-        li: p LeadenGin
-        li: p liquidcake1
-        li: p ctrl_o
-        li: p asquared31415
-        li: p KinskyUnplugged
-        li: p Meisaka
-        li: p CR4ZYK1TTY
-    h2 graduation
-    p: em ?????????????????????????
-    ul
-        li: c none yet!
+    .achievement
+        h2 uncommon/defrag
+        p: em Break the Gizmo. (frontend crashes dont count)
+    .achievement
+        h2 uncommon/dollar
+        p: em Achieve 1 Million units. (legitimately)
+    .achievement
+        h2 uncommon/handshake
+        p: em Create a companion gizmo.
+    .achievement
+        h2 uncommon/icon_up
+        p: em Become Elephanted on a non-witcord server.
+    .achievement
+        h2 uncommon/vt
+        p: em Appear on the broadcast (we're open!)
+    .achievement
+        h2 uncommon/entity_1
+        p: em Create your own Guy (by yourself)
+    .achievement
+        h2 uncommon/entity_2
+        p: em Discover a secret feature
+    .achievement
+        h2 uncommon/sword
+        p: em Score a 5 streak against an opponent (thank you nichepenguin)
+    .achievement
+        h2 uncommon/sword_shield
+        p: em Achieve 100 total wins
+    .achievement
+        h2 uncommon/pillar
+        p: em Defeat the Raid Boss
+    .achievement
+        h2 uncommon/graduation
+        p: em ?????????????????????????
     br
     p: c more to come ...
 block postbody 
@@ -106,8 +50,15 @@ block postbody
             image-rendering: crisp-edges;
         }
     script.
-        addEvent('onload', () => {
+        addEvent('onload', async () => {
             for (let el of q('h2')) {
-                el.innerHTML = `<img src="/data/icon/uncommon/${el.innerText}.png"> ${el.innerHTML}`;
+                const name = el.innerText;
+                el.innerHTML = `<img src="/data/icon/${name}.png"> ${name.split("/").at(-1)}`;
+                insertElement("ul", el.parentElement, "users", "<li><c>none yet!</c></li>").with("id", "list-" + name);
+            }
+            const achievements = await (await fetch("https://prod.kr/api/achievement")).json();
+            for (let k in achievements) {
+                if (e("list-" + k).innerText === "none yet!") e("list-" + k).innerHTML = "";
+                for (let v of achievements[k]) insertElement("li", "list-" + k, "user", v);
             }
         });

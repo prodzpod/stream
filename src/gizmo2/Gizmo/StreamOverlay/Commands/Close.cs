@@ -2,7 +2,9 @@
 using Gizmo.Engine.Builtin;
 using Gizmo.Engine.Data;
 using Gizmo.StreamOverlay.Elements;
+using Gizmo.StreamOverlay.Elements.Entities;
 using Gizmo.StreamOverlay.Elements.Gizmos;
+using Gizmo.StreamOverlay.Elements.Screens;
 using System.Numerics;
 
 namespace Gizmo.StreamOverlay.Commands
@@ -26,6 +28,7 @@ namespace Gizmo.StreamOverlay.Commands
                 if (HitboxP.Check(instance, new PointHitbox(new Vector2(x.Value, y.Value))))
                     instance.Destroy();
                 Game.INSTANCES[i] = instance;
+                if (instance.Element is RaidBoss) Shimeji.Damage(instance, 1, []); // neutral :(
             }
             Pointer.New(new((float)x, (float)y), icon, 1, author, color);
             Audio.Play("screen/click");

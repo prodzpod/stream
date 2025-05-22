@@ -8,5 +8,5 @@ module.exports.execute = req => {
         chatter: { id: req.chatter_user_id, name: req.chatter_user_name, color: req.color ?? "#000000" },
         message: { id: req.message_id, text: req.message.text, channel: FORREST_ID, emotes: [] },
     });
-    else send("clonkchat", req.message.text, req.chatter_user_name, FORREST_ID, req.chatter_user_id);
+    else send("clonkchat", req.message.text, req.chatter_user_name, FORREST_ID, req.chatter_user_id, req.message_id);
 }

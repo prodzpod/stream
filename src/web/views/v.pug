@@ -9,10 +9,18 @@ block body
     p: a(href="https://prod.kr/discord") prod.kr/discord
     p: a(href="https://prod.kr/yt") prod.kr/yt &nbsp;&nbsp; (@prodzpod)
     p: a(href="https://prod.kr/vod") prod.kr/vod  (@prodzvod)
-    p: a(href="https://prod.kr/v/lore") Gizmos Explanation (!help)
-    p: a(href="https://prod.kr/v/achievements") Achievements Explanation
     p: a(href="https://prod.kr/v/screen") The Screen (!redeem)
     p: a(href="https://prod.kr/v/dex") Multiview + CircleDex
+    br
+    p document zone
+    ul
+        li: p: a(href="https://prod.kr/v/lore") Stream Lore
+        li: p: a(href="https://prod.kr/v/achievements") Achievements Explanation
+        li: p: a(href="https://prod.kr/docs/stats") What is Guy?
+        li: p: a(href="https://prod.kr/docs/api") API Documentation
+        li: p: a(href="https://prod.kr/docs/bs") BlessScript Documentation
+        li: p: a(href="https://prod.kr/docs/chat") Chat Formatting
+        li: p: a(href="https://prod.kr/docs/song") !song Documentation
     br
     h2 pr<em>v</em>d.exe
     p <em>prodzpod</em> was first manufactured as an executable <u>"desktop companion"</u> software for Windows 2000. 
@@ -105,8 +113,9 @@ block body
             h3 also why does the discord not have sub role / emoji 
             p idk
 
-block postbody 
+block postbody
     style.
+        li { margin-left: 32px; display: block; }
         .shoutout {
             max-width: 240px;
             padding: 16px;

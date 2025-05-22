@@ -1,7 +1,7 @@
 const { src } = require("../../..");
 const { remove } = require("../../../common");
 const { listFiles } = require("../../../commonServer");
-const { TYPE, Token } = require("../bsUtil");
+const { TYPE, Token, NULL } = require("../bsUtil");
 const { checkHead, isWord } = require("./bsScanUtil");
 
 const FILE_EXCEPTIONS = ["bsScan", "bsScanUtil"];
@@ -13,12 +13,13 @@ let STATE;
 module.exports.scan = async (string, stack) => {
     STATE = {
         init: (c, string, currentToken, tokens, stack) => {
+            if (string.startsWith("/*")) return [string.indexOf("*/") + "*/".length];
             if (c === null) return []; let temp;
             // number
             temp = checkHead(string, "Infinity"); if (temp) return [temp.length, "", "init", [...tokens, new Token(TYPE.number, Infinity)]];
             if ("0123456789.".includes(c)) return [0, null, "numberPreDot"];
             // operator
-            for (const keyword of ["in", "is", "typeof", "call", "query", "bool", "number", "string", "list", "dict", "sleep"]) 
+            for (const keyword of ["in", "is", "typeof", "call", "query", "bool", "number", "string", "list", "dict", "sleep", "let", "if", "while", "else", "for", "return", "break", "continue"]) 
                 { temp = checkHead(string, keyword); if (temp) return [temp.length, "", "init", [...tokens, new Token(TYPE.operator, keyword)]]; }
             if ("+-*/%^=!&|?:<>~,;".includes(c)) return [1, c, "operator"];
             // string
@@ -26,7 +27,7 @@ module.exports.scan = async (string, stack) => {
             // bool
             temp = checkHead(string, "true"); if (temp) return [temp.length, "", "init", [...tokens, new Token(TYPE.bool, true)]];
             temp = checkHead(string, "false"); if (temp) return [temp.length, "", "init", [...tokens, new Token(TYPE.bool, false)]];
-            temp = checkHead(string, "null"); if (temp) return [temp.length, "", "init", [...tokens, new Token(TYPE.null, null)]];
+            temp = checkHead(string, "null"); if (temp) return [temp.length, "", "init", [...tokens, NULL]];
             // bracket
             if ("(){}[]".includes(c)) return [1, "", "init", [...tokens, new Token(TYPE.bracket, c)]];
             // symbol

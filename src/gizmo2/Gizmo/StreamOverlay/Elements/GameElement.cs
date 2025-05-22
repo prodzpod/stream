@@ -22,11 +22,14 @@ namespace Gizmo.StreamOverlay.Elements
         {
             if (self.Get<bool>("pinned")) { self.Speed = Vector2.Zero; self.Rotation = 0; }
             base.OnUpdate(ref self, deltaTime);
-            if (self.Speed.X < 0 && self.Position.X < (Game.Room.Camera.X - Game.Room.Camera.Z / 2)) Bounce(ref self, 0);
-            if (self.Speed.Y > 0 && self.Position.Y > (Game.Room.Camera.Y + Game.Room.Camera.W / 2 - 56)) Bounce(ref self, 90);
-            if (self.Speed.X > 0 && self.Position.X > (Game.Room.Camera.X + Game.Room.Camera.Z / 2)) Bounce(ref self, 180);
-            if (self.Speed.Y < 0 && self.Position.Y < (Game.Room.Camera.Y - Game.Room.Camera.W / 2)) Bounce(ref self, 270);
-            self.Position = MathP.Clamp(self.Position, Vector2.Zero, Game.Resolution);
+            if (!self.Get<bool>("phasethrough"))
+            {
+                if (self.Speed.X < 0 && self.Position.X < (Game.Room.Camera.X - Game.Room.Camera.Z / 2)) Bounce(ref self, 0);
+                if (self.Speed.Y > 0 && self.Position.Y > (Game.Room.Camera.Y + Game.Room.Camera.W / 2 - 56)) Bounce(ref self, 90);
+                if (self.Speed.X > 0 && self.Position.X > (Game.Room.Camera.X + Game.Room.Camera.Z / 2)) Bounce(ref self, 180);
+                if (self.Speed.Y < 0 && self.Position.Y < (Game.Room.Camera.Y - Game.Room.Camera.W / 2)) Bounce(ref self, 270);
+                self.Position = MathP.Clamp(self.Position, Vector2.Zero, Game.Resolution);
+            }
             if (RandomP.Chance(self.Get<float>("zfightingchance")))
             {
                 self.Depth = self.Depth;

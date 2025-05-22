@@ -69,6 +69,11 @@ let RULE = {
         name: "%NAME%:Afx#3A00007FF624FF0000#3A0#3A0000000000000000#3A0000000000000000#3A000000003C9D05EB:Wwise.exe",
         window: null,
     },
+    sammi: {
+        rule: name => name.startsWith("SAMMI Core "),
+        name: "%NAME%:YYGameMakerYY:SAMMI Core.exe",
+        window: null,
+    },
     // art
     aseprite: {
         rule: name => name.includes("Aseprite"),
@@ -195,6 +200,21 @@ let RULE = {
     mgba: {
         rule: name => name.startsWith("mGBA - "),
         name: "%NAME%:Qt51511QWindowIcon:mGBA.exe",
+        window: null,
+    },
+    stardew: {
+        rule: name => name === "Stardew Valley",
+        name: "%NAME%:SDL_app:Stardew Valley.exe",
+        window: null,
+    },
+    nubby: {
+        rule: name => name === "Nubby's Number Factory",
+        name: "%NAME%:YYGameMakerYY:NNF_FULLVERSION.exe",
+        window: null,
+    },
+    blueprince: {
+        rule: name => name === "BLUE PRINCE",
+        name: "%NAME%:UnityWndClass:BLUE PRINCE.exe",
         window: null,
     },
 };

@@ -18,4 +18,5 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
 const SEALPOSTS = [
     ["[gif of a seal flopping about happily]", "https://i.imgur.com/wN1pgoc.gif"],
     ["[gif of a seal staring into the camera and then splashing everythwere]", "https://i.imgur.com/QwCjhJL.gif"],
+    ["[gif of a seal rapidly approaching through the snow]", "https://i.imgur.com/niXBB3q.gif"],
 ]

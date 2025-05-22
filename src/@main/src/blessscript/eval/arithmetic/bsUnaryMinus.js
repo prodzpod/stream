@@ -13,10 +13,10 @@ module.exports.offset = 0;
 // int || (Token, int, [Token], int, StackData) => int || [int, StackData]
 module.exports.amount = 2;
 // ([Token], int, [Token], int, int, StackData) => [[Token], StackData]
-module.exports.result = (currentTokens, index, tokens, offset, amount, stack) => {
+module.exports.result = async (currentTokens, index, tokens, offset, amount, stack) => {
     if (currentTokens[1].type === TYPE.list) 
         return [[new Token(TYPE.list, currentTokens[1].value.reverse())], stack];
-    let n = transformIfType(currentTokens, 
+    let n = await transformIfType(currentTokens, 
         [[null, TYPE.number], (_, a) => [TYPE.number, -a]],
         [[null, TYPE.string], (_, a) => [TYPE.string, a.split("").reverse().join("")]],
         [[null, TYPE.list], (_, a) => [TYPE.list, a.reverse()]],

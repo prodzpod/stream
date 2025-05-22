@@ -6,7 +6,7 @@ const { args } = require("../chat/chat");
 module.exports.predicate = "!volume";
 module.exports.permission = true;  
 module.exports.execute = async (_reply, from, chatter, message, text) => {
-    if (!src().screen.isScreenOn(_reply)) return [1, ""];
+    if (!src().screen.isScreenOn(_reply, chatter, message)) return [1, ""];
     let _args = args(text);
     log(_args);
     if (!_args[0]) { _reply("audio categories: system, message, click, window, song, kick, gong, speech"); return [0, ""]; }

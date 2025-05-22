@@ -13,8 +13,8 @@ module.exports.offset = -1;
 // int || (Token, int, [Token], int, StackData) => int || [int, StackData]
 module.exports.amount = 3;
 // ([Token], int, [Token], int, int, StackData) => [[Token], StackData]
-module.exports.result = (currentTokens, index, tokens, offset, amount, stack) => {
-    let n = transformIfType(currentTokens, 
+module.exports.result = async (currentTokens, index, tokens, offset, amount, stack) => {
+    let n = await transformIfType(currentTokens, 
         [[[TYPE.number, TYPE.bool, TYPE.null], null, [TYPE.number, TYPE.bool, TYPE.null]], (a, _, b) => [TYPE.number, a / b]],
         [[TYPE.string, null, TYPE.null], (a, _, b) => [TYPE.list, a.split("").map(x => new Token(TYPE.string, x))]],
         [[TYPE.string, null, TYPE.string], (a, _, b) => [TYPE.list, a.split(b).map(x => new Token(TYPE.string, x))]],

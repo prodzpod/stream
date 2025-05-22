@@ -14,7 +14,8 @@ namespace Gizmo.StreamOverlay.Rooms
         public static Instance? Phase;
         public static Instance? Chat;
 
-        public const bool COLLAB_MODE = true;
+        public static bool COLLAB_MODE = false;
+        public static bool LALA_MODE = false;
 
         public override void OnEnter(Room? room)
         {
@@ -27,8 +28,8 @@ namespace Gizmo.StreamOverlay.Rooms
             Chat.Position = new(208, 689);
             if (COLLAB_MODE) Chat.Alpha = 0;
             StreamOverlay.Prod = Instance.New(nameof(Prod));
-            if (!COLLAB_MODE) Graphic.New(null, "window/status").Position = new(93, 1056);
-            if (!COLLAB_MODE) Graphic.New(null, "window/tasks").Position = new(475, 1056);
+            if (!COLLAB_MODE) Graphic.New(null, "window/status" + (LALA_MODE ? "_lala" : "")).Position = new(93 + (LALA_MODE ? 36 : 0), 1056);
+            if (!COLLAB_MODE) Graphic.New(null, "window/tasks" + (LALA_MODE ? "_lala" : "")).Position = new(475 + (LALA_MODE ? 71 : 0), 1056);
             Making = Graphic.New(null, Resource.NineSlices["window/making"]);
             if (COLLAB_MODE) Making.Alpha = 0;
             MakingText = Graphic.New(Making, Text.Compile("", "arcaoblique", 26, ColorP.BLACK));

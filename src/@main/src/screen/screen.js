@@ -1,7 +1,7 @@
 const { src, data, send } = require("../..");
 const { split, realtype, time, formatTime, formatDate, BigMath, nullish, filterValue, random, String, Math } = require("../../common");
 const { log, listFiles, path } = require("../../commonServer");
-const { checkPerms, args } = require("../chat/chat");
+const { checkPerms, args, chat } = require("../chat/chat");
 
 module.exports.screenData = chatter => {
     let ret = {};
@@ -64,10 +64,15 @@ const INFO_MESSAGES = {
     discord: () => "https://prod.kr/discord",
     screen: () => "https://prod.kr/screen",
     v: () => "https://prod.kr/v",
+    docs: () => "https://prod.kr/v",
+    document: () => "https://prod.kr/v",
+    doc: () => "https://prod.kr/v",
+    documents: () => "https://prod.kr/v",
     lore: () => "https://prod.kr/v/lore",
     help: () => "https://prod.kr/v/lore",
     irc: () => "https://prod.kr/discord is also connected to IRC @ colonq.computer:26697 (over TLS) courtesy of the male @LCOLONQ - `/join #prodarea` after connecting",
     vod: () => "https://prod.kr/vod",
+    brain: () => "https://prod.kr/v/brain",
     commands: getCommands,
     command: getCommands,
     insts: getInsts,
@@ -116,7 +121,7 @@ const INFO_MESSAGES = {
     inv: getInfo,
     inventory: getInfo,
     me: getInfo,
-    wallet: getInfo,
+    invest: () => data().user[1028054302].special.value > 0 ? "!buyjesus, !buyjudas, !selljesus and !selljudas to trade, !wallet to see inventory, !bankruptsy to declare bankruptsy" : "!buy and !sell to trade, !wallet to see inventory, !bankruptsy to declare bankruptsy",
     songs: async () => "Current Songs: " + (await listFiles("src/@main/data/song")).filter(x => !x.startsWith("_")).map(x => x.slice(0, -".wmid".length)).join(", "),
     clonkspot: () => "https://pub.colonq.computer/~prod/toy/geiserxpi/",
     clonkspotting: () => "https://pub.colonq.computer/~prod/toy/geiserxpi/",
@@ -172,4 +177,9 @@ module.exports.getGCP = async () => {
     let c = coherence(global.gcp, global.gcp2, gcp3);
     return [c, global.gcp, global.gcp2, gcp3];
 }
-module.exports.isScreenOn = (_reply) => { let res = require("../../index").sockets().includes("gizmo"); if (!res) _reply?.("gizmo is not active"); return res; }
+module.exports.isScreenOn = (_reply, chatter, message) => { 
+    let res = require("../../index").sockets().includes("gizmo"); if (!res) _reply?.("gizmo is not active"); 
+    if (data().user[108372992].special.lock) 
+        if (!["prodzpod", "lala_amanita"].includes(chatter?.twitch?.login)) { _reply?.("a magical force blocks you from interacting with the !screen..."); return false; }
+    return res; 
+}

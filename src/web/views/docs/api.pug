@@ -1,0 +1,96 @@
+extends ../template/base.pugtemplate
+
+block meta
+    - v = true
+    - title = 'API Docs'
+    - description = 'The Documents'
+block body 
+    h1 API docs
+    p prod.kr contains many API endpoints that can be used to fetch and manipulate data from an automated source.
+    li
+        h3 GET <a href="https://prod.kr/api/chat">prod.kr/api/chat</a>
+        p gets the N most recent chat messages. contains user idenfier, message identifier, emotes used and the source of the message (twitch, discord, irc, web, etc)
+        .br
+        p <code>?count=NUMBER</code> (optional, default: 100)
+    li
+        h3 GET <a href="https://prod.kr/api/screen?subject=volume">prod.kr/api/screen</a>
+        p fetches screen related values
+        .br
+        p <code>?subject=ENUM</code> (required)
+        p allowed values: 
+        ul
+            li: p windowcount: number of windows
+            li: p chatcount: number of chats
+            li: p pointercount: number of pointers
+            li: p palette: current palette swap data
+            li: p accessory: current list of enabled accessory
+            li: p guys: currently active list of guys
+            li: p camera: current camera settings
+            li: p flip: whether the chatbox is on left or right
+            li: p volume: current volume data per category
+            li: p tracker: last tracker data in base64
+    li
+        h3 GET <a href="https://prod.kr/api/stream?subject=title">prod.kr/api/stream</a>
+        p fetches stream related values
+        .br
+        p <code>?subject=ENUM</code> (required)
+        p allowed values: 
+        ul
+            li: p title: current title of the broadcast
+            li: p subject: current !today of the broadcast
+            li: p phase: current phase of the broadcast (incremented with !marker)
+            li: p category: current stream category
+            li: p uptime: the runtime of the current stream
+            li: p gcp/gcp2/gcp3: current gcp values
+            li: p coherence: coherence between gcp values
+    li
+        h3 GET <a href="https://prod.kr/api/wasd?action=pack&text={%22a%22:%201}">prod.kr/api/wasd</a>
+        p does WASD.pack() and WASD.unpack() for those who do not have access or will be difficult implementing WASD on their environment
+        .br
+        p <code>?action=ENUM</code> (required, allowed values: "pack", "unpack")
+        .br
+        p <code>?text=STRING</code> (required)
+    li 
+        h3 GET <a href="https://prod.kr/api/user?where=twitch.login=prodzpod">prod.kr/api/user</a>
+        p queries user data according to the pattern.
+        .br
+        p <code>?select=PATH</code> (optional, by default shows all)
+        p PATH must be a valid path in user data (such as <code>twitch.login</code>), and can be comma-separated for multiple.
+        p you may also attach a "rankby:" or "rankby:desc:" at the beginning to rank by this element without affecting the order (such as <code>?select=twitch.id,rankby:desc:clonkspotting.boost</code>)
+        .br
+        p <code>?where=CONDITION</code> (optional, by default shows all)
+        p CONDITION can be comma separated and only the entries that fulfill all will be displayed.
+        p CONDITION is written as either PATH or PATH OPERATOR OPERAND.
+        p just PATH: whether this path exists in this user
+        p PATH=OBJECT: whether the path equals this object
+        p !=, &gt; &lt; &gt;=, &lt;= is also available for querying.
+        .br
+        p <code>?orderby=PATH</code> (optional, by default sorts by twitch id)
+        p unlike the rest, PATH cannot be comma separated. orders the list based on PATH.
+        p include the "rank" in <code>?select</code> to see the rank of the current order.
+        .br
+        p <code>?desc=true</code> (optional, by default sorts ascending)
+        p makes the search descending.
+        .br
+        p <code>?count=NUMBER</code> (optional, by default shows all)
+        p counts the number of entries to show at the end.
+    li 
+        h3 GET <a href="https://prod.kr/api/auth">prod.kr/api/auth</a>
+        p generates a password to be used.
+        .br
+        p <code>?login=STRING</code> (optional, by default shows all)
+        p use the "<em>!genkey</em>" command to generate a key, and feel free to utilize them to call commands and chat messages.
+    li
+        h3 POST <a href="https://prod.kr/api/chat">prod.kr/api/chat</a>
+        p sends message as if its on twitch chat.
+        .br
+        p <code>?id=STRING</code> (optional, by default calls command by "anonymous" with no permission)
+        .br
+        p <code>?pw=STRING</code> (optional)
+        .br
+        p <code>?text=STRING</code> (required)
+block postbody
+    style.
+        li { margin-left: 32px; display: block; }
+        code { color: var(--em) }
+        li > .br { height: 8px; }

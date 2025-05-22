@@ -18,13 +18,12 @@ namespace Gizmo.StreamOverlay.Commands
             if (ModelSprite.Accessories.Count == 0) return null;
             var accessories = ModelSprite.PreviousAccessories.ToList();
             var chance = 1f;
-            while (rnd.NextSingle() < chance) 
+            while (rnd.NextSingle() < chance && accessories.Count > 0) 
             {
                 var temp = RandomP.Random(accessories, rnd); 
                 ModelSprite.Accessories.Add(temp); 
                 accessories.Remove(temp);
                 chance *= 0.7f;
-                if (accessories.Count == 0) break;
             }
             return null;
         }

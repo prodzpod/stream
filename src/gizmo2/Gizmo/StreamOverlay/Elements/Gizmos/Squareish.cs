@@ -22,6 +22,7 @@ namespace Gizmo.StreamOverlay.Elements.Gizmos
             {
                 var graphic = Graphic.New(ret, sprite);
                 graphic.Depth = ret.Depth;
+                graphic.Set("parent", ret);
                 children.Add(graphic);
             }
             ret.Set("children", children.ToArray());

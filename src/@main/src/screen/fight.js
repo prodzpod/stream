@@ -6,7 +6,7 @@ const { args } = require("../chat/chat");
 module.exports.predicate = ["!fight", "!zfight", "!combat", "!strife", "!violence", "!war", "!conflict", "!engageinadiscoursewith", "!attack", "!fisticuffs"];
 module.exports.permission = 0;
 module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
-    if (!src().screen.isScreenOn(_reply)) return [1, ""];
+    if (!src().screen.isScreenOn(_reply, chatter, message)) return [1, ""];
     const target = Object.values(data().user).find(x => {
         const t = args(text)[0];
         if (nullish(t) === null) return false;

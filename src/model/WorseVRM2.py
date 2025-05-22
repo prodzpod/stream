@@ -143,10 +143,11 @@ def save(meta, fname):
 
 # Configs
 OUTPUT_FNAME = "model_data"
-RESET = True
+RESET = False
+
 # Main
 meta = init(OUTPUT_FNAME, RESET)
 if not RESET:
-    meta = add_pose(meta, "IDLE")
+    # meta = add_pose(meta, "SIT_BLUSH")
     set_pose(meta, "DEFAULT")
 save(meta, OUTPUT_FNAME)

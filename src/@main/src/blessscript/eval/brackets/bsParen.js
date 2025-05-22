@@ -3,12 +3,20 @@
 const { src } = require("../../../..");
 const { log } = require("../../../../commonServer");
 const { TYPE, Token } = require("../../bsUtil");
-const { skipUntil } = require("../bsEvalUtil");
+const { skipUntil, stepIn, stepOut, unbox } = require("../bsEvalUtil");
 
 // int
 module.exports.priority = 100;
 // (Token, int, [Token], StackData) => bool
-module.exports.condition = (currentToken, index, tokens, stack) => currentToken.is(TYPE.bracket, "(");
+module.exports.condition = (currentToken, index, tokens, stack) => {
+    if (!currentToken.is(TYPE.bracket, "(")) return false;
+    if (index === 0) return true;
+    if (tokens[index - 1].type === TYPE.function) return false;
+    if (tokens[index - 1].type === TYPE.symbol || unbox([tokens[index - 1]], stack)[0].type === TYPE.function) return false;
+    if (tokens[index - 1].is(TYPE.bracket, "]")) return false; // handle in late
+    if (tokens[index - 1].is(TYPE.bracket, ")")) return false; // handle in late
+    return true;
+}
 // int || (Token, int, [Token], StackData) => int || [int, StackData]
 module.exports.offset = 0;
 // int || (Token, int, [Token], int, StackData) => int || [int, StackData]

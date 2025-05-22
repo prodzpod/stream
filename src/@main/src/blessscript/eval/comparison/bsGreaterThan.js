@@ -1,6 +1,7 @@
 // *priority for precedents, same priority are executed in left to right, higher runs first
 
 const { numberish, realtype } = require("../../../../common");
+const { log } = require("../../../../commonServer");
 const { TYPE, Token, subSort } = require("../../bsUtil");
 const { transformIfType } = require("../bsEvalUtil");
 
@@ -14,5 +15,5 @@ module.exports.offset = -1;
 module.exports.amount = 3;
 // ([Token], int, [Token], int, int, StackData) => [[Token], StackData]
 module.exports.result = (currentTokens, index, tokens, offset, amount, stack) => {
-    return [[new Token(TYPE.bool, subSort(currentTokens[0].value, currentTokens[2].value) === 1)], stack];
+    return [[new Token(TYPE.bool, subSort(currentTokens[0].value, currentTokens[2].value) > 0)], stack];
 }

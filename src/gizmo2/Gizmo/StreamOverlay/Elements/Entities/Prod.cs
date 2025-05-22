@@ -7,6 +7,7 @@ using Gizmo.StreamOverlay.Elements.Windows;
 using Gizmo.StreamOverlay.Rooms;
 using ProdModel.Object.Sprite;
 using ProdModel.Puppet;
+using Raylib_CSharp.Images;
 using Raylib_CSharp.Textures;
 using System.Numerics;
 
@@ -23,8 +24,9 @@ namespace Gizmo.StreamOverlay.Elements.Entities
 
         public static Sprite Prod3D;
         public static bool Is2D = false;
-        public static bool OnTopOfChat = true;
+        public static bool OnTopOfChat = !MainRoom.COLLAB_MODE;
         private static string _Pose = "IDLE";
+        public static bool Talksprite = false;
         public static string Pose
         {
             get => _Pose;
@@ -112,6 +114,10 @@ namespace Gizmo.StreamOverlay.Elements.Entities
                     else self.Frame = 2;
                 }
                 else self.Frame = 3;
+                base.OnDraw(ref self, deltaTime);
+            }
+            else if (Talksprite)
+            {
                 base.OnDraw(ref self, deltaTime);
             }
             else

@@ -16,7 +16,7 @@ namespace Gizmo.StreamOverlay.Commands
         public static float OFFSET = 4;
         public override object?[]? Execute(params object?[] args)
         {
-            if (Game.Room == null) return null;
+            if (Game.Room == null || MainRoom.COLLAB_MODE) return null;
             string? id = WASD.Assert<string>(args[0]);
             object?[]? _icon = WASD.Assert<object?[]>(args[1]);
             string? _color = WASD.Assert<string>(args[2]);

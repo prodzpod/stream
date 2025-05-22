@@ -13,9 +13,9 @@ module.exports.offset = 0;
 // int || (Token, int, [Token], int, StackData) => int || [int, StackData]
 module.exports.amount = 2;
 // ([Token], int, [Token], int, int, StackData) => [[Token], StackData]
-module.exports.result = (currentTokens, index, tokens, offset, amount, stack) => {
+module.exports.result = async (currentTokens, index, tokens, offset, amount, stack) => {
     // we have to math this bc js bitwise sucks
-    let n = transformIfType(currentTokens, 
+    let n = await transformIfType(currentTokens, 
         [[null, [TYPE.number, TYPE.bool, TYPE.null]], (_, a) => Number(a)],
     ); if (n?.type === TYPE.error) return [[n], stack];
     let a = Math.floor(n), b = 0, c = 0;

@@ -6,7 +6,7 @@ const { args } = require("../chat/chat");
 module.exports.predicate = ["!levelup", "!lvup", "!lvlup", "!level", "!lvl", "!lv"];
 module.exports.permission = 0;
 module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
-    if (!src().screen.isScreenOn(_reply)) return [1, ""];
+    if (!src().screen.isScreenOn(_reply, chatter, message)) return [1, ""];
     let stat = args(text)?.[0]?.toLowerCase().trim();
     switch (stat) {
         case "hp":

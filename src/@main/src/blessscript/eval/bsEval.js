@@ -1,8 +1,8 @@
 const { src } = require("../../..");
 const { unentry } = require("../../../common");
 const { listFiles, log } = require("../../../commonServer");
-const { TYPE, Token } = require("../bsUtil");
-const { unbox, splitTokens } = require("./bsEvalUtil");
+const { TYPE, Token, NULL } = require("../bsUtil");
+const { unbox, splitTokens, selectiveUnboxFunctions } = require("./bsEvalUtil");
 
 const FILE_EXCEPTIONS = ["bsEval", "bsEvalUtil"];
 let rules;
@@ -11,6 +11,7 @@ let rules;
 // *([Token], stackData) => [any, stackData]
 module.exports.eval = async (tokens, stack) => {
     const isReturnValue = stack.isReturnValue;
+    // if (stack.chatter.twitch.login === "prodzpod") log("eval started:", tokens);
     if (!rules) {
         rules = [];
         let ruleObjects = {};
@@ -26,7 +27,7 @@ module.exports.eval = async (tokens, stack) => {
         for (let k of rulePrios.sort((a, b) => b - a)) rules.push(ruleObjects[k]);
     }
     for (const ruleGroup of rules) {
-        let scanRTL = [2, -100].includes(ruleGroup[0].priority);
+        let scanRTL = [2, -100, 22, 150].includes(ruleGroup[0].priority);
         for (
             let ptr = scanRTL ? tokens.length - 1 : 0; 
             scanRTL ? (ptr >= 0) : (ptr < tokens.length); 
@@ -34,7 +35,6 @@ module.exports.eval = async (tokens, stack) => {
         ) {
             let currentToken = tokens[ptr];
             for (const rule of ruleGroup) {
-                // log(currentToken, ptr, tokens, rule.priority, scanRTL);
                 if (rule.condition(currentToken, ptr, tokens, stack)) {
                     let offset = typeof rule.offset === "number" ? rule.offset : rule.offset(currentToken, ptr, tokens, stack);
                     if (offset instanceof Promise) offset = await offset;
@@ -47,26 +47,36 @@ module.exports.eval = async (tokens, stack) => {
                     if (!rule.preventUnboxing) currentTokens = unbox(currentTokens, stack); // not assignments
                     let result = rule.result(currentTokens, ptr, tokens, offset, amount, stack);
                     if (result instanceof Promise) result = await result;
-                    const err = result[0].find(x => x.type === TYPE.error); if (err) {
+                    const err = result?.[0].find(x => x.type === TYPE.error); if (err) {
                         if (typeof err.value === "string") 
                             return [describeError(err.value, tokens.slice(from, to), ptr, tokens, stack), stack];
                         return [err, stack];
                     }
                     if (result[0]) tokens.splice(from, to - from, ...result[0]);
                     if (result[1]) stack = result[1];
-                    if (!scanRTL && offset <= 0) {
-                        ptr -= Math.min(Math.abs(offset - 1), amount);
-                        break;
-                    }
+                    if (stack.specialFlow !== undefined) break;
+                    // from [ptr+offset :: to ptr+offset+amount ] => result[0].length
+                    // ptr = at the head of result[0].length - 1
+                    if (scanRTL) ptr = Math.min(tokens.length - 1, to + 1);
+                    else ptr = Math.max(0, from - 1);
+                    currentToken = tokens[ptr];
+                    // if (stack.chatter.twitch.login === "prodzpod") log("midpoint:", ruleGroup[0].priority, tokens, stack.var);
                 }
             }
+            if (stack.specialFlow !== undefined) break;
         }
+        if (stack.specialFlow !== undefined) break;
     }
     let ret = splitTokens(tokens, new Token(TYPE.operator, ","));
-    ret = ret.map(x => !x.length ? new Token(TYPE.null, null) : x.at(-1));
+    ret = ret.map(x => x.reverse().find(x => x.type !== TYPE.null) ?? NULL);
+    if (stack.specialFlow && stack.specialFlow.type != TYPE.operator)
+        ret = [stack.specialFlow];
     stack.numReturnValues = ret.length;
-    if (isReturnValue) ret = unbox(ret, stack);
-    if (ret.length === 0) return [new Token(TYPE.null, null), stack];
+    if (isReturnValue) {
+        ret = unbox(ret, stack);
+        ret = selectiveUnboxFunctions(ret, stack);
+    }
+    if (ret.length === 0) return [NULL, stack];
     else if (ret.length === 1) return [ret[0], stack];
     else return [new Token(TYPE.list, ret), stack];
 }

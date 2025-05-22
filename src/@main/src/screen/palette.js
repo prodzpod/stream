@@ -6,7 +6,7 @@ const { args } = require("../chat/chat");
 module.exports.predicate = ["!palette", "!color", "!swap"];
 module.exports.permission = true;  
 module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
-    if (!src().screen.isScreenOn(_reply)) return [1, ""];
+    if (!src().screen.isScreenOn(_reply, chatter, message)) return [1, ""];
     let _args = args(text);
     if (_args.length === 0) {
         let res = await send("gizmo", "previouscolor");

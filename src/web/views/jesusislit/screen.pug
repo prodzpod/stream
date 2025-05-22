@@ -1,0 +1,177 @@
+extends ../template/base.pugtemplate
+block meta
+    - v = true
+    - title = 'main overlay'
+    - description = 'yeah'
+block wholebody
+    .scene#static: img#static-image(src="https://prod.kr/images/icon/v.png")
+    .scene#document
+        h1.center#document-title title
+        p#document-content document
+    .scene#jesus.active
+        .hlist(style="height: 100%")
+            .vlist.spacer
+                .hlist
+                    h1 $JESUS
+                    .spacer
+                    .vlist
+                        .spacer
+                        p#jesus-price 142$&nbsp;(▲ 14%)
+                .hlist.spacer
+                    .vlist(style="width: 96px; margin-right: 16px;")
+                        p.right#jesus-max 100$
+                        .spacer
+                        p.right#jesus-min 0$
+                    .vlist.spacer
+                        canvas.table.spacer#jesus-table
+                        .hlist
+                            p#jesus-past-time 3:00 PST
+                            .spacer
+                            p#jesus-current-time 3:04 PST
+    .scene#judas
+        .hlist(style="height: 100%")
+            .vlist.spacer
+                .hlist
+                    h1 $JUDAS
+                    .spacer
+                    .vlist
+                        .spacer
+                        p#judas-price 142$&nbsp;(▲ 14%)
+                .hlist.spacer
+                    .vlist(style="width: 96px; margin-right: 16px;")
+                        p.right#judas-max 100$
+                        .spacer
+                        p.right#judas-min 0$
+                    .vlist.spacer
+                        canvas.table.spacer#judas-table
+                        .hlist
+                            p#judas-past-time 3:00 PST
+                            .spacer
+                            p#judas-current-time 3:04 PST
+block commonjs
+    style.
+        body { overflow: hidden; width: 1920px; height: 1080px; background-color: #004466; }
+        body > * { 
+            position: absolute !important; 
+            width: 1920px; height: 1080px; 
+            opacity: 0; transition: all 2s; 
+            color: white; 
+            padding: 64px; 
+        }
+        body > .active { opacity: 1; }
+        #static img { 
+            width: 1920px; 
+            height: 1080px; 
+            image-rendering: crisp-edges; 
+            object-fit: contain; 
+        }
+        .table { background-color: rgba(0, 0, 0, 0.2); }
+        .stock1 { color: lime; }
+        .stock1::before { content: "▲ "; }
+        .stock0 { color: gray; }
+        .stock-1 { color: red; }
+        .stock-1::before { content: "▼ "; }
+    script.
+        let jesusData = []; let judasData = [];
+        addEvent("onload", async () => {
+            for (const canvas of q("canvas")) canvas.with("width", canvas.getBoundingClientRect().width).with("height", canvas.getBoundingClientRect().height)
+            ws = new WebSocket("wss://prod.kr/jesusislit/screen");
+            ws.addEventListener("open", () => {
+                console.log("WebSocket opened");
+            });
+            ws.addEventListener("message", event => {
+                let data = WASD.unpack(event.data);
+                switch (data[0]) {
+                    case "priceupdate":
+                        const prices = WASD.unpack(data[1])[0];
+                        const jesus = prices[109830946]; const judas = prices[1028054302];
+                        const t = formatDate(time() - (7n * 3600n * 1000n), "h:mm PST");
+                        if (jesus) {
+                            let percentage = (jesusData.length ? jesusData.at(-1).value : jesus);
+                            percentage = (jesus - percentage) / percentage * 100;
+                            e("jesus-price").innerHTML = `<span class="stock${Math.sign(percentage)}">$JESUS ${jesus} (${percentage > 0 ? "+" : ""}${Math.prec(percentage, 1)}%)</span>`
+                            jesusData.push({time: t, value: jesus}); 
+                            if (jesusData.length > 200) { jesusData.splice(0, 1); e("jesus-past-time").innerText = jesusData[0].time; }
+                            e("jesus-current-time").innerText = t; if (jesusData.length === 1) e("jesus-past-time").innerText = t;
+                            let values = jesusData.map(x => x.value);
+                            const min = Math.min(...values); const max = Math.max(...values);
+                            e("jesus-min").innerText = min + "$"; e("jesus-max").innerText = max + "$";
+                            updateTable(e("jesus-table"), values);
+                        }
+                        if (judas) {
+                            let percentage = (judasData.length ? judasData.at(-1).value : judas);
+                            percentage = (judas - percentage) / percentage * 100;
+                            e("judas-price").innerHTML = `<span class="stock${Math.sign(percentage)}">$JUDAS ${judas} (${percentage > 0 ? "+" : ""}${Math.prec(percentage, 1)}%)</span>`
+                            judasData.push({time: t, value: judas}); 
+                            if (judasData.length > 200) { judasData.splice(0, 1); e("judas-past-time").innerText = judasData[0].time; }
+                            e("judas-current-time").innerText = t; if (judasData.length === 1) e("judas-past-time").innerText = t;
+                            let values = judasData.map(x => x.value);
+                            const min = Math.min(...values); const max = Math.max(...values);
+                            e("judas-min").innerText = min + "$"; e("judas-max").innerText = max + "$";
+                            updateTable(e("judas-table"), values);
+                        }
+                        break;
+                    case "switchscene": 
+                        for (const el of q(".scene")) el.classList.remove("active");
+                        let newScene = data[1];
+                        e(newScene).classList.add("active");
+                        switch (newScene) {
+                            case "static": e("static-image").with("src", data[2]); break;
+                            case "document": 
+                                e("document-title").innerHTML = data[2]; 
+                                e("document-content").innerHTML = data[3]; 
+                                break;
+                        }
+                        break;
+                }
+            });
+        });
+        const xintervals = [
+            {until: 10, value: 1}, 
+            {until: 20, value: 2}, 
+            {until: 50, value: 5}, 
+            {until: Number.MAX_VALUE, value: 10},
+        ];
+        const yintervals = [
+            {until: 5, value: .5}, 
+            {until: 50, value: 5}, 
+            {until: 500, value: 50},
+            {until: 5000, value: 500},
+            {until: 50000, value: 5000},
+            {until: Number.MAX_VALUE, value: 50000},
+        ];
+        function updateTable(canvas, data) {
+            const ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "gray";
+            let interval = xintervals.find(x => x.until >= data.length).value;
+            for (let i = 0; i < data.length; i++) {
+                if (i % interval !== 0) continue;
+                const w = canvas.width / (data.length - 1) * i;
+                ctx.moveTo(w, 0);
+                ctx.lineTo(w, canvas.height);         
+            }
+            const min = Math.min(...data); const max = Math.max(...data);
+            interval = yintervals.find(x => x.until >= (max - min)).value;
+            for (let i = min - (min % interval) + interval; i < max; i += interval) {
+                const h = canvas.height * (1 - ((i - min) / (max - min)));
+                ctx.moveTo(0, h);
+                ctx.lineTo(canvas.width, h);
+            }
+            ctx.stroke();
+            ctx.closePath();
+            ctx.beginPath();
+            ctx.lineWidth = 4;
+            if (data.length > 0) {
+                const sign = Math.sign(data.at(-1) - data[0]);
+                ctx.strokeStyle = ["red", "gray", "lime"][sign + 1];
+                for (let i = 1; i < data.length; i++) {
+                    ctx.moveTo(canvas.width / (data.length - 1) * (i - 1), canvas.height * (1 - (data[i - 1] - min) / (max - min)));
+                    ctx.lineTo(canvas.width / (data.length - 1) * i, canvas.height * (1 - (data[i] - min) / (max - min)));
+                }
+                ctx.stroke();
+            }
+            ctx.closePath();
+        }

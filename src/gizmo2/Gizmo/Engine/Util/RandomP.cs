@@ -30,7 +30,7 @@ namespace Gizmo.Engine.Util
         public static int Random(int max, bool seeded = true) => Random(0, max, seeded);
         public static int Random(int min, int max, bool seeded = true) => MathP.PosMod((int)GetRandom(seeded).NextInt64(), max - min) + min;
         public static int Random(int max, Random r) => Random(0, max, r);
-        public static int Random(int min, int max, Random r) => MathP.PosMod((int)r.NextInt64(), max - min) + min;
+        public static int Random(int min, int max, Random r) => max - min == 0 ? min : (MathP.PosMod((int)r.NextInt64(), max - min) + min);
         public static T Random<T>(IEnumerable<T> list, bool seeded = true) => list.ElementAt(Random(list.Count(), seeded));
         public static T Random<T>(IEnumerable<T> list, Random r) => list.ElementAt(Random(list.Count(), r));
         public static Dictionary<T, double> ToWeightedList<T>(this IEnumerable<T> list) where T : notnull

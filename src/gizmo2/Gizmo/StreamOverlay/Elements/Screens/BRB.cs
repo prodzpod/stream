@@ -74,8 +74,8 @@ namespace Gizmo.StreamOverlay.Elements.Screens
                 {  "banananess", .5f },
                 {  "orangeness", .5f },
                 {  "appleness", 0f },
-                {  "constitution", 300 * GuyAmount },
-                {  "attack", 4 * GuyAmount },
+                {  "constitution", 75 * GuyAmount },
+                {  "attack", GuyAmount },
                 {  "defense", 0 },
                 {  "critchance", 0.4f },
                 {  "critdamage", 2.5f },
@@ -86,9 +86,8 @@ namespace Gizmo.StreamOverlay.Elements.Screens
             });
             self.Set("author", "prodzpod");
             self.Set("color", "#ffffff");
+            self.Set("raidboss", true);
             StreamOverlay.Shimeji["prodzpod"] = self;
-            self.Set("tilnextmove", 999999f);
-            self.Set("tilnextkick", 999999f);
         }
 
         public override void OnDestroy(ref Instance self)

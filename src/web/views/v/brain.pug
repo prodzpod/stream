@@ -1,0 +1,242 @@
+extends ../template/base.pugtemplate
+
+block meta
+    - v = true
+    - title = 'my brain'
+    - description = 'edit my brain'
+block body 
+    h1 BSLint
+    p edit my brain
+    br
+    .hlist
+        select#hook(onchange="hookselected()")
+            option guy idle
+            option guy attacked
+            option guy peaced
+            option ipc recieved
+            option command called
+            option chat starts with
+            option chat includes
+        input#hook2(disabled=true)
+        .spacer
+        button(onclick="load()") load
+    .vlist
+        p#login
+        textarea#main
+    .hlist
+        .spacer
+        button(onclick="save()") save
+    .vlist
+        .hlist
+            h3 recent log
+            .spacer
+            button#pause(style="margin-top: 36px;" onclick="togglepause()") pause
+        .vlist#log
+            c this is the bottom of the list!
+    .vlist
+        h3 steal brain from...
+        .hlist.hard#suggestion
+            button.spacer#random0-button
+                .hlist
+                    .vlist.left.spacer
+                        h4#random0-user Default
+                        .codepreview#random0-text
+            button.spacer#random1-button
+                .hlist
+                    .vlist.left.spacer
+                        h4#random1-user
+                        .codepreview#random1-text
+            button.spacer#random2-button
+                .hlist
+                    .vlist.left.spacer
+                        h4#random2-user
+                        .codepreview#random2-text
+block postbody 
+    style.
+        textarea {
+            resize: none;
+        }
+        select, input, button, textarea {
+            padding: 8px;
+            margin: 8px;
+            border-radius: 4px;
+        }
+        input:disabled {
+            background-color: #888;
+        }
+        button h4 {
+            margin-top: 0;
+        }
+        .codepreview {
+            height: 128px;
+            overflow-y: hidden;
+            font-size: 50%;
+        }
+        .codepreview::after {
+            content: " ";
+            position: absolute;
+            top: 0; bottom: 0; left: 0; right: 0; 
+            background: linear-gradient(transparent, color-mix(in hsl, var(--background), var(--text) calc(200%/16)));
+            transition: all var(--transition);
+        }
+        #suggestion button {
+            width: 0;
+            overflow: hidden;
+        }
+        #suggestion button:hover .codepreview::after {
+            background: linear-gradient(transparent, color-mix(in hsl, var(--background), var(--text) calc(800%/16)));
+        }
+    script.
+        addEvent("onload", () => {
+            let url = "wss://prod.kr/brain";
+            const hash = localStorage.getItem("brain");
+            if (hash) url += `?hash=${hash}&password=${localStorage.getItem("password")}`;
+            ws = new WebSocket(url);
+            ws.addEventListener("open", () => {
+                console.log("WebSocket opened");
+            });
+            ws.addEventListener("message", event => {
+                const args = WASD.unpack(event.data);
+                if (!COMMANDS[args[0]]) console.warn(args[0], "does not exist but recieved:", args);
+                else COMMANDS[args[0]](...args.slice(1));
+            });
+            for (let textarea of q("textarea")) { // stackoverflow GO
+                textarea.style.height = textarea.scrollHeight + "px";
+                textarea.style.overflowY = "hidden";
+                textarea.addEventListener("input", function() {
+                    this.style.height = "auto";
+                    this.style.height = this.scrollHeight + "px";
+                });
+            }
+            setTimeout(() => {
+                (async () => { updateSteals(await send("updatesteals", ...getHook())); })();
+            }, 200);
+            
+        });
+        let user = {};
+        const COMMANDS = {
+            register: (o) => {
+                user = o;
+                if (user.iu !== undefined) {
+                    e("login").innerHTML = "";
+                    e("main").style.display = "flex";
+                }
+                else {
+                    e("login").innerHTML = `type <u style="user-select: text;">!login ${user.login}</u> in the twitch chat to log in!`;
+                    e("main").style.display = "none";
+                }
+            },
+            login: (o, hash, password) => {
+                user = o;
+                localStorage.setItem("brain", hash);
+                localStorage.setItem("password", password);
+                e("login").innerHTML = "";
+                e("main").style.display = "flex";
+            },
+            error: o => console.error(o),
+            info: o => console.log(o),
+            respond: (id, o) => {
+                if (waitList[id]) { waitList[id](o); delete waitList[id]; }
+            },
+            report: (module, name, id, code, res, token, stack) => {
+                logs.push([module, name, id, code, res, token, stack]);
+                if (!paused) updateLogs();
+            }
+        }
+
+        let ID = 0, waitList = {};
+        function send(...msg) {
+            if (ws?.readyState !== 1) return new Promise(resolve => { resolve(undefined); }); ID++;
+            ws.send(WASD.pack(ID, ...msg));
+            return new Promise(resolve => waitList[ID] = resolve);
+        }
+
+        //
+        function hookselected() {
+            if (!e("hook").value.startsWith("guy")) e("hook2").removeAttribute("disabled");
+            else e("hook2").with("disabled", "true");
+            (async () => { updateSteals(await send("updatesteals", ...getHook())); })();
+        }
+        function getHook() {
+            switch (e("hook").value) {
+                case "guy idle":
+                case "guy attacked":
+                case "guy peaced":
+                    return ["shimeji", e("hook").value.replace("guy ", "")];
+                case "ipc recieved":
+                    return [e("hook2").value.split(" ")].slice(0, 2);
+                case "command called":
+                    return ["command", WASD.pack(e("hook2").value)];
+                case "chat starts with":
+                    return ["chat", WASD.pack("^" + e("hook2").value)];
+                case "chat includes":
+                    return ["chat", WASD.pack(e("hook2").value)];
+            }
+        }    
+
+        async function load() {
+            if (user.iu === undefined) { alert("log in first"); return; }
+            (async () => { updateSteals(await send("updatesteals", ...getHook())); })();
+            setMain((await send("loadhook", ...getHook(), user.id))[1]);
+        }
+
+        function setMain(text) {
+            e("main").value = text;
+            e("main").style.height = "auto";
+            e("main").style.height = e("main").scrollHeight + "px";
+        }
+
+        async function save() {
+            if (user.iu === undefined) { alert("log in first"); return; }
+            await send("savehook", ...getHook(), e("main").value);
+            alert("updated!");
+        }
+
+        let paused = false;
+        let logs = [];
+        function togglepause() {
+            paused = !paused;
+            if (!paused) updateLogs();
+            e("pause").innerText = paused ? "resume" : "pause";
+        }
+
+        function updateLogs() {
+            for (let log of logs) {
+                let [module, name, id, code, res, tokens, stack] = log;
+                let parent = insertElement("div", "log", "vlist"); parent.log = log;
+                insertElement("p", parent, null, `called: ${module} ${name}`);
+                insertElement("p", parent, null, `result: ${WASD.pack(res)}`);
+                let hlist = insertElement("div", parent, "hlist");
+                insertElement("button", hlist, "spacer", "show code").with("onclick", "output(this, 3)");
+                insertElement("button", hlist, "spacer", "show tokens").with("onclick", "output(this, 5)");
+                insertElement("button", hlist, "spacer", "show stack").with("onclick", "output(this, 6)");
+                insertElement("p", parent, "out", "");
+                setFirstSibling(parent);
+            }
+        }
+
+        function output(el, txt) {
+            el.parentElement.parentElement.getElementsByClassName('out')[0].innerText = WASD.pack(el.parentElement.parentElement.log[txt]);
+        }
+
+        let latestSteals;
+        function updateSteals(steals) {
+            latestSteals = steals[1];
+            let allUsers = Object.keys(latestSteals);
+            let selectUsers = [];
+            if (allUsers.includes("Default")) { selectUsers.push("Default"); allUsers = remove(allUsers, "Default"); }
+            while (selectUsers.length < 3 && allUsers.length > 0) {
+                let user = random(allUsers); selectUsers.push(user); allUsers = remove(allUsers, user); 
+            }
+            for (let i = 0; i < 3; i++) {
+                removeAllChildren("random" + i + "-text");
+                e("random" + i + "-button").style.display = "flex";
+            }
+            for (let i = 0; i < selectUsers.length; i++) {
+                e("random" + i + "-user").innerText = selectUsers[i];
+                e("random" + i + "-button").with("onclick", "setMain(latestSteals[\"" + selectUsers[i] + "\"])");
+                for (let p of latestSteals[selectUsers[i]].split("\n"))
+                    insertElement("p", "random" + i + "-text", null, p.replaceAll(" ", "&nbsp;"));
+            }
+            for (let i = selectUsers.length; i < 3; i++) e("random" + i + "-button").style.display = "none";
+        }

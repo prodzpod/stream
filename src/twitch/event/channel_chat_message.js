@@ -15,7 +15,7 @@ module.exports.execute = async req => {
     let cheermotes = null;
     for (let x of req.message.fragments) switch (x.type) {
         case "text": ret.message.text += x.text; break;
-        case "mention": ret.message.text += `<@${x.mention.user_name}:${x.mention.user_id}>`; break;
+        case "mention": ret.message.text += `@${x.mention.user_login}`; break;
         case "emote": 
             ret.message.emotes.push({
                 position: ret.message.text.length,

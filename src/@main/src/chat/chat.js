@@ -1,6 +1,6 @@
 const { send, src, data } = require("../..");
-const { time, realtype, trueish, array, unentry, split, WASD, String, occurance, safeAssign, random, BigMath, stringify, numberish, Math, nullish, filterValue, mapValue, mapKey } = require("../../common")
-const { debug, verbose, download, log, path, fileExists } = require("../../commonServer");
+const { time, realtype, trueish, array, unentry, split, WASD, String, occurance, safeAssign, random, BigMath, stringify, numberish, Math, nullish, filterValue, mapValue, mapKey, remove } = require("../../common")
+const { debug, verbose, download, log, path, fileExists, open, warn } = require("../../commonServer");
 
 const HISTORY_COUNT = 1000; let history = [];
 module.exports.history = () => history;
@@ -73,6 +73,8 @@ module.exports.command = async (from, chatter, message, text, emote, reply) => {
                 _reply(message);
                 return [x, [1, message]];
             }
+            // call command hook
+            src().bsCallHook.command(_reply, x, from, chatter, message, text, emote, reply);
             let ret = src()[x].execute(_reply, from, chatter, message, text, emote, reply);
             if (ret instanceof Promise) ret = await ret;
             return [x, ret];
@@ -110,6 +112,7 @@ function onCommand(from, chatter, message, text, emote, reply) {
 function getReply(from, chatter, message, text, emote, reply) { switch (from) {
     case "twitch": return content => send("twitch", "send", message.twitch.channel, "[🌙] " + content, [], message.twitch.id);
     case "discord": return content => send("discord", "send", message.discord.channel, WASD.toString(content), [], message.discord.id);
+    case "ghabi": return content => send("ghabi", "send", message.discord.channel, WASD.toString(content), [], message.discord.id);
     case "web": return content => send("web", "info", chatter?.twitch?.id, WASD.toString(content));
     case "witsend": return content => send("witsend", "send", "[🌙]", "#666688", "[unobtrusively] " + content);
     default: return from?._reply ?? (() => {});
@@ -121,6 +124,7 @@ module.exports.emotesToGizmo = async (source, text, emote, offset=0) => {
     return WASD.toString(module.exports.handleMeta(source, "gizmo", text, emote)[0]);
 }
 module.exports.emotes = async (from, chatter, message, text, emote, reply) => {
+    src().formatMain.parse(from, text, emote);
     let emotes = data().emote;
     // Detect Emotes
     let spaces = [];
@@ -198,7 +202,8 @@ module.exports.chat = async (from, chatter, message, text, emote, reply) => {
         icons.push(icon);
         if (chatter.economy.icon.modifier) icons.push("modifier/" + chatter.economy.icon.modifier);
     } else icons.push("common/" + random(data().icon.common));
-    send("gizmo", "chat", message.twitch.id, icons.map(x => "icon/" + x), (chatter.twitch?.color ?? "#000000"), name, WASD.toString(module.exports.handleMeta(source, "gizmo", text, emote)[0]), chatter.twitch && BigMath.between(chatter.meta.last_chatted, data().stream.start, time()) ? 1 : 0);
+    if (data().user[895949231].special?.swap) await src().sendLalaChat.chat(from, chatter, message, text, emote, reply);
+    else send("gizmo", "chat", message.twitch?.id, icons.map(x => "icon/" + x), (chatter.twitch?.color ?? "#000000"), name, WASD.toString(module.exports.handleMeta(source, "gizmo", text, emote)[0]), chatter.twitch && BigMath.between(chatter.meta.last_chatted, data().stream.start, time()) ? 1 : 0);
     src().message.register(message, chatter);
     chatter = onChat(from, chatter, message, stringify(text), emote, reply);
     return [chatter, null];
@@ -287,8 +292,19 @@ function onChat(from, chatter, message, text, emote, reply) {
         const occ = occurance(text.toLowerCase(), GLOBAL_OCCURANCE[k]);
         if (occ > 0) { found = true; global[k] ??= 0; global[k] += occ; }
     }
+    // extension alerts
+    if (chatter.meta && !chatter.meta.extensionAllowed) {
+        const _reply = getReply(from, chatter, message, text, emote, reply);
+        chatter.meta.extensionAllowed = true;
+        _reply("Welcome to the pod! prod is currently adding you to the Extension whitelist. Please refresh the browser after it is done and follow the directions given to access the screen.");
+        open("https://dev.twitch.tv/console/extensions/pz8glsbtm844bepllgq6ezbmo6mtma/0.0.1/access");
+        warn("Extension list to add: " + chatter.twitch.login);
+    }
+    if (chatter.twitch?.id) src().autovip.grant(chatter.twitch.id);
     if (found) data("global", global);
     if (chatter.meta) chatter.meta.last_chatted = time();
+    // call command hook
+    src().bsCallHook.chat(getReply(from, chatter, message, text, emote, reply), from, chatter, message, text, emote, reply);
     return chatter;
 }
 const GLOBAL_OCCURANCE = {

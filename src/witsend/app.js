@@ -40,16 +40,17 @@ module.exports.message = (author, color, message) => {
 }
 
 const TOTAL_REPLACES = {
-    "[gif of a seal flopping about happily]": "https://i.imgur.com/wN1pgoc.gif",
+    "[gif of a seal flopping about happily]": "http://witsend.witscord.net/sealblock.gif",
     "[gif of the letter h doing a dance]": "https://i.imgur.com/xcHifiq.gif",
-    "[gif of a seal staring into the camera and then splashing everythwere]": "https://i.imgur.com/QwCjhJL.gif",
+    "[gif of a seal staring into the camera and then splashing everythwere]": "http://witsend.witscord.net/sealblock.gif",
+    "[gif of a seal rapidly approaching through the snow]": "http://witsend.witscord.net/sealblock.gif",
 }
 
 function transformFrom(message) {
     if (TOTAL_REPLACES[message]) return TOTAL_REPLACES[message];
     if (message.startsWith("[unobtrusively]")) message = message.slice("[unobtrusively]".length).trim();
     else if (message.startsWith("[obtrusively]")) message = "‍\n# " + message.slice("[obtrusively]".length).trim();
-    return message.replace(/\[timestamp\/(\d+)\]/g, "<t:$1>");
+    return message.replace(/\[timestamp\/(\d+)\]/g, "<t:$1>").replaceAll("@everyone", "**@**everyone").replaceAll("@here", "**@**here");;
 }
 
 function transformTo(message) {

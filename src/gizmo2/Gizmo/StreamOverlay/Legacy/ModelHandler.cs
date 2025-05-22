@@ -1,5 +1,7 @@
 ﻿using Gizmo.Engine;
 using Gizmo.Engine.Data;
+using Gizmo.StreamOverlay;
+using Gizmo.StreamOverlay.Elements.Entities;
 using ProdModel.Object.Sprite;
 using System.Numerics;
 
@@ -43,6 +45,13 @@ namespace ProdModel.Puppet
                     RightArmAngle = Vector3.Zero;
                     RightArmAngle2 = Vector3.Zero;
                 }
+            }
+            if (Prod.Talksprite)
+            {
+                if (TrackingData.Mouth.X < 0 && StreamOverlay.Prod.Sprite != Resource.Sprites["forrest/idle"])
+                    StreamOverlay.Prod.Sprite = Resource.Sprites["forrest/idle"];
+                if (TrackingData.Mouth.X >= 0 && StreamOverlay.Prod.Sprite != Resource.Sprites["forrest/talk"])
+                    StreamOverlay.Prod.Sprite = Resource.Sprites["forrest/talk"];
             }
             ModelSprite.Draw();
         }

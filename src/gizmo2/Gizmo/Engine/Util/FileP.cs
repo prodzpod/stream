@@ -10,6 +10,7 @@
         }
 
         public static bool Exists(params string[] path) => File.Exists(Path(path));
+        public static void Delete(params string[] path) => File.Delete(Path(path));
 
         public static string ToAbsolute(this string path)
         {

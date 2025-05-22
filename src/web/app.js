@@ -6,7 +6,7 @@ const expressWS = require("express-ws");
 const bodyParser = require("body-parser");
 const { log, info, error, debug } = require("./ws");
 const { fileExists, path, listFiles, WASD, split, unentry, nullish } = require("./common");
-
+let eCache = {};
 // TODO: rewrite this to fit gizmo2 (currently copied from gizmo1)
 let serverHTTP, serverHTTPS, clientFunctions;
 module.exports.init = async () => {
@@ -29,8 +29,8 @@ module.exports.init = async () => {
         cert: fs.readFileSync(process.env.HTTPS_CERT),
     }, app);
     expressWS(app, serverHTTP, { wsOptions: { maxPayload: 8192 } }); expressWS(app, serverHTTPS, { wsOptions: { maxPayload: 8192 } });
-    if (fileExists("external", "init.js")) {
-        const extern = await require(path("external", "init.js")).init();
+    if (fileExists("external", "@web", "init.js")) {
+        const extern = await require(path("external", "@web", "init.js")).init();
         for (const subpage in extern.web) {
             const url = extern.web[subpage].url, subapp = extern.web[subpage].app;
             log("Mounting", url, "as", subpage);
@@ -48,9 +48,22 @@ module.exports.init = async () => {
     files = await listFiles("src/web/views");
     files.filter(x => x.endsWith(".pug") && x !== "index.pug").map(x => {
         log("Adding View", x); x = x.slice(0, -4);
-        app.get("/" + x, (req, res) => render(x, req, res));
+        for (const dir of [x, x + ".html", x + ".pug"]) app.get("/" + dir, (req, res) => {
+            if (x.startsWith("extension/")) {
+                res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+                res.setHeader("Pragma", "no-cache");
+                res.setHeader("Expires", "0");
+            }
+            render(x, req, res)
+        });
     });
     // api (clientside)
+    app.options("/api*", (req, res) => {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.setHeader("Access-Control-Allow-Methods", "*");
+        res.setHeader("Access-Control-Allow-Headers", "*");
+        res.end();
+    });
     for (let x of ["DELETE", "GET", "PATCH", "POST", "PUT"]) {
         files = await listFiles("src/web/api", x)
         files.map(vr => {

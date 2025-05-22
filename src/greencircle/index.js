@@ -24,7 +24,7 @@ function openWS() {
             log("Data:", data);
             for (let user of data[1]) await send(data[0], user);
         }
-        ws.onerror = () => { debug("colonq API Down"); isOn -= 1; setTimeout(() => { if (isOn === 0) openWS(); }, 30000); }
+        ws.onerror = async (e) => { error("colonq API Down", e); isOn -= 1; setTimeout(() => { if (isOn === 0) openWS(); }, 30000); }
     } catch { isOn -= 1; log("colonq API Down REAL"); }
 }
 function parseSexpRubbish(str) { return WASD.unpack(str.slice(1, -1).replaceAll("(", "[").replaceAll(")", "]")); }

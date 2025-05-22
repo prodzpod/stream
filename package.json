@@ -9,10 +9,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cheerio": "^1.0.0",
     "image-size": "^1.1.1",
+    "jsonwebtoken": "^9.0.2",
     "node-fetch": "^2.7.0",
     "open": "^10.1.0",
     "pngjs": "^7.0.0",
-    "ws": "^8.17.0"
+    "ws": "^8.18.1"
   }
 }

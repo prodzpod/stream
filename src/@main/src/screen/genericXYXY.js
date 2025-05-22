@@ -6,7 +6,7 @@ const { args } = require("../chat/chat");
 module.exports.predicate = ["!drawwindow", "!fan", "!antifan"];
 module.exports.permission = 0;
 module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
-    if (!src().screen.isScreenOn(_reply)) return [1, ""];
+    if (!src().screen.isScreenOn(_reply, chatter, message)) return [1, ""];
     const _cmd = split(text, /\s+/, 1)[0].slice(1); const cmd = OVERRIDE[_cmd] ?? _cmd;
     const _args = args(text);
     if (!COST[_cmd] || src().user.cost(_reply, chatter, COST[_cmd])) {

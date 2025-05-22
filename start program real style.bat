@@ -1,2 +1,2 @@
-node . -d
+node . --harmony --use-strict -d
 pause

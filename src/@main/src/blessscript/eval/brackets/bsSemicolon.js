@@ -2,7 +2,7 @@
 
 const { src } = require("../../../..");
 const { log } = require("../../../../commonServer");
-const { TYPE, Token } = require("../../bsUtil");
+const { TYPE, Token, NULL } = require("../../bsUtil");
 const { skipUntil } = require("../bsEvalUtil");
 
 // int
@@ -19,6 +19,6 @@ module.exports.result = async (currentTokens, index, tokens, offset, amount, sta
     if (stack.fuel < 0) return [[new Token(TYPE.error, "out of fuel")], stack];
     stack.isReturnValue = false;
     let res = await src().bsEval.eval(currentTokens.slice(0, -1), stack);
-    return [[res[0]], res[1]];
+    return [[res[0], NULL], res[1]];
 }
 module.exports.preventUnboxing = true;

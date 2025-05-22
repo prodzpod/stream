@@ -13,8 +13,8 @@ module.exports.offset = -1;
 // int || (Token, int, [Token], int, StackData) => int || [int, StackData]
 module.exports.amount = 3;
 // ([Token], int, [Token], int, int, StackData) => [[Token], StackData]
-module.exports.result = (currentTokens, index, tokens, offset, amount, stack) => {
-    let n = transformIfType(currentTokens, 
+module.exports.result = async (currentTokens, index, tokens, offset, amount, stack) => {
+    let n = await transformIfType(currentTokens, 
         [[TYPE.null, null, TYPE.null], (a, _, b) => [TYPE.null, null]],
         [[[TYPE.null, TYPE.bool], null, [TYPE.null, TYPE.bool]], (a, _, b) => [TYPE.bool, a || b]],
         [[[TYPE.null, TYPE.number, TYPE.bool], null, [TYPE.null, TYPE.number, TYPE.bool]], (a, _, b) => [TYPE.number, a + b]],
@@ -22,6 +22,7 @@ module.exports.result = (currentTokens, index, tokens, offset, amount, stack) =>
         [[TYPE.null, null, TYPE.string], (a, _, b) => [TYPE.string, b]],
         [[[TYPE.number, TYPE.string], null, [TYPE.number, TYPE.string]], (a, _, b) => [TYPE.string, a + b]],
         [[TYPE.list, null, null], (a, _, b) => [TYPE.list, [...a, currentTokens[2]]]],
+        [[TYPE.dict, null, TYPE.dict], (a, _, b) => [TYPE.dict, {...a, ...b}]],
     ); if (n?.type === TYPE.error) return [[n], stack];
     return [[new Token(...n)], stack];
 }

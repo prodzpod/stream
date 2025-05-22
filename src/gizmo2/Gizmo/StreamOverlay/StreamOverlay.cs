@@ -40,22 +40,7 @@ namespace Gizmo.StreamOverlay
                 TaskManager.RAMCounter = new("Memory", "Available MBytes");
             }
         }
-        public override void PostInit()
-        {
-            base.PostInit();
-            if (FileP.Exists("backup.txt") && FileP.Slurp("backup.txt").Length > 0)
-            {
-                BackupP.BackupEnabled = false;
-                var i = YesNoWindow.New(new(960, 540), "Backup Found", "Restore from backup?", () =>
-                {
-                    // TODO: make this a popup with two buttons (w graphic)
-                    foreach (var lines in FileP.Slurp("backup.txt").Split('\n'))
-                        BackupP.Restore(WASD.Unpack(lines));
-                });
-                i.Set("pinned", true);
-                i.onDestroy += () => BackupP.BackupEnabled = true;
-            }
-        }
+        public static bool BackupCalled = false;
 
         public override void PreUpdate(float deltaTime)
         {
@@ -97,6 +82,12 @@ namespace Gizmo.StreamOverlay
                 BackupP.Backup();
                 BackupP._backupTime += BackupP.BackupTime;
             }
+            // 
+            if (InputP.KeyReleased(0x64)) StreamWebSocket.Send("specialbutton", "veadotube", "left");
+            if (InputP.KeyReleased(0x65)) StreamWebSocket.Send("specialbutton", "veadotube", "right");
+            if (InputP.KeyReleased(0x67)) StreamWebSocket.Send("specialbutton", "veadotube", "leftmost");
+            if (InputP.KeyReleased(0x68)) StreamWebSocket.Send("specialbutton", "veadotube", "rightmost");
+            if (InputP.KeyReleased(0x69)) StreamWebSocket.Send("specialbutton", "veadotube", "madmoney");
         }
 
         public static List<KeyValuePair<Image, Action<Texture2D>>> DrawResolve = [];

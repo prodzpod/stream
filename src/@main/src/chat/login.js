@@ -31,6 +31,10 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
             _reply(`Registered to ${category}!`);
             return [0, chatter.twitch.id];
         }
+        if (await require("../../command/web/extension").tryLogin(k, chatter.twitch.id)) {
+            _reply("Registered to extension!");
+            return [0, chatter.twitch.id];
+        }
         _reply("Invalid Login");
         return [1, ""];
     } else {

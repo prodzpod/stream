@@ -526,7 +526,8 @@ const convertStringToArray = (string) => {
   return string.split(",").map(x => x.toLowerCase());
 }
 const MessageBox = async (message) => {
-  if (message.emotes) message.emotes = [...seventvEmotes, ...message.emotes.split("/").map(x => {
+  // console.log("message", message);
+  if (message.emotes && typeof message.emotes === "string") message.emotes = [...seventvEmotes, ...message.emotes.split("/").map(x => {
     const [id, idxs] = split(x, ":", 1);
     let idx = idxs.indexOf(","); if (idx === -1) idx = idxs.length;
     const [start, end] = idxs.slice(0, idx).split("-").map(x => Number(x));
@@ -539,6 +540,7 @@ const MessageBox = async (message) => {
           big_static: `https://static-cdn.jtvnw.net/emoticons/v2/${id}/static/dark/3.0`,
       }
     }})];
+  else if (message.emotes && typeof message.emotes === "object") message.emotes = [...seventvEmotes, ...message.emotes];
   else message.emotes = seventvEmotes;
   const showBadges = fieldData.showBadges, showPronouns = fieldData.showPronouns,
     makeBig = isEmote(message) ? "emote-only" : "",

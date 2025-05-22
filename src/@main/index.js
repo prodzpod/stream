@@ -20,6 +20,9 @@ module.exports.init = async () => {
     for (const fname of (await listFiles("src/@main/command")).filter(x => x.endsWith(".js")).map(x => split(x.slice(0, -".js".length), "/", 1))) {
         const [type, file] = fname; commands[type] ??= {}; commands[type][file.split("/").at(-1)] = require(path("src/@main/command", type, file)).execute ?? (() => { warn("command", fname, "execute does not exist, skipping"); }); 
     }
+    for (const fname of (await listFiles("external/@command")).filter(x => x.endsWith(".js")).map(x => split(x.slice(0, -".js".length), "/", 1))) {
+        const [type, file] = fname; commands[type] ??= {}; commands[type][file.split("/").at(-1)] = require(path("external/@command", type, file)).execute ?? (() => { warn("command", fname, "execute does not exist, skipping"); }); 
+    }
     log(`@main: ${Math.sum(Object.values(commands).map(x => Object.keys(x).length))} commands loaded! duration: ${Math.prec(measureEnd(mCommand))}ms`);
     // #REGION loading data --------------------------------------------------------------
     log("@main: Loading Data"); const mData = measureStart();
@@ -28,11 +31,20 @@ module.exports.init = async () => {
         for (const s of fpath.slice(0, -1)) { if (!walk[s]) walk[s] = {}; walk = walk[s]; }
         try { walk[fpath.at(-1)] = WASD.unpack(fs.readFileSync(path("src/@main/data", fname + ".wasd")))[0]; } catch { warn("data", fname, "is not a valid WASD file, skipping"); walk[fpath.at(-1)] = {}; }
     }
+    data.external = {};
+    for (const fname of (await listFiles("external/@data")).filter(x => x.endsWith(".wasd")).map(x => x.slice(0, -".wasd".length))) {
+        const fpath = fname.split("/"); let walk = data.external;
+        for (const s of fpath.slice(0, -1)) { if (!walk[s]) walk[s] = {}; walk = walk[s]; }
+        try { walk[fpath.at(-1)] = WASD.unpack(fs.readFileSync(path("external/@data", fname + ".wasd")))[0]; } catch { warn("data", fname, "is not a valid WASD file, skipping"); walk[fpath.at(-1)] = {}; }
+    }
     log(`@main: ${JSON.stringify(data).length} characters of data loaded! duration: ${Math.prec(measureEnd(mData))}ms`);
     // #REGION loading src --------------------------------------------------------------
     log("@main: Loading Source"); const mSrc = measureStart();
     for (const fname of (await listFiles("src/@main/src")).filter(x => x.endsWith(".js")).map(x => x.slice(0, -".js".length))) { 
         src[fname.split("/").at(-1)] = require(path("src/@main/src", fname)) ?? { execute: (() => { warn("src", fname, "execute does not exist, skipping"); }) }; 
+    }
+    for (const fname of (await listFiles("external/@src")).filter(x => x.endsWith(".js")).map(x => x.slice(0, -".js".length))) { 
+        src[fname.split("/").at(-1)] = require(path("external/@src", fname)) ?? { execute: (() => { warn("src", fname, "execute does not exist, skipping"); }) }; 
     }
     log(`@main: ${Object.keys(src).length} sources loaded! duration: ${Math.prec(measureEnd(mSrc))}ms`);
     // # REGION loading server --------------------------------------------------------------
@@ -60,6 +72,16 @@ module.exports.init = async () => {
                     this.log(fullname, initModules.includes(fullname) ? 2 : -2, command, "does not exist, skipping");
                     status = STATUS_ERR; res = WASD.pack("does not exist");
                 } else {
+                    // call src hook
+                    const hooks = data.hooks[name]?.[command] ?? {};
+                    for (const id in hooks) {
+                        const code = hooks[id];
+                        if (!code) continue; const chatter = data.user[id];
+                        (async () => {
+                            let [res, tokens, stack] = await src.bsMain.runRaw(code, () => {}, chatter, {}, src.bsEvalUtil.tokenize({ args: args }).value);
+                            src.bsReportHook.report(name, command, id, code, res, tokens, stack);
+                        })();
+                    }
                     let ret = execute(...args);
                     if (ret instanceof Promise) ret = await ret;
                     if (Array.isArray(ret) && ret.length === 2) [status, res] = ret;
@@ -131,31 +153,36 @@ module.exports.setCommand = (type, v, cmd) => commands[type][v] = cmd;
 module.exports.setSrc = (v, cmd) => src[v] = cmd;
 module.exports.data = (pth, value) => {
     if (!nullish(pth)) return data;
-    const t = traverse(pth);
+    const isExternal = pth.startsWith("external."); if (isExternal) pth = pth.slice("external.".length);
+    const t = traverse(pth, isExternal);
     t.data.data[t.data.key] = safeAssign(t.data.data[t.data.key], value);
-    fs.writeFileSync(path(`src/@main/data/${t.file.path.join("/")}.wasd`), WASD.pack(t.file.data[t.file.key]));
+    const basepath = isExternal ? "external/@data" : "src/@main/data";
+    fs.writeFileSync(path(`${basepath}/${t.file.path.join("/")}.wasd`), WASD.pack(t.file.data[t.file.key]));
     debug("Written data:", t.data.path.join("/"), "value", t.data.data[t.data.key]);
 };
 module.exports.incrementData = (pth, value=1) => {
     if (!nullish(pth)) return data;
-    const t = traverse(pth);
+    const isExternal = pth.startsWith("external."); if (isExternal) pth = pth.slice("external.".length);
+    const t = traverse(pth, isExternal);
     t.data.data[t.data.key] ??= 0;
     t.data.data[t.data.key] += value;
-    fs.writeFileSync(path(`src/@main/data/${t.file.path.join("/")}.wasd`), WASD.pack(t.file.data[t.file.key]));
+    const basepath = isExternal ? "external/@data" : "src/@main/data";
+    fs.writeFileSync(path(`${basepath}/${t.file.path.join("/")}.wasd`), WASD.pack(t.file.data[t.file.key]));
     debug("Written data:", t.data.path.join("/"), "value", t.data.data[t.data.key]);
 };
-function traverse(pth) {
+function traverse(pth, isExternal=false) {
+    const basepath = isExternal ? "external/@data" : "src/@main/data";
     if (typeof pth === "string") pth = pth.replaceAll("/", ".").replaceAll("\\", ".").split(".");
-    let ret = { file: { path: [pth[0]], data: data, key: pth[0] }, data: { path: [pth[0]], data: data, key: pth[0] } };
-    let foundFile = fileExists(`src/@main/data/${ret.file.path.join("/")}.wasd`);
+    let ret = { file: { path: [pth[0]], data: isExternal ? data.external : data, key: pth[0] }, data: { path: [pth[0]], data: isExternal ? data.external : data, key: pth[0] } };
+    let foundFile = fileExists(`${basepath}/${ret.file.path.join("/")}.wasd`);
     while (pth.length > 1) {
         pth = pth.slice(1); const p = pth[0];
         if (!foundFile) {
-            if (!fileExists(`src/@main/data/${ret.file.path.join("/")}`)) 
-                fs.mkdirSync(path(`src/@main/data/${ret.file.path.join("/")}`));
+            if (!fileExists(`${basepath}/${ret.file.path.join("/")}`)) 
+                fs.mkdirSync(path(`${basepath}/${ret.file.path.join("/")}`));
             ret.file.data = ret.file.data[ret.file.key];
             ret.file.key = p; ret.file.path.push(p);
-            if (fileExists(`src/@main/data/${ret.file.path.join("/")}.wasd`)) foundFile = true;
+            if (fileExists(`${basepath}/${ret.file.path.join("/")}.wasd`)) foundFile = true;
         }
         ret.data.data = ret.data.data[ret.data.key]; 
         ret.data.key = p; ret.data.path.push(p);

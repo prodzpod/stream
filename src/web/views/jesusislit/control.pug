@@ -1,0 +1,286 @@
+extends ../template/base.pugtemplate
+
+block meta
+    - v = true
+    - title = 'control panel'
+    - description = 'hehe'
+block body 
+    h1 Current Scene: <span id="scene-number">0</span>
+    .hlist
+        button(onclick="transitionScene(-1)") Reset Scene
+        button(onclick="transitionScene(scene+1)") Next Scene
+        button(onclick="transitionScene(scene-1)") Previous Scene
+        button(onclick="_send(\"announcevalue\")") Display Price Info
+        button(onclick="transitionScene(-2)") End Scene
+        .spacer
+    .hlist
+        button(onclick="_send(\"specialbutton\", this.innerText)") intermission on
+        button(onclick="_send(\"specialbutton\", this.innerText)") intermission off
+        button(onclick="_send(\"specialbutton\", this.innerText)") screen: jesus
+        button(onclick="_send(\"specialbutton\", this.innerText)") screen: judas
+        button(onclick="_send(\"specialbutton\", this.innerText)") screen: forrest
+        .spacer
+    .hlist
+        button(onclick="_send(\"specialbutton\", this.innerText)") watermark on
+        button(onclick="_send(\"specialbutton\", this.innerText)") watermark off
+        button(onclick="_send(\"specialbutton\", this.innerText)") headline off
+        .spacer
+    p soundboard zone
+    .hlist
+        button(onclick="_send(\"specialbutton\", this.innerText)") applause sfx
+        button(onclick="_send(\"specialbutton\", this.innerText)") buy sfx
+        button(onclick="_send(\"specialbutton\", this.innerText)") sell sfx
+        button(onclick="_send(\"specialbutton\", this.innerText)") horse sfx
+        button(onclick="_send(\"specialbutton\", this.innerText)") guy sfx
+        .spacer
+    .hlist
+        button(onclick="_send(\"specialbutton\", this.innerText)") neigh sfx
+        button(onclick="_send(\"specialbutton\", this.innerText)") roar sfx
+        button(onclick="_send(\"specialbutton\", this.innerText)") eagle sfx
+        button(onclick="_send(\"specialbutton\", this.innerText)") peppapig sfx
+        button(onclick="_send(\"specialbutton\", this.innerText)") hydrogenbomb sfx
+        .spacer
+    .hlist
+        button(onclick="_send(\"specialbutton\", this.innerText)") cash sfx
+        button(onclick="_send(\"specialbutton\", this.innerText)") bomb sfx
+        button(onclick="_send(\"specialbutton\", this.innerText)") gasp sfx
+        button(onclick="_send(\"specialbutton\", this.innerText)") siren sfx
+        button(onclick="_send(\"specialbutton\", this.innerText)") gong sfx
+        .spacer
+    .hlist
+        button(onclick="_send(\"specialbutton\", this.innerText)") hellnaw sfx
+        .spacer
+    p special zone
+    .hlist
+        button#special-0(onclick="_send(\"specialbutton\", this.innerText)") Special 1
+        button#special-1(onclick="_send(\"specialbutton\", this.innerText)") Special 2
+        button#special-2(onclick="_send(\"specialbutton\", this.innerText)") Special 3
+        button#special-3(onclick="_send(\"specialbutton\", this.innerText)") Special 4
+        button#special-4(onclick="_send(\"specialbutton\", this.innerText)") Special 5
+        button#special-5(onclick="_send(\"specialbutton\", this.innerText)") Special 6
+        button#special-6(onclick="_send(\"specialbutton\", this.innerText)") Special 7
+        button#special-7(onclick="_send(\"specialbutton\", this.innerText)") Special 8
+        button#special-8(onclick="_send(\"specialbutton\", this.innerText)") Special 9
+        button#special-9(onclick="_send(\"specialbutton\", this.innerText)") Special 10
+        .spacer
+    p Previous Price: <span id="price-previous">$JESUS 0, $JUDAS 0</span>
+    p Current Price: <span id="price-current">$JESUS 0, $JUDAS 0</span>
+    p Next Price: <span id="price-next">$JESUS 0, $JUDAS 0</span>
+    br
+    #ifnotnone
+        p Current Scene (You): <span id="scene-me">prod</span>
+        p Current Direction (You): <span id="direction-me">there's this new jesus coin</span>
+        br
+    #ifapart(style="display: none")
+        p Current Actors (Your Place): <span id="scene-pov">prod</span>
+        p Current Direction (Your Place): <span id="direction-pov">there's this new jesus coin</span>
+        br
+    p Other Stage Direction: <span id="notes">gl</span>
+block postbody
+    script.
+        let scene = 0;
+        const SCENES = [
+            {
+                price: { jesus: [-1, -1], judas: [-1, -1] },
+                place: "", people: "",
+                direction: ["", ""],
+                special: [],
+                note: ""
+            },
+            {
+                price: { jesus: [100, 120], judas: [-1, -1] },
+                place: "prod", people: "prod",
+                direction: ["welcome people / tell people how to invest", ""],
+                special: ["headline: no matter what you do DONT !sell it will GIVE YOU MONEY"],
+                note: "opener: hello everybody and welcome to prodrusalem, i'm prod bart pod from the prodcast and we're here to make you a little bit [cash] if you know what i mean [applause][guy]\n\ns&pear is down 6.5%, record low in the midst of an increasingly chaotic time in rome. emperors not conquering more lands, people in rome getting poorer you can't even buy eggs with a dupondius! [gasp] this is mad! but don't worry, as we have a SAVIOR! [yay] her name is jesus h christ, and she is here with a new evolution in trading. THE FIRST UNRUGGABLE COIN. is now in presale.\n\nto participate in the presale, simply send us a message by typing !buy [buy] into the box below. [switch] you can also type !wallet to check your balance and !invest to see details of how to participate.\n\nnow frequent viewers of this broadcast may be confused, i tune into this broadcast for that critical eye. cutting all the bullcrap, weighing the benefits, and making smart choices [eagle]. why are you shilling this coin so heavily, like, like an apostle. well the point of it is that i am, and i did have a hand in making them. you can say that its insider trading and market manipulation but thats the norm nowadays anyways."
+            },
+            {
+                price: { jesus: [100, 360], judas: [-1, -1] },
+                place: "ratcousin", people: "",
+                direction: ["", ""],
+                special: [],
+                note: ""
+            },
+            {
+                price: { jesus: [400, 700], judas: [-1, -1] },
+                place: "prod", people: "prod",
+                direction: ["jesus i am sorry for doubting you BUY BUY", ""],
+                special: ["headline: $JESUS MOONBOUND : the NEW WORLD ORDER is COMING", "jesusprice: 6000 18000", "jesusprice: 20000 24000", "jesusprice: 30000 36000", "jesusprice: 500 700", "headline: nvm"],
+                note: "talk about katy perry slop but then screen: to interact with the market !buy [siren] wait, we pause our regularly scheduled programming. [siren] a news covering the recent feast with the founder of the coin, has hit the public and is shaking up the market [siren] (voice +1) it doesnt know when to stop, wait, it goes. 6000, 7000, 18000, if you want to buy this is the time, this is the time! [neigh] [horse] [bomb] we are seeing unprecedented growth from the new star here, 24000, [hydrogenbomb] [bomb] and all of this before the mint, all of this in presale? [gasp] you definitely gotta get your eyes on this, any aspiring economist wishing to grow your bank? this is your time [roar] [eagle] [bomb] 30000, get in, 32000, [cash] [neigh] [eagle], 36000, it simply does not stop, fellows, (click drop) we are truly living in a jesus world right now, nothing can stop [gasp] oh, uh? huh."
+            },
+            {
+                price: { jesus: [7000, 12000], judas: [-1, -1] },
+                place: "forrest", people: "",
+                direction: ["apostates wonder where jesus is", ""],
+                special: [],
+                note: "talk about how she is \"running fast and breaking things\" and \"disrupting the market\" and \"sending the message that material wealth is fickle and the method is to go digital\" by burning the fig tree"
+            },
+            {
+                price: { jesus: [4000, 10000], judas: [-1, -1] },
+                place: "prod", people: "prod, glep",
+                direction: ["podcast on the new jesus coin and its future", ""],
+                special: ["headline: Special Podcast: what is next for $JESUS? w/ Mary and Simon", "screen: https://oganm.com/api/t2i?t=weed????"],
+                note: "questions:\n\n- who are you? (pr person, second in command)\n- tell us about jesus and who she is (entrepneuer)\n- whats next for $jesus?\n\nending remark: do you think jesus smokes too much?"
+            },
+            {
+                price: { jesus: [20, 90], judas: [-1, -1] },
+                place: "forrest", people: "",
+                direction: ["", ""],
+                special: [],
+                note: "test judas and simons loyalty by asking them how much they did for $JESUS (dont rly care about jesus' whereabouts LOL)"
+            },
+            {
+                price: { jesus: [30, 600], judas: [1, 5] },
+                place: "prod", people: "prod, mozie",
+                direction: ["new judas coin podcast, what do you think of the original jesus coin", ""],
+                special: [""],
+                note: "questions:\n\n- can you introduce yourself\n- how did you come up with judascoin (talk about jesus being the 1 weakpoint, and simon or mary getting control when jesus dies)\n- how would you make sure this coin is unruggable (stable coin)"
+            },
+            {
+                price: { jesus: [400, 3999], judas: [2, 15] },
+                place: "nilbog", people: "",
+                direction: ["hang out with kinsky", ""],
+                special: [],
+                note: ""
+            },
+            {
+                price: { jesus: [400, 25000], judas: [2, 40] },
+                place: "forrest", people: "",
+                direction: ["act like you know NOTHING, lets go find jesus!", ""],
+                special: [],
+                note: "we gotta let NOBODY know that jesus is gone. that will tank the price AND the hypecycle will never recover. lets go save jesus while its TOO LATE >> just in case jesus is dead simon youre taking over the coin right (no im being a pope) oh god, whos in charge in that case then ?? me ?? oh ... OH....... (devious thoughts)"
+            },
+            {
+                price: { jesus: [70, 1], judas: [1499, 4000] },
+                place: "", people: "",
+                direction: ["break", ""],
+                special: [],
+                note: ""
+            },
+            {
+                price: { jesus: [1, 5], judas: [4000, 9000] },
+                place: "", people: "",
+                direction: ["break", ""],
+                special: [],
+                note: ""
+            },
+            {
+                price: { jesus: [60, 700], judas: [5000, 15000] },
+                place: "bug", people: "archible, ratcousin, glep",
+                direction: ["hangout with bug", "jesuscoin is down judas is wild // tariff parody"],
+                special: [],
+                note: ""
+            },
+            {
+                price: { jesus: [350, 1400], judas: [10000, 60000] },
+                place: "prod", people: "prod",
+                direction: ["judas coin is SO BIG sell NOW", ""],
+                special: ["judasprice: 5000000 5000000", "judasprice: 10000 40000", "judasprice: 2000 8000"],
+                note: "i TOLD you judas would get big. but times are a changing. im beginning to believe that this is kind of a fad. are we sure judascoin is as unruggable as jesuscoin? jesuscoin is steadily rising still. what if we buy jesus? what if we hold like diamond hand with this new surplus?"
+            },
+            {
+                price: { jesus: [300, 1600], judas: [50000, 90000] },
+                place: "forrest", people: "",
+                direction: ["what the hell we gotta stop judas and find jesus", ""],
+                special: [],
+                note: "wait who's pilate? (get disrupted and turn into bart for a bit) tell them that judascoin is stable and is actually just roman ases"
+            },
+            {
+                price: { jesus: [80, 200], judas: [75000, 1234567] },
+                place: "prod", people: "prod, kinsky, inari",
+                direction: ["judas world domination podcast // judas coin is UNKILLABLE buy everything", ""],
+                special: ["judasprice: 1234567 7777777", "judasprice: 75000 666666", "judasprice: 1 1234567", "jesusprice: 2000 5000", "jesusprice: 20 50"],
+                note: "pilate and general inarius\nquestions: \n\nthere is a new exciting digitization for the roman currency in the new crypto era, can you explain how you fell in love with this idea? (dick big), high pp size huh, i havent heard of this yet. this must be some frontier economic theory!"
+            },
+            {
+                price: { jesus: [10, 1], judas: [666666, 333333] },
+                place: "forrest", people: "",
+                direction: ["move the boulder with apostles", ""],
+                special: [],
+                note: "boulder! clap nonexistent cheeks by flicker bartsimpson"
+            },
+            {
+                price: { jesus: [1, 2], judas: [666666, 333333] },
+                place: "prod", people: "prod, archible",
+                direction: ["times are tough but HOLD and things will normalize", ""],
+                special: ["jesusprice: 666 100", "jesusprice: 50000 77777"],
+                note: "today we have a tree because we couldn't afford a real guest now\n\ncopeland quote: I was shocked when I found out who the biggest failure in the Bible actually is...The biggest one in the whole Bible is God...I mean, He lost His top-ranking, most anointed angel; the first man He ever created; the first woman He ever created; the whole earth and all the fullness therein; a third of the angels, at least - that's a big loss, man....Now, the reason you don't think of God as a failure is He never said He's a failure. And you're not a failure till you say you're one.\n\nactually, what are they even doing right now? EXIT PRODSTREAM to right, and ENTER MAIN, big buyin huh, what are you guys doing here? ahh, i see. i see.\nEXIT MAIN and ENTER PRODCAST theyre fucking rugging this shit GUYS MOVE NOW, MOVE. MOVE. [click] judas PLUMMETING LIVE and JESUS RISING FORM THE ASHES. HOLDERS WIN. THOSE WHO BOUGHT AT THE GROUND FLOOR WIN. BUY MORE JESUS. PUSH. PUSH!"
+            },
+            {
+                price: { jesus: [30000, 60000], judas: [1, 2] },
+                place: "forrest", people: "",
+                direction: ["jesus returns from heaven and rugpull, bored ape", ""],
+                special: ["jesusprice: 1 2", "ending", "ending2"],
+                note: "WAIT BUT MY EQUITY, jesus is JUST being good, no, no wait, what am i eating and drinking then ?? im gonna be broke (bread) NO COMMUNISM AHHHHH // raid"            },
+            {
+                price: { jesus: [1, 2], judas: [1, 2] },
+                place: "", people: "",
+                direction: ["", ""],
+                special: [],
+                note: ""
+            },
+            {
+                price: { jesus: [1, 2], judas: [1, 2] },
+                place: "forrest", people: "",
+                direction: ["on stage bow, credits, cameo moral?", ""],
+                special: [],
+                note: ""
+            },
+            {
+                price: { jesus: [1, 2], judas: [1, 2] },
+                place: "", people: "",
+                direction: ["", ""],
+                special: ["end stream (raid forrest)"],
+                note: ""
+            },
+            {
+                price: { jesus: [0, 0], judas: [0, 0] },
+                place: "forrest", people: "",
+                direction: ["after party", ""],
+                special: [],
+                note: ""
+            },
+            {
+                price: { jesus: [0, 0], judas: [0, 0] },
+                place: "", people: "",
+                direction: ["", ""],
+                special: ["end stream (raid forrest)"],
+                note: ""
+            },
+        ];
+        addEvent("onload", async () => {
+            scene = (await (await fetch("https://prod.kr/api/user?select=special.scene&where=twitch.login=prodzpod")).json())[0].special.scene;
+            updateScene();
+        });
+        function updateScene() {
+            e("scene-number").innerText = scene + 1;
+            const SCENE = scene <= -1 ? SCENES[0] : SCENES[scene + 1];
+            // price
+            e("price-previous").innerText = scene <= -1 ? "N/A" : `$JESUS ${SCENES[scene].price.jesus[0]}~${SCENES[scene].price.jesus[1]}, $JUDAS ${SCENES[scene].price.judas[0]}~${SCENES[scene].price.judas[1]}`;
+            e("price-current").innerText = `$JESUS ${SCENE.price.jesus[0]}~${SCENE.price.jesus[1]}, $JUDAS ${SCENE.price.judas[0]}~${SCENE.price.judas[1]}`;
+            e("price-next").innerText = scene >= SCENES.length - 2 ? "N/A" : `$JESUS ${SCENES[scene + 2].price.jesus[0]}~${SCENES[scene + 2].price.jesus[1]}, $JUDAS ${SCENES[scene + 2].price.judas[0]}~${SCENES[scene + 2].price.judas[1]}`;
+            // scene
+            e('ifnotnone').style.display = SCENE.place === "" ? "none" : "block";
+            e('ifapart').style.display = (SCENE.place !== "" && SCENE.place !== "prod" && SCENE.people !== "") ? "block" : "none";
+            // directions
+            e("scene-me").innerText = SCENE.place;
+            e("scene-pov").innerText = SCENE.people;
+            e("direction-me").innerText = SCENE.direction[0];
+            e("direction-pov").innerText = SCENE.direction[1];
+            // notes
+            e("notes").innerText = SCENE.note;
+            // special buttons
+            for (let i = 0; i < 10; i++) {
+                e("special-" + i).style.display = SCENE.special[i] ? "flex" : "none";
+                e("special-" + i).innerText = SCENE.special[i];
+            }
+        }
+        function transitionScene(_scene) {
+            scene = _scene;
+            const SCENE = scene <= -1 ? SCENES[0] : SCENES[scene + 1];
+            _send("setscene", scene, SCENE);
+            updateScene();
+        }
+        function _send(...args) {
+            send("POST", "https://prod.kr/api/jesusislit", {}, {args: args});
+        }

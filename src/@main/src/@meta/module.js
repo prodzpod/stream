@@ -4,16 +4,17 @@ const fs = require("fs");
 const { send } = require("../..");
 const { delay } = require("../../common");
 let modules = {}, logs = {};
-module.exports.start = async (dir, logStdOut=false) => {
+module.exports.start = async (dir, logStdOut=false, isExternal=false) => {
+    const mainDirectory = isExternal ? "external" : "src";
     if (modules[dir]) {
         await send(dir, "end");
         const res = modules[dir].kill();
         logs[dir].end();
         info("Module Restarted:", dir, res);
     } else info("Module Started:", dir);
-    fs.writeFileSync(path("src", dir, "latest.log"), "");
-    modules[dir] = exec(fs.readFileSync(path("src", dir, "index.bat")).toString(), { cwd: path("src", dir) });
-    logs[dir] = fs.createWriteStream(path("src", dir, "latest.log"));
+    fs.writeFileSync(path(mainDirectory, dir, "latest.log"), "");
+    modules[dir] = exec(fs.readFileSync(path(mainDirectory, dir, "index.bat")).toString(), { cwd: path(mainDirectory, dir) });
+    logs[dir] = fs.createWriteStream(path(mainDirectory, dir, "latest.log"));
     modules[dir].stdout.pipe(logs[dir]); modules[dir].stderr.pipe(logs[dir]);
     if (logStdOut) {
         modules[dir].stderr.on('data', data => error(dir, data));

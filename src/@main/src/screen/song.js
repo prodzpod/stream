@@ -7,7 +7,7 @@ const GLOBAL_SPEEDUP = 120 / 106.5; // some kind of lag
 module.exports.predicate = ["!song", "!sing", "!play", "!bell", "!bells", "!s"];
 module.exports.permission = 0;  
 module.exports.execute = async (_reply, from, chatter, message, text) => {
-    if (!src().screen.isScreenOn(_reply)) return [1, ""];
+    if (!src().screen.isScreenOn(_reply, chatter, message)) return [1, ""];
     if (!src().user.cost(_reply, chatter, 100)) return [0, ""];
     let raw = split(text, /\s+/, 1)[1], x, y;
     if (typeof numberish(split(raw, /\s+/, 1)[0]) === "number") {
