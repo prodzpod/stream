@@ -1,0 +1,16 @@
+extends ./template/base.pugtemplate
+block meta
+    - title = 'portfolio'
+block body 
+    //- h1 portfolio (v2)
+    //- p Only half of my portfolio. Please refer to the resume for the "real name" part of my work (featuring real work experience!)
+    p the squares move (move your mouse)
+    canvas#main(width=1024 height=1024)
+    img#tex(src="//prod.kr/images/folio.png")
+block postbody
+    style.
+        #main {
+            width: 100%;
+        }
+        #tex { display: none; width: 4096px; height: 4096px; image-rendering: crisp-edges; }
+    script(src="//prod.kr/js/folio.js")

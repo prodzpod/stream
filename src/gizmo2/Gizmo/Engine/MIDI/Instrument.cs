@@ -1,7 +1,6 @@
 ﻿using Gizmo.Engine.Data;
 using static Gizmo.Engine.Data.Audio;
 using static Gizmo.Engine.MIDI.Instrument;
-using static Gizmo.Engine.MIDI.InstrumentFragment;
 
 namespace Gizmo.Engine.MIDI
 {

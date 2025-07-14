@@ -7,8 +7,6 @@ using Gizmo.StreamOverlay.Elements.Entities;
 using Gizmo.StreamOverlay.Elements.Gizmos;
 using ProdModel.Object.Sprite;
 using ProdModel.Puppet;
-using System.Diagnostics;
-using System.Drawing;
 using System.Numerics;
 
 namespace Gizmo.StreamOverlay.Rooms

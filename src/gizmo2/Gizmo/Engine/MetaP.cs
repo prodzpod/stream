@@ -1,6 +1,5 @@
 ﻿using Gizmo.Engine.Data;
 using Raylib_CSharp;
-using Raylib_CSharp.Interact;
 using Raylib_CSharp.Windowing;
 using System.Numerics;
 using System.Runtime.InteropServices;

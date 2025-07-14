@@ -1,12 +1,12 @@
 ﻿using Gizmo.Engine;
 using Gizmo.Engine.Data;
 using Gizmo.Engine.Util;
+using Gizmo.StreamOverlay.Commands.Misc;
 using Gizmo.StreamOverlay.Elements;
 using Gizmo.StreamOverlay.Elements.Windows;
 using Raylib_CSharp.Images;
 using System.Numerics;
 using System.Text.RegularExpressions;
-using YamlDotNet.Core.Tokens;
 
 namespace Gizmo.StreamOverlay
 {
@@ -45,7 +45,7 @@ namespace Gizmo.StreamOverlay
                         string? content = WASD.Assert<string>(args[7]);
                         float? isRacked = WASD.Assert<float>(args[8]);
                         if (content == null) return;
-                        var i = Commands.Chat.SpawnChat(id, color, author, content, icon.Select(x => (string)x).ToArray(), false, new Regex(@"^<emote=[^>]+>$").IsMatch(content));
+                        var i = Commands.Windows.Chat.SpawnChat(id, color, author, content, icon.Select(x => (string)x).ToArray(), false, new Regex(@"^<emote=[^>]+>$").IsMatch(content));
                         i.Position = new(x.Value, y.Value);
                         i.Angle = angle.Value / 256f;
                         i.Set("racked", isRacked.Value == 1);
@@ -64,7 +64,7 @@ namespace Gizmo.StreamOverlay
                         string? content = args.Length > 4 ? WASD.Assert<string>(args[4]) : "";
                         if (content == "Joel")
                         {
-                            var i = Commands.Chat.SpawnJoel(title);
+                            var i = Commands.Windows.Chat.SpawnJoel(title);
                             i.Position = new(x.Value, y.Value);
                             i.Angle = angle.Value / 256f;
                         }
@@ -73,7 +73,7 @@ namespace Gizmo.StreamOverlay
                             content = content["<idoldream=".Length..(content.Length - 1)];
                             StreamOverlay.DrawResolve.Add(new(Image.Load(content), texture =>
                             {
-                                var i = Commands.IdolDream.SpawnProfileWindow(x.Value, y.Value, title, content, texture);
+                                var i = Commands.Windows.IdolDream.SpawnProfileWindow(x.Value, y.Value, title, content, texture);
                                 i.Angle = angle.Value / 256f;
                             }));
                         }
@@ -93,7 +93,7 @@ namespace Gizmo.StreamOverlay
                                     return new Line { a = new(MathP.SafeParse(args[0]), MathP.SafeParse(args[1])), b = new(MathP.SafeParse(args[2]), MathP.SafeParse(args[3])), color = new(args[4]) };
                                 }).ToList());
                             }
-                            else i = Commands.Window.SpawnWindow(x.Value, y.Value, title, content);
+                            else i = Commands.Windows.Window.SpawnWindow(x.Value, y.Value, title, content);
                             i.Angle = angle.Value / 256f;
                         }
                     }
@@ -118,6 +118,16 @@ namespace Gizmo.StreamOverlay
                         if (type == "fan") i = Elements.Gizmos.Fan.New(new(x.Value, y.Value), 128, angle.Value, force.Value);
                         else i = Elements.Gizmos.AntiFan.New(new(x.Value, y.Value), 128, angle.Value, force.Value);
                         i.Angle = angle.Value / 256f;
+                    }
+                    break;
+                case "gift":
+                    {
+                        float? x = WASD.Assert<float>(args[0]);
+                        float? y = WASD.Assert<float>(args[1]);
+                        float? angle = WASD.Assert<float>(args[2]);
+                        string? sprite = WASD.Assert<string>(args[3]);
+                        float? size = WASD.Assert<float>(args[4]);
+                        Gift.SpawnGift(new(x.Value, y.Value), angle.Value, sprite, size.Value);
                     }
                     break;
             }

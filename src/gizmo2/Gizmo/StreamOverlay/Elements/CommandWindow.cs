@@ -1,5 +1,4 @@
-﻿using Gizmo.Engine.Data;
-using Gizmo.StreamOverlay.Elements.Gizmos;
+﻿using Gizmo.StreamOverlay.Elements.Gizmos;
 
 namespace Gizmo.StreamOverlay.Elements
 {

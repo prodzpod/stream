@@ -1,5 +1,4 @@
-﻿using Gizmo.Engine.Graphic;
-using System.Numerics;
+﻿using System.Numerics;
 
 namespace Gizmo.Engine.Data
 {

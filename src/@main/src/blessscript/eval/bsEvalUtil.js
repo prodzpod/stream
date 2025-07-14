@@ -85,7 +85,7 @@ module.exports.unbox = (tokens, stack) => tokens.map(x => {
 module.exports.selectiveUnboxFunctions = (tokens, stack) => tokens.map(x => {
     switch (x.type) {
         case TYPE.list: return new Token(TYPE.list, module.exports.selectiveUnboxFunctions(x.value, stack));
-        case TYPE.dict: return new Token(TYPE.dict, unentry(Object.entries(x.value).map(y => [y[0], module.exports.selectiveUnboxFunctions(y[1], stack)[0]])));
+        case TYPE.dict: return new Token(TYPE.dict, unentry(Object.entries(x.value).map(y => [y[0], module.exports.selectiveUnboxFunctions([y[1]], stack)[0]])));
         case TYPE.function: 
             for (let k in stack.var.at(-1)) {
                 const symbol = new Token(TYPE.symbol, k);

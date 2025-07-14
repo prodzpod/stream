@@ -43,9 +43,16 @@ namespace Gizmo.StreamOverlay.Elements.Gizmos
             i.Frame = frame;
             i.Position = pos + new Vector2(RandomP.Random(-256, 256), RandomP.Random(-256, 256));
             i.Set("target", pos);
-            i.Blend = color;
+            if (!icon.StartsWith("pointer/+")) i.Blend = color;
+            else
+            {
+                var i2 = Graphic.New(i, Resource.Sprites[icon + "_inner"]);
+                i2.Frame = frame;
+                i2.Position = pos;
+                i2.Blend = color;
+            }
             if (!string.IsNullOrWhiteSpace(author)) Graphic.New(i, Text.Compile(author, "arcaoblique", 26, -Vector2.One, color));
             return i;
         }
-    }
+    }   
 }

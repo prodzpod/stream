@@ -2,9 +2,6 @@
 using Gizmo.Engine.Builtin;
 using Gizmo.Engine.Data;
 using Gizmo.Engine.Util;
-using Gizmo.StreamOverlay.Elements.Gizmos;
-using Gizmo.StreamOverlay.Rooms;
-using System.Numerics;
 
 namespace Gizmo.StreamOverlay.Elements.Screens
 {

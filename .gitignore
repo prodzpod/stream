@@ -25,3 +25,4 @@ src/@main/data/temp.mp4
 src/web/public/images/*.mp4
 src/web/public/images/**/*.mp4
 src/web/public/images/temp*.png
+src/web/views/v/resolution/*

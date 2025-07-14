@@ -5,7 +5,7 @@ module.exports.grantRandom = (user, apply = true) => {
     const global = data().pointer;
     const chatter = data().user[user]?.economy?.pointers;
     if (!chatter) return {error: "user does not exist" };
-    const _pointer = Object.keys(global).filter(x => !Object.keys(chatter).includes(x) || chatter[x].length < global[x].sprite.length);
+    const _pointer = Object.keys(global).filter(x => global[x].price >= 0 && (!Object.keys(chatter).includes(x) || chatter[x].length < global[x].sprite.length));
     if (!_pointer.length) return {error: "unlocked all pointers" };
     const pointer = random(_pointer);
     const mode = random(global[pointer].sprite.filter(x => !chatter[pointer].includes(x)));

@@ -3,11 +3,10 @@ using Gizmo.Engine.Builtin;
 using Gizmo.Engine.Data;
 using Gizmo.Engine.Graphic;
 using Gizmo.Engine.Util;
+using Gizmo.StreamOverlay.Commands.Shimeji;
 using Gizmo.StreamOverlay.Elements.Entities;
 using Gizmo.StreamOverlay.Elements.Gizmos;
-using Gizmo.StreamOverlay.Rooms;
 using System.Numerics;
-using YamlDotNet.Core.Tokens;
 
 namespace Gizmo.StreamOverlay.Elements.Screens
 {
@@ -55,7 +54,7 @@ namespace Gizmo.StreamOverlay.Elements.Screens
         {
             base.OnInit(ref self);
             var GuyAmount = MathP.Max(1, Guys.Where(x => Game.Time - x.Value <= 1800).Count());
-            Commands.Fight.FightingRaidBoss = [];
+            Fight.FightingRaidBoss = [];
             self.Depth = 50;
             self.Set("ai", new Dictionary<string, float>()
             {
@@ -93,7 +92,7 @@ namespace Gizmo.StreamOverlay.Elements.Screens
         public override void OnDestroy(ref Instance self)
         {
             base.OnDestroy(ref self);
-            Commands.Fight.FightingRaidBoss = [];
+            Fight.FightingRaidBoss = [];
         }
         public override void OnUpdate(ref Instance self, float deltaTime)
         {

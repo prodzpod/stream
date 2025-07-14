@@ -13,11 +13,11 @@ module.exports.message = async (from, chatter, message, text, emote, reply) => {
     chatter = onInteraction(from, chatter, message, text, emote, reply);
     // identify reply
     if (reply) reply = src().message.identify(reply) ?? reply.fallback;
-    let ret;
+    let ret, parsed;
     [chatter, ret] = await module.exports.command(from, chatter, message, text, emote, reply);
-    [message, text, emote] = await module.exports.emotes(from, chatter, message, text, emote, reply); 
+    [message, text, emote, parsed] = await module.exports.emotes(from, chatter, message, text, emote, reply); 
     if (!ret) [chatter, ret] = await module.exports.reaction(from, chatter, message, text, emote, reply);
-    if (!ret) [chatter, ret] = await module.exports.chat(from, chatter, message, text, emote, reply);
+    if (!ret) [chatter, ret] = await module.exports.chat(from, chatter, message, text, emote, reply, parsed);
     await src().user.register(chatter);
     debug("chat result:", chatter, ret);
     // history
@@ -124,7 +124,7 @@ module.exports.emotesToGizmo = async (source, text, emote, offset=0) => {
     return WASD.toString(module.exports.handleMeta(source, "gizmo", text, emote)[0]);
 }
 module.exports.emotes = async (from, chatter, message, text, emote, reply) => {
-    src().formatMain.parse(from, text, emote);
+    let r = await src().formatMain.parse(from, text, emote);
     let emotes = data().emote;
     // Detect Emotes
     let spaces = [];
@@ -170,14 +170,14 @@ module.exports.emotes = async (from, chatter, message, text, emote, reply) => {
         }
         emote[i].url = path(fullp);
     }
-    return [message, text, emote];
+    return [message, text, emote, r];
 }
 module.exports.reaction = async (from, chatter, message, text, emote, reply) => {
     // TODO: check for text: just emoji
     return [chatter, null];
 }
 
-module.exports.chat = async (from, chatter, message, text, emote, reply) => {
+module.exports.chat = async (from, chatter, message, text, emote, reply, r) => {
     if (!chatter) return [chatter, null];
     if (from?.from !== "blessscript" && ((message.twitch && message.twitch.channel != "140410053") ||
         (message.discord && message.discord.channel != "1219954701726912586"))) return [chatter, null];
@@ -192,7 +192,8 @@ module.exports.chat = async (from, chatter, message, text, emote, reply) => {
     if (!(from?.from !== "blessscript" && message.discord && message.discord.channel == "1219954701726912586")) {
         let meta = module.exports.handleMeta(source, "discord", text, emote);
         meta[1] = meta[1].map(x => { x.position += `\`<@${name}>\`: `.length; return x; });
-        let res = (await send("discord", "send", null, (from === "witsend" ? "-# " : "") + `\`<@${name}>\`: ${meta[0]}`, meta[1], reply?.discord?.id));
+        let res = (await send("discord", "send", null, (from === "witsend" ? "-# " : "") + `\`<@${name}>\`: ${from === "witsend" ? (await src().formatStringify.stringify("discord", r)) : meta[0]}`, meta[1], reply?.discord?.id));
+        log("parsed:", await src().formatStringify.stringify(from, r));
         if (!message.discord) message.discord = res;
     }
     let icons = [];
@@ -296,14 +297,14 @@ function onChat(from, chatter, message, text, emote, reply) {
     if (chatter.meta && !chatter.meta.extensionAllowed) {
         const _reply = getReply(from, chatter, message, text, emote, reply);
         chatter.meta.extensionAllowed = true;
-        _reply("Welcome to the pod! prod is currently adding you to the Extension whitelist. Please refresh the browser after it is done and follow the directions given to access the screen.");
-        open("https://dev.twitch.tv/console/extensions/pz8glsbtm844bepllgq6ezbmo6mtma/0.0.1/access");
+        // _reply("Welcome to the pod! prod is currently adding you to the Extension whitelist. Please refresh the browser after it is done and follow the directions given to access the screen.");
+        // open("https://dev.twitch.tv/console/extensions/pz8glsbtm844bepllgq6ezbmo6mtma/0.0.1/access");
         warn("Extension list to add: " + chatter.twitch.login);
     }
     if (chatter.twitch?.id) src().autovip.grant(chatter.twitch.id);
     if (found) data("global", global);
     if (chatter.meta) chatter.meta.last_chatted = time();
-    // call command hook
+    // call chat hook
     src().bsCallHook.chat(getReply(from, chatter, message, text, emote, reply), from, chatter, message, text, emote, reply);
     return chatter;
 }

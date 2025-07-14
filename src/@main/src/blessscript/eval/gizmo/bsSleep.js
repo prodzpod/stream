@@ -20,6 +20,6 @@ module.exports.result = async (currentTokens, index, tokens, offset, amount, sta
         [[null, TYPE.number], (_, a) => new Promise(resolve => setTimeout(resolve, a * 1000))],
     ); if (n?.type === TYPE.error) return [[n], stack];
     await n;
-    stack.fuel = Math.max(stack.fuel + a * 1000, MAX_FUEL);
+    stack.fuel = Math.max(stack.fuel + n * 1000, MAX_FUEL);
     return [[currentTokens[1]], stack];
 }

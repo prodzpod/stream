@@ -2,7 +2,6 @@
 using Gizmo.Engine.Data;
 using Gizmo.Engine.Graphic;
 using Gizmo.Engine.Util;
-using PInvoke;
 using System.Numerics;
 
 namespace Gizmo.StreamOverlay.Elements.Windows

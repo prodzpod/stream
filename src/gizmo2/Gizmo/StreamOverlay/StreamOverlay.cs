@@ -2,16 +2,14 @@
 using Gizmo.Engine.Builtin;
 using Gizmo.Engine.Data;
 using Gizmo.Engine.Util;
-using Gizmo.StreamOverlay.Commands;
+using Gizmo.StreamOverlay.Charity;
 using Gizmo.StreamOverlay.Elements;
 using Gizmo.StreamOverlay.Elements.Windows;
 using Gizmo.StreamOverlay.Rooms;
 using ProdModel.Object;
-using ProdModel.Object.Sprite;
 using ProdModel.Puppet;
 using Raylib_CSharp.Images;
 using Raylib_CSharp.Textures;
-using System.Drawing;
 using System.Numerics;
 using System.Runtime.InteropServices;
 

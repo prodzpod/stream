@@ -21,7 +21,7 @@ function doFlashy() {
     setTimeout(() => {
         if (window.location.pathname[1] && e('title-random')) { e('title-random').classList.remove('random'); e('title-random').innerText = window.location.pathname[1]; }
     }, 500);
-    for (let el of q('.body *')) el.style.animation = `flicker ${Math.random() / 4 + 0.25}s forwards`;
+    for (let el of q('.body *:not(.noflashy)')) el.style.animation = `flicker ${Math.random() / 4 + 0.25}s forwards`;
 }
 
 function doColorful() {

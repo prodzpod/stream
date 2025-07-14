@@ -22,7 +22,10 @@ block commonjs
                     small_static: `https://cdn.7tv.app/emote/${x.id}/1x.avif`,
                     big_static: `https://cdn.7tv.app/emote/${x.id}/3x.avif`,
                 }
-            }))
+            }));
+            open();
+        });
+        async function open() {
             ws = new WebSocket("wss://prod.kr/lala");
             ws.addEventListener("open", () => {
                 console.log("WebSocket opened");
@@ -30,4 +33,7 @@ block commonjs
             ws.addEventListener("message", event => {
                 message(WASD.unpack(event.data)[0]);
             });
-        });
+            ws.addEventListener("close", event => {
+                open();
+            });
+        }

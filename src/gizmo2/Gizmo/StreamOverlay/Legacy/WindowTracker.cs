@@ -9,6 +9,13 @@ namespace ProdModel.Object
         public static float Lifetime = 0;
         public static float LastSyncTime = 0;
         public static Dictionary<int, WindowTransform> LastSync = [];
+        public static int PRIMARY_MONITOR;
+        public static int LEFT_MONITOR; 
+        public static void Init()
+        {
+            PRIMARY_MONITOR = (int)User32.MonitorFromPoint(new POINT { x = 960, y = 540 }, User32.MonitorOptions.MONITOR_DEFAULTTOPRIMARY);
+            LEFT_MONITOR = (int)User32.MonitorFromPoint(new POINT { x = -960, y = 540 }, User32.MonitorOptions.MONITOR_DEFAULTTOPRIMARY);
+        }
         public static void Update(float time)
         {
             Lifetime += time;
@@ -38,6 +45,8 @@ namespace ProdModel.Object
                     User32.GetWindowRect(w.ID, out RECT rect);
                     w.Position = new(rect.left, rect.top);
                     w.Size = new(rect.right - rect.left, rect.bottom - rect.top);
+                    var Monitor = (int)User32.MonitorFromWindow((int)w.ID, User32.MonitorOptions.MONITOR_DEFAULTTOPRIMARY);
+                    if (Monitor == LEFT_MONITOR) w.Position.X -= 1920;
                     w.Order = i;
                     windows[i] = w;
                 }
@@ -58,7 +67,6 @@ namespace ProdModel.Object
                             if (window.Position.X != LastSync[id].Position.X) txt.Add("x:" + window.Position.X);
                             if (window.Position.Y != LastSync[id].Position.Y) txt.Add("y:" + window.Position.Y);
                             if (window.Size.X != LastSync[id].Size.X) txt.Add("w:" + window.Size.X);
-                            if (window.Size.Y != LastSync[id].Size.Y) txt.Add("h:" + window.Size.Y);
                             if (window.Size.Y != LastSync[id].Size.Y) txt.Add("h:" + window.Size.Y);
                             if (window.Order != LastSync[id].Order) txt.Add("i:" + window.Order);
                             if (txt.Count > 1) updates.Add(WASD.Pack(txt.ToArray()));

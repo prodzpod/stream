@@ -1,4 +1,3 @@
-using Gizmo.Engine;
 using Gizmo.Engine.Data;
 using Raylib_CSharp.Rendering;
 using System.Numerics;

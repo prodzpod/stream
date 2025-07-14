@@ -1,5 +1,4 @@
-﻿using Gizmo.Engine.Data;
-using System.Net.WebSockets;
+﻿using System.Net.WebSockets;
 using System.Text;
 
 namespace Gizmo.Engine.Extra

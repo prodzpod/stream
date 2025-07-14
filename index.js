@@ -105,7 +105,7 @@ if (fileExists("latest.log")) {
 }
 backupLogLoop();
 
-module.exports.initModules = ["twitch", "discord", "web", "qat", "gpt", "gcp", "greencircle", "social", "witsend"];
+module.exports.initModules = ["twitch", "discord", "web", "qat", "gpt", "gcp", "greencircle", "social", "witsend", "raw"];
 module.exports.streamModules = ["obs", "tracker", "fl"];
 module.exports.stop = () => stop;
 module.exports.stopReal = () => stop = true;

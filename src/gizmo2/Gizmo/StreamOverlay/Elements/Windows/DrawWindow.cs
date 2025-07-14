@@ -1,7 +1,6 @@
 ﻿using Gizmo.Engine;
 using Gizmo.Engine.Builtin;
 using Gizmo.Engine.Data;
-using Raylib_CSharp.Rendering;
 using System.Numerics;
 
 namespace Gizmo.StreamOverlay.Elements.Windows

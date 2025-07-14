@@ -1,8 +1,5 @@
 ﻿using Gizmo.Engine.Util;
-using System;
-using System.ComponentModel.DataAnnotations;
 using System.Numerics;
-using System.Runtime.InteropServices;
 
 namespace Gizmo.Engine.Data
 {

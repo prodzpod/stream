@@ -9,7 +9,7 @@ namespace Gizmo.StreamOverlay
     {
         public static WebSocket ws;
         public static int ID = 0;
-        public static Dictionary<string, Func<object?[], object?[]?>> Commands = [];
+        public static Dictionary<string, Func<object?[], Task<object?[]?>>> Commands = [];
         public static Dictionary<int, Action<object?[]>> Callbacks = [];
         public static void Init()
         {
@@ -21,7 +21,7 @@ namespace Gizmo.StreamOverlay
             Logger.Info("Websocket Loaded");
         }
 
-        public static void Recieve(string message)
+        public static async void Recieve(string message)
         {
             object?[] args = WASD.Unpack(message);
             if (args.Length <= 1) { Logger.Error("Websocket is malformed: no id or command??"); return; }
@@ -38,7 +38,7 @@ namespace Gizmo.StreamOverlay
             if (id == default || command == null) { Logger.Error("id or command is not the right type"); return; }
             Commands.TryGetValue(command, out var fn);
             if (fn == null) { Logger.Warn("command does not exist"); return; }
-            var ret = fn.Invoke(args);
+            var ret = await fn.Invoke(args);
             if (ret == null || ret.Length == 0) return;
             _ = ws.Send(WASD.Pack([id, "respond", 0, ret]));
         }
@@ -173,7 +173,7 @@ namespace Gizmo.StreamOverlay
 
     public abstract class Command
     {
-        public abstract object?[]? Execute(params object?[] args);
+        public abstract Task<object?[]?> Execute(params object?[] args);
         public Command() { StreamWebSocket.Commands.Add(GetType().Name.ToLowerInvariant(), Execute); }
     }
 }

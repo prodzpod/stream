@@ -7,15 +7,13 @@ using Gizmo.StreamOverlay.Elements.Gizmos;
 using Gizmo.StreamOverlay.Elements.Screens;
 using Gizmo.StreamOverlay.Elements.Windows;
 using Gizmo.StreamOverlay.Rooms;
-using System.Data.Common;
-using System.Linq;
 using System.Numerics;
 
 namespace Gizmo.StreamOverlay.Elements.Entities
 {
     public class Shimeji : GameElement
     {
-        public override string[] InteractsWith => [nameof(Mouse), nameof(Window), nameof(Chat)];
+        public override string[] InteractsWith => [nameof(Mouse), nameof(Window), nameof(Chat), nameof(Gift)];
         public override float Mass(Instance i) => 0;
         public override float Drag(Instance i) => .9f;
         public override float Friction(Instance i) => 1;
@@ -194,7 +192,7 @@ namespace Gizmo.StreamOverlay.Elements.Entities
                                 res1 = MathP.Clamp(res1, 0, 1920);
                                 res2 = MathP.Clamp(res2, 0, 1080);
                                 var _self = self;
-                                foreach (var window in Game.INSTANCES.Where(x => (x.Element is Window || x.Element is Chat) && !x.Get<bool>("pinned") && !x.Get<bool>("racked")))
+                                foreach (var window in Game.INSTANCES.Where(x => (x.Element is Window || x.Element is Chat || x.Element is Gift) && !x.Get<bool>("pinned") && !x.Get<bool>("racked") && x.Element is not SongWindow))
                                     TryKick(self, window, new Vector2(res1, res2));
                                 self.Set("idle", .05f / ai["aggression"]);
                                 break;
@@ -268,8 +266,8 @@ namespace Gizmo.StreamOverlay.Elements.Entities
                     self.Set("timesjumped", self.Get<int>("timesjumped") + 1);
                     self.Set("forcejump", false);
                     self.Set("jumps", self.Get<float>("jumps") - 1);
-                    self.Speed.Y = MathP.Lerp(-800, -1000, (self.Position.Y - target.Y) / 1080);
-                    self.Speed.X = 1000 * (target.X - self.Position.X) / 960;
+                    self.Speed.Y = MathP.Lerp(-800, -4000, (self.Position.Y - target.Y) / 1080);
+                    self.Speed.X = 4000 * (target.X - self.Position.X) / 960;
                 }
                 if (self.Get<bool>("grounded"))
                 {
@@ -483,7 +481,7 @@ namespace Gizmo.StreamOverlay.Elements.Entities
             {
                 static object?[]? VecToArr(Vector2? v) => v != null ? [v.Value.X, v.Value.Y] : null;
                 var f = this;
-                var windows = Game.INSTANCES.Where(x => (x.Element is Window || x.Element is Chat) && !x.Get<bool>("pinned") && !x.Get<bool>("racked"));
+                var windows = Game.INSTANCES.Where(x => (x.Element is Window || x.Element is Chat || x.Element is Gift) && !x.Get<bool>("pinned") && !x.Get<bool>("racked") && x.Element is not SongWindow);
                 var guys = Game.INSTANCES.Where(x => x != self && x.Element is Shimeji);
                 StreamWebSocket.Send("callhook", self.Get<string>("author"), state, extra.Concat([
                     // physics

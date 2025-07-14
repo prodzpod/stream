@@ -28,14 +28,14 @@
 
 const { data } = require("../../..");
 const { Math, realtype } = require("../../../common");
-const { log } = require("../../../commonServer");
+const { log, fileExists, download, path } = require("../../../commonServer");
 const { simpleTag, simpleTagSelfClosing } = require("./formatPattern");
 const { scanFor, scanForDouble, scanForBracket } = require("./formatScan");
 const { cleanup, Text, Token, TYPE, Tag } = require("./formatTypes");
 
 module.exports.parse = async (from, text, emote) => {
     log("BEFORE:", from, text, emote);
-    let arr = emote?.length ? await parseCommonEmotes(text, emote) : [Text(text)];
+    let arr = emote?.length ? await parseCommonEmotes(from, text, emote) : [Text(text)];
     if (PARSE[from]) arr = PARSE[from](arr);
     arr = PARSE.common(arr);
     // final cleanup
@@ -46,13 +46,21 @@ module.exports.parse = async (from, text, emote) => {
     log("AFTER:", arr);
     return arr;
 }
-async function parseCommonEmotes(text, emote) {
+async function parseCommonEmotes(from, text, emote) {
     let ret = [], start = 0;
     for (const e of emote) {
         ret.push(Text(text.slice(start, e.position)));
         start = e.position;
-        let res = new Token(TYPE.emote, e.name); res.url = e.url; res.format = e.format;
         // convert url to local...
+        let p = `emote/${from}/${e.name.replace(/\W/g, "_")}.${e.format}`;
+        let fullp = e.url.startsWith("src/") ? e.url : (`src/@main/data/` + p);
+        if (e.url.startsWith("http") && !fileExists(fullp)) {
+            log("Downloading New Emote:", e.url);
+            await download(e.url, p);
+            if (p.endsWith(".gif")) require("child_process").execSync(`python ${path("src/@main/data/emote/extractFrames.py")} ${path(fullp)}`);
+        }
+        e.url = path(fullp);
+        let res = new Token(TYPE.emote, e.name); res.url = e.url; res.format = e.format;
         ret.push(res);
     }
     if (start < text.length) ret.push(Text(text.slice(start)));
@@ -68,7 +76,7 @@ const PARSE = {
         arr = simpleTagSelfClosing(arr, /<(color|tilt|size|charspace|lineheight|font)=([^>]+)>/, m => [Tag(m[1]).with("extra", m[2])]);
         arr = simpleTagSelfClosing(arr, /<(wave|shake)( [^>]+)?>/, m => {
             let tag = Tag(m[1]);
-            for (let entry of m[2].trim().split()) {
+            for (let entry of (m[2] ?? "").trim().split()) {
                 if (!entry.includes("=")) continue;
                 tag = tag.with(...entry.split("="));
             }

@@ -3,7 +3,6 @@ using Gizmo.Engine.Builtin;
 using Gizmo.Engine.Data;
 using Gizmo.Engine.Util;
 using Raylib_CSharp.Rendering;
-using System.Diagnostics.Metrics;
 using System.Numerics;
 
 namespace Gizmo.StreamOverlay.Elements

@@ -20,8 +20,8 @@ namespace Gizmo.StreamOverlay.Elements.Windows
             i.Set("content", _content);
             var children = i.Get<Instance[]>("children");
             var size = i.Get<Vector2>("size");
-            children[1].Position = new(-size.X / 2 + nsWindow.innerLeft + Commands.Window.OFFSET, -size.Y / 2 + nsWindow.innerTop + Commands.Window.OFFSET * 1.5f);
-            float buttonY = -size.Y / 2 + nsWindow.innerTop + content.Size.Y + Commands.Window.OFFSET * 1.5f;
+            children[1].Position = new(-size.X / 2 + nsWindow.innerLeft + Commands.Windows.Window.OFFSET, -size.Y / 2 + nsWindow.innerTop + Commands.Windows.Window.OFFSET * 1.5f);
+            float buttonY = -size.Y / 2 + nsWindow.innerTop + content.Size.Y + Commands.Windows.Window.OFFSET * 1.5f;
             children[2].Position = new(0, buttonY - (nsButton.innerBottom - nsButton.innerTop) / 2);
             children[3].Position = new(13 / 2 - 1, buttonY + 13 / 2);
             children[2].Set("size", yesText.Size + new Vector2(nsButton.innerLeft + nsButton.innerRight, nsButton.innerTop + nsButton.innerBottom) + Vector2.One * 4);

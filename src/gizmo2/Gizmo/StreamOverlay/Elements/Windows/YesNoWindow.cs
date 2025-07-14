@@ -2,7 +2,6 @@
 using Gizmo.Engine.Builtin;
 using Gizmo.Engine.Data;
 using Gizmo.Engine.Graphic;
-using LibVLCSharp.Shared;
 using System.Numerics;
 
 namespace Gizmo.StreamOverlay.Elements.Windows
@@ -16,15 +15,15 @@ namespace Gizmo.StreamOverlay.Elements.Windows
             Text content = Text.Compile(_content, "arcaoblique", 26, Game.Room.Camera.Z, -Vector2.One, ColorP.BLACK);
             Text yesText = Text.Compile("Yes", "arcaoblique", 26, Game.Room.Camera.Z, -Vector2.UnitY, ColorP.BLACK);
             Text noText = Text.Compile("No", "arcaoblique", 26, Game.Room.Camera.Z, -Vector2.UnitY, ColorP.BLACK);
-            float sizeX = MathP.Max(content.Size.X, yesText.Size.X + noText.Size.X + Commands.Window.OFFSET + 8);
+            float sizeX = MathP.Max(content.Size.X, yesText.Size.X + noText.Size.X + Commands.Windows.Window.OFFSET + 8);
             float sizeY = content.Size.Y + yesText.Size.Y + 4;
             var i = New(nameof(YesNoWindow), pos, title, new(sizeX, sizeY), content, nsButton, yesText, nsButton, noText);
             i.Set("content", _content);
             var children = i.Get<Instance[]>("children");
             var size = i.Get<Vector2>("size");
-            children[1].Position = new(-size.X / 2 + nsWindow.innerLeft + Commands.Window.OFFSET, -size.Y / 2 + nsWindow.innerTop + Commands.Window.OFFSET * 1.5f);
-            float buttonX = (yesText.Size.X - noText.Size.X - Commands.Window.OFFSET) / 2;
-            float buttonY = -size.Y / 2 + nsWindow.innerTop + content.Size.Y + Commands.Window.OFFSET * 1.5f;
+            children[1].Position = new(-size.X / 2 + nsWindow.innerLeft + Commands.Windows.Window.OFFSET, -size.Y / 2 + nsWindow.innerTop + Commands.Windows.Window.OFFSET * 1.5f);
+            float buttonX = (yesText.Size.X - noText.Size.X - Commands.Windows.Window.OFFSET) / 2;
+            float buttonY = -size.Y / 2 + nsWindow.innerTop + content.Size.Y + Commands.Windows.Window.OFFSET * 1.5f;
             children[2].Position = new(buttonX - yesText.Size.X - (nsButton.innerRight - nsButton.innerLeft) / 2, buttonY - (nsButton.innerBottom - nsButton.innerTop) / 2);
             children[3].Position = new(buttonX - yesText.Size.X + 13 / 2 - 1, buttonY + 13 / 2);
             children[2].Set("size", yesText.Size + new Vector2(nsButton.innerLeft + nsButton.innerRight, nsButton.innerTop + nsButton.innerBottom) + Vector2.One * 4);

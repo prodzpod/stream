@@ -3,7 +3,6 @@ using Gizmo.Engine.Graphic;
 using Gizmo.Engine.Util;
 using Raylib_CSharp.Rendering;
 using Raylib_CSharp.Textures;
-using System;
 using System.Numerics;
 
 namespace Gizmo.Engine.Builtin

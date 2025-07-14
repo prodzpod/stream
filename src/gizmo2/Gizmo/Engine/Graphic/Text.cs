@@ -1,6 +1,5 @@
 ﻿using Gizmo.Engine.Data;
 using Raylib_CSharp.Rendering;
-using System.Drawing;
 using System.Numerics;
 using static Gizmo.Engine.Builtin.TextTags;
 namespace Gizmo.Engine.Graphic

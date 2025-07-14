@@ -209,6 +209,7 @@ block postbody
             },
             iu: o => { if (e("iu")) e("iu").innerText = Math.prec(o) + "iu"; if (e("unlock")) e("unlock").innerText = `Unlock (${Math.prec(o) + "iu"})`; user.iu = o; },
             icon: (o, o2) => { user.icon = o; if (o2) user.icons[o] = o2; if (state === "icon") setState("icon") },
+            pointer: o => { user.pointer = o; if (state === "pointer") setState("pointer") },
             voteStart: (title, options) => {
                 let voteScreen = insertElement("div", "overlay", "vlist center").with("id", "vote");
                 insertElement("p", voteScreen, null, title);
@@ -289,12 +290,17 @@ block postbody
                 insertElement("h3", pointer, "center", user.pointers[0] ?? "Pointer");
                 insertElement("img", pointer, "center").with("src", `https://prod.kr/data/pointer/${user.pointer.point ?? "cursor"}_point.png`).with("style", "width: 64px; transform: translate(-25%, -25%); margin: -16px auto;");
                 insertElement("img", pointer, "center").with("src", `https://prod.kr/data/pointer/${user.pointer.click ?? "cursor"}_click.png`).with("style", "width: 64px; transform: translate(-25%, -25%); margin: -16px auto;");
-                insertElement("p", pointer, "center", "Unlock Requirement");
+                insertElement("img", pointer, "center").with("src", `https://prod.kr/data/pointer/${user.pointer.pin ?? "cursor"}_pin.png`).with("style", "width: 64px; transform: translate(-25%, -25%); margin: -16px auto;");
+                insertElement("img", pointer, "center").with("src", `https://prod.kr/data/pointer/${user.pointer.pet ?? "cursor"}_pet.png`).with("style", "width: 64px; transform: translate(-25%, -25%); margin: -16px auto;");
                 const list = insertElement("div", insertElement("div", insertElement("div", "screen", "top bottom right vlist hard").with("style", "min-width: 50%;")).with("style", "margin: 16px;"), "overlay vlist").with("style", "width: 100%; height: 100%;");
+                const search = insertElement("div", list, "hlist").with("style", "flex: 0 0 auto !important;");
+                onEnter(insertElement("input", search, "spacer").with("id", "search").with("placeholder", "Search..."), searchPointer);
+                insertElement("button", search, null, "Go").with("onclick", "searchPointer()");
                 const checkbox = insertElement("div", list, "hlist").with("style", "flex: 0 0 auto !important;");
                 insertElement("input", checkbox).with("type", "checkbox").with("id", "unlocked").with("value", unlockedOnly);
                 insertElement("p", checkbox, "spacer left", unlockedOnly ? "Show All" : "Show Unlocked");
-                const scroll = insertElement("div", list, "vlist").with("style", "overflow-y: scroll;");
+                const scroll = insertElement("div", list, "vlist hard spacer").with("style", "overflow-y: scroll; height: 0;").with("id", "pointer-list");
+                searchPointer();
             },
             action: () => {
                 addSimpleButton("bottom right", "idle", "back");
@@ -581,6 +587,20 @@ block postbody
                 insertElement("p", body, "spacer", name);
             }
             insertElement("div", "icon-list", "spacer");
+        }
+        function searchPointer() {
+            removeAllChildren("pointer-list");
+            let query = e("search").value.toLowerCase();
+            let _pointers = [];
+            for (let k in pointers) for (let o of pointers[k]) _pointers.push({ name: `${o}_${k}`, type: k, series: o });
+            _pointers.sort((a, b) => a.name.localeCompare(b.name)).reverse();
+            console.log(_pointers);
+            for (let pointer of _pointers.filter(x => ((unlockedOnly === e("unlocked").checked) || user.pointers[x.series].includes(x.type)) && x.name.includes(query))) {
+                let body = insertElement("div", insertElement("button", "pointer-list", `pointer-entry rarity-${pointer.series.startsWith("+") ? "uncommon" : "common"}${!user.pointers[pointer.series].includes(pointer.type) ? " locked" : ""}`).with("onclick", `send("changepointer", "${pointer.type}", "${pointer.series}")`), "hlist");
+                insertElement("img", body).with("src", `//prod.kr/data/pointer/${pointer.name}.png`);
+                insertElement("p", body, "spacer", pointer.series.startsWith("+") ? pointer.name.slice(1) : pointer.name);
+            }
+            insertElement("div", "pointer-list", "spacer");
         }
     script(src="https://player.twitch.tv/js/embed/v1.js")
     script(type="text/javascript").

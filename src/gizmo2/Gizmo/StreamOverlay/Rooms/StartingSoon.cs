@@ -1,16 +1,10 @@
 ﻿using Gizmo.Engine;
-using Gizmo.Engine.Builtin;
 using Gizmo.Engine.Data;
 using Gizmo.Engine.Graphic;
 using Gizmo.Engine.Util;
 using Gizmo.StreamOverlay.Elements.Entities;
 using Gizmo.StreamOverlay.Elements.Gizmos;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gizmo.StreamOverlay.Rooms
 {

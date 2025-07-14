@@ -5,7 +5,6 @@ using Gizmo.StreamOverlay.Elements.Entities;
 using ProdModel.Puppet;
 using Raylib_CSharp.Images;
 using System.Numerics;
-using System.Xml.Linq;
 
 namespace ProdModel.Object.Sprite
 {

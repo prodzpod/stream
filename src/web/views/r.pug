@@ -1,0 +1,94 @@
+extends ./template/base.pugtemplate
+block body-outer
+    .spacer
+    p.center#header
+    .hlist#image
+        .spacer
+        canvas.center#card(width=850 height=850)
+        .spacer
+    .vlist.center.body#body
+        p Enter your Twitch name here!
+        .hlist.center
+            input#id
+            button(onclick="submit()") Submit
+        p#error
+    p.center: a(href="//prod.kr/card"): em The catalog is now open. Check out the cards at prod.kr/card
+    .spacer
+    img#front(onerror="invalid()")
+    img#back(src="https://prod.kr/images/card/0.png")
+    img#blur(src="https://prod.kr/images/card/1.png")
+block postbody
+    style.
+        img { display: none }
+        #card {
+            width: min(50vw, 50vh);
+            height: min(50vw, 50vh);
+            image-rendering: crisp-edges;
+        }
+    script.
+        let code;
+        addEvent("onload", async () => {
+            code = Array.from(new URLSearchParams(window.location.search).keys())[0];
+            let idx = (await (await fetch("https://prod.kr/api/cardindex?number=" + code)).json()).ret;
+            if (idx === 0) e("front").with("src", "https://prod.kr/images/card/invalid.png");
+            else e("front").with("src", "https://prod.kr/images/card/o" + idx + ".png");
+        });
+
+        let exitLoop = false;
+        addEvent("onload", () => {
+            console.log("Loaded");
+            e("header").innerHTML = "The vault opens ...<br><br>"
+            const canvas = e("card");
+            const ctx = canvas.getContext("2d");
+            const start = time();
+            let tick = start;
+            async function update() {
+                const current = time();
+                const s = Number(current - start) / 1000;
+                // s
+                ctx.fillStyle = "black";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "white";
+                ctx.translate(canvas.width / 2, canvas.height / 2);
+                ctx.translate(-canvas.width / 2, -canvas.height / 2);
+                ctx.drawImage(e("blur"), 0, 0, canvas.width, canvas.height);
+                ctx.resetTransform();
+                ctx.fillStyle = "#000000CC";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.translate(canvas.width / 2, canvas.height / 2);
+                ctx.scale(0.75, 0.3);
+                ctx.translate(-canvas.width / 2, canvas.height * 0.75);
+                ctx.drawImage(e("blur"), 0, 0, canvas.width, canvas.height);
+                ctx.resetTransform();
+                ctx.translate(canvas.width / 2, canvas.height / 2);
+                ctx.scale(0.6 * 619 / 850 * Math.sqrt(Math.abs(Math.sin(s))), 0.6);
+                ctx.rotate(20 * Math.PI / 180 * Math.sign(Math.sin(s)));
+                ctx.translate(-canvas.width / 2, -canvas.height / 2);
+                if (!exitLoop) ctx.drawImage(e((s / Math.PI) % 2 > 1 ? "back" : "front"), 0, 0, canvas.width, canvas.height);
+                else {
+                    let alpha = 1 - (Number(current - exitLoop) / 5000);   
+                    ctx.fillStyle = "#FFFFFF" + Math.floor(alpha * 256).toString(16);
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                }
+                ctx.resetTransform();
+                await delay(33 - Number(current - tick));
+                tick = current;
+                update();
+            } update();
+        }, "front");
+
+        function invalid() {
+            console.log("Invalid");
+            e("image").style.display = "none";
+            e("body").style.display = "none";
+            e("header").innerHTML = "The vault is closed for you ...<br><c>(if you did get a card check for typo or QR code error, if problem persists @ pr_d on discord)</c>"
+        }
+
+        async function submit() { 
+            let res = await fetch(`https://prod.kr/api/redeem?code=${code}&id=${e("id").value}`, { method: "POST" });
+            if (res.status != 200) e("error").innerText = (await res.text());
+            else {
+                e("error").innerHTML = "The secrets have been unlocked.<br><c>You can unselect the cursors at <a href=\"https://prod.kr/screen\">https://prod.kr/screen</a>.</c>"
+                exitLoop = time();
+            }
+        } 

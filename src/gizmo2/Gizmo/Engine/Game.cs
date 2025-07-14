@@ -85,7 +85,7 @@ namespace Gizmo.Engine
             }
             _DRAW_ORDER.Add(self);
         }
-        public void Dispose()
+        public virtual void Dispose()
         {
             NotGMS.Dispose();
             GC.SuppressFinalize(this);

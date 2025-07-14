@@ -1,8 +1,6 @@
-﻿using Gizmo.Engine;
-using Gizmo.Engine.Builtin;
+﻿using Gizmo.Engine.Builtin;
 using Gizmo.Engine.Data;
 using Gizmo.Engine.Graphic;
-using Gizmo.Engine.Util;
 using Gizmo.StreamOverlay.Elements.Entities;
 using System.Numerics;
 

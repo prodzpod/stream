@@ -34,7 +34,7 @@ module.exports.shell = c => new Promise(resolve => {
     prog.on('exit', resolve); 
 });
 module.exports.open = (...path) => {
-    if (path[0].trim().toLowerCase().startsWith("https://") || path[0].trim().toLowerCase().startsWith("http://")) import("open").then(open => open.default(path.join("/")));
+    if (path[0].trim().toLowerCase().startsWith("https://") || path[0].trim().toLowerCase().startsWith("http://")) import("open").then(open => open.default(path[0], {app: {name: path[1] ? open.apps.firefox : open.apps.chrome}}));
     else exec(module.exports.path(...path)).unref();
     module.exports.debug("opened file or website:", path);
 }

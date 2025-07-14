@@ -35,7 +35,7 @@ const DISALLOWED_COMMANDS = {
     ],
     "866686220": ["!music", "!game", "!bells", "!guy"],
     "1070508385": ["!guy"],
-    "895949231": ["!guy", "!littleguy", "!spawn", "!spawnshimeji", "!gal", "!creature", "!creacher", "!creachre", "!chrechre", "!littlegal", "!unguy", "!despawn", "!putbackinmypokeball", "!ungal", "!despawnshimeji", "!forfeit", "!giveup", "!declareitissoover", "!surrender", "!dishonorabledischarge", "!fight", "!zfight", "!combat", "!strife", "!violence", "!war", "!conflict", "!engageinadiscoursewith", "!attack", "!fisticuffs", "!cease", "!ceasefire", "!peace", "!nonaggressionpact", "!johnlennon", "!autorespawn"],
+    "895949231": ["!guy", "!littleguy", "!spawn", "!spawnshimeji", "!gal", "!creature", "!creacher", "!creachre", "!chrechre", "!littlegal", "!unguy", "!despawn", "!putbackinmypokeball", "!ungal", "!despawnshimeji", "!forfeit", "!giveup", "!declareitissoover", "!surrender", "!dishonorabledischarge", "!fight", "!zfight", "!combat", "!strife", "!violence", "!war", "!conflict", "!engageinadiscoursewith", "!attack", "!fisticuffs", "!cease", "!ceasefire", "!peace", "!nonaggressionpact", "!johnlennon", "!autorespawn", "!levelup", "!lvup", "!lvlup", "!level", "!lvl", "!lv"],
     "108372992": ["!guy"],
     "109830946": ["!guy", "!color"],
     "1003351110": [],

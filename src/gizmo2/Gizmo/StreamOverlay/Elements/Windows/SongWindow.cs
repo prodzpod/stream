@@ -3,8 +3,6 @@ using Gizmo.Engine.Builtin;
 using Gizmo.Engine.Data;
 using Gizmo.Engine.Graphic;
 using Gizmo.Engine.MIDI;
-using LibVLCSharp.Shared;
-using PInvoke;
 using ProdModel.Gizmo;
 using System.Numerics;
 

@@ -30,6 +30,9 @@ module.exports._iu = (chatter, iu) => {
 module.exports._changeIcon = (chatter, icon, data) => {
     if (!userWS[chatter]) return 1; userWS[chatter].send(WASD.pack("icon", icon, data)); return 0;
 }
+module.exports._changePointer = (chatter, pointer) => {
+    if (!userWS[chatter]) return 1; userWS[chatter].send(WASD.pack("pointer", pointer)); return 0;
+}
 module.exports._sendAll = (...vars) => { for (let user of Object.values(userWS)) user.send(WASD.pack(...vars)); }
 module.exports.chat = async (ws, args) => {
     const user = Object.keys(userWS).find(x => userWS[x] === ws);

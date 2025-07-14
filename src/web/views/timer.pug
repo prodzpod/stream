@@ -1,0 +1,46 @@
+extends ./template/base.pugtemplate
+
+block meta
+    - v = true
+    - title = '!resolution'
+    - description = 'i think you said in the middle of sentence which overrode your resolution'
+block commonjs
+block wholebody
+    .hlist
+        p RTA
+        p#rta 0:00:00
+        p /
+        p#igt 0:00:00
+        p IGT
+    style.
+        body { margin: 64px; }
+        li { margin-left: 32px; display: block; }
+        code { font-family: monospace; }
+    script.
+        let rta, igt;
+        addEvent("onload", async () => {
+            let data = await (await fetch("https://prod.kr/api/user?select=special&where=twitch.login=prodzpod")).json();
+            rta = { start: data[0].special.rtastart, now: data[0].special.rta };
+            igt = { start: data[0].special.igtstart, now: data[0].special.igt };
+            update();
+            await open();
+        });
+        async function open() {
+            ws = new WebSocket("wss://prod.kr/timer");
+            ws.addEventListener("open", () => {
+                console.log("WebSocket opened");
+            });
+            ws.addEventListener("message", event => {
+                let action = WASD.unpack(event.data)[0];
+                if (action === "reset") window.location.reload();
+            });
+            ws.addEventListener("close", event => {
+                open();
+            });
+        }
+        function update() {
+            let t = time();
+            e("rta").innerText = rta.start === 0 ? "0:00:00" : formatTime(BigInt(rta.now === 0 ? t : rta.now) - BigInt(rta.start), "hhh:mm:ss", false);
+            e("igt").innerText = igt.start === 0 ? "0:00:00" : formatTime(BigInt(igt.now === 0 ? t : igt.now) - BigInt(igt.start), "hhh:mm:ss", false);
+            setTimeout(update, 1000);
+        }

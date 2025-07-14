@@ -480,7 +480,11 @@ module.exports.time = o => { // all TIME format will be bigints
         case "number": return BigInt(o);
         case "boolean": return o ? BigInt(Date.now()) : 0n;
         case "string":
-            o = o.replace("T", " ").replace("Z", " ").replace("t", " ").replace("z", " ");
+            o = o
+                .replace(/(^|[^a-zA-Z])T($|[^a-zA-Z])/g, "$1$2")
+                .replace(/(^|[^a-zA-Z])t($|[^a-zA-Z])/g, "$1$2")
+                .replace(/(^|[^a-zA-Z])Z($|[^a-zA-Z])/g, "$1$2")
+                .replace(/(^|[^a-zA-Z])z($|[^a-zA-Z])/g, "$1$2");
             if (module.exports.occurance(o, ":") === 3) o = `1970-01-` + o.replace(":", " ");
             for (const str of [o, `1970-01-01 ${o}`, `1970 ${o}`]) {
                 const date = new Date(str + " GMT+00:00").getTime();

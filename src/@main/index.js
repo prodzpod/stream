@@ -101,6 +101,10 @@ module.exports.init = async () => {
                 this.log(fullname, 2, "erroneous closure, rebooting...");
                 src.module.start(fullname, true);
             }
+            else if (fileExists("external", fullname, "index.bat")) {
+                this.log(fullname, 2, "erroneous closure, rebooting...");
+                src.module.start(fullname, true, true);
+            }
         });
         ws.on("error", e => error(fullname, "error:", e.stack));
     });

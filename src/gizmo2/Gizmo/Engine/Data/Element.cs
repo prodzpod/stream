@@ -1,7 +1,6 @@
 ﻿using Gizmo.Engine.Builtin;
 using Gizmo.Engine.Graphic;
 using System.Numerics;
-using System.Xml.Schema;
 
 namespace Gizmo.Engine.Data
 {

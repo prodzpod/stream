@@ -1,160 +1,241 @@
 extends ./template/base.pugtemplate
 block meta
-    - title = 'card'
-block body 
-    h1 card
-    p stream <a href="https://twitch.tv/TheJonyMyster">jonymyster</a>
-    .hlist
-        .vlist
-            .hlist
-                .spacer
-                .card-wrapper
-                    #card
-                .spacer
-            .hlist.buttons
-                .spacer
-                button(onclick="reset()") reset
-                button(onclick="dot()") +
-                button(onclick="double()") *
-                button(onclick="row()") /
-                .spacer
-            .spacer
-        .vlist.dex-wrapper
-            .hlist.dex-title
-                p Discovered:
-                button(onclick="clearDex()") Clear
-            #dex.vlist
-            .hlist.dex-manual
-                input#dex-input(placeholder="code...")
-                button(onclick="set(e('dex-input').value)") Go
-            .spacer
+    - v = true
+    - title = 'Offcards4 Catalogue'
+    - description = 'OFFKAI Exclusive Card Showcase'
+block body
+    h1 Offcards4 Catalogue
+    p Hello! i am prod. thank you for checking me out @ offkai (and hello to those who came from the streams)
+    p we stream <b>programming ????</b> and <b>has a wild gizmo</b> on the internet, we aim to turn twitch channel into a sort of mmo kind of thing
+    p you can check me out @ <a href="//prod.kr/live">@prodzpod</a> on <a href="https://bsky.app/profile/prodzpod.bsky.social">everything</a>
+    br
+    p click to see detail
+    .mlist.hard#wrapper
+        .images
+            img#main(src="//prod.kr/images/card/o0.png")
+            img#selected
+        .description
+            p#number
+            h1#title
+            a#owner: .cell.hlist.hard
+                .shoutout: img#owner-img
+                div(style="flex: 1 1 auto; padding-left: 32px")
+                    h3#owner-name
+                    p: b Owner of this card!
+            hr#line
+            .vlist#body
 block postbody
     style.
-        :root {
-            --ch: min(25vw * 3.5 / 2.25, 50vh, 600px);
-            --pip: calc(var(--ch) / 6.5);
+        #wrapper { max-width: 100%; }
+        #wrapper > * { max-width: 50%; }
+        @media screen and (max-width: 750px) {
+            #wrapper > * { max-width: 100%; }
         }
-        .card-wrapper {
-            width: calc(var(--ch) * 2.25 / 3.5);
-            height: var(--ch);
+        #main { width: 100%; cursor: pointer; }
+        #selected {
+            position: absolute;
             background-color: white;
-            border-radius: calc(var(--ch) / 40);
-            padding: calc(var(--ch) * 33 / 171);
-            margin-top: 16px;
+            pointer-events: none;
+            width: 50%;
         }
-        #card { height: 100%; }
-        .buttons button { margin: 8px; }
-        .dex-wrapper > .hlist, #dex > * { border: 1px solid gray; padding: 4px; }
-        .dex-title { border-radius: 8px 8px 0 0; background-color: color-mix(in srgb, var(--text) 40%, transparent); }
-        .dex-manual { border-radius: 0 0 8px 8px; }
-        .pip { 
-            color: transparent;
-            width: var(--pip);
-            height: var(--pip);
-            transform: translate(calc(var(--pip) / -2), calc(var(--pip) / -2));
-            border-radius: 50%; background: black;
-            position: absolute; display: block;
-            margin: auto;
+        #line, #owner { display: none; }
+        .description { padding: 32px; }
+        .shoutout {
+            max-width: 240px;
+            padding: 16px;
+            border-radius: 50%;
+            border: 4px solid var(--text);
         }
+        .shoutout img { 
+            width: 100%;
+            border-radius: 50%;
+        }
+        .cell {
+            margin: 32px 0;
+        }
+        #title { word-break: break-all; }
+        .rarity { font-size: 50%; vertical-align: super; }
+        .R { color: white; }
+        .SR { color: cyan; }
+        .SSR { color: #99f; }
+        .UR { color: yellow; }
     script.
-        const PRESETS = {
-            "0": "",
-            "1": "+",
-            "2": "+/",
-            "3": "+//",
-            "4": "+/*",
-            "5": "+/*+",
-            "6": "+//*",
-            "7": "+//*+",
-            "8": "+/*+/",
-            "9": "+///*+",
-            "10": "+//*+/",
-        }
-        let current = "";
-        let rows = [];
-        addEvent("onload", init);
-        function init() {
-            onEnter("dex-input", () => set(e('dex-input').value));
-            let z = localStorage.getItem("dex");
-            if (z) z.split(",").map(x => checkDex(x));
-        }
-        function reset() {
-            current = "";
-            rows = [];
-            render(); checkDex(current);
-        }
-        function set(str) {
-            if (PRESETS[str]) str = PRESETS[str];
-            reset();
-            str.split("").map(x => {
-                switch (x) {
-                    case "+": dot(); break;
-                    case "*": double(); break;
-                    case "/": row(); break;
+        let lastNumber = -1;
+        let fixedNumber = -1;
+        let loadingNumber = -1;
+        addEvent("onload", () => {
+            addEvent("onmousemove", event => {
+                if (fixedNumber !== -1) return;
+                const WIDTH = e("main").clientWidth;
+                const HEIGHT = e("main").clientHeight;
+                let number = Math.floor(event.layerX / WIDTH * 12) +
+                    Math.floor(event.layerY / HEIGHT * 9) * 12 + 1;
+                if (lastNumber === number) return;
+                lastNumber = number;
+                e("selected").with("src", "//prod.kr/images/card/o" + number + ".png");
+                e("selected").style.left = Math.clamp((WIDTH / 12 * ((number - 1) % 12)) - (WIDTH / 4), 0, WIDTH / 2) + "px";
+                e("selected").style.top = Math.clamp((HEIGHT / 9 * Math.floor((number - 1) / 12)) - (HEIGHT / 4), 0, HEIGHT / 2 * ((1908 / 1848) / (212 / 154))) + "px";
+            }, "main");
+            addEvent("onmouseleave", event => {
+                if (fixedNumber !== -1) return;
+                e("selected").with("src", "");
+            }, "main");
+            addEvent("onclick", event => {
+                if (fixedNumber !== -1) {
+                    fixedNumber = -1;
+                    resetCardInfo();
                 }
-            });
-        }
-        function dot() {
-            let r = rows.length / 2;
-            if (r % 1 !== 0) return;
-            current += "+";
-            rows.splice(r, 0, 1);
-            render(); checkDex(current);
-        }
-        function double() {
-            if (rows.length === 0) return;
-            current += "*";
-            for (let n of [...rows].reverse()) rows.push(n);
-            render(); checkDex(current);
-        }
-        function row() {
-            if (rows.length === 0) return;
-            current += "/";
-            rows = rows.map(x => x + 1);
-            render(); checkDex(current);
-        }
-        function render() {
-            removeAllChildren("card");
-            let h = Math.max(...rows);
-            let hs = [...rows];
-            for (let i = 0; i < hs.length / 2; i++) {
-                hs[i] = h - (i % 2);
-                hs[hs.length - 1 - i] = h - (i % 2);
-            }
-            let pips = [...rows].map(x => []);
-            for (let i = 0; i < rows.length; i++) {
-                if (rows[i] === 0) continue;
-                else if ((hs[i] === 0 || hs[i] % 2 === 1) && rows[i] === 1) pips[i].push(0.5);
-                else if (hs[i] === h || rows[i] > hs[i]) 
-                    for (let j = 0; j < rows[i]; j++) pips[i].push(j / (rows[i] - 1));
                 else {
-                    let cells = [];
-                    if (rows[i] % 2 === 1) cells.push(Math.floor(hs[i] / 2 - 0.5));
-                    for (let k = 0; k < Math.floor(rows[i] / 2); k++) 
-                        { cells.push(k); cells.push(hs[i] - k - 1); }
-                    for (let k = 0; k < cells.length; k++) 
-                        pips[i].push((cells[k] + 0.5) / hs[i]);
+                    fixedNumber = lastNumber;
+                    updateCardInfo(fixedNumber);
                 }
+                event.stopPropagation();
+            }, "main");
+        });
+        async function updateCardInfo(number) {
+            loadingNumber = number;
+            e("number").innerHTML = `<span class="${DATA[number - 1].rarity}">${number}/104</span>`;
+            e("title").innerHTML = `<span class="${DATA[number - 1].rarity}">${DATA[number - 1].name}<span class="rarity">${DATA[number-1].rarity}</span></span>`;
+            removeAllChildren("body");
+            if (!DATA[number - 1].credit.length) 
+                insertElement("p", "body", null, "Credits are empty! (noone else to credit)")
+            else insertElement("h3", "body", null, "Credits")
+            for (let _data of DATA[number - 1].credit) {
+                if (loadingNumber !== number) return;
+                let name = _data[0]; let reason = _data[1] ?? "Appears on this card!";
+                let par = insertElement("a", "body", "cell hlist hard").with("href", "https://twitch.tv/" + name).with("style", "text-decoration: none"); 
+                insertElement("img", insertElement("div", par, "shoutout"), "portrait").with("src", (await (await fetch(`https://prod.kr/api/user?select=twitch.profile_image&where=twitch.login=${name.toLowerCase()}`)).json())[0].twitch.profile_image);
+                let texts = insertElement("div", par, "vlist").with("style", "flex: 1 1 auto; padding-left: 32px");
+                insertElement("h3", texts, null, name); 
+                insertElement("c", insertElement("p", texts), null, (await (await fetch (`https://prod.kr/api/user?select=twitch.description&where=twitch.login=${name.toLowerCase()}`)).json())[0].twitch.description);
+                insertElement("b", insertElement("p", texts), null, reason);
             }
-            let pos = [];
-            for (let i = 0; i < pips.length; i++) {
-                let x = i / (pips.length - 1);
-                if (pips.length === 1) x = 0.5;
-                pips[i].map(y => pos.push({x: x, y: y}));
+            if (loadingNumber !== number) return;
+            let owner = (await (await fetch (`https://prod.kr/api/cardowner?number=${number - 1}`)).text());
+            if (nullish(owner) !== null) {
+                owner = JSON.parse(owner);
+                e("owner").style.display = "flex";
+                e("owner").with("href", "https://twitch.tv/" + owner.twitch.login);
+                e("owner-img").with("src", owner.twitch.profile_image);
+                e("owner-name").innerText = owner.twitch.name;
+                e("owner-name").style.color = owner.twitch.color;
+                e("line").style.display = "block";
             }
-            pos.map(c => insertElement("i", "card", "pip").with("style", `left: ${c.x * 100}%; top: ${c.y * 100}%;`));
         }
-        let dex = [];
-        function checkDex(str) {
-            if (dex.includes(str)) return;
-            dex.push(str);
-            let g = insertElement("div", "dex", "hlist");
-            insertElement("p", g, null, Object.keys(PRESETS).find(x => PRESETS[x] === str) ?? str);
-            insertElement("button", g, null, "Set").with("onclick", `set('${str}')`);
-            localStorage.setItem("dex", dex.join(","));
+        function resetCardInfo() {
+            e("number").innerText = "";
+            e("title").innerText = "";
+            removeAllChildren("body");
+            e("owner").style.display = "none";
+            e("line").style.display = "none";
         }
-        function clearDex() {
-            removeAllChildren("dex");
-            dex = [];
-            localStorage.setItem("dex", dex.join(","));
-        }
+        const DATA = [
+            { rarity: "R", name: ":teal_heart:", credit: [] },
+            { rarity: "R", name: ":mickyMeteor:", credit: [["mickynoon", "This emote is currently in mickynoon's channel!"]] },
+            { rarity: "R", name: ":p_arson:", credit: [] },
+            { rarity: "R", name: ":p_baller:", credit: [] },
+            { rarity: "R", name: ":p_bugatti:", credit: [] },
+            { rarity: "R", name: ":p_colon3:", credit: [] },
+            { rarity: "R", name: ":p_gasp:", credit: [] },
+            { rarity: "R", name: ":p_goodjob:", credit: [] },
+            { rarity: "R", name: ":p_hi:", credit: [] },
+            { rarity: "R", name: ":p_meltdown:", credit: [] },
+            { rarity: "R", name: ":p_nod:", credit: [] },
+            { rarity: "R", name: ":p_noted:", credit: [] },
+            { rarity: "R", name: ":p_od:", credit: [["venorrak", "Drew this emote for me!"]] },
+            { rarity: "R", name: ":p_preen:", credit: [] },
+            { rarity: "R", name: ":p_pruum:", credit: [] },
+            { rarity: "R", name: ":p_ringcam:", credit: [] },
+            { rarity: "R", name: ":p_roteapot:", credit: [] },
+            { rarity: "R", name: ":p_sb_lua:", credit: [] },
+            { rarity: "R", name: ":p_sb_mrow:", credit: [] },
+            { rarity: "R", name: ":p_sb_worm:", credit: [] },
+            { rarity: "R", name: ":p_sleep:", credit: [] },
+            { rarity: "R", name: ":p_wave:", credit: [["ctrl_o", "Drew this emote for me!"]] },
+            { rarity: "R", name: ":alternateuniverse:", credit: [["jakecreatesstuff", "This emote is copied from Jake's discord before it was deleted!"]] },
+            { rarity: "R", name: ":p_dice:", credit: [] },
+            { rarity: "R", name: ":IAMUNABLETO:", credit: [] },
+            { rarity: "R", name: "first live announcement!", credit: [] },
+            { rarity: "R", name: "Jesus is Lit promotion poster", credit: [["archible", "\"Jesus is Lit\" Director and Actor"], ["saladforrest", "\"Jesus is Lit\" MC"], ["ratcousin", "\"Jesus is Lit\" POV"], ["nilboglive", "\"Jesus is Lit\" POV"], ["bugvt", "\"Jesus is Lit\" POV and Actor"], ["mechamozie", "\"Jesus is Lit\" Art Lead and Actor"], ["kinskyunplugged", "\"Jesus is Lit\" Tech Lead and Actor"], ["lala_amanita", "\"Jesus is Lit\" Actor"], ["gyoglep", "\"Jesus is Lit\" Actor"], ["inarireiju", "\"Jesus is Lit\" Actor"], ["entitymorp", "\"Jesus is Lit\" Actor"], ["ericplaysbass", "\"Jesus is Lit\" Guest Appearance"], ["westernstyleguy", "\"Jesus is Lit\" Guest Appearance"], ["666pvzuzu666", "\"Jesus is Lit\" Guest Appearance"], ["lcolonq", "\"Jesus is Lit\" Guest Appearance"], ["modclonk", "\"Jesus is Lit\" Guest Appearance"], ["yongestation", "\"Jesus is Lit\" Guest Appearance"], ["thisisgob", "\"Jesus is Lit\" Former POV"]] },
+            { rarity: "R", name: "AI Shrimp Jesus", credit: [["bugvt"]] },
+            { rarity: "R", name: "2kki tour 250119", credit: [["lala_amanita", "Drew this image for me! (also the green cat)"], ["brightermalphon", "Appears on this card! (the blue cat)"]] },
+            { rarity: "R", name: "2kki week promotion poster", credit: [["digi_shell", "Participated in the 2kki Week Event!"], ["rotsuki", "Participated in the 2kki Week Event!"]] },
+            { rarity: "R", name: "prodzpod 1-year", credit: [] },
+            { rarity: "R", name: "\"this is a thumbnail for sure\"", credit: [] },
+            { rarity: "R", name: "interview poster (front)", credit: [["saladforrest", "Drew this poster for their interview with me!"]] },
+            { rarity: "R", name: "interview poster (back)", credit: [["saladforrest", "This poster is a reference to their interview poster with me!"]] },
+            { rarity: "R", name: "blue prince \"witman playthrough\"", credit: [] },
+            { rarity: "R", name: "too many Curses", credit: [] },
+            { rarity: "R", name: "Jingles my keys Jingles my keys Jingles my keys", credit: [] },
+            { rarity: "R", name: "three s or two", credit: [] },
+            { rarity: "R", name: "have a speck of glizzy", credit: [] },
+            { rarity: "R", name: "ah my favorite [object Object]", credit: [["nichepenguin", "Appears on this card! (eight-pointed star)"], ["xorxavier", "Appears on this card! (three triangles)"], ["venorrak", "Appears on this card! (a tv)"], ["cr4zyk1tty", "Appears on this card! (square cat)"], ["dn_panic", "Appears on this card! (a ground???)"], ["asquared31415", "Appears on this card! (the blob from one)"], ["ctrl_o", "Appears on this card! (THE JOKER)"], ["yellowberryhn", "Appears on this card! (a y)"], ["meisaka", "Appears on this card! (a fox silhouette)"]] },
+            { rarity: "R", name: "i havent seen them in uhhh 4 days", credit: [] },
+            { rarity: "R", name: "are you still pushing 25 or have you pushed out?", credit: [] },
+            { rarity: "R", name: "roadmap behaviour", credit: [] },
+            { rarity: "R", name: "you started a war", credit: [] },
+            { rarity: "R", name: "hawk 2kki", credit: [["ellg"]] },
+            { rarity: "R", name: "!putsomesmokeinmyguysmouthhewantstosmoke", credit: [] },
+            { rarity: "R", name: "WTF PROD YOUR WIFE BEAT ME TO DEATH", credit: [] },
+            { rarity: "R", name: "[SAMMI] my wife @prodzpod teaches me SAMMI", credit: [["lala_amanita"]] },
+            { rarity: "SR", name: "the Wizard hat", credit: [] },
+            { rarity: "SR", name: "western + Glasses", credit: [] },
+            { rarity: "SR", name: "opening the third eye", credit: [] },
+            { rarity: "SR", name: "2024 Gaycon", credit: [] },
+            { rarity: "SR", name: "back to Business", credit: [] },
+            { rarity: "SR", name: "space traveler", credit: [] },
+            { rarity: "SR", name: "2024 Cirno day special", credit: [] },
+            { rarity: "SR", name: "cat in the Rain", credit: [["digi_shell", "designed the juice box!"]] },
+            { rarity: "SR", name: "cooked in 3 minutes", credit: [] },
+            { rarity: "SR", name: "Kitchen Revolutionary", credit: [] },
+            { rarity: "SR", name: "Chroma Cat", credit: [] },
+            { rarity: "SSR", name: "BlessScript", credit: [] },
+            { rarity: "SSR", name: "The Screen", credit: [] },
+            { rarity: "SSR", name: "!Guy", credit: [] },
+            { rarity: "SSR", name: "!Song", credit: [["bezelea", "invented the song!"], ["cr4zyk1tty"]] },
+            { rarity: "SSR", name: "Startellers", credit: [] },
+            { rarity: "SR", name: "Clonkspotting", credit: [["lcolonq", "Created the concept of Clonkspotting!"], ["archible"], ["techbonus"], ["internetrain"]] },
+            { rarity: "SR", name: "!randomize", credit: [] },
+            { rarity: "SR", name: "NOTGMS", credit: [] },
+            { rarity: "SR", name: "Achievements", credit: [] },
+            { rarity: "SR", name: "SAMMI-extensions", credit: [["liquidcake1"]] },
+            { rarity: "SR", name: "twitch gifts", credit: [["liquidcake1"], ["tyumici"]] },
+            { rarity: "SR", name: "twitch Extension", credit: [["cr4zyk1tty"], ["kinskyunplugged"], ["bigbookofbug"]] },
+            { rarity: "SR", name: "Cloning Facility", credit: [] },
+            { rarity: "SR", name: "Seal Posting", credit: [] },
+            { rarity: "SR", name: "Woggle Solver", credit: [] },
+            { rarity: "SR", name: "!Social Posting", credit: [] },
+            { rarity: "SR", name: "the HOLLOW DEX", credit: [["brightermalphon"]] },
+            { rarity: "SR", name: "the Bitcoin 2 video", credit: [["lcolonq", "this is from a highlight video I edited for his channel!"]] },
+            { rarity: "SR", name: "Risk of Rain Restoration Project", credit: [] },
+            { rarity: "SR", name: "/malphon/startingsoon", credit: [["brightermalphon"]] },
+            { rarity: "SSR", name: "Something of this Nature", credit: [["digi_shell"], ["lcolonq"]] },
+            { rarity: "SSR", name: "worm VS bug", credit: [["bigbookofbug"]] },
+            { rarity: "SSR", name: "THE WIRES", credit: [] },
+            { rarity: "SSR", name: "Tealcircle", credit: [["yukievt"], ["mickynoon"], ["venorrak"], ["kryptickralo"], ["digi_shell"], ["rotsuki"], ["brightermalphon"], ["lala_amanita"], ["saladforrest"], ["novaliminal"], ["kinskyunplugged"], ["joobijooni"], ["bugvt"], ["gyoglep"], ["mechamozie"], ["agumiisdungeon"], ["spellcrafter_geltaran"]] },
+            { rarity: "SSR", name: "Impressions", credit: [["lcolonq", "Appears on this card (as impersonations!)"], ["jakecreatesstuff", "Appears on this card (as impersonations!)"], ["yellowberryhn", "Appears on this card (as impersonations!)"], ["saladforrest", "Appears on this card (as impersonations!)"]] },
+            { rarity: "SR", name: "True or Rubbish", credit: [["lcolonq", "Created \"The Effort Post\"!"]] },
+            { rarity: "SR", name: "Floating City Raid", credit: [["digi_shell", "Participated in the 2kki Week Event!"], ["rotsuki", "Participated in the 2kki Week Event!"]] },
+            { rarity: "SR", name: "!tranquility", credit: [["lcolonq", "Created \"Mental Clarity\"!"]] },
+            { rarity: "SR", name: "thosewhoGrow", credit: [["xorxavier", "Created \"thosewhogrow\"!"], ["rotsuki", "we were there when we made this"]] },
+            { rarity: "SR", name: "i am Rectangular", credit: [] },
+            { rarity: "SR", name: "My Wife", credit: [["lala_amanita"]] },
+            { rarity: "SR", name: "automatic Petting device", credit: [["asquared31415"]] },
+            { rarity: "SR", name: "TETRA LEAGUE", credit: [] },
+            { rarity: "SR", name: "coreZONE", credit: [["ctrl_o", "Participated in CoreZONE!"], ["asquared31415", "Participated in CoreZONE!"], ["nichepenguin", "Participated in CoreZONE!"], ["tyumici", "Participated in CoreZONE!"], ["lcolonq", "Participated in CoreZONE!"], ["ricardo_stryki", "Participated in CoreZONE!"], ["xorxavier", "Participated in CoreZONE!"]] },
+            { rarity: "SR", name: "Green Consciousness Projectile", credit: [["lcolonq", "Created GCP3!"], ["venorrak", "Hosts a datapoint for GCP3!"], ["nichepenguin", "Hosts a datapoint for GCP3!"], ["krzysckh", "Hosts a datapoint for GCP3!"], ["tyumici", "Hosts a datapoint for GCP3!"]] },
+            { rarity: "SR", name: "THE LOOP", credit: [["saladforrest", "Participated in The Loop stream!"], ["lala_amanita", "Participated in The Loop stream!"], ["kinskyunplugged", "Participated in The Loop stream!"], ["bigbookofbug", "Participated in The Loop stream!"], ["catdeersnooz", "Participated in The Loop stream!"]] },
+            { rarity: "SR", name: "a million Minecraft guys", credit: [["jakecreatesstuff", "Hosted the event!"], ["badcop_", "Hosted the event!"], ["lcolonq", "Created SkyFort LCOLONQ!"]] },
+            { rarity: "SR", name: "google btd6 new boss", credit: [["nichepenguin"]] },
+            { rarity: "SR", name: "playing ALL my oomvs videogame time", credit: [["badcop_", "Created Clark the Spark!"], ["vesdev", "Created Clark the Spark!"], ["cr4zyk1tty", "Created The Legend of Meow!"], ["yiffweed", "Created Kill Vilzin!"]] },
+            { rarity: "SR", name: "the Commune from NZ", credit: [["bigbookofbug", "Created Paw Tuah!"]] },
+            { rarity: "UR", name: "Testing in prod", credit: [] },
+            { rarity: "UR", name: "Hypertext Bestiary", credit: [] },
+            { rarity: "UR", name: "Between the Wires", credit: [] },
+            { rarity: "UR", name: "Symphony of this Nature", credit: [["archible", "\"Jesus is Lit\" Director and Actor"], ["saladforrest", "\"Jesus is Lit\" MC"], ["ratcousin", "\"Jesus is Lit\" POV"], ["nilboglive", "\"Jesus is Lit\" POV"], ["bugvt", "\"Jesus is Lit\" POV and Actor"], ["mechamozie", "\"Jesus is Lit\" Art Lead and Actor"], ["kinskyunplugged", "\"Jesus is Lit\" Tech Lead and Actor"], ["lala_amanita", "\"Jesus is Lit\" Actor"], ["gyoglep", "\"Jesus is Lit\" Actor"], ["inarireiju", "\"Jesus is Lit\" Actor"], ["entitymorp", "\"Jesus is Lit\" Actor"], ["ericplaysbass", "\"Jesus is Lit\" Guest Appearance"], ["westernstyleguy", "\"Jesus is Lit\" Guest Appearance"], ["666pvzuzu666", "\"Jesus is Lit\" Guest Appearance"], ["lcolonq", "\"Jesus is Lit\" Guest Appearance"], ["modclonk", "\"Jesus is Lit\" Guest Appearance"], ["yongestation", "\"Jesus is Lit\" Guest Appearance"], ["thisisgob", "\"Jesus is Lit\" Former POV"]] },
+            { rarity: "UR", name: "(Symphony of this Nature)²", credit: [] },
+            { rarity: "UNTIERED", name: "prod zedpod", credit: [] },
+            { rarity: "UNTIERED", name: "lala_amanita", credit: [["lala_amanita"]] },
+            { rarity: "UNTIERED", name: "(thank you :3)", credit: [] },
+            { rarity: "UNTIERED", name: "(EVIL thank you :3)", credit: [] },
+        ];

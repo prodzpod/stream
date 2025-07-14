@@ -1,7 +1,6 @@
 ﻿using Gizmo.Engine.Builtin;
 using Gizmo.Engine.Data;
 using Gizmo.Engine.Extra;
-using Gizmo.StreamOverlay.Elements.Entities;
 using Raylib_CSharp;
 using Raylib_CSharp.Audio;
 using Raylib_CSharp.Images;

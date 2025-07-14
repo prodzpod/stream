@@ -1,6 +1,5 @@
 ﻿using Gizmo.Engine;
 using Gizmo.Engine.Data;
-using Gizmo.Engine.MIDI;
 using Gizmo.Engine.Util;
 
 namespace ProdModel.Gizmo
