@@ -74,6 +74,16 @@ let RULE = {
         name: "%NAME%:YYGameMakerYY:SAMMI Core.exe",
         window: null,
     },
+    godot: {
+        rule: name => name.endsWith(" - Godot Engine"),
+        name: "%NAME%:Engine:Godot_v4.4.1-stable_win64.exe",
+        window: null,
+    },
+    godotdebug: {
+        rule: name => name.endsWith(" (DEBUG)"),
+        name: "%NAME%:Engine:Godot_v4.4.1-stable_win64.exe",
+        window: null,
+    },
     // art
     aseprite: {
         rule: name => name.includes("Aseprite"),

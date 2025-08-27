@@ -1,0 +1,179 @@
+extends ../template/base.pugtemplate
+block meta
+    - title = "portfolio"
+block body 
+    h1 Portfolio (legacy)
+    p Only half of my portfolio. Please refer to the resume for the "real name" part of my work (featuring real work experience!)
+    p if you are on pc and can support webgl see the <a href="//prod.kr/folio">new portfolio</a>
+    br
+    .vlist
+        .hlist
+            input.spacer#search(placeholder="Search...")
+            button(onclick="search()") Go
+        .hlist 
+            .filter-group
+                span Date
+                input#date-from(type="date" placeholder="From..." onchange="search()")
+                span  ~ 
+                input#date-to(type="date" placeholder="To..." onchange="search()")
+                span Tags
+                select#tags(onchange="search()")
+                    option(value="") -
+            .spacer
+    #result
+    p also check out <a href="//prod.kr/music">Discography</a>
+    img#tex
+block postbody
+    style.
+        #tex { 
+            display: none; 
+            width: 4096px; 
+            height: 4096px; 
+            image-rendering: crisp-edges; 
+        }
+        select {
+            background-color: var(--text);
+            color: var(--background);
+            padding: 12px;
+            margin: 8px;
+        }
+        .image {
+            width: var(--tex-width);
+            height: var(--tex-height);
+            object-fit: contain;
+            display: none;
+        }
+        .image.active { display: flex; }
+        .profile { object-fit: none; }
+        .next-image {
+            width: 0;
+            height: 0;
+            padding: 0;
+            border-left: 50px solid transparent;
+            border-right: 50px solid transparent;
+            border-top: 50px solid rgba(255, 255, 255, 0.35);
+            margin: 16px auto;
+            margin-bottom: 0;
+            background-color: transparent !important;
+            transition: border-top 0.1s;
+        }
+        .next-image:hover { border-top: 50px solid rgba(255, 255, 255, 0.7); }
+        .card.featured {
+            padding: 4px;
+            border: 4px solid;
+        }
+        .featuredtag {
+            position: absolute;
+            z-index: 100 !important;
+            left: -60px;
+            top: -25px;
+            transform: rotate(-25deg);
+        }
+        .tag { width: 128px; image-rendering: smooth; }
+    script.
+        let TAGS = [], PORTFOLIO, TAG_DESCRIPTION;
+        let TEX_WIDTH, TEX_HEIGHT;
+        const TEX_TILE = [16, 16];
+        addEvent("onload", async () => {
+            e("tex").src = "//prod.kr/images/folio.png";
+            await new Promise(resolve=>{ e("tex").onload = resolve });
+            TEX_WIDTH = e("tex").width / TEX_TILE[0]; TEX_HEIGHT = e("tex").height / TEX_TILE[1];
+            setCSS("tex-width", TEX_WIDTH + "px"); setCSS("tex-height", TEX_HEIGHT + "px");
+            onEnter("search", search);
+            PORTFOLIO = WASD.unpack(await (await fetch("//prod.kr/data/portfolio.wasd")).text())[0].map((x, i) => {
+                x.profile = [i % 16, Math.floor(i / 16)];
+                return x;
+            }).filter(x => nullish(x.title)).map(x => {
+                let ret = { 
+                    title: x.title, featured: x.featured,
+                    profile: `${x.profile[0] / (TEX_TILE[0] - 1) * 100}% ${x.profile[1] / (TEX_TILE[1] - 1) * 100}%`, images: x.images,
+                    url: x.url, date: x.date, tags: {}
+                };
+                let descs = [];
+                if (nullish(x.subtitle)) descs.push(x.subtitle);
+                if (nullish(x.description)) descs.push(x.description);
+                ret.description = descs.join("\n");
+                if (x.featured) ret.tags["* Featured"] = [];
+                for (const row of x.tags) for (const tag of row) {
+                    let meta = split(tag, "-", 1).map(x => x.trim()[0].toUpperCase() + x.trim().slice(1));
+                    if (!ret.tags[meta[0]]) ret.tags[meta[0]] = [];
+                    if (nullish(meta[1]) && !ret.tags[meta[0]].includes(meta[1])) ret.tags[meta[0]].push(meta[1] === "CS" ? "C#" : meta[1]);
+                }
+                for (const entry of Object.entries(ret.tags)) for (const x of [entry[0], ...entry[1].map(x => entry[0] + " - " + x)])
+                    if (!TAGS.includes(x)) TAGS.push(x);
+                return ret;
+            });
+            TAG_DESCRIPTION = WASD.unpack(await (await fetch("//prod.kr/data/tags.wasd")).text())[0];
+            PORTFOLIO.sort((a, b) => -Number(BigInt(typeof a.date === "string" ? 0 : a.date) - BigInt(typeof b.date === "string" ? 0 : b.date)));
+            TAGS.sort();
+            for (const tag of TAGS) insertElement("option", "tags", null, tag);
+            // e("tags").value = "* Featured";
+            search();
+        });
+        function search() {
+            removeAllChildren("result");
+            let conditions = [];
+            let search = e("search").value.trim().toLowerCase(), from = e("date-from").value, to = e("date-to").value, tag = e("tags").value;
+            if (nullish(search)) conditions.push(x => (x.title + "\n" + x.description + "\n" + x.url).toLowerCase().includes(search));
+            if (nullish(from)) conditions.push(x => x.date >= time(from));
+            if (nullish(to)) conditions.push(x => x.date < (time(to) + 86400000n));
+            if (nullish(tag)) conditions.push(x => {
+                let meta = split(tag, "-", 1).map(x => x.trim());
+                return x.tags[meta[0]] && (!meta[1] || x.tags[meta[0]].includes(meta[1]));
+            });
+            for (const data of PORTFOLIO.filter(x => conditions.every(fn => fn(x)))) {
+                let card = insertElement("div", "result", "card hlist hard");
+                if (nullish(data.featured)) {
+                    card.with("style", `border-color: ${data.featured};`).classList.add("featured");
+                    insertElement("img", card, "featuredtag tag").with("title", TAG_DESCRIPTION[`Featured - ${data.featured[0].toUpperCase() + data.featured.slice(1)}`]).with("src", `//prod.kr/images/tags/Featured - ${data.featured[0].toUpperCase() + data.featured.slice(1)}.png`).with("onerror", "this.src = \"//prod.kr/images/tags/test.png\"");
+                }
+                let images = insertElement("div", card, "images vlist");
+                insertElement("div", images, "spacer");
+                insertElement("img", images, "noflashy image profile active").with("src", "//prod.kr/images/folio.png").with("width", 4096).with("height", 4096).with("style", `object-position: ${data.profile};`);
+                for (let i of data.images) insertImage(i, images);
+                if (data.images.length) {
+                    insertElement("button", images, "noflashy center next-image").with("onclick", "nextImage(this.parentElement)");
+                    insertElement("p", images, "right", `1/${data.images.length + 1}`).with("style", "margin-top: -32px; pointer-events: none;")
+                }
+                insertElement("div", images, "spacer");
+                let content = insertElement("div", card, "vlist spacer soft content");
+                if (data.url) insertElement("a", insertElement("h2", content), null, data.title).with("href", data.url);
+                else insertElement("h2", content, null, data.title);
+                if (data.date) insertElement("c", content, null, formatDate2(data.date));
+                if (data.description) insertElement("p", content, null, bootlegMarkdown(data.description));
+                insertElement("c", content, null, "Tags: " + Object.entries(data.tags).map(x => `${x[0]}${x[1].length ? " (" : ""}${x[1].join(", ")}${x[1].length ? ")" : ""}`).join(", "));
+            }
+        }
+        function nextImage(el) {
+            let idx = Array.from(el.children).findIndex(x => x.classList.contains("active"));
+            el.children[idx].classList.remove("active");
+            idx = el.children[idx + 1].classList.contains("image") ? (idx + 1) : 1;
+            el.children[idx].classList.add("active");
+            el.children[el.childElementCount - 2].innerText = idx + "/" + split(el.children[el.childElementCount - 2].innerText, "/", 1)[1];
+        }
+        // stolen from folio proper
+        function insertImage(url, el) { 
+            let key = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)/.exec(url)?.[0];
+            if (key) key = url.slice(key.length, key.length + "6b0xI_dqM-w".length);
+            if (key) return insertElement("iframe", el, "noflashy image").with("src", `https://www.youtube.com/embed/${key}`)
+                    .with("frameborder", 0).with("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share")
+                    .with("referrerpolicy", "strict-origin-when-cross-origin").with("allowfullscreen", "true");
+            key = /.(mp4|avi|flv|mkv|mov|wmv|webm)($|\?|\#)/.exec(url)?.[1];
+            if (key) return insertElement("source", insertElement("video", el, "noflashy image").with("controls", "true"))
+                    .with("src", url).with("type", "video/" + key);
+            key = /.(mp3|wav|ogg|midi|flac|wma)($|\?|\#)/.exec(url)?.[1];
+            if (key) return insertElement("source", insertElement("audio", el, "noflashy image").with("controls", "true"))
+                    .with("src", url);
+            return insertElement("img", el, "noflashy image").with("src", url);
+        }
+        function bootlegMarkdown(txt) {
+            txt ??= "";
+            txt = txt.replaceAll("\n", "<br>");
+            txt = txt.replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g, `<a href="$2">$1</a>`); // links
+            return txt;
+        }
+        function formatDate2(date) {
+            if (typeof date === "string") return date;
+            if (!date) return null;
+            return "Created " + formatDate(date, "YYYY/MM/DD");
+        }

@@ -2,9 +2,9 @@ const { fetch } = require("../api");
 const { log } = require("../ws");
 
 module.exports.execute = async name => {
-    let ret = {};
-    ret[typeof name === "number" ? "id" : "login"] = typeof name === "number" ? name : name.toString().toLowerCase(); 
-    const res = await fetch("GET", "users", ret);
+    let req = {};
+    req[typeof name === "number" ? "id" : "login"] = typeof name === "number" ? name : String(name).toString().toLowerCase(); 
+    const res = await fetch("GET", "users", req);
 
     if (res[0] !== 200) return [-1, res];
     else if (res[1].data.length) {

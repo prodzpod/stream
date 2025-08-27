@@ -10,5 +10,6 @@ module.exports._init = async (ws, query, body) => {
 module.exports._online = async (user, stream) => userWS.map(x => x.send(WASD.pack("online", user, stream)));
 module.exports._offline = async (user) => userWS.map(x => x.send(WASD.pack("offline", user)));
 module.exports.fetch = async (ws, args) => {
+    log(args);
     return await send("channel", args?.[0]);
 }

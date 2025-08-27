@@ -2,9 +2,9 @@ const express = require("express");
 const https = require("https");
 const http = require("http");
 const fs = require("fs");
-const expressWS = require("express-ws");
+const WebSocket = require("ws");
 const bodyParser = require("body-parser");
-const { log, info, error, debug } = require("./ws");
+const { log, info, error, debug, warn } = require("./ws");
 const { fileExists, path, listFiles, WASD, split, unentry, nullish } = require("./common");
 let eCache = {};
 // TODO: rewrite this to fit gizmo2 (currently copied from gizmo1)
@@ -28,13 +28,19 @@ module.exports.init = async () => {
         key: fs.readFileSync(process.env.HTTPS_KEY),
         cert: fs.readFileSync(process.env.HTTPS_CERT),
     }, app);
-    expressWS(app, serverHTTP, { wsOptions: { maxPayload: 8192 } }); expressWS(app, serverHTTPS, { wsOptions: { maxPayload: 8192 } });
+    app.wsPaths = [];
+    app.ws = function(qualifier, callback) { app.wsPaths.push({qualifier: qualifier, callback: callback}); }
+    app.wsServer = new WebSocket.Server({ noServer: true });
+    let externals = [];
     if (fileExists("external", "@web", "init.js")) {
         const extern = await require(path("external", "@web", "init.js")).init();
         for (const subpage in extern.web) {
             const url = extern.web[subpage].url, subapp = extern.web[subpage].app;
             log("Mounting", url, "as", subpage);
-            app.use((req, res, next) => { if (url.includes(req.hostname)) subapp.handle(req, res, next); else next(); });
+            app.use((req, res, next) => { 
+                if (url.includes(req.hostname)) subapp.handle(req, res, next); else next(); 
+            });
+            externals.push([url, subapp]);
         }
     }
     app.set("view engine", "pug");
@@ -96,6 +102,7 @@ module.exports.init = async () => {
                 else if (nullish(res)) ws.send(WASD.pack("register", res));
             }
             ws.on("message", async msg => {
+                msg = msg.toString();
                 let [id, k, v] = split(msg, /\s+/, 2); v = WASD.unpack(v);
                 if (k.startsWith("_")) ws.send(WASD.pack("respond", id, "no"));
                 let res = null;
@@ -120,6 +127,28 @@ module.exports.init = async () => {
             error(err.stack);
         } else render("400", req, res);
     });
+    // ws upgrades
+    const onUpgrade = (request, socket, head) => {
+        let selectedApp;
+        for (const kv of externals) if (kv[0].includes(request.headers.host)) selectedApp = kv[1];
+        if (!selectedApp) selectedApp = app;
+        let connected = false;
+        for (const paths of selectedApp.wsPaths) {
+            let pathr = paths.qualifier.replaceAll("/", "\\/")
+            if (pathr.startsWith("\\/")) pathr = pathr.slice(2);
+            if (pathr.endsWith("\\/")) pathr = pathr.slice(0, -2);
+            if (new RegExp("^\\/" + pathr + "(?:$|\\?|\\#)").exec(request.url)) {    
+                connected = true;
+                selectedApp.wsServer.handleUpgrade(request, socket, head, function done(ws) {
+                    selectedApp.wsServer.emit('connection', ws, request);
+                    paths.callback(ws, request);
+                });
+                break;
+            }
+        }
+        if (!connected) socket.destroy();
+    }
+    serverHTTPS.on('upgrade', onUpgrade);
     // listen
     serverHTTP.listen(80); serverHTTPS.listen(443);
     info("Website Online!");
@@ -156,4 +185,7 @@ function isFunction(o) {
 
 module.exports.end = async () => {
     if (serverHTTP?.listening) { log("Terminating Previous Server Instance"); await serverHTTP.close(); await serverHTTPS.close(); }
+    if (fileExists("external", "@web", "init.js")) {
+        await require(path("external", "@web", "init.js")).end();
+    }
 }

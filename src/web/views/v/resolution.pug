@@ -9,32 +9,35 @@ block body
     p 2025
     ul
         li: p format: <code>MONTH/CATEGORY</code>, category: <code><em>G</em>ame</code> / <code><em>Y</em>outube</code> / <code><em>S</em>tream</code> / <code><em>I</em>RL</code>
-        li: p <code class="resolution">[X] JAN/G</code>: finalize all plans
-        li: p <code class="resolution">[ ] JAN/Y</code>: chambers video
-        li: p <code class="resolution">[X] JAN/I</code>: check out how to get visa
-        li: p <code class="resolution">[ ] FEB/G</code>: finish everything but music
-        li: p <code class="resolution">[ ] MAR/G</code>: publish game
-        li: p <code class="resolution">[ ] MAR/Y</code>: SECRET DEVLOG EPIC VIDEO
-        li: p <code class="resolution">[ ] MAR/S</code>: post-startellers semihiatus (we will stream less often)
+        li: p <code class="resolution noflashy">[X] JAN/G</code>: finalize all plans
+        li: p <code class="resolution noflashy">[ ] JAN/Y</code>: chambers video
+        li: p <code class="resolution noflashy">[X] JAN/I</code>: check out how to get visa
+        li: p <code class="resolution noflashy">[ ] FEB/G</code>: finish everything but music
+        li: p <code class="resolution noflashy">[ ] MAR/G</code>: publish game
+        li: p <code class="resolution noflashy">[ ] MAR/Y</code>: SECRET DEVLOG EPIC VIDEO
+        li: p <code class="resolution noflashy">[ ] MAR/S</code>: post-startellers semihiatus (we will stream less often)
         li: ul
-            li: p <code class="resolution">[ ]</code> split C# engine into modules (core, ws, model, physics...)
-            li: p <code class="resolution">[ ]</code> rewrite the engine (not redesign: just refactor it a bunch)
-            li: p <code class="resolution">[ ]</code> we'll do "inverse kinematics" live (math)
-            li: p <code class="resolution">[ ]</code> we'll do "linear algebra" live (math)
-        li: p <code class="resolution">[X] APR/I</code>: be 100% ready to leave korea
-        li: p <code class="resolution">[ ] MAY/Y</code>: startellers video
-        li: p <code class="resolution">[ ] MAY/S</code>: "craft" begin (see "prod craft" on S1.5E3)
-        li: p <code class="resolution">[ ] MAY/S</code>: "merch" begin (see A2 on S1.5E4)
-        li: p <code class="resolution">[X] JUN/S</code>: offkai "remotestream"
-        li: p <code class="resolution">[ ] JUL/S</code>: finish "craft"
-        li: p <code class="resolution">[ ] AUG/S</code>: finish "merch" &amp; initial sale
-        li: p <code class="resolution">[ ] AUG/S</code>: begin "yellow language project" (see A3 on S0E6 lore) &amp; "gizmo minigame" (guy project(A1) LEVEL 2: you may get an "inventory"???) development
-        li: p <code class="resolution">[ ] SEP/I</code>: fly away (leave korea REAL)
-        li: p <code class="resolution">[ ] NOV/I</code>: settle in for EVERYTHING
+            li: p <code class="resolution noflashy">[ ]</code> split C# engine into modules (core, ws, model, physics...)
+            li: p <code class="resolution noflashy">[ ]</code> rewrite the engine (not redesign: just refactor it a bunch)
+            li: p <code class="resolution noflashy">[ ]</code> we'll do "inverse kinematics" live (math)
+            li: p <code class="resolution noflashy">[ ]</code> we'll do "linear algebra" live (math)
+        li: p <code class="resolution noflashy">[X] APR/I</code>: be 100% ready to leave korea
+        li: p <code class="resolution noflashy">[ ] MAY/Y</code>: startellers video
+        li: p <code class="resolution noflashy">[ ] MAY/S</code>: "craft" begin (see "prod craft" on S1.5E3)
+        li: p <code class="resolution noflashy">[ ] MAY/S</code>: "merch" begin (see A2 on S1.5E4)
+        li: p <code class="resolution noflashy">[X] JUN/S</code>: offkai "remotestream"
+        li: p <code class="resolution noflashy">[ ] JUL/S</code>: finish "craft"
+        li: p <code class="resolution noflashy">[ ] AUG/S</code>: finish "merch" &amp; initial sale
+        li: p <code class="resolution noflashy">[ ] AUG/S</code>: begin "yellow language project" (see A3 on S0E6 lore) &amp; "gizmo minigame" (guy project(A1) LEVEL 2: you may get an "inventory"???) development
+        li: p <code class="resolution noflashy">[ ] SEP/I</code>: fly away (leave korea REAL)
+        li: p <code class="resolution noflashy">[ ] NOV/I</code>: settle in for EVERYTHING
 
 block postbody 
     style.
         li { margin-left: 32px; display: block; }
         code { font-family: monospace; }
     script.
-        foreachElement("resolution", el => { if (el.innerText.toLowerCase().includes("[x]")) el.style.color = 'green'; })
+        foreachElement("resolution", el => { if (el.innerText.toLowerCase().includes("[x]")) {
+            el.style.color = 'var(--o)';
+            el.style.opacity = 0.5;
+        }})

@@ -1,6 +1,6 @@
 const { send, data, src } = require("../..");
 const { WASD, unentry } = require("../../common");
-const { log } = require("../../commonServer");
+const { log, warn } = require("../../commonServer");
 const getID = (name) => Object.values(data().user).find(x => x?.twitch?.login?.toLowerCase() === name?.toLowerCase())?.twitch?.id;
 
 module.exports.execute = async (page, PAGES) => {
@@ -9,12 +9,13 @@ module.exports.execute = async (page, PAGES) => {
     const toUpdate = EXTENDEDLIST.slice(pp * page, Math.min(pp * page + pp, EXTENDEDLIST.length))
     let ids = [];
     for (const user of toUpdate) {
+        if (!user) continue;
         let id = getID(user);
         if (!id) { 
             id = (await send("twitch", "user", user))?.id; 
             await src().user.initialize(id);
         }
-        ids.push(id);
+        if (id) ids.push(id); else warn("user is empty:", user);
     }
     const liveData = await send("twitch", "streams", ids);
     let logins = unentry(ids.map(x => [x, data().user[x].twitch.login]));
@@ -52,7 +53,7 @@ module.exports.execute = async (page, PAGES) => {
 const TEALCIRCLE = [
     // PRE-GROUP A: The Progenitors (ETERNAL DEBT)
     "LCOLONQ",
-    "digi_shell",
+    "digiko",
     // PRE-GROUP B: Top Row (7 visible in 100%, 10 visible in max)
       // gizmopeople
     "Venorrak",
@@ -93,7 +94,7 @@ const TEALCIRCLE = [
     "CipherLunis",
     "BigGayMikey",
       // gamepeople
-    "rotsuki",
+    "rotxp",
     "h_ingles",
     "JeanMarcVGC",
     "TheKanMan",
@@ -388,6 +389,7 @@ const GREENCIRCLE = [ // commented: exists in greencircle.live but does not get 
     "The0x539",
     "BrighterMalphon",
     "physbuzz",
-    "digi_shell",
+    "digiko",
     "Aerze_the_Witch",
+    "dumbmoths"
 ];

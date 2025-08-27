@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>hii</title>
+    <link href="reset.css" rel="stylesheet">
+    <link href="base.css" rel="stylesheet">
+    <script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
+    <script src="common_manual.js" type="text/javascript"></script>
+    <script src="base.js" type="text/javascript"></script>
+</head>
+
+<body style="margin: 0">
+    <div class="extension">
+        <form id="form">
+            <fieldset>
+                <legend>Detection Types</legend>
+                <div><input id="click" type="checkbox" name="option" value="click"><label for="click">Click</label></div>
+                <div><input id="drag" type="checkbox" name="option" value="drag"><label for="drag">Drag</label></div>
+                <div><input id="release" type="checkbox" name="option" value="release"><label for="release">Release</label></div>
+                <div><input id="hover" type="checkbox" name="option" value="hover"><label for="hover">Hover</label></div>
+                <div><input id="mobile" type="checkbox" name="option" value="mobile"><label for="mobile">Mobile</label></div>
+                <div><input id="sensitivity" type="number" name="option" value="sensitivity"><label for="sensitivity">Sensitivity</label></div><input type="submit" value="Submit" onclick="submit()">
+            </fieldset>
+        </form>
+    </div>
+    <style>
+        #form {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            margin: 64px;
+            padding: 64px;
+            font-family: 'roobert', sans-serif;
+            font-size: 150%;
+        }
+
+        label {
+            margin-left: 16px;
+        }
+
+        input[type="checkbox"] {
+            transform: scale(1.5) translate(0, -4px);
+        }
+
+        fieldset>div {
+            margin: 4px;
+        }
+
+        input[type="submit"] {
+            margin: 4px 0;
+            color: white;
+            border-radius: 4px;
+            padding: 8px;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        input[type="submit"]:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        input[type="submit"]:active {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+    <script src="config.js" type="text/javascript"></script>
+</body>
+
+</html>

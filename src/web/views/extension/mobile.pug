@@ -1,1 +1,149 @@
 doctype html
+html
+    head
+        title hii
+        link(href='https://prod.kr/css/reset.css' rel='stylesheet')
+        link(href='https://prod.kr/css/base.css' rel='stylesheet')
+        script(src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js")
+        script(src="https://prod.kr/js/common_manual.js")
+        script(src="https://prod.kr/js/base.js")
+    body(style="margin: 0")
+        .layer#heat(onpointerdown="clickScreen(event)")
+        .layer#buttons(style="pointer-events: none;")
+        .layer#login.vlist
+            .spacer
+            .hlist
+                .spacer
+                #info
+                .spacer
+            .spacer
+        audio(id="audioClick" controls): source(src="https://prod.kr/images/screen/click.click.ogg" type="audio/ogg; codecs=vorbis")
+        audio(id="audioError" controls): source(src="https://prod.kr/images/screen/error.system.ogg" type="audio/ogg; codecs=vorbis")
+        audio(id="audioInfo" controls): source(src="https://prod.kr/images/screen/info.system.ogg" type="audio/ogg; codecs=vorbis")
+        img.cursor#cursor
+        style.
+            @font-face {
+                font-family: arcaoblique;
+                src: url("https://prod.kr/fonts/arcaoblique.13.ttf") format("truetype");
+            }
+            audio { display: none; }
+            .layer { position: absolute; width: 100%; height: 100%; }
+            #heat.active { cursor: pointer; }
+            #info { 
+                font-size: 3vw; 
+                max-width: 30%; 
+                background-color: #d4d0c8; 
+                transform: translate(-1%, 10%); 
+                color: black; 
+                font-family: arcaoblique; 
+            }
+            #login {
+                background-image: url(https://prod.kr/images/screen/extension_login.png); 
+                background-size: contain;
+                opacity: 0;
+                transition: all 1s;
+            }
+            #buttons button { pointer-events: all !important; }
+            .pointerselect {
+                position: absolute; 
+                height: 4vw;
+                font-family: arcaoblique;
+                font-size: 2.5vw;
+                background-color: #d4d0c8;
+                border-radius: 1vw; 
+            }
+        script.
+            let ws, token;
+            window.Twitch.ext.onAuthorized(function(auth) {
+                init().then(() => {
+                    send("login", auth.userId, auth.token);
+                    token = auth.token;
+                });
+            });
+            function init() { return new Promise(resolve => {
+                ws = new WebSocket("wss://prod.kr/extension");
+                ws.addEventListener("open", () => {
+                    console.log("WebSocket opened");
+                    resolve();
+                });
+                ws.addEventListener("message", event => {
+                    const args = WASD.unpack(event.data);
+                    console.log("[extension]", args);
+                    switch (args[0]) {
+                        case "login": 
+                            e("info").innerHTML = `type <u style="cursor: pointer;" onclick="navigator.clipboard.writeText('!login ${args[1]}');">!login ${args[1]}</u> in twitch chat to link account`;
+                            e("login").style.opacity = 1;
+                            break;
+                        case "loginsuccess": 
+                            e("info").innerHTML = ``;
+                            e("heat").classList.add("active");
+                            e("login").style.opacity = 0;
+                            e("login").style.pointerEvents = "none";
+                            setTimeout(() => e("login").style.display = "none", 1000);
+                            break;
+                    }
+                });
+                ws.addEventListener("error", e => {
+                    console.error(e);
+                    resolve(e);
+                });
+            }); }
+            let ID = 0, waitList = {};
+            function send(...msg) {
+                if (ws?.readyState !== 1) return new Promise(resolve => { resolve(undefined); }); ID++;
+                ws.send(WASD.pack(ID, ...msg));
+                return new Promise(resolve => waitList[ID] = resolve);
+            }
+            let STATE = "idle";
+            setState(STATE);
+            let cursorMode = "click", temp = {};
+            function clickScreen(event) {
+                let x = event.layerX / e("heat").clientWidth * 1920;
+                let y = event.layerY / e("heat").clientHeight * 1080;
+                switch (STATE) {
+                    case "idle":
+                        if (["fling", "draw"].includes(cursorMode)) { temp = {x: x, y: y}; setState("input2"); }
+                        else send("chat", token, `!${cursorMode} ${x} ${y}`);
+                        break;
+                    case "input2":
+                        send("chat", token, `!${cursorMode} ${temp.x} ${temp.y} ${x} ${y}`);
+                        setState("idle");
+                        break;
+                }
+            }
+            function setState(state) {
+                STATE = state;
+                removeAllChildren("buttons");
+                switch (STATE) {
+                    case "idle": 
+                    case "input2":
+                        insertElement("button", "buttons", "pointerselect", `<img src="https://prod.kr/data/pointer/cursor_point.png" style="height: 100%">`).with("style", "width: 4vw; top: 18vw;").with("onclick", "setState('pointer')");
+                        break;
+                    case "pointer":
+                        const POINTERS = [
+                            { name: "point", image: "https://prod.kr/data/pointer/cursor_point.png" },
+                            { name: "click", image: "https://prod.kr/data/pointer/cursor_click.png" },
+                            { name: "fling", image: "https://prod.kr/data/icon/common/input/key_arrow.png" },
+                            { name: "kill", image: "https://prod.kr/data/icon/common/icon/cancel.png" },
+                            { name: "pin", image: "https://prod.kr/data/pointer/cursor_pin.png" },
+                            { name: "draw", image: "https://prod.kr/data/icon/common/window/draw.png" },
+                        ];
+                        insertElement("button", "buttons", "pointerselect", `<img src="https://prod.kr/data/pointer/cursor_point.png" style="height: 100%">`).with("style", "width: 4vw; top: 18vw;").with("onclick", "setState('idle')");
+                        insertElement("button", "buttons", "hlist pointerselect", `<div class="spacer"></div><span>Pointer Select</span><div class="spacer"></div>`).with("style", `width: 18vw; left: 2.7vw; top: 20vw;`); 
+                        for (let i = 0; i < POINTERS.length; i++)
+                           insertElement("button", "buttons", "hlist pointerselect", `<div class="spacer"></div><img src="${POINTERS[i].image}" style="height: 100%"> <span>${POINTERS[i].name}</span><div class="spacer"></div>`).with("style", `width: 18vw; left: 2.7vw; top: ${4 * i + 24}vw;`).with("onclick", `cursorMode = '${POINTERS[i].name}'; setState('idle');`); 
+                        break;
+                }
+            }
+            function button(event) {
+                event?.stopPropagation();
+                e("audioClick").currentTime = 0;
+                e("audioClick").play();
+            }
+            function addSimpleButton(direction, state, img) { insertElement("img", insertElement("button", "screen", `overlay ${direction} circle center`).with("onclick", `button(event); setState("${state}");`), "circle").with("src", `https://prod.kr/images/screen/${img}.png`).with("style", "width: 64px; height: 64px;"); }
+            function addGenericPointerScreen(title, _state) {
+                insertElement("p", "screen", "overlay top left", title).with("style", "min-height: 0;");
+                addSimpleButton("bottom right", "action", "back");
+                onclick = _state;
+                e("screen").style.cursor = "none"; cursor = "cursor_point";
+            }

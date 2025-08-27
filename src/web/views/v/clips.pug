@@ -104,6 +104,7 @@ block postbody
             removeAllChildren("clip-result");
             e("search-result").innerHTML = "<p>Searching...</p>";
             let res = await send("searchclip", channel, e("search-date").value);
+            res = res?.[1];
             if (!res?.data) e("search-result").innerHTML = "<p>Something went wrong</p>";
             else if (!res.data.length) e("search-result").innerHTML = "<p>No Clips Detected!</p>";
             else {

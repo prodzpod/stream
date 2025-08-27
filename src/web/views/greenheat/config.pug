@@ -1,0 +1,69 @@
+doctype html
+html
+    head
+        title hii
+        link(href='https://prod.kr/css/reset.css' rel='stylesheet')
+        link(href='https://prod.kr/css/base.css' rel='stylesheet')
+        script(src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js")
+        script(src="https://prod.kr/js/common_manual.js")
+        script(src="https://prod.kr/js/base.js")
+    body(style="margin: 0")
+        .extension
+            form#form
+                fieldset
+                    legend Detection Types
+                    div
+                        input#click(type='checkbox', name='option', value='click')
+                        label(for='click') Click
+                    div
+                        input#drag(type='checkbox', name='option', value='drag')
+                        label(for='drag') Drag
+                    div
+                        input#release(type='checkbox', name='option', value='release')
+                        label(for='release') Release
+                    div
+                        input#hover(type='checkbox', name='option', value='hover')
+                        label(for='hover') Hover
+                    div
+                        input#mobile(type='checkbox', name='option', value='mobile')
+                        label(for='mobile') Mobile
+                    div
+                        input#sensitivity(type='number', name='option', value='sensitivity')
+                        label(for='sensitivity') Sensitivity
+                    input(type='submit', value='Submit' onclick="submit()")
+        style.
+            #form { 
+                background-color: rgba(0, 0, 0, 0.5);
+                color: white;
+                margin: 64px;
+                padding: 64px;
+                font-family: 'roobert', sans-serif;
+                font-size: 150%;
+            }
+            label { margin-left: 16px; }
+            input[type="checkbox"] { transform: scale(1.5) translate(0, -4px); }
+            fieldset > div { margin: 4px; }
+            input[type="submit"] { 
+                margin: 4px 0; 
+                color: white; 
+                border-radius: 4px;
+                padding: 8px;
+                background-color: rgba(0, 0, 0, 0.5);
+            }
+            input[type="submit"]:hover { background-color: rgba(0, 0, 0, 0.8); }
+            input[type="submit"]:active { background-color: rgba(255, 255, 255, 0.5); }
+        script.
+            let channel, ws, config;
+            window.Twitch.ext.onAuthorized(async auth => {
+                channel = auth.channelId;
+                config = await (await fetch("https://heat.prod.kr/" + channel + "/config")).json()
+                for (const type of config.detections) e(type).checked = true;
+                e("sensitivity").value = config.sensitivity;
+            });
+            function submit() {
+                config = {
+                    detections: q("input[type='checkbox']").filter(x => x.checked).map(x => x.id),
+                    sensitivity: e("sensitivity").value
+                };
+                await fetch("https://heat.prod.kr/" + channel + "/config?config=" + JSON.stringify(config), { method: "POST" });
+            }

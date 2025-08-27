@@ -54,6 +54,7 @@ namespace Gizmo.Engine.Extra
                         Logger.Log("Websocket Disconnected");
                     }
                     if (result.EndOfMessage) break;
+                    
                 }
                 for (int i = txt.Length - 1; i >= 0; i--) if (txt[i] != '\0') { txt = txt[..(i + 1)]; break; }
                 Logger.Debug("Websocket Recieved: " + Encoding.UTF8.GetString(txt));

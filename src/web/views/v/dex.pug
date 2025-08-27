@@ -155,13 +155,14 @@ block postbody
             "The0x539",
             "BrighterMalphon",
             "physbuzz",
-            "digi_shell",
+            "digiko",
             "Aerze_the_Witch",
+            "dumbmoths",
         ];
 
-        function open() {
+        function open() { return new Promise(resolve => {
             ws = new WebSocket("wss://prod.kr/dex");
-            ws.onopen = () => console.log("WS Connected");
+            ws.onopen = () => { console.log("WS Connected"); resolve(); }
             ws.onmessage = message => {
                 let data = WASD.unpack(message.data);
                 if (data[0] === "respond") waitList[data[1]]?.(...data.slice(2));
@@ -176,10 +177,10 @@ block postbody
                 }
             }
             ws.onclose = () => { console.log("redoing"); open(); }
-        }
+        }); }
 
         addEvent("onload", async () => {
-            open(); 
+            await open(); 
             online = (await (await fetch("https://prod.kr/api/user?select=twitch.login&where=twitch.streaming=1")).json()).map(x => x.twitch.login);
             streams = await send("fetch", online.filter(x => !Object.keys(filterKey(streams, x => online.includes(x))).includes(x)));
             reloadFeed();

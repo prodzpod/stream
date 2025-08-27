@@ -5,6 +5,7 @@ html
         meta(http-equiv="Content-Type" content="text/html; charset=utf-8")
         meta(name='author' content='prodzpod')
         meta(name='robots' content='nosnippet')
+        meta(name="viewport" content="width=device-width, initial-scale=0.4")
         meta(property='og:type' content='website')
         meta(property='og:url' content='https://prod.kr/')
         meta(property="og:image:type" content="image/png")
@@ -72,7 +73,7 @@ html
     body
         block wholebody
             block prebody
-            .main.vlist 
+            .main.vlist.hard
                 header.hlist
                     block header
                         .vlist.middle: b: a.center.title(href='https://prod.kr' style='font-size: 150%;') pr<span id='title-random' class='random'>o</span>d

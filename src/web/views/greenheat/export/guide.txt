@@ -1,0 +1,11 @@
+Changelog: 
+- fixed being unable to click "link account" or "stay anonymous", and re-enabled player functionality through double rightclick
+- added a privacy policy
+
+The extension transfers data using the backend at https://github.com/prodzpod/stream . 
+
+To test the extension, install the extension in any channel and press the screen while it is live.
+You can monitor the clicks at https://heat.prod.kr/[Channel Name] (http://heat.prod.kr/prodzpod in this case).
+You can also click in the monitor page to send a dummy input as if you clicked the live extension screen.
+
+The clicks are then sent to all active instances of wss://heat.prod.kr/[Channel Name] in a human readable JSON format.

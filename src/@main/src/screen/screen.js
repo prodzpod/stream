@@ -127,7 +127,6 @@ const INFO_MESSAGES = {
     clonkspot: () => "https://pub.colonq.computer/~prod/toy/geiserxpi/",
     clonkspotting: () => "https://pub.colonq.computer/~prod/toy/geiserxpi/",
     throne: () => "https://tinyurl.com/prodthrone",
-    charity: () => "We are currently fundraising for ACLU as a part of VTubers Against ICE !! \nAccess cheat engine with `!scan` and `!value` \nsupport the cause @ https://prod.kr/charity (every dollar = 100 random byte corruption)"
 }
 module.exports.predicate = Object.keys(INFO_MESSAGES).map(x => "!" + x);
 module.exports.permission = true;  

@@ -1,0 +1,131 @@
+doctype html
+html
+    head
+        title hii
+        link(href='https://prod.kr/css/reset.css' rel='stylesheet')
+        link(href='https://prod.kr/css/base.css' rel='stylesheet')
+        script(src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js")
+        script(src="https://prod.kr/js/common_manual.js")
+        script(src="https://prod.kr/js/base.js")
+    body(style="margin: 0")
+        .layer#heat
+        .layer#overlay(style="pointer-events: none;")
+            .vlist.layer#login-wrapper
+                .spacer
+                .hlist
+                    .spacer
+                    #login(style="pointer-events: all;" onpointerdown="event.stopPropagation();" onpointerup="event.stopPropagation();" onmousemove="event.stopPropagation();")
+                        p: b this channel runs <span style="color: lime;">GreenHeat</span>
+                        p You can click on the screen to interact with the stream. However, the streamer will not know which clicks are yours unless you link your account with the button below. The extension will not collect your data.
+                        .hlist
+                            button.spacer(style="background-color: white; color: black;" onclick="window.Twitch.ext.actions.requestIdShare();") link account
+                            div(style="margin: 4px;")
+                            button.spacer(style="background-color: #444; color: white;" onclick="removeElement('login-wrapper');") stay anonymous
+                .spacer
+        style.
+            .layer { position: absolute; width: 100%; height: 100%; }
+            #heat.active { cursor: pointer; }
+            @keyframes clickdot-expand {
+                from { width: 0px; height: 0px; opacity: 1; transform: translate(0px, 0px); }
+                to { width: 64px; height: 64px; opacity: 0; transform: translate(-32px, -32px); }
+            }
+            .clickdot {
+                position: absolute;
+                animation: clickdot-expand ease-out forwards 0.5s;
+                border-radius: 50%;
+                border: 4px solid red;
+            }
+            #login {
+                background-color: rgba(0, 0, 0, 0.8);
+                width: 300px;
+                text-align: center;
+                color: white;
+                line-height: 1.15;
+                padding: 16px;
+                border-radius: 8px;
+                font-family: 'roobert', sans-serif;
+                margin-right: 8px;https://www.twitch.tv/prodzpod
+            }
+            #login p { margin-bottom: 16px; }
+            #login b, #login button { font-weight: 700; }
+            #login button { padding: 4px; border-radius: 4px; }
+            #login button::after { content: " "; position: absolute; top: 0; bottom: 0; left: 0; right: 0; }
+            #login button:hover::after { background-color: rgba(128, 128, 128, 0.2); }
+            #login button:active::after { background-color: rgba(128, 128, 128, 0.5); }
+        script.
+            const DEBUG = false;
+            let channel, user, ws, config;
+            window.Twitch.ext.onAuthorized(auth => {
+                channel = auth.channelId; user = auth.userId;
+                if (!initialized) init();
+                if (!user.startsWith("U") && !user.startsWith("A")) removeElement("login-wrapper");
+            });
+            let latency = 0;
+            window.Twitch.ext.onContext(ctx => { latency = ctx.hlsLatencyBroadcaster; });
+            let initialized = false;
+            async function init() { 
+                initialized = true;
+                let login = (await (await fetch("https://prod.kr/api/twitchloginfromid?id=" + channel)).json()).res;
+                initWS();
+                config = await (await fetch("https://heat.prod.kr/" + channel + "/config")).json()
+                e("heat").classList.add("active");
+                if (config.detections.includes("click")) {
+                    e("heat").with("onpointerdown", "clickScreen(event)")
+                    .with("ondblclick", "event.preventDefault(); event.stopPropagation();")
+                    .with("oncontextmenu", "event.preventDefault(); event.stopPropagation();");
+                }
+                if (config.detections.includes("release")) e("heat").with("onpointerup", "releaseScreen(event)");
+                if (config.detections.includes("hover") || config.detections.includes("drag")) e("heat").with("onmousemove", "hoverScreen(event)");
+                if (config.detections.includes("drag")) e("heat").with("ondragmove", "event.preventDefault();");
+            }
+            function initWS() {
+                console.log("[GreenHeat] logged in to", "wss://heat.prod.kr/" + channel + "/extension", "!");
+                ws = new WebSocket("wss://heat.prod.kr/" + channel + "/extension");
+                ws.onclose = () => {
+                    console.log("Websocket Disconnected, reconnecting...");
+                    setTimeout(initWS, 5000);
+                }
+            }
+            function getData(event) {
+                let x = event.layerX / e("heat").clientWidth;
+                let y = event.layerY / e("heat").clientHeight;
+                return {
+                    id: user,
+                    x: x, y: y,
+                    button: (["left", "middle", "right"])[event.button] ?? "left", 
+                    shift: event.shiftKey, ctrl: event.ctrlKey, alt: event.altKey,
+                    time: new Date().getTime(), latency: latency
+                };
+            }
+            let pressed = null, lastCoord = null;
+            function clickScreen(event) {
+                let data = getData(event); pressed = data.button; lastCoord = [data.x, data.y];
+                data.type = "click"; send(data);
+                let dot = insertElement("div", "overlay", "clickdot").with("style", `left: ${event.layerX}px; top: ${event.layerY}px;`);
+                setTimeout(() => { removeElement(dot); }, 500);
+            }
+            function releaseScreen(event) {
+                let data = getData(event); pressed = null; lastCoord = [data.x, data.y];
+                data.type = "release"; send(data);
+            }
+            function hoverScreen(event) {
+                let data = getData(event);
+                if (!lastCoord) lastCoord = [data.x, data.y];
+                let coord = [data.x, data.y];
+                if (Math.hypot((coord[0] - lastCoord[0]) * 1920, (coord[1] - lastCoord[1]) * 1080) >= config.sensitivity) {
+                    lastCoord = coord;
+                    if (pressed && config.detections.includes("drag")) {
+                        data.type = "drag"; 
+                        data.button = pressed;
+                        send(data);
+                    }
+                    if (!pressed && config.detections.includes("hover")) {
+                        data.type = "hover"; 
+                        send(data);
+                    }
+                }
+            }
+            function send(data) {
+                if (DEBUG) console.log("sending", data);
+                ws.send(JSON.stringify(data));
+            }
