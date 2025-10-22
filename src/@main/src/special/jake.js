@@ -6,7 +6,7 @@ module.exports.permission = false;
 module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
     let off = args(text)[0] === "off";
     if (off && jakingout) clearInterval(jakingout);
-    else if (!jakingout) jakingout = setInterval(() => { send("web", "jake", "keepalive"); }, 4800);
+    else if (!jakingout) jakingout = setInterval(() => { send("web", "ws", "jake", "keepalive"); }, 4800);
     _reply("done!");
     return [0, ""];
 }

@@ -348,7 +348,7 @@ module.exports.Color = {
                 else if (o < 0) o = "FF00FF00";
                 else o = o.toString(16); // passthrough to string
             case "string":
-                let name = module.exports.NAMES[o.toLowerCase().trim()];
+                let name = module.exports.Color.NAMES[o.toLowerCase().trim()];
                 if (name) o = name;
                 else {
                     o = o.toUpperCase().replace(/[^0-9A-F]+/g, "");

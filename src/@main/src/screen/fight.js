@@ -11,7 +11,7 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
         const t = args(text)[0];
         if (nullish(t) === null) return false;
         if (x === chatter) return false;
-        return x.twitch?.id === t || x.twitch?.login === t?.toLowerCase() || x.twitch?.name?.toLowerCase() === t?.toLowerCase();
+        return x.twitch?.id === t || x.twitch?.login === t?.toLowerCase() || String(x.twitch?.name)?.toLowerCase() === t?.toLowerCase();
     });
     if (nullish(target) === null) { _reply("invalid target"); return [0, ""]; }
     let res = await send("gizmo", "fight", chatter.twitch.name, target.twitch.name);

@@ -6,7 +6,7 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
     let sp = data().user[140410053].special;
     let t = time();
     if (sp.igt === 0) data(`user.140410053.special.igt`, t);
-    send("web", "timer", "reset");
+    send("web", "ws", "timer", "reset");
     _reply("Timer Paused!");
     return [0, ""];
 }

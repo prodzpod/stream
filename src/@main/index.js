@@ -50,7 +50,7 @@ module.exports.init = async () => {
     // # REGION loading server --------------------------------------------------------------
     log("@main: Loading Server"); const mServer = measureStart();
     if (server) await new Promise(resolve => server.close(x => resolve(x)));
-    server = new WebSocket.Server({ port: 339 });
+    server = new WebSocket.Server({ port: 339, skipUTF8Validation: true });
     server.on("connection", (ws, req) => {
         const fullname = req.url.slice(1);
         const name = fullname.split("/")[0];

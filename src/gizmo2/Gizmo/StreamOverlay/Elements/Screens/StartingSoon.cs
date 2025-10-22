@@ -42,10 +42,7 @@ namespace Gizmo.StreamOverlay.Elements.Screens
         public override void OnUpdate(ref Instance self, float deltaTime)
         {
             base.OnUpdate(ref self, deltaTime);
-            if (InputP.KeyPressed(-3) || InputP.KeyPressed(0xA3) || InputP.KeyPressed(0x2E))
-            {
-                self.Destroy();
-            }
+            if (InputP.KeyPressed(-3)) self.Destroy();
         }
     }
 }

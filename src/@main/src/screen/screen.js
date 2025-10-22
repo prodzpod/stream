@@ -163,7 +163,7 @@ module.exports.getGCP = async () => {
     let global = data().global;
     const GCP3_GETS = {
         "prod": async () => (await module.exports.updateGCP())[1] * 100,
-        "Venorrak": async () => Math.clamp((await (await fetch("https://server.venorrak.dev/api/joels/JCP/short?limit=1")).json())[0].JCP, 0, 100),
+        // "Venorrak": async () => Math.clamp((await (await fetch("https://server.venorrak.dev/api/joels/JCP/short?limit=1")).json())[0].JCP, 0, 100),
         "krzysckh": async () => Math.clamp(((await (await fetch("https://api.blg.krzysckh.org/?q=last-gradus")).json()).v + 4) * 100 / 26, 0, 100),
         "nichePenguin": async () => Math.clamp((await (await fetch("https://pub.colonq.computer/~nichepenguin/cgi-bin/np-gfp")).json()).gfp, 0, 1) * 100,
     };

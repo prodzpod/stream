@@ -6,8 +6,8 @@ module.exports.execute = async (...args) => {
     if (map.includes(":")) map = split(map, ":", 1)[0];
     map = MAPS[map];
     log("map reached:", map)
-    if (!map?.length) send("web", "send2kki", null)
-    else send("web", "send2kki", map.at(-1));
+    if (!map?.length) send("web", "ws", "2kki", null)
+    else send("web", "ws", "2kki", map.at(-1));
     return [0, ""];
 }
 

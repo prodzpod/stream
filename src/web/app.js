@@ -97,7 +97,7 @@ module.exports.init = async () => {
             const api = require(`./api/WS${subpage}`);
             log("WebSocket Connected");
             if (api._init) {
-                let res = api._init(ws, req.query ?? {}, req.body ?? {});
+                let res = api._init(ws, Object.fromEntries(new URL("wss://prod.kr" + req.url).searchParams), {});
                 if (res instanceof Promise) res.then(ret => { if (nullish(ret)) ws.send(WASD.pack("register", ret)); });
                 else if (nullish(res)) ws.send(WASD.pack("register", res));
             }

@@ -73,7 +73,7 @@ namespace Gizmo.StreamOverlay.Elements.Screens
                 {  "banananess", .5f },
                 {  "orangeness", .5f },
                 {  "appleness", 0f },
-                {  "constitution", 75 * GuyAmount },
+                {  "constitution", 200 * GuyAmount },
                 {  "attack", GuyAmount },
                 {  "defense", 0 },
                 {  "critchance", 0.4f },
@@ -86,6 +86,14 @@ namespace Gizmo.StreamOverlay.Elements.Screens
             self.Set("author", "prodzpod");
             self.Set("color", "#ffffff");
             self.Set("raidboss", true);
+            var _self = self;
+            var guys = Game.INSTANCES.Where(x => x != _self && x.Element is Shimeji);
+            foreach (var guy in guys)
+            {
+                var hostiles = guy.Get<List<Instance>>("hostiles");
+                hostiles.Add(self);
+                guy.Set("hostiles", hostiles);
+            }
             StreamOverlay.Shimeji["prodzpod"] = self;
         }
 

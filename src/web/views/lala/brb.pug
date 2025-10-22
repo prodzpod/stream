@@ -1,0 +1,15 @@
+extends ./screen.pugtemplate
+block meta
+    - v = true
+    - title = 'BRB'
+    - description = 'hii :3'
+    - icon = "https://prod.kr/images/icon/lala.png"
+block titleblock
+    script.
+        async function titleblock() {
+            const BRB_OFFSETS = [{"x":960,"y":540},{"x":318,"y":156},{"x":455,"y":184},{"x":238,"y":302},{"x":347,"y":318},{"x":433,"y":310},{"x":502,"y":271},{"x":606,"y":256},{"x":156,"y":405},{"x":306,"y":443},{"x":402,"y":436},{"x":494,"y":408},{"x":577,"y":417},{"x":625,"y":415}];
+            for (let i = 13; i >= 0; i--) {
+                (await new Picture().init("brb" + i, 960, 540, null)).setDepth(0).setScale(2).setPos(BRB_OFFSETS[i].x, BRB_OFFSETS[i].y);
+                titles.push("brb" + i);
+            }
+        }

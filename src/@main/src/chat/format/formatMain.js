@@ -34,6 +34,7 @@ const { scanFor, scanForDouble, scanForBracket } = require("./formatScan");
 const { cleanup, Text, Token, TYPE, Tag } = require("./formatTypes");
 
 module.exports.parse = async (from, text, emote) => {
+    if (text.startsWith("!greenheatsend")) return [];
     log("BEFORE:", from, text, emote);
     let arr = emote?.length ? await parseCommonEmotes(from, text, emote) : [Text(text)];
     if (PARSE[from]) arr = PARSE[from](arr);

@@ -28,6 +28,7 @@ li:has([data-list-item-id*="channels___members-"]), /* "members" button on chann
 /* left tab: friends/dms */
 li:has([data-list-item-id*="___nitro"]), /* buy nitro */
 li:has([data-list-item-id*="___shop"]), /* buy nitro 2 */
+li:has([href="/quest-home"]),
 [class*="container_"]:has(> [class*="privateChannelsHeaderContainer_"]):has(> [class*="itemContainer_"]), /* play again */
 [class*="closeButton_"][aria-label="Close DM"], /* close dm button (use right click) */
 /* right tab */

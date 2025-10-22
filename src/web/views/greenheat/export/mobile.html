@@ -19,12 +19,14 @@
             <div class="spacer"></div>
             <p>You can touch on this screen to interact with the stream. However, the streamer will not know which clicks are yours unless you link your account with the button below. The extension will not collect your data.</p>
             <div class="spacer"></div>
-            <div class="hlist"><button class="spacer" style="background-color: white; color: black;">link account</button>
-                <div style="margin: 4px;"></div><button class="spacer" style="background-color: #444; color: white;">stay anonymous</button>
+            <div class="hlist"><button id="link-account" class="spacer" style="background-color: white; color: black;">link account</button>
+                <div style="margin: 4px;"></div><button id="stay-anonymous" class="spacer" style="background-color: #444; color: white;">stay anonymous</button>
             </div>
         </div>
     </div>
     <style>
+        :root { --color: red; }
+
         .layer {
             position: absolute;
             width: 100%;
@@ -50,13 +52,19 @@
                 transform: translate(-32px, -32px);
             }
         }
+        @keyframes hoverdot-expand {
+            from { border-width: 4px; opacity: 0.5; }
+            to { border-width: 0px; opacity: 0; }
+        }
 
         .clickdot {
             position: absolute;
             animation: clickdot-expand ease-out forwards 0.5s;
             border-radius: 50%;
-            border: 4px solid red;
+            border: 4px solid var(--color);
         }
+        .clickdot.hover, .clickdot.drag { animation: hoverdot-expand ease-out forwards 0.5s; }
+        .clickdot.release, .clickdot.hover { border: 4px solid gray; }
 
         #login {
             background-color: rgba(0, 0, 0, 0.8);

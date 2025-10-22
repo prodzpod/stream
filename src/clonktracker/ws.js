@@ -12,7 +12,7 @@ module.exports.init = async () => {
     }
     if (ws?.readyState === 1) ws.terminate();
     await new Promise(resolve => {
-        ws = new WebSocket(`ws://localhost:339/${MODULE_NAME}`);
+        ws = new WebSocket(`ws://localhost:339/${MODULE_NAME}`, { skipUTF8Validation: true, maxRedirects: 999 });
         ws.on("open", () => {
             module.exports.info(`${MODULE_NAME} module connected, time: ${measureEnd(mGlobal)}ms`); 
             resolve();

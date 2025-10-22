@@ -10,7 +10,7 @@ block body
         .hlist
             input.spacer#search(placeholder="Search...")
             button(onclick="search()") Go
-        .hlist 
+        .hlist.left
             .filter-group
                 span Date
                 input#date-from(type="date" placeholder="From..." onchange="search()")
@@ -19,7 +19,6 @@ block body
                 span Tags
                 select#tags(onchange="search()")
                     option(value="") -
-            .spacer
     #result
     p also check out <a href="//prod.kr/music">Discography</a>
     img#tex

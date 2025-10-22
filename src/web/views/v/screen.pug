@@ -50,7 +50,8 @@ block postbody
         #screen > .right { right: -32px; }
         #screen > .top { top: -32px; }
         #screen > .bottom { bottom: -32px; }
-        #overlay > * { pointer-events: all; }
+        #screen { pointer-events: none; }
+        #overlay > *, #screen > *, #screen.active { pointer-events: all; }
         .overlay {
             background-color: var(--hover);
             padding: 16px;
@@ -508,6 +509,8 @@ block postbody
             e("screen").style.cursor = ""; cursor = null;
             removeAllChildren("screen");
             if (ON_STATE_CHANGE[state]) ON_STATE_CHANGE[state]();
+            if (ON_CLICK[state]) e("screen").classList.add("active");
+            else e("screen").classList.remove("active");
             q(".overlay").map(x => x.style.animation = `flicker ${Math.random() + 0.25}s forwards`);
         }
         let temp;

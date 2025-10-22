@@ -31,7 +31,7 @@ block commonjs
                 console.log("WebSocket opened");
             });
             ws.addEventListener("message", event => {
-                message(WASD.unpack(event.data)[0]);
+                message(...WASD.unpack(event.data));
             });
             ws.addEventListener("close", event => {
                 open();

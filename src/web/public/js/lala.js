@@ -42,8 +42,8 @@ const badgesIcon = {
     viewer: () => `\n    <svg width="11" height="9" viewBox="0 0 11 9" fill="none" xmlns="http://www.w3.org/2000/svg">\n      <path d="M0.126221 3.03273C0.126221 3.72085 0.238039 4.7795 1.2444 5.73228C2.13894 6.5792 5.03971 8.50816 5.21394 8.59063C5.32575 8.64357 5.43757 8.6965 5.54939 8.6965C5.66121 8.6965 5.77303 8.64357 5.88484 8.59063C6.03057 8.52165 8.95984 6.63213 9.85438 5.73228C10.8607 4.7795 10.9726 3.72085 10.9726 3.03273C10.9726 1.44476 9.63074 0.174377 7.95347 0.174377C7.05893 0.174377 6.16439 0.650769 5.6053 1.39182C5.04621 0.650769 4.15166 0.174377 3.1453 0.174377C1.52394 0.174377 0.126221 1.44476 0.126221 3.03273Z" fill="#80824A"/>\n    </svg>\n  `,
     subTwitch: () => `\n    <svg style="margin-right: 6px; bottom: -6px;" width="15" height="15" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">\n      <rect x="0.861816" y="0.580139" width="18" height="18" rx="3" fill="#A705E0"/>\n      <path d="M9.90923 3.46478L12.147 6.66716L16.1421 7.86646L13.6518 11.0656L14.1919 15.6955L10.025 13.9207L5.7423 15.5412L6.08954 11.0656L3.58167 7.74748L7.59427 6.74433L9.90923 3.46478Z" fill="white"/>\n    </svg>\n  `,
 }
-const message = async (event) => {
-    switch (event.action) {
+const message = async (action, event) => {
+    switch (action) {
         case "message":
             if (ignoredUsers.includes(event.login.toLowerCase())) return;
             if (!fieldData.showCommands && event.text?.trim()[0] === "!") return;
@@ -59,7 +59,7 @@ const message = async (event) => {
         case "host":
             if (!fieldData.showAlerts) return;
             if (ignoredUsers.includes(event.login.toLowerCase())) return;
-            const alert = await addAlert(event);
+            const alert = await addAlert(action, event);
             if (alert) { animateContainers(); clearMessageLog(); messageLimit(); }
             break;
         case "exec":
@@ -474,9 +474,9 @@ const deleteMessages = (userId) => {
     let messages = q(`.message-box[data-userId="${userId}"]`);
     if (messages.length) { messages.map(message => message.remove()); fixSpacing(); }
 }
-const addAlert = async (event) => {
+const addAlert = async (action, event) => {
     let name = event.name, message;
-    switch (event.action) {
+    switch (action) {
         case "follow": message = "just followed!"; break;
         case "subscription":
             if (event.gifted) message = `just gifted ${event.amount} sub${(event.amount == 1 ? "!" : "s!")}`;

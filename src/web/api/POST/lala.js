@@ -4,6 +4,6 @@ const { _send } = require("../WS/lala");
 module.exports.execute = async (query, body) => {
     if (body.passphrase !== process.env.LALA_API_PASSWORD) return [200, {res: "no"}];
     delete body.passphrase;
-    _send(WASD.pack(body));
+    _send(body.action, body);
     return [200, {res: 'hello lala'}];
 }

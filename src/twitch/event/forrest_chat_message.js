@@ -1,4 +1,4 @@
-const { STREAMER_ID, LALA_ID, FORREST_ID } = require("../common");
+const { STREAMER_ID, LALA_ID, FORREST_ID, ELLG_ID, GOB_ID } = require("../common");
 const { send } = require("../ws")
 
 const clonkCommands = ["!help", "!today", "!discord", "!lore"];

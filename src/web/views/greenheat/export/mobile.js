@@ -2,7 +2,7 @@ const DEBUG = false;
 let channel, login, user, ws, config;
 window.Twitch.ext.onAuthorized(auth => {
     channel = auth.channelId;
-    user = auth.userId;
+    user = Twitch.ext.viewer?.id ?? auth.userId;
     if (!initialized) init();
     if (!user.startsWith("U") && !user.startsWith("A")) removeElement("login");
 });
@@ -13,11 +13,11 @@ window.Twitch.ext.onContext(ctx => {
 let initialized = false;
 async function init() {
     initialized = true;
-    e("login").addEventListener("pointerdown", event => event.stopPropagation());
-    e("login").addEventListener("pointerup", event => event.stopPropagation());
-    e("login").addEventListener("mousemove", event => event.stopPropagation());
-    e("link-account").addEventListener("click", _ => window.Twitch.ext.actions.requestIdShare());
-    e("stay-anonymous").addEventListener("click", _ => removeElement('login'));
+    e("login").addEventListener("touchstart", event => event.stopPropagation());
+    e("login").addEventListener("touchend", event => event.stopPropagation());
+    e("login").addEventListener("touchmove", event => event.stopPropagation());
+    e("link-account").addEventListener("touchend", _ => window.Twitch.ext.actions.requestIdShare());
+    e("stay-anonymous").addEventListener("touchend", _ => removeElement('login'));
     login = (await (await fetch("https://prod.kr/api/twitchloginfromid?id=" + channel)).json()).res;
     initWS();
     config = await (await fetch("https://heat.prod.kr/" + channel + "/config")).json()
@@ -26,6 +26,7 @@ async function init() {
     if (config.detections.includes("click")) e("heat").addEventListener("touchstart", event => clickScreen(event));
     if (config.detections.includes("release")) e("heat").addEventListener("touchend", event => releaseScreen(event));
     if (config.detections.includes("drag")) e("heat").addEventListener("touchmove", event => hoverScreen(event));
+    setCSS("color", config.color ?? "red");
 };
 function initWS() {
     console.log("[GreenHeat] logged in to", "wss://heat.prod.kr/" + login + "/extension", "!");
@@ -64,9 +65,7 @@ function clickScreen(event) {
     data.type = "click";
     ws.send(data);
     let dot = insertElement("div", "overlay", "clickdot").with("style", `left: ${event.changedTouches[0].pageX}px; top: ${event.changedTouches[0].pageY}px;`);
-    setTimeout(() => {
-        removeElement(dot);
-    }, 500);
+    setTimeout(() => { removeElement(dot); }, 500);
 }
 
 function releaseScreen(event) {
@@ -75,16 +74,20 @@ function releaseScreen(event) {
     lastCoord = [data.x, data.y];
     data.type = "release";
     ws.send(data);
+    let dot = insertElement("div", "overlay", "clickdot release").with("style", `left: ${event.changedTouches[0].pageX}px; top: ${event.changedTouches[0].pageY}px;`);
+    setTimeout(() => { removeElement(dot); }, 500);
 }
 
 function hoverScreen(event) {
     let data = getData(event);
     if (!lastCoord) lastCoord = [data.x, data.y];
     let coord = [data.x, data.y];
-    if (Math.hypot((coord[0] - lastCoord[0]) * 1920, (coord[1] - lastCoord[1]) * 1080) >= config.sensitivity) {
+    if (Math.hypot((coord[0] - lastCoord[0]) * 1920, (coord[1] - lastCoord[1]) * 1080) >= config.sensitivity[1]) {
         lastCoord = coord;
         data.type = "drag";
         ws.send(data);
+        let dot = insertElement("div", "overlay", "clickdot drag").with("style", `left: ${event.changedTouches[0].pageX}px; top: ${event.changedTouches[0].pageY}px;`);
+        setTimeout(() => { removeElement(dot); }, 500);
     }
 }
 

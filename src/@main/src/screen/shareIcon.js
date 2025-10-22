@@ -7,7 +7,7 @@ module.exports.predicate = ["!shareicon"];
 module.exports.permission = 0;  
 module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
     let _args = args(text)
-    let target = Object.values(data().user).find(x => x.twitch?.id == _args[0] || x.twitch?.login == _args[0].toLowerCase() || x.twitch?.name.toLowerCase() == _args[0].toLowerCase() || x.discord?.name?.toLowerCase() == _args[0]?.toLowerCase());
+    let target = Object.values(data().user).find(x => x.twitch?.id == _args[0] || x.twitch?.login == _args[0].toLowerCase() || String(x.twitch?.name).toLowerCase() == _args[0].toLowerCase() || x.discord?.name?.toLowerCase() == _args[0]?.toLowerCase());
     if (!target?.twitch.id) { _reply("target is not a valid user"); return [1, ""]; }
     if (!src().user.cost(_reply, chatter, 2500)) return [0, ""];
     const ret = await src().icon.grantFromUser(chatter.twitch.id, target.twitch.id);

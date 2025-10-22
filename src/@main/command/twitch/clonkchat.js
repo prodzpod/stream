@@ -31,7 +31,8 @@ const DISALLOWED_COMMANDS = {
         "!buyjudas",
         "!selljesus",
         "!selljudas",
-        "!draw"
+        "!draw",
+        "!throne"
     ],
     "866686220": ["!music", "!game", "!bells", "!guy"],
     "1070508385": ["!guy"],
@@ -46,7 +47,7 @@ const DISALLOWED_COMMANDS = {
 
 module.exports.execute = async (txt, user, channel, id, msgId, raw) => {
     log("foreign chat recieved:", user + ":", txt); txt = String(txt);
-    if (!txt.startsWith("!") && channel === 1070508385) send("web", "malphon", "setchat", user, txt);
+    if (!txt.startsWith("!") && channel === 1070508385) send("web", "ws", "malphon", "setchat", user, txt);
     if (channel === 1070508385 && user === "brighterbotphon") {
         if (txt === "Tilly loves you!") src().malphon.addTilly();
         if (txt === "Tilly will miss you!") src().malphon.removeTilly();

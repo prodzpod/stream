@@ -17,7 +17,7 @@ namespace Gizmo.StreamOverlay.Elements.Entities
         public override float Mass(Instance i) => 0;
         public override float Drag(Instance i) => .9f;
         public override float Friction(Instance i) => 1;
-        public override Vector2 Gravity(Instance i) => Vector2.UnitY * 3000;
+        public override Vector2 Gravity(Instance i) => Vector2.UnitY * 4000;
         public override bool Immortal => true;
         public static Dictionary<string, float> Guys = [];
         public override void OnInit(ref Instance self)
@@ -302,6 +302,7 @@ namespace Gizmo.StreamOverlay.Elements.Entities
                 if (self.Position.Y > Game.Room.Camera.Y) self.Set("grounded", true);
                 return;
             }
+            /*
             if (self.Speed.Y > other.Speed.Y) for (int i = 1; i < StepAssist; i++)
             {
                 self.Position.Y -= i;
@@ -313,6 +314,7 @@ namespace Gizmo.StreamOverlay.Elements.Entities
                 }
                 else self.Position.Y += i;
             }
+            */
         }
 
         public override void OnClick(ref Instance self, Vector2 position)

@@ -13,12 +13,12 @@ module.exports.execute = async (...args) => {
                 let chatter = Object.values(data().user).find(x => x?.twitch?.opaqueId === args[1]);
                 if (chatter) {
                     tokens[args[2]] = chatter.twitch.id;
-                    send("web", "sendextension", args[2], "loginsuccess");
+                    send("web", "ws", "extension", args[2], "loginsuccess");
                 }
                 else {
                     let key = getIdentifier();
                     logins[key] = args[2];
-                    send("web", "sendextension", args[2], "login", key);
+                    send("web", "ws", "extension", args[2], "login", key);
                 }
             } catch (e) { log("login failed:", e); }
             break;
@@ -37,6 +37,6 @@ module.exports.tryLogin = async (key, id) => {
     if (!logins[key]) return false;
     let token = logins[key];
     tokens[token] = id;
-    send("web", "sendextension", token, "loginsuccess");
+    send("web", "ws", "extension", token, "loginsuccess");
     return true;
 }

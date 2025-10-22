@@ -2,7 +2,7 @@ const DEBUG = false;
 let channel, login, user, ws, config;
 window.Twitch.ext.onAuthorized(auth => {
     channel = auth.channelId;
-    user = auth.userId;
+    user = Twitch.ext.viewer?.id ?? auth.userId;
     if (!initialized) init();
     if (!user.startsWith("U") && !user.startsWith("A")) removeElement("login-wrapper");
 });
@@ -27,7 +27,7 @@ async function init() {
         e("heat").addEventListener("dblclick", event => { event.preventDefault(); event.stopPropagation(); });
         e("heat").addEventListener("contextmenu", event => { 
             let newrc = [event.layerX / e("heat").clientWidth, event.layerY / e("heat").clientHeight, new Date().getTime()];
-            if (newrc[2] - lastRightClicked[2] < 500 && Math.hypot((newrc[0] - lastRightClicked[0]) * 1920, (newrc[1] - lastRightClicked[1]) * 1080) < config.sensitivity) return;
+            if (newrc[2] - lastRightClicked[2] < 500 && Math.hypot((newrc[0] - lastRightClicked[0]) * 1920, (newrc[1] - lastRightClicked[1]) * 1080) < config.sensitivity[0]) return;
             lastRightClicked = newrc;
             event.preventDefault(); event.stopPropagation(); 
         });
@@ -35,6 +35,7 @@ async function init() {
     if (config.detections.includes("release")) e("heat").addEventListener("pointerup", event => releaseScreen(event));
     if (config.detections.includes("hover") || config.detections.includes("drag")) e("heat").addEventListener("mousemove", event => hoverScreen(event));
     if (config.detections.includes("drag")) e("heat").addEventListener("dragmove", event => event.preventDefault());
+    setCSS("color", config.color ?? "red");
 }
 function initWS() {
     console.log("[GreenHeat] logged in to", "wss://heat.prod.kr/" + login + "/extension", "!");
@@ -70,9 +71,7 @@ function clickScreen(event) {
     data.type = "click";
     send(data);
     let dot = insertElement("div", "overlay", "clickdot").with("style", `left: ${event.layerX}px; top: ${event.layerY}px;`);
-    setTimeout(() => {
-        removeElement(dot);
-    }, 500);
+    setTimeout(() => { removeElement(dot); }, 500);
 }
 
 function releaseScreen(event) {
@@ -81,22 +80,28 @@ function releaseScreen(event) {
     lastCoord = [data.x, data.y];
     data.type = "release";
     send(data);
+    let dot = insertElement("div", "overlay", "clickdot release").with("style", `left: ${event.layerX}px; top: ${event.layerY}px;`);
+    setTimeout(() => { removeElement(dot); }, 500);
 }
 
 function hoverScreen(event) {
     let data = getData(event);
     if (!lastCoord) lastCoord = [data.x, data.y];
     let coord = [data.x, data.y];
-    if (Math.hypot((coord[0] - lastCoord[0]) * 1920, (coord[1] - lastCoord[1]) * 1080) >= config.sensitivity) {
+    if (Math.hypot((coord[0] - lastCoord[0]) * 1920, (coord[1] - lastCoord[1]) * 1080) >= config.sensitivity[pressed ? 1 : 0]) {
         lastCoord = coord;
         if (pressed && config.detections.includes("drag")) {
             data.type = "drag";
             data.button = pressed;
             send(data);
+            let dot = insertElement("div", "overlay", "clickdot drag").with("style", `left: ${event.layerX}px; top: ${event.layerY}px;`);
+            setTimeout(() => { removeElement(dot); }, 500);
         }
         if (!pressed && config.detections.includes("hover")) {
             data.type = "hover";
             send(data);
+            let dot = insertElement("div", "overlay", "clickdot hover").with("style", `left: ${event.layerX}px; top: ${event.layerY}px;`);
+            setTimeout(() => { removeElement(dot); }, 500);
         }
     }
 }

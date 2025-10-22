@@ -9,7 +9,7 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
     data(`user.140410053.special.igtstart`, sp.igt === 0 ? t : sp.igtstart + t - sp.igt);
     data(`user.140410053.special.rta`, 0);
     data(`user.140410053.special.igt`, 0);
-    send("web", "timer", "reset");
+    send("web", "ws", "timer", "reset");
     _reply("Timer Resumed!");
     return [0, ""];
 }

@@ -2,16 +2,18 @@
 function e(id) { if (typeof id === 'string') id = document.getElementById(id); return id; }
 function q(id) { if (typeof id === 'string') id = document.querySelectorAll(id); return Array.from(id); }
 function insertElement(type, parent, classList, html) {
-    let el = document.createElement(type);
+    let el;
+    if (parent) {
+        if (typeof(parent) == 'string') parent = e(parent);
+        if (parent && ["SVG", "G"].includes(parent.tagName)) el = document.createElementNS("http://www.w3.org/2000/svg", type);
+    }
+    if (!el) el = document.createElement(type);
     if (![undefined, null, false].includes(html)) el.innerHTML = html;
     if (classList) {
         if (typeof(classList) == 'string') classList = classList.split(/\s+/g);
         if (classList.length) el.classList.add(...classList);
     } 
-    if (parent) {
-        if (typeof(parent) == 'string') parent = e(parent);
-        if (parent) parent.appendChild(el);
-    }
+    if (parent) parent.appendChild(el);
     return el;
 }
 function removeElement(el) { if (typeof el === 'string') el = e(el); let parent = el?.parentElement; parent?.removeChild(el); return parent; }

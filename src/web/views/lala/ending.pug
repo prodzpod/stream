@@ -1,0 +1,15 @@
+extends ./screen.pugtemplate
+block meta
+    - v = true
+    - title = 'Ending Soon'
+    - description = 'hii :3'
+    - icon = "https://prod.kr/images/icon/lala.png"
+block titleblock
+    script.
+        async function titleblock() {
+            const ENDING_OFFSETS = [{"x":960,"y":540},{"x":140,"y":282},{"x":257,"y":283},{"x":356,"y":298},{"x":418,"y":272},{"x":514,"y":319},{"x":604,"y":312},{"x":201,"y":435},{"x":288,"y":425},{"x":370,"y":434},{"x":459,"y":415},{"x":532,"y":423},{"x":593,"y":417}];
+            for (let i = 12; i >= 0; i--) {
+                (await new Picture().init("ending" + i, 960, 540, null)).setDepth(0).setScale(2).setPos(ENDING_OFFSETS[i].x, ENDING_OFFSETS[i].y);
+                titles.push("ending" + i);
+            }
+        }

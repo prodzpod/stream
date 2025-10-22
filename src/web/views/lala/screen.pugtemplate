@@ -1,0 +1,193 @@
+extends ../template/imagemap.pugtemplate
+block content
+    style.
+        @import url('https://fonts.googleapis.com/css2?family=Jersey+10&display=swap');
+        body { background-color: transparent; }
+        p {
+            font-family: "Jersey 10", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+            font-size: 300%;
+            letter-spacing: 3px;
+            line-height: 1;
+        }
+        .outline {
+            -webkit-text-stroke: 10px black;
+            color: white;
+            image-rendering: crisp-edges;
+        }
+        @keyframes blink {
+            0% { filter: contrast(0%) brightness(200%); }
+            100% { filter: contrast(100%) brightness(100%); }
+        }
+        @keyframes blink-chat {
+            0% { filter: contrast(0%) brightness(200%); opacity: 1; text-shadow: 0 0 4px white, 0 0 16px white; }
+            100% { filter: contrast(100%) brightness(100%); opacity: 0.5; text-shadow: 0 0 0px white, 0 0 0px white; }
+        }
+        @keyframes fade {
+            0% { opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        .chat p {
+            -webkit-text-stroke-color: transparent;
+        }
+    script.
+        BASE_DIR = "lala";
+        WS_DIR = "lala";
+        let seventvEmotes = [];
+        async function init() {
+            let seventv = (await (await fetch("https://7tv.io/v3/users/01H4YMKF7G000216GE7S5Z6BRS")).json())
+                .connections.find(x => x.platform === "TWITCH" && x.username === "lala_amanita")
+                .emote_set.emotes;
+            seventvEmotes = seventv.map(x => ({
+                name: x.name,
+                url: {
+                    small_animated: `https://cdn.7tv.app/emote/${x.id}/1x.avif`,
+                    big_animated: `https://cdn.7tv.app/emote/${x.id}/3x.avif`,
+                    small_static: `https://cdn.7tv.app/emote/${x.id}/1x.avif`,
+                    big_static: `https://cdn.7tv.app/emote/${x.id}/3x.avif`,
+                }
+            }));
+            // (await new Picture().init("bg", 960, 540, null)).setDepth(-1000);
+            (await new Picture().init("author", 1600, 250, null, null, null, outlinedText(550, "", 200))).setDepth(-1000).rotate(5).addClass("chat");
+            (await new Picture().init("content", 1650, 300, null, null, null, outlinedText(500, "", 200))).setDepth(-1000).rotate(3).addClass("chat");
+            (await new Picture().init("fg", 960, 540, null)).setDepth(-1000);
+            (await new Picture().init("wave", 960, 540, null, null, null, "wave1")).setDepth(0);
+            (await new Picture().init("wave2", 227, 782, null, null, null, "wave21")).setDepth(0);
+            (await new Picture().init("plant", 1234, 707, null, null, null, "plant0")).setDepth(0);
+            (await new Picture().init("plant2", 1234, 520, null, null, null, outlinedText(900, "0 / 10"))).setDepth(0);
+            (await new Picture().init("fence", 1220, 768, null)).setDepth(0);
+            (await new Picture().init("speechbubble", 414, 625, null)).setDepth(0);
+            (await new Picture().init("joel", 414, 625, "speechbubble", null, null, "//prod.kr/data/emote/7tv/Joel.gif")).setDepth(0);
+            P.speechbubble.wrapper.style.opacity = 0;
+            (await new Picture().init("bird1", 867, 176, null)).setDepth(0);
+            (await new Picture().init("bird2", 797, 126, null)).setDepth(0);
+            (await new Picture().init("lala", 695, 636, null)).setDepth(0);
+            (await new Picture().init("lala0", 695, 636, "lala", null, null, "lala_tail0"));
+            (await new Picture().init("lala1", 695, 636, "lala", null, null, "lala_leg0"));
+            (await new Picture().init("lala2", 695, 636, "lala", null, null, "lala_sleeve1"));
+            (await new Picture().init("lala3", 695, 636, "lala", null, null, "lala_hair1"));
+            (await new Picture().init("lala4", 695, 636, "lala", null, null, "lala_glasses1"));
+            (await new Picture().init("lala5", 695, 636, "lala", null, null, "lala_hat1_hair1"));
+            (await new Picture().init("subtitle", 470, 440, null, null, null, outlinedText(900, "twitch.tv/lala_amanita"))).setDepth(0).rotate(-3);
+            const SUBTITLES = ["twitch.tv/lala_amanita", "try !chungus", "prod.kr/lala/discord", "twitter@lala_amanita", "try !jdraw", "bsky@lala-amanita.bsky.social", "youtube@lala_amanita"];
+            setInterval(() => toggleSubtitle(SUBTITLES[Math.floor(tick / 30) % SUBTITLES.length]), 30000);
+            await titleblock();
+            for (const k of titles) { P[k].xx = P[k].x; P[k].yy = P[k].y; }
+        }
+        let water = [0, 10];
+        function update() {
+            if (!animator.includes(P.lala0)) P.lala0.setAnimation({ 0: "lala_tail0", 2.2: "lala_tail1", 2.4: "lala_tail2", 2.6: null });
+            if (!animator.includes(P.lala1)) P.lala1.setAnimation({ 0: "lala_leg0", 0.5: "lala_leg1", 1: "lala_leg0", 1.5: "lala_leg2", 2: null });
+            if (!animator.includes(P.wave)) P.wave.setAnimation({ 0: "wave1", 1: "wave2", 2: "wave3", 3: "wave2", 4: null });
+            if (!animator.includes(P.wave2)) P.wave2.setAnimation({ 0: "wave21", 2.5: "wave22", 3: "wave23", 3.5: "wave22", 4: "wave21", 4.5: "wave22", 5: "wave23", 5.5: "wave22", 6: null });
+            for (let i = 0; i < titles.length; i++) P[titles[i]].setPos(P[titles[i]].xx, P[titles[i]].yy + (Math.sin(tick + i) * 20));
+            P.bird1.setPos(867, tick % 2 < 1 ? 176 : 184).rotate(tick % 2 < 1 ? 0 : -5, true);
+            P.bird2.setPos(797, (tick + 0.5) % 2 < 1 ? 126 : 114).rotate((tick + 0.5) % 2 < 1 ? 0 : -5, true);
+        }
+        let lala = {
+            sleeve: true,
+            hair: true,
+            glasses: true,
+            hat: true
+        }
+        let titles = [];
+        function toggleLala(category) {
+            console.log(category);
+            lala[category] = !lala[category];
+            startAnimation(P.lala.wrapper, "blink 2s forwards");
+            P.lala2.setSprite("lala_sleeve" + (lala.sleeve ? 1 : 0));
+            P.lala3.setSprite("lala_hair" + (lala.hair ? 1 : 0));
+            P.lala4.setSprite("lala_glasses" + (lala.glasses ? 1 : 0));
+            P.lala5.setSprite("lala_hat" + (lala.hat ? 1 : 0) + "_hair" + (lala.hair ? 1 : 0));
+        }
+        COMMANDS.toggle = (data) => toggleLala(data.name);
+        function toggleWater(w, mw) {
+            console.log(w, mw);
+            if (mw) water[1] = mw;
+            water[0] = w;
+            startAnimation(P.plant.wrapper, "blink 2s forwards");
+            startAnimation(P.plant2.wrapper, "blink 2s forwards");
+            P.plant.setSprite("plant" + Math.ceil(water[0] / water[1] * 5));
+            changeText("plant2", `${water[0]} / ${water[1]}`);
+        }
+        COMMANDS.water = toggleWater
+        function toggleSubtitle(sub) {
+            startAnimation(P.subtitle.wrapper, "blink 2s forwards");
+            changeText("subtitle", sub);
+        }
+        function toggleChat(author, txt) {
+            changeText("author", author);
+            changeText("content", txt);
+            startAnimation(P.author.wrapper, "blink-chat 2s forwards");
+            startAnimation(P.content.wrapper, "blink-chat 2s forwards");
+        }
+        COMMANDS.message = (message) => {
+            if (message.text?.trim()[0] === "!" || message.text?.trim().startsWith("[🌙]")) return;
+            if (message.emotes && typeof message.emotes === "string") message.emotes = [...seventvEmotes, ...message.emotes.split("/").map(x => {
+                const [id, idxs] = split(x, ":", 1);
+                let idx = idxs.indexOf(","); if (idx === -1) idx = idxs.length;
+                const [start, end] = idxs.slice(0, idx).split("-").map(x => Number(x));
+                return {
+                    name: message.text.slice(start, end + 1),
+                    url: {
+                        small_animated: `https://static-cdn.jtvnw.net/emoticons/v2/${id}/animated/dark/1.0`,
+                        big_animated: `https://static-cdn.jtvnw.net/emoticons/v2/${id}/animated/dark/3.0`,
+                        small_static: `https://static-cdn.jtvnw.net/emoticons/v2/${id}/static/dark/1.0`,
+                        big_static: `https://static-cdn.jtvnw.net/emoticons/v2/${id}/static/dark/3.0`,
+                    }
+            }})];
+            else if (message.emotes && typeof message.emotes === "object") message.emotes = [...seventvEmotes, ...message.emotes];
+            else message.emotes = seventvEmotes;
+            toggleChat(message.name, attachEmotes(message, isEmote(message) ? "emote-only" : ""));
+        }
+        function isEmote(message) {
+            let text = message.text.replace(/\s\s+/g, " ");
+            const names = message.emotes.map(x => x.name);
+            return !text.split(" ").some(word => !names.includes(word));
+        }
+        function html_encode(string) { return string.replace(/[<>"^]/g, c => `&#${c.charCodeAt(0)};`); }
+        function attachEmotes(message, makeBig) {
+            let html = message.unescape ? message.text : html_encode(message.text);
+            return html.replace(/([^\s]*)/gi, x => {
+                const emotes = message.emotes.filter((emote) => html_encode(emote.name) === x);
+                if (typeof emotes[0] !== "undefined") return `<img class="${(makeBig ? "emote-normal-size" : "emote-normal-size")}" src="${makeBig ? emotes[0].url.big_animated : emotes[0].url.small_animated}" onerror="this.src='${makeBig ? emotes[0].url.big_static : emotes[0].url.small_static}'"/>`;
+                else return x;
+            });
+        }
+        const JOELS = ["3rdPlaceJoel.gif", "7632_joel.gif", "Adam.gif", "AegJoel.gif", "Aruga.gif", "AYAYAJoel.gif", "BabaFish.gif", "BarrelJoel.gif", "barreljol.gif", "barreljol3.gif", "bass.png", "BeeJoel.gif", "BiblicallyAccurateJoel.png", "Billy.png", "billyJOEL.gif", "BinkyJoel.gif", "blahajoel.gif", "Boel.gif", "borgir.gif", "carl.gif", "CatCookingJoelOnACampFireWithHisFriends.gif", "ceramicJoel.gif", "chefJoel.gif", "ChineseJoel.gif", "Christopher.gif", "CKJoel.gif", "COD.gif", "Crab.png", "CrispyJoel.gif", "Cuando.gif", "Damien.gif", "DapperJoel.gif", "Darius.gif", "DarkJoel.gif", "DarkJoelAMorphosis.gif", "daverave.gif", "DeepFriedJoelRoll.gif", "DelLagoel.gif", "dongerjoel.png", "dvdJoel.gif", "EatJoel.png", "elJoel.gif", "EvilJoel.gif", "EvilJoeler.gif", "exemJoel.gif", "fillyJoel.gif", "FirstTimeJoeler.gif", "FISH.png", "FishBallCat.gif", "fishbirthdayman.gif", "FISHDANCING.gif", "fishfight.png", "FishFlower.png", "fishJAM.gif", "fishmael.gif", "fishSpin.gif", "FishStare.png", "fishSZCZUPAK.png", "Fishy.png", "FlatJoel.gif", "flchanFishingButLiterally.gif", "frenJoel.gif", "frennthinkingaboutjoel.gif", "FrinkJoel.gif", "frog.png", "FrozenJoel.png", "fruitJoel.gif", "GetJoeled.png", "GigaFish.gif", "GIGAJOEL.gif", "glorpFishingForJoel.gif", "GoldenJoel.gif", "Goruga.gif", "gyorgSpin.gif", "Harold.gif", "hollyjollychristmas.gif", "HUHFISH.gif", "ItsJoel.png", "JefftheFish.gif", "Jeol.gif", "Jlorp.gif", "Joel.gif", "Joel1.png", "Joel15.gif", "Joel16.png", "Joel17.gif", "Joel2.gif", "Joel2fast.gif", "Joel2Head.gif", "Joel2_2.png", "Joel3.png", "Joel4K.gif", "Joel8K.png", "Joel95.gif", "Joela.gif", "JoelAme.gif", "JoelAmeW.gif", "joelars.gif", "JoelarsTeachingHisSonJolasHowToSpinWhileWideLarsPassesBy.gif", "JoelAUS.gif", "JoelBedge.png", "JoelBedgeTogether.png", "joelbesonasty.png", "JoelBiden.gif", "JoelBusiness.png", "JoelBusinessBurger.png", "JoelbutmywindowsXPiscrashing.gif", "JoelCafe.gif", "JoelChair.gif", "JoelCheck.gif", "JoelCheck3.gif", "JoelCheckFast.gif", "JoelCheeks.gif", "joelco.png", "JoelCopter.gif", "JOELCORDER.gif", "Joeldd.gif", "Joeldead.gif", "JoelDefend.gif", "JoelDespair.gif", "JoelDrownedInBasement.gif", "joelduel.gif", "JoelDynamis.gif", "JoelDynamisbutmyNINdisconnectedduringenrage.gif", "JoelDynamisbutmywindowsXPiscrashing.gif", "JoelDynamisbutmywindowsXPiscrashingandindespair.gif", "JoelDynamisbutmywindowsXPiscrashinginhisleylines.gif", "JoelEaster.gif", "joeleclipse.png", "joeleeping.png", "Joelene.png", "Joeler.gif", "Joeler2.gif", "Joeler95.gif", "Joelerer.gif", "JoelerMas.gif", "JoelerSkeleton.gif", "Joelest.gif", "JoelFace.gif", "JOELFANARTBYCOOMBSIECUTIE.png", "JoelFast.gif", "JOELFASTBUTBETTER.gif", "JoelFish.gif", "JoelFish2.gif", "JoelFlailing.gif", "joelfrog.gif", "joelfuu.png", "joelGamble.gif", "Joelge.gif", "Joelge2.gif", "joelgespin.gif", "JoelGrab.png", "JoelGroupBedge.png", "JOELGUN.gif", "JoelH.gif", "JoelHammer.gif", "JoelHappyBirthday.gif", "JoelHD.gif", "JoelHead.gif", "JoelHeizel.gif", "JoelHeliWatchesWideJoelHappySmokesWhileRunningOverClownsOfNewZealandAndFatDankJoelisAlsoThereToo.gif", "JoelHigh.gif", "JoelHMas.gif", "Joelijej.gif", "Joeling.gif", "Joeling2.gif", "Joeling3.gif", "JoelingPianoTime.gif", "JoelJam.gif", "JoelJams.gif", "joeljamspeed.gif", "JoelJef.gif", "JoelJoel.gif", "JoelJort.png", "JoelKanStyle.png", "Joelkayge.png", "Joelker.gif", "Joelkomi.png", "JOELLA.png", "Joelle.gif", "JoelleoJ.gif", "JoelLife.gif", "JOELLINES.gif", "joelLookDown.png", "joelLookUp.png", "Joelmania.gif", "Joelmas.gif", "JoelMC.gif", "JoelMcCloud.gif", "JoelMCheck.gif", "JoelMinecraft.gif", "JoelMyMan.png", "joelneco.png", "Joelnic.gif", "JoelNOPERS.gif", "JoelOfOpen.gif", "JOELONLINE.gif", "JoeLord.gif", "JoeLorder.gif", "JoeLorderPride.gif", "JoeLordest.gif", "JoeLordestPride.gif", "JoeLordPride.gif", "JoelPanic.gif", "joelpig.gif", "JoelPlush.gif", "JoelPog.png", "JoelPride.gif", "JoelPride2.gif", "JoelPrideCheck.gif", "JoelQ.gif", "JoelQT.gif", "JoelRogan.gif", "JoelsBin.gif", "joelsBinFast.gif", "JoeLSD.gif", "JoelShoals.gif", "JoelSkeleton.gif", "JoelSkeletonFast.gif", "JoelSlap.gif", "JoelSlap2.gif", "joelslide.gif", "JoelSlow.gif", "JoelSlowest.gif", "JoelSpin.gif", "JoelSpin2.gif", "JoelSpinner.gif", "JoelSpooky.gif", "JoelStare.png", "JoelStare1.png", "JoelStare2.png", "JoelSteal.gif", "JoelStop.png", "JoelSucc.png", "joelsyrup.gif", "Joelt.gif", "JoelTeachingHisSonJolHowToSpinWhileWideBorisPassesBy.gif", "JoelTeachingHisSonJolHowToSpinWhileWideBorisPassesByButMyWindowsXPKeepsCrashing.gif", "joeltoe.png", "JoelTrain.gif", "JoelTwister.gif", "JoelTypedBySickNerd.gif", "joelver.gif", "Joelver.png", "Joelver2.png", "JoelW.png", "JoelWick.gif", "JoelWide1.gif", "JoelWide2.gif", "JoelWowee.gif", "JoelWtf.gif", "joelxmas.gif", "JoelYass.png", "JoelyFresco.gif", "JoelySymbol.gif", "Joelzee.png", "Joelzer.gif", "joelzoom.gif", "joel_smash.gif", "joel_teaching_his_son_jol_how_to_spin_while_wide_boris_passes_by.gif", "Joeroo.gif", "Joey.gif", "John.gif", "jol.gif", "jolbirff.gif", "jolbrrr.gif", "JolButRedWasDefamation.png", "joldanse.gif", "joll.gif", "joltik.gif", "jolver.png", "Jonathan.gif", "JOOOOEL.gif", "Jord.gif", "Jordan.gif", "jorgim.png", "Jouns.gif", "Jowoling.gif", "Juan.gif", "Jurtis.gif", "JUSSY.gif", "K9joel.gif", "KOKOKARA.gif", "krysttJoel_nopers.gif", "KrysttJoel_nopersButWindowsXPisCrashing.gif", "leoJ.gif", "LetHimJoel.gif", "LetHimJol.gif", "LETSFUCKINGFISH.png", "liljoel.gif", "linkFish.gif", "linkFloppers.gif", "LiveFishReaction.gif", "LiveJoelReaction.png", "LuxuriousJoelLord.gif", "MangoJoel.png", "Marcus.gif", "Max.gif", "mblissJoeler.gif", "MepheJoel.gif", "Michael.gif", "MiniJoel.gif", "mJoel.gif", "Muhammed.gif", "MuhammedFast.gif", "Namuel.gif", "NiceJoel.png", "NiJoel.png", "Noah.gif", "NotJoel.gif", "OceanJoel.gif", "PauseJoel.png", "Peter.gif", "PetJoel.gif", "PettingJoel.gif", "phazon3Fish.gif", "PianoJoel.gif", "PizzaFish.gif", "quotaJol.gif", "Ramp.gif", "RareJoel.gif", "RedJoel.gif", "Ricardo.gif", "ripvanFish.gif", "ronaldo.png", "salmon.gif", "SapariMambo.gif", "SleepyJoel.png", "SpurdoFish.png", "SqueexingMyFish.gif", "squeexJoel.png", "SUSSYFISH.gif", "SwedishJoel.gif", "UCoBJoel.gif", "ULTRAWIDEJOEL.gif", "Wahoo.gif", "Wahoo2.gif", "Wahoo3.gif", "WALT.png", "WarmasterJoel.png", "WAYTOOJOEL.gif", "WhoLetHimJoel.gif", "WhoLetHimJoel2.gif", "WideJoel.gif", "WideJoelerJam.gif", "WideJoelHead.gif", "wirtJoel.gif", "WoolieUsingJoel.gif", "YoJoel.gif", "Zartano.gif"]
+        function toggleJoel() {
+            startAnimation(P.speechbubble.wrapper, "fade 5s forwards");
+            P.joel.setSprite("//prod.kr/data/emote/7tv/" + random(JOELS));
+        }
+        COMMANDS.jdraw = toggleJoel;
+        function outlinedText(w, txt, size=300) {
+            let parent = insertElement("div", null);
+            for (let el of [insertElement("p", parent, "outline", txt), insertElement("p", parent, null, txt)]) {
+                el.with("style", `
+                    font-size: ${size}%;
+                    width: ${w}px;
+                    position: absolute;
+                    left: ${-w / 2}px;
+                    text-align: center;
+                `)
+            }
+            return parent;
+        }
+        function changeText(k, txt) {
+            for (let ch of P[k].image.children) ch.innerHTML = txt;
+        }
+        //- document.onmousemove = event => { mouse[0] = event.clientX; mouse[1] = event.clientY; }
+        //- document.onpointerup = event => { previousMouse = null; currentPinned = null; }
+        //- P[k].pinned = false;
+        //- P[k].image.onpointerdown = event => {
+        //-     if (P[k].pinned) return;
+        //-     currentPinned = k;
+        //- P[k].image.ondragstart = event => event.preventDefault();
+        //- P.bg.pinned = true;
+        //- P.wave.pinned = true;
+    block titleblock
+        script.
+            async function titleblock() {}

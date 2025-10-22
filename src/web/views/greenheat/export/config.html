@@ -14,13 +14,17 @@
     <div class="extension">
         <form id="form">
             <fieldset>
-                <legend>Detection Types</legend>
-                <div><input id="click" type="checkbox" name="option" value="click"><label for="click">Click</label></div>
-                <div><input id="drag" type="checkbox" name="option" value="drag"><label for="drag">Drag</label></div>
-                <div><input id="release" type="checkbox" name="option" value="release"><label for="release">Release</label></div>
-                <div><input id="hover" type="checkbox" name="option" value="hover"><label for="hover">Hover</label></div>
-                <div><input id="mobile" type="checkbox" name="option" value="mobile"><label for="mobile">Mobile</label></div>
-                <div><input id="sensitivity" type="number" name="option" value="sensitivity"><label for="sensitivity">Sensitivity</label></div><input type="submit" value="Submit" onclick="submit()">
+                <legend>Detection Types</legend><input id="channel" type="hidden" name="channel">
+                <div><input id="click" type="checkbox" name="click" value="click"><label for="click">Click</label></div>
+                <div><input id="drag" type="checkbox" name="drag" value="drag"><label for="drag">Drag</label></div>
+                <div><input id="release" type="checkbox" name="release" value="release"><label for="release">Release</label></div>
+                <div><input id="hover" type="checkbox" name="hover" value="hover"><label for="hover">Hover</label></div>
+                <div><input id="mobile" type="checkbox" name="mobile" value="mobile"><label for="mobile">Mobile</label></div>
+                <div><input id="shover" type="number" name="shover" value="shover"><label for="shover">Hover Sensitivity</label></div>
+                <div><input id="sdrag" type="number" name="sdrag" value="sdrag"><label for="sdrag">Drag Sensitivity</label></div>
+                <div><input id="color" type="text" name="color" value="color"><label for="color">Color</label></div>
+                <input id="submit" type="button" value="Submit">
+                <p id="status"></p>
             </fieldset>
         </form>
     </div>
@@ -46,7 +50,7 @@
             margin: 4px;
         }
 
-        input[type="submit"] {
+        input[type="button"] {
             margin: 4px 0;
             color: white;
             border-radius: 4px;
@@ -54,11 +58,11 @@
             background-color: rgba(0, 0, 0, 0.5);
         }
 
-        input[type="submit"]:hover {
+        input[type="button"]:hover {
             background-color: rgba(0, 0, 0, 0.8);
         }
 
-        input[type="submit"]:active {
+        input[type="button"]:active {
             background-color: rgba(255, 255, 255, 0.5);
         }
     </style>

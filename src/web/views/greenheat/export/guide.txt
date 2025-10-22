@@ -1,4 +1,16 @@
 Changelog: 
+0.0.5
+- added color customization for click dots
+- added better visualization for hover/drag/release
+0.0.4
+- fixed mobile touchscreen 
+0.0.3
+- split hover sensitivity and drag sensitivity to facilitate smoother tracking when mouse is held down
+- fixed config submission
+0.0.2
+- fixed account linking and therefore the popup staying after account link issue (uses numerical id when available)
+- can exit account link dialogue in mobile 
+0.0.1
 - fixed being unable to click "link account" or "stay anonymous", and re-enabled player functionality through double rightclick
 - added a privacy policy
 
