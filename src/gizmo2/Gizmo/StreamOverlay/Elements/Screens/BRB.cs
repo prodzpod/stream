@@ -12,20 +12,46 @@ namespace Gizmo.StreamOverlay.Elements.Screens
 {
     public class BRB : Element
     {
-        public override string Sprite => "layout/brbbg";
+        public override string Sprite => "layout/brbbg2";
         public override IHitbox? Hitbox => new AABBHitbox(Game.Room.Camera.XY(), Game.Room.Camera.ZW());
         public override string[] InteractsWith => [nameof(Mouse)];
+        public static List<Instance> LeaderboardInstance = [];
+        public static Dictionary<string, int> Leaderboard = [];
+        public static Dictionary<string, ColorP> Colors = [];
         public override void OnPostInit(ref Instance self)
         {
             base.OnPostInit(ref self);
             self.Depth = -1;
             StreamOverlay.Prod.Alpha = 0;
-            self.Set("fg", Graphic.New(self, "layout/brb"));
+            self.Set("fg", Graphic.New(self, "layout/brb_fg2"));
             self.Set("rb", Squareish.New(nameof(RaidBoss), new Vector2(960 + 350, 540), Resource.Sprites["other/raidboss"].Size));
+            StartingSoon.TipX = Text.Compile(StartingSoon.Tip, "neodunggeunmo", 32, ColorP.WHITE).Size.X;
+            StartingSoon.TipInstance = Graphic.New(self, Text.Compile(StartingSoon.Tip + StartingSoon.Tip + StartingSoon.Tip, "neodunggeunmo", 32, ColorP.WHITE));
+            StartingSoon.TipInstance.Position = new(-StartingSoon.TipX, 540 - 56 - 16);
+            Graphic.New(self, Text.Compile("Free Pizza!", "neodunggeunmo", 160, new Vector2(-1, -1), ColorP.WHITE)).Position = new(-960 + 96, -540 + 96);
+            Graphic.New(self, Text.Compile("Click the screen for free pizza!", "neodunggeunmo", 80, new Vector2(-1, -1), ColorP.WHITE)).Position = new(-960 + 56, -540 + 216);
+            Graphic.New(self, Text.Compile("Leaderboard:", "neodunggeunmo", 40, new Vector2(1, -1), ColorP.WHITE)).Position = new(960 - 16, -540 + 32);
+            for (var i = 0; i < 10; i++)
+            {
+                var instance = Graphic.New(self, Text.Compile("", "neodunggeunmo", 40, new Vector2(1, -1), ColorP.WHITE));
+                instance.Position = new(960 - 16, -540 + 72 + (40 * i));
+                LeaderboardInstance.Add(instance);
+            }
+            Leaderboard = [];
         }
         public override void OnUpdate(ref Instance self, float deltaTime)
         {
             base.OnUpdate(ref self, deltaTime);
+            StartingSoon.TipInstance.Position.X -= 64 * deltaTime;
+            if (StartingSoon.TipInstance.Position.X < -StartingSoon.TipX * 2) StartingSoon.TipInstance.Position.X += StartingSoon.TipX;
+            var names = Leaderboard.Keys.ToList();
+            names.Sort((a, b) => Leaderboard[b] - Leaderboard[a]);
+            for (var i = 0; i < names.Count; i++)
+            {
+                if (i >= 10) break;
+                var text = names[i] + ": " + Leaderboard[names[i]];
+                LeaderboardInstance[i].Sprite = Text.Compile(text, "neodunggeunmo", 40, new Vector2(1, -1), Colors[names[i]]);
+            }
             if (InputP.KeyPressed(-3)) self.Destroy();
         }
         public override void OnDestroy(ref Instance self)

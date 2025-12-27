@@ -7,9 +7,12 @@ head
     script(src="https://prod.kr/js/common_manual.js")
     script(src="https://prod.kr/js/base.js")
 body
-    #heat.layer
+    .layer.vlist#heat
+        .spacer
+        .heat-inner
+            p#debug
+        .spacer
     #overlay.layer(style='pointer-events: none;')
-        p#debug    
         #login.layer.vlist(style='pointer-events: all;')
             p
                 b
@@ -25,6 +28,8 @@ body
                 button.spacer#stay-anonymous(style='background-color: #444; color: white;') stay anonymous
     style.
         :root { --color: red; }
+        body { background-color: #ccc; }
+        .heat-inner { width: 100vw; height: calc(100vw / 16 * 9); background-color: white; }
         .layer {
             position: absolute;
             width: 100%;
@@ -84,7 +89,7 @@ body
         #login button:hover::after { background-color: rgba(128, 128, 128, 0.2); }
         #login button:active::after { background-color: rgba(128, 128, 128, 0.5); }
     script.
-        const DEBUG = false;
+        const DEBUG = true;
         let channel, login, user, ws, config;
         window.Twitch.ext.onAuthorized(auth => {
             channel = auth.channelId;
@@ -119,7 +124,7 @@ body
             ws = new WebSocket("wss://heat.prod.kr/" + login + "/extension");
             ws.onclose = () => {
                 console.log("Websocket Disconnected, reconnecting...");
-                setTimeout(initWS, 5000);
+                setTimeout(initWS, 500);
             }
         }
 
@@ -130,6 +135,7 @@ body
             if (ratio < 1) x /= ratio;
             else y /= ratio;
             return {
+                mobile: true,
                 id: user,
                 x: x,
                 y: y,
@@ -149,7 +155,7 @@ body
             pressed = true;
             lastCoord = [data.x, data.y];
             data.type = "click";
-            ws.send(data);
+            send(data);
             let dot = insertElement("div", "overlay", "clickdot").with("style", `left: ${event.changedTouches[0].pageX}px; top: ${event.changedTouches[0].pageY}px;`);
             setTimeout(() => { removeElement(dot); }, 500);
         }
@@ -159,7 +165,7 @@ body
             pressed = false;
             lastCoord = [data.x, data.y];
             data.type = "release";
-            ws.send(data);
+            send(data);
             let dot = insertElement("div", "overlay", "clickdot release").with("style", `left: ${event.changedTouches[0].pageX}px; top: ${event.changedTouches[0].pageY}px;`);
             setTimeout(() => { removeElement(dot); }, 500);
         }
@@ -171,7 +177,7 @@ body
             if (Math.hypot((coord[0] - lastCoord[0]) * 1920, (coord[1] - lastCoord[1]) * 1080) >= config.sensitivity[1]) {
                 lastCoord = coord;
                 data.type = "drag";
-                ws.send(data);
+                send(data);
                 let dot = insertElement("div", "overlay", "clickdot drag").with("style", `left: ${event.changedTouches[0].pageX}px; top: ${event.changedTouches[0].pageY}px;`);
                 setTimeout(() => { removeElement(dot); }, 500);
             }

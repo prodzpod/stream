@@ -80,7 +80,7 @@ namespace ProdModel.Puppet
         public static void SetPose(ref WorseVRM wvrm, string id, ref Vector3 translate, ref Vector3 rotate, ref Vector3 scale)
         {
             // quirky stuff here
-            Vector3 rotation = TrackingData.Euler - new Vector3(165, -32, 103 + (2 * TrackingData.Euler.Y / 9f));
+            Vector3 rotation = TrackingData.Euler - new Vector3(150, 0, 90 + (2 * TrackingData.Euler.Y / 9f));
             switch (id)
             {
                 case "body":

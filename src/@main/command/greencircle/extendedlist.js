@@ -73,7 +73,6 @@ const TEALCIRCLE = [
     "lala_amanita",
     "SaladForrest",
     // PRE-GROUP C: EMERGENCY BELL (should go on top if live)
-    "AlpinAlbench",
     "dn_panic",
     "nme64_u",
     "TheJonyMyster",
@@ -84,6 +83,7 @@ const TEALCIRCLE = [
     "CrazyKitty357",
     "vodkanyan",
     "archible",
+    "xhiggy",
     // PRE-GROUP D: *20* Viewers who also Stream (thank you for talking to me)
       // gizmopeople
     "KinskyUnplugged",
@@ -266,6 +266,15 @@ const TEALCIRCLE = [
     "ZephHaathun",
     "DesyncZX",
     "NayaAnukaVT",
+    "VTuberMale",
+    // GROUP 7: =>GREENHEAT
+    "Kyuppin",
+    "MorseAmalgam",
+    "alllenski",
+    "Vexilus_",
+    "JessiAndroid",
+    "KazVT",
+    "MOTHERv3",
 
     //! PROCEED TO "PASS 2" IN TURQUOISECIRCLE
 
@@ -423,13 +432,17 @@ const TURQUOISECIRCLE = [
     "panda_doodles_",
     "SpooksyVT",
     "BoganBits",
+    "PastelOniBunny",
     // Post-Group C: Alts/Bots of Existing Channels
     "PooltoyBot",
     "SetolyxBot",
     "tinymici",
     "CH47Says",
     "goodcop_",
-    "podzprod"
+    "podzprod",
+    "asbot_io",
+    "millie_watt",
+    "vexilusbot"
 ];
 
 const GREENCIRCLE = [ // commented: exists in greencircle.live but does not get captured by greenfeed

@@ -14,7 +14,7 @@ module.exports.execute = async (_reply, from, chatter, message, text, emote, rep
             if (visited.includes(COMMANDS[k])) continue;
             cmds.push(k); visited.push(COMMANDS[k]);
         }
-        _reply(`[🍄🐰] Usage: !chungus [${cmds.join("/")}] [options...]`);
+        _reply(`[🍄🐰] Usage: !chungus [${cmds.join("/")}] [options...] | go to https://prod.kr/lala/chungus/ to manage inventory`);
     } else {
         let cdata = data().chungus.user[chatter.twitch.id]; 
         if (!cdata) {
@@ -47,6 +47,10 @@ const FRUITS = [
     Source("fruit", "Lime", Stat(10, 100, 2, 10), Stat(100, 200, 25, 75), Stat(50, 150, 10, 25), Stat(6, 12, 3, 5)),
     Source("vegetable", "Pepper", Stat(10, 100, 2, 10), Stat(10, 100, 2, 10), Stat(125, 250, 50, 100), Stat(6, 12, 3, 5)),
     Source("vegetable", "Paprika", Stat(50, 150, 10, 25), Stat(10, 100, 2, 10), Stat(100, 200, 25, 75), Stat(6, 12, 3, 5)),
+    Source("fruit", "Mango", Stat(50, 150, 10, 25), Stat(50, 150, 10, 25), Stat(10, 100, 2, 10), Stat(6, 12, 3, 5)),
+    Source("vegetable", "Broccoli", Stat(25, 75, 5, 25), Stat(25, 75, 5, 25), Stat(25, 75, 5, 25), Stat(10, 20, 5, 10)),
+    Source("fish", "Tuna", Stat(10, 100, 2, 10), Stat(50, 150, 10, 25), Stat(100, 200, 25, 75), Stat(10, 20, 5, 10)),
+    Source("plant", "Mushroom", Stat(10, 150, 0, 250), Stat(10, 150, 0, 250), Stat(10, 150, 0, 250), Stat(10, 20, 5, 10)),
 ];
 const FOOD_TYPES = [
     Source(null, "Salad", Stat(50, 200, 10, 75), Stat(50, 200, 10, 50), Stat(10, 50, 5, 10), Stat(2, 10, 2, 5)),
@@ -54,6 +58,7 @@ const FOOD_TYPES = [
     Source(null, "Punch", Stat(100, 200, 25, 75), Stat(50, 150, 10, 25), Stat(10, 100, 2, 10), Stat(4, 7, 3, 4)),
     Source(null, "Kebab", Stat(5, 20, 1, 5), Stat(10, 50, 25, 75), Stat(50, 100, 50, 100), Stat(9, 18, 2, 5)),
     Source(null, "Soup", Stat(50, 150, 10, 25), Stat(50, 150, 10, 25), Stat(50, 150, 10, 25), Stat(3, 4, 2, 3)),
+    Source(null, "Candy", Stat(150, 250, 30, 100), Stat(10, 100, 2, 10), Stat(10, 100, 2, 10), Stat(1, 2, 3, 4)),
 ];
 const STATS = ["sweet", "sour", "spicy", "value"];
 const COOKABLE = ["fruit", "vegetable", "fish", "plant", "meat"];
@@ -108,6 +113,13 @@ const COMMANDS = {
         data("chungus.user." + chatter.twitch.id, profile);
     },
     select: select,
+    deselect: (_reply, chatter, profile, slot) => {
+        if (slot <= 0 || slot > 3) { _reply("[🍄🐰] Usage: !chungus deselect [slot(1, 2 or 3)]"); return; }  
+        if (profile.select[slot - 1] === null) { _reply("[🍄🐰] This slot is already empty!"); return; }
+        profile.select[slot - 1] = null;
+        _reply(`[🍄🐰] Successfully deletected slot ${slot}!`);
+        data("chungus.user." + chatter.twitch.id, profile);
+    },
     restaurant: select,
     menu: select,
     inventory: inventory,
@@ -189,13 +201,17 @@ function getSelection(profile, select) {
     return profile.inventory.findIndex(x => describe(x, true).toLowerCase().startsWith(select.trim().toLowerCase())) // name
 }
 function select(_reply, chatter, profile, slot, ...select) {
-    if (!select?.length) { _reply("[🍄🐰] Usage: !chungus select [slot(1, 2 or 3)] [inventory number or name]"); return; }  
+    if (!select?.length || slot < 0 || slot > 3) { _reply("[🍄🐰] Usage: !chungus select [slot(1, 2 or 3)] [inventory number or name]"); return; }  
     select = getSelection(profile, select);
     if (select === -1) { _reply("[🍄🐰] This item does not exist in your inventory. see !chungus inventory"); return; }
     let food = profile.inventory[select];
     if (food.type !== "food") { _reply(`[🍄🐰] ${describe(food)} is not a completed food!`); return; }
     if (profile.select.indexOf(select) !== -1) { _reply(`[🍄🐰] ${describe(food)} is already selected!`); return; }
-    profile.select[slot] = select;
+    if (slot === 0) {
+        let idx = profile.select.indexOf(null);
+        if (idx !== -1) profile.select[idx] = select;
+        else profile.select = [...profile.select.slice(1), select];
+    } else profile.select[slot - 1] = select;
     _reply(`[🍄🐰] Successfully selected ${describe(food)}!`);
     data("chungus.user." + chatter.twitch.id, profile);
 }
@@ -247,6 +263,6 @@ function inventory(_reply, chatter, profile, name, page=1) {
     let i = page === 1 ? 1 : (6 + 10 * (page - 2));
     for (let entry of inv) { txt += `${i}: ${describe(entry, true)} | \n`; i++; }
     if (page === 1 && pages > 1) txt += "(use !chungus inventory [page] to see the rest of the inventory!)";
-    _reply(`[🍄🐰] ${name}'s Inventory (page ${page}/${pages}) | \n${txt}`);
+    _reply(`[🍄🐰] ${name}'s Inventory (page ${page}/${pages}) | go to https://prod.kr/lala/chungus/ to manage inventory | \n${txt}`);
 }
 function info(_reply, chatter, profile) { _reply("[🍄🐰] chungusgame v1.0 || chungusgame is a side-stream minigame where you can water plants. your water regenerates every lala stream, and when enough people water the plant you recieve a random fruit. You can then cook that fruit into a random food that has 3 stats and a sell value. You can select up to 3 foods as your \"menu\", the goal is to maximize the stat of your total menu. || twitch.tv/lala_amanita || prodzpod 2025"); }

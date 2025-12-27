@@ -52,6 +52,7 @@ a, button {
 .hlist div, .vlist div, .mlist div {
     flex: 1 0 auto;
 }
+.hlist > * { align-self: center; }
 .stretch {
     align-self: stretch;
 }

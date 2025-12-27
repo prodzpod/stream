@@ -3,7 +3,7 @@ const { split, Math, nullish } = require("../../common");
 const { log } = require("../../commonServer");
 const { args } = require("../chat/chat");
 
-module.exports.predicate = ["!changeicon"];
+module.exports.predicate = ["!changeicon", "!icon"];
 module.exports.permission = 0;  
 module.exports.execute = async (_reply, from, chatter, message, text, emote, reply) => {
     const _args = args(text);

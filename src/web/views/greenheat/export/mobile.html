@@ -11,7 +11,13 @@
 </head>
 
 <body style="margin: 0">
-    <div class="layer" id="heat"></div>
+    <div class="layer vlist" id="heat">
+        <div class="spacer"></div>
+        <div class="heat-inner">
+            <p id="debug"></p>
+        </div>
+        <div class="spacer"></div>
+    </div>
     <div class="layer" id="overlay" style="pointer-events: none;">
         <p id="debug"> </p>
         <div class="layer vlist" id="login" style="pointer-events: all;">
@@ -27,6 +33,9 @@
     <style>
         :root { --color: red; }
 
+        body { background-color: #ccc; }
+        .heat-inner { width: 100vw; height: calc(100vw / 16 * 9); background-color: white; }
+        
         .layer {
             position: absolute;
             width: 100%;

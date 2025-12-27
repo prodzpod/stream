@@ -26,6 +26,7 @@
                         <div style="margin: 4px;"></div><button class="spacer" style="background-color: #444; color: white;" id="stay-anonymous">stay anonymous</button>
                     </div>
                 </div>
+                <img id="login-hidden" src="https://prod.kr/images/icon/greenheat.png">
             </div>
             <div class="spacer"></div>
         </div>
@@ -82,7 +83,19 @@
             border-radius: 8px;
             font-family: 'roobert', sans-serif;
             margin-right: 8px;
+            opacity: 0;
+            transition: 0.5s opacity;   
+            z-index: 1;
         }
+        #login:hover { opacity: 1; }
+        #login-hidden { 
+            opacity: 0.5;
+            width: 64px;
+            height: 64px;
+            border-radius: 8px; 
+            margin-left: -64px;
+        }
+        #login:hover + #login-hidden { display: none; }
 
         #login p {
             margin-bottom: 16px;

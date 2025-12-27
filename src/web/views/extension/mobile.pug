@@ -8,7 +8,10 @@ html
         script(src="https://prod.kr/js/common_manual.js")
         script(src="https://prod.kr/js/base.js")
     body(style="margin: 0")
-        .layer#heat(onpointerdown="clickScreen(event)")
+        .layer.vlist
+            .spacer
+            #heat(onpointerdown="clickScreen(event)")
+            .spacer
         .layer#buttons(style="pointer-events: none;")
         .layer#login.vlist
             .spacer
@@ -27,7 +30,9 @@ html
                 src: url("https://prod.kr/fonts/arcaoblique.13.ttf") format("truetype");
             }
             audio { display: none; }
+            body { background-color: #aaa; }
             .layer { position: absolute; width: 100%; height: 100%; }
+            #heat { width: 100vw; height: calc(100vw / 16 * 9); background-color: white; }
             #heat.active { cursor: pointer; }
             #info { 
                 font-size: 3vw; 

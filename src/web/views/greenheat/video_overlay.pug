@@ -27,6 +27,7 @@ body
                         button#link-account.spacer(style='background-color: white; color: black;') link account
                         div(style='margin: 4px;')
                         button#stay-anonymous.spacer(style='background-color: #444; color: white;') stay anonymous
+                img#login-hidden(src="https://prod.kr/images/icon/greenheat.png")
             .spacer
     style.
         :root { --color: red; }
@@ -72,7 +73,19 @@ body
             border-radius: 8px;
             font-family: 'roobert', sans-serif;
             margin-right: 8px;
+            opacity: 0;
+            transition: 0.5s opacity;   
+            z-index: 1;
         }
+        #login:hover { opacity: 1; }
+        #login-hidden { 
+            opacity: 0.5;
+            width: 64px;
+            height: 64px;
+            border-radius: 8px; 
+            margin-left: -64px;
+        }
+        #login:hover + #login-hidden { display: none; }
         #login p { margin-bottom: 16px; }
         #login b, #login button { font-weight: 700; }
         #login button {
@@ -135,7 +148,7 @@ body
             ws = new WebSocket("wss://heat.prod.kr/" + login + "/extension");
             ws.onclose = () => {
                 console.log("Websocket Disconnected, reconnecting...");
-                setTimeout(initWS, 5000);
+                setTimeout(initWS, 500);
             }
         }
 
@@ -143,6 +156,7 @@ body
             let x = event.layerX / e("heat").clientWidth;
             let y = event.layerY / e("heat").clientHeight;
             return {
+                mobile: false,
                 id: user,
                 x: x,
                 y: y,

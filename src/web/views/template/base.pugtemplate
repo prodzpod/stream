@@ -82,6 +82,7 @@ html
                         .vlist.middle: a.center(href='https://prod.kr/folio') portfolio 
                         .vlist.middle: a.center(href='https://prod.kr/link') links
                         .vlist.middle: a.center(href='https://prod.kr/contact') contact
+                        .vlist.middle: a.center(href='https://prod.kr/support') support us
                 block body-outer
                     .body
                         block body 
@@ -92,7 +93,7 @@ html
                         .hlist.center
                             .vlist
                                 .spacer
-                                p pr<span class='random'>o</span>dzp<span class='random'>o</span>d 2024
+                                p pr<span class='random'>o</span>dzp<span class='random'>o</span>d 2024-2025
                                 .spacer
                             .vlist
                                 .spacer

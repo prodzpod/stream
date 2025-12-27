@@ -1,61 +1,90 @@
 /* undo DTM-18's color overrides (to be compatible with other themepacks */
 /*
 body { background: var(--bg-overlay-2, var(--background-secondary)) !important; }
-[aria-label="Message Actions"] > [class*="popover_"], [class*="hoverBarButton_"], span[class*="content_"] { background: var(--bg-overlay-chat,var(--background-primary)) !important; }
-[aria-label="Message Actions"] > [class*="popover_"]::before { background: linear-gradient(90deg, transparent, var(--bg-overlay-chat,var(--background-primary)) 6px); }
-[class*="bg_"], [class*="footer_"] { background: var(--bg-overlay-app-frame, var(--background-tertiary)) !important; }
-[class*="upperBadge_"], [class*="guilds_"] { background-color: var(--background-tertiary) !important; }
-#channel-attach, .theme-dark nav[class*="container_"], [class*="privateChannels_"] { background: var(--bg-overlay-3, var(--background-secondary)) !important; }
-[aria-label="User area"] > [class*="container_"], [aria-label="User area"] > div > [class*="container_"] { background: var(--bg-overlay-1, var(--background-secondary-alt)) !important; }
+[aria-label="Message Actions"] > [class*="-popover"], [class*="-hoverBarButton"], span[class*="-content"] { background: var(--bg-overlay-chat,var(--background-primary)) !important; }
+[aria-label="Message Actions"] > [class*="-popover"]::before { background: linear-gradient(90deg, transparent, var(--bg-overlay-chat,var(--background-primary)) 6px); }
+[class*="-bg"], [class*="-footer"] { background: var(--bg-overlay-app-frame, var(--background-tertiary)) !important; }
+[class*="-upperBadge"], [class*="-guilds"] { background-color: var(--background-tertiary) !important; }
+#channel-attach, .theme-dark nav[class*="-container"], [class*="-privateChannels"] { background: var(--bg-overlay-3, var(--background-secondary)) !important; }
+[aria-label="User area"] > [class*="-container"], [aria-label="User area"] > div > [class*="-container"] { background: var(--bg-overlay-1, var(--background-secondary-alt)) !important; }
 [aria-label="Channel header"] { background: var(--bg-overlay-2, var(--__header-bar-background)) !important; }
-[class*="unreadPill_"], [class*="chatContent_"] { background: var(--bg-overlay-chat, var(--background-primary)) !important; }
-[class*="members_"] { background: var(--bg-overlay-chat, var(--background-secondary)) !important;}
-[class*="channelTextArea_"] { background-color: transparent !important; }
-[class*="themedBackground_"] { background: var(--bg-overlay-3, var(--channeltextarea-background)) !important; }
-[class*="modeSelected_"] [class*="link_"], [class*="modeSelected_"]:hover [class*="link_"] { background: var(--background-floating, var(--background-modifier-selected)) !important; }
-[class*="menu_"] { background: var(--background-floating) !important; }
-[class*="selected_"] [class*="header_"], [class*="clickable_"] [class*="header_"]:hover { background-color: var(--background-modifier-hover) !important; }
+[class*="-unreadPill"], [class*="-chatContent"] { background: var(--bg-overlay-chat, var(--background-primary)) !important; }
+[class*="-members"] { background: var(--bg-overlay-chat, var(--background-secondary)) !important;}
+[class*="-channelTextArea"] { background-color: transparent !important; }
+[class*="-themedBackground"] { background: var(--bg-overlay-3, var(--channeltextarea-background)) !important; }
+[class*="-modeSelected"] [class*="-link"], [class*="-modeSelected"]:hover [class*="-link"] { background: var(--background-floating, var(--background-modifier-selected)) !important; }
+[class*="-menu"] { background: var(--background-floating) !important; }
+[class*="-selected"] [class*="-header"], [class*="-clickable"] [class*="-header"]:hover { background-color: var(--background-modifier-hover) !important; }
 [data-list-id*="roles-"] { background: transparent !important; }
-[class*="bar_"]:has(> [class*="unreadIcon_"]) { background-color: var(--background-floating) !important; }
-[class*="searchResultsWrap_"] [class*="searchHeader_"], main > [class*="container_"] { background: var(--bg-overlay-2,var(--__header-bar-background)) !important; }
-[class*="searchResult_"] { border-color: transparent !important; background: var(--background-floating) !important; }
-[class*="videoControls_"] [class*="caretButtonContainer_"] svg:has(path[d=" M-0.6899999976158142,0.6899999976158142 C0.6679999828338623,2.0480000972747803 1.5089999437332153,3.5239999294281006 1.840000033378601,4.736000061035156 C2.187999963760376,6.011000156402588 1.8919999599456787,6.564000129699707 1.7280000448226929,6.728000164031982 C1.5640000104904175,6.892000198364258 1.0110000371932983,7.188000202178955 -0.2639999985694885,6.840000152587891 C-1.4759999513626099,6.508999824523926 -2.9519999027252197,5.668000221252441 -4.309999942779541,4.309999942779541 C-5.668000221252441,2.9519999027252197 -6.510000228881836,1.4759999513626099 -6.840000152587891,0.2639999985694885 C-7.188000202178955,-1.0110000371932983 -6.892000198364258,-1.5640000104904175 -6.728000164031982,-1.7280000448226929 C-6.564000129699707,-1.8919999599456787 -6.011000156402588,-2.187999963760376 -4.736000061035156,-1.840000033378601 C-3.5239999294281006,-1.5089999437332153 -2.0480000972747803,-0.6679999828338623 -0.6899999976158142,0.6899999976158142z M0.7239999771118164,-0.7239999771118164 C-2.3919999599456787,-3.8399999141693115 -6.361999988555908,-4.923999786376953 -8.142999649047852,-3.1429998874664307 C-8.6850004196167,-2.6010000705718994 -8.961000442504883,-1.8559999465942383 -8.996000289916992,-0.9940000176429749 C-8.996000289916992,-0.9940000176429749 -9,-1 -9,-1 C-9,-1 -10.163999557495117,7.921999931335449 -10.163999557495117,7.921999931335449 C-10.333999633789062,9.223999977111816 -9.223999977111816,10.333999633789062 -7.921999931335449,10.163999557495117 C-7.921999931335449,10.163999557495117 1,9 1,9 C1,9 0.9940000176429749,8.996000289916992 0.9940000176429749,8.996000289916992 C1.8559999465942383,8.961000442504883 2.6010000705718994,8.6850004196167 3.1429998874664307,8.142999649047852 C4.923999786376953,6.361999988555908 3.8399999141693115,2.3919999599456787 0.7239999771118164,-0.7239999771118164z"]) 
+[class*="-bar"]:has(> [class*="-unreadIcon"]) { background-color: var(--background-floating) !important; }
+[class*="-searchResultsWrap"] [class*="-searchHeader"], main > [class*="-container"] { background: var(--bg-overlay-2,var(--__header-bar-background)) !important; }
+[class*="-searchResult"] { border-color: transparent !important; background: var(--background-floating) !important; }
+[class*="-videoControls"] [class*="-caretButtonContainer"] svg:has(path[d=" M-0.6899999976158142,0.6899999976158142 C0.6679999828338623,2.0480000972747803 1.5089999437332153,3.5239999294281006 1.840000033378601,4.736000061035156 C2.187999963760376,6.011000156402588 1.8919999599456787,6.564000129699707 1.7280000448226929,6.728000164031982 C1.5640000104904175,6.892000198364258 1.0110000371932983,7.188000202178955 -0.2639999985694885,6.840000152587891 C-1.4759999513626099,6.508999824523926 -2.9519999027252197,5.668000221252441 -4.309999942779541,4.309999942779541 C-5.668000221252441,2.9519999027252197 -6.510000228881836,1.4759999513626099 -6.840000152587891,0.2639999985694885 C-7.188000202178955,-1.0110000371932983 -6.892000198364258,-1.5640000104904175 -6.728000164031982,-1.7280000448226929 C-6.564000129699707,-1.8919999599456787 -6.011000156402588,-2.187999963760376 -4.736000061035156,-1.840000033378601 C-3.5239999294281006,-1.5089999437332153 -2.0480000972747803,-0.6679999828338623 -0.6899999976158142,0.6899999976158142z M0.7239999771118164,-0.7239999771118164 C-2.3919999599456787,-3.8399999141693115 -6.361999988555908,-4.923999786376953 -8.142999649047852,-3.1429998874664307 C-8.6850004196167,-2.6010000705718994 -8.961000442504883,-1.8559999465942383 -8.996000289916992,-0.9940000176429749 C-8.996000289916992,-0.9940000176429749 -9,-1 -9,-1 C-9,-1 -10.163999557495117,7.921999931335449 -10.163999557495117,7.921999931335449 C-10.333999633789062,9.223999977111816 -9.223999977111816,10.333999633789062 -7.921999931335449,10.163999557495117 C-7.921999931335449,10.163999557495117 1,9 1,9 C1,9 0.9940000176429749,8.996000289916992 0.9940000176429749,8.996000289916992 C1.8559999465942383,8.961000442504883 2.6010000705718994,8.6850004196167 3.1429998874664307,8.142999649047852 C4.923999786376953,6.361999988555908 3.8399999141693115,2.3919999599456787 0.7239999771118164,-0.7239999771118164z"]) 
     { background: inherit !important; }
-[class*="videoControls_"] [class*="caretButtonContainer_"] svg:has(path[d=" M-0.6899999976158142,0.6899999976158142 C0.6679999828338623,2.0480000972747803 1.5089999437332153,3.5239999294281006 1.840000033378601,4.736000061035156 C2.187999963760376,6.011000156402588 1.8919999599456787,6.564000129699707 1.7280000448226929,6.728000164031982 C1.5640000104904175,6.892000198364258 1.0110000371932983,7.188000202178955 -0.2639999985694885,6.840000152587891 C-1.4759999513626099,6.508999824523926 -2.9519999027252197,5.668000221252441 -4.309999942779541,4.309999942779541 C-5.668000221252441,2.9519999027252197 -6.510000228881836,1.4759999513626099 -6.840000152587891,0.2639999985694885 C-7.188000202178955,-1.0110000371932983 -6.892000198364258,-1.5640000104904175 -6.728000164031982,-1.7280000448226929 C-6.564000129699707,-1.8919999599456787 -6.011000156402588,-2.187999963760376 -4.736000061035156,-1.840000033378601 C-3.5239999294281006,-1.5089999437332153 -2.0480000972747803,-0.6679999828338623 -0.6899999976158142,0.6899999976158142z M0.7239999771118164,-0.7239999771118164 C-2.3919999599456787,-3.8399999141693115 -6.361999988555908,-4.923999786376953 -8.142999649047852,-3.1429998874664307 C-8.6850004196167,-2.6010000705718994 -8.961000442504883,-1.8559999465942383 -8.996000289916992,-0.9940000176429749 C-8.996000289916992,-0.9940000176429749 -9,-1 -9,-1 C-9,-1 -10.163999557495117,7.921999931335449 -10.163999557495117,7.921999931335449 C-10.333999633789062,9.223999977111816 -9.223999977111816,10.333999633789062 -7.921999931335449,10.163999557495117 C-7.921999931335449,10.163999557495117 1,9 1,9 C1,9 0.9940000176429749,8.996000289916992 0.9940000176429749,8.996000289916992 C1.8559999465942383,8.961000442504883 2.6010000705718994,8.6850004196167 3.1429998874664307,8.142999649047852 C4.923999786376953,6.361999988555908 3.8399999141693115,2.3919999599456787 0.7239999771118164,-0.7239999771118164z"]) g 
+[class*="-videoControls"] [class*="-caretButtonContainer"] svg:has(path[d=" M-0.6899999976158142,0.6899999976158142 C0.6679999828338623,2.0480000972747803 1.5089999437332153,3.5239999294281006 1.840000033378601,4.736000061035156 C2.187999963760376,6.011000156402588 1.8919999599456787,6.564000129699707 1.7280000448226929,6.728000164031982 C1.5640000104904175,6.892000198364258 1.0110000371932983,7.188000202178955 -0.2639999985694885,6.840000152587891 C-1.4759999513626099,6.508999824523926 -2.9519999027252197,5.668000221252441 -4.309999942779541,4.309999942779541 C-5.668000221252441,2.9519999027252197 -6.510000228881836,1.4759999513626099 -6.840000152587891,0.2639999985694885 C-7.188000202178955,-1.0110000371932983 -6.892000198364258,-1.5640000104904175 -6.728000164031982,-1.7280000448226929 C-6.564000129699707,-1.8919999599456787 -6.011000156402588,-2.187999963760376 -4.736000061035156,-1.840000033378601 C-3.5239999294281006,-1.5089999437332153 -2.0480000972747803,-0.6679999828338623 -0.6899999976158142,0.6899999976158142z M0.7239999771118164,-0.7239999771118164 C-2.3919999599456787,-3.8399999141693115 -6.361999988555908,-4.923999786376953 -8.142999649047852,-3.1429998874664307 C-8.6850004196167,-2.6010000705718994 -8.961000442504883,-1.8559999465942383 -8.996000289916992,-0.9940000176429749 C-8.996000289916992,-0.9940000176429749 -9,-1 -9,-1 C-9,-1 -10.163999557495117,7.921999931335449 -10.163999557495117,7.921999931335449 C-10.333999633789062,9.223999977111816 -9.223999977111816,10.333999633789062 -7.921999931335449,10.163999557495117 C-7.921999931335449,10.163999557495117 1,9 1,9 C1,9 0.9940000176429749,8.996000289916992 0.9940000176429749,8.996000289916992 C1.8559999465942383,8.961000442504883 2.6010000705718994,8.6850004196167 3.1429998874664307,8.142999649047852 C4.923999786376953,6.361999988555908 3.8399999141693115,2.3919999599456787 0.7239999771118164,-0.7239999771118164z"]) g 
     { display: block !important; } /* soundboard */
 @import url(https://prod.kr/css/discord/mini_freecoolcss.css);
 /* style: grad bg */
-[class*="layers_"] [class*="base_"] [class*="chat_"] { background-image: url("https://pub.colonq.computer/~prod/yume/bg.avif") !important; }
-[class*="chatContent_"] { background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.8)), linear-gradient(48.17deg, rgba(83, 72, 202, 0.5) 11.21%, rgba(20, 7, 48, 0.5) 61.92%) !important; }
-[class*="chatContent_"]::before { opacity: calc(1 - var(--custom-bg)); content: " "; position: absolute; left: 0; right: 0; top: 0; bottom: 0; background: var(--bg-overlay-chat, var(--background-primary)) !important; }
+[class*="-chat"]:has(main[class*="-chatContent"]) { background-image: url("https://pub.colonq.computer/~prod/yume/bg.avif") !important; }
+[class*="-chatContent"] { background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.8)), linear-gradient(48.17deg, rgba(83, 72, 202, 0.5) 11.21%, rgba(20, 7, 48, 0.5) 61.92%) !important; }
+[class*="-chatContent"]::before { opacity: calc(1 - var(--custom-bg)); content: " "; position: absolute; left: 0; right: 0; top: 0; bottom: 0; background: var(--bg-overlay-chat, var(--background-primary)) !important; }
+[class*="-divider"][role="separator"] span[class*="-content"] { background: none !important; }
+:root { 
+    --interactive-normal: var(--channels-default);
+    --interactive-active: var(--text-strong);
+    --header-primary: var(--text-strong); 
+    --header-secondary: var(--text-subtle); 
+    --control-text-primary-default: var(--control-primary-text-default);
+    --control-text-critical-primary-default: var(--control-critical-primary-text-default);
+    --control-background-primary-default: var(--control-primary-background-default);
+    --control-border-primary-default: var(--control-primary-border-default);
+    --control-background-critical-primary-default: var(--control-critical-primary-background-default);
+    --control-border-critical-primary-default: var(--control-critical-primary-border-default);
+    --control-text-primary-hover: var(--control-primary-text-hover);
+    --control-text-critical-primary-hover: var(--control-critical-primary-text-hover);
+    --control-background-primary-hover: var(--control-primary-background-hover);
+    --control-border-primary-hover: var(--control-primary-border-hover);
+    --control-background-critical-primary-hover: var(--control-critical-primary-background-hover);
+    --control-border-critical-primary-hover: var(--control-critical-primary-border-hover);
+}
 /* super emergency opsec */
-[class*="settingsPage_"] span:has(button[aria-label="Reveal email address"])::before, 
-[class*="settingsPage_"] span:has(button[aria-label="Reveal phone number"])::before { content: "Hidden"; font-size: 16px; }
-[class*="formText_"]:has(> a[class*="phoneRevealer"])::before { content: "Your current phone number is: Hidden"; font-size: 14px; }
-[class*="settingsPage_"] span:has(button[aria-label="Reveal email address"]), 
-[class*="settingsPage_"] span:has(button[aria-label="Reveal phone number"]),
-[class*="formText_"]:has(> a[class*="phoneRevealer"]) { font-size: 0; }
+[class*="-settingsPage"] span:has(button[aria-label="Reveal email address"])::before, 
+[class*="-settingsPage"] span:has(button[aria-label="Reveal phone number"])::before { content: "Hidden"; font-size: 16px; }
+[class*="-text"]:has(> a[class*="-phoneRevealer"])::before { content: "Your current phone number is: Hidden"; font-size: 14px; }
+[class*="-settingsPage"] span:has(button[aria-label="Reveal email address"]), 
+[class*="-settingsPage"] span:has(button[aria-label="Reveal phone number"]),
+[class*="-text"]:has(> a[class*="-phoneRevealer"]) { font-size: 0; }
+[class*="-userSettingsSecurity"] { display: none !important; }
 
 /* unmodified discord bit */
-.vc-settings::before { content: "Ordinary Unmodified Discord" !important; }
-[class*="header_"]:has(+ .vc-settings)::before { content: "ᴏʀᴅɪɴᴀʀʏ ᴜɴᴍᴏᴅɪғɪᴇᴅ ᴅɪsᴄᴏʀᴅ" !important; font-weight: bold; }
-[class*="header_"]:has(+ .vc-settings) > [class*="headerText_"] { display: none; }
-.vc-settings-donate h2 { color: transparent; }
-.vc-settings-donate h2::before { content: "what is this animal doing here"; color: var(--header-secondary); }
-.vc-settings-donate [class*="formText_"] { color: transparent; }
-.vc-settings-donate [class*="contents_"] { font-size: 0; margin: 0; }
-.vc-settings-donate [class*="contents_"]::after { content: " ?"; font-size: 14px; }
-.vc-settings-donate [class*="button_"] { transform: translateX(-2em) !important; }
-#vencordsettings-tab > div:first-child > h2:first-child::before { content: "Ordinary Unmodified Discord Settings"; font-size: 16px; }
-#vencordsettings-tab > div:first-child > h2:first-child { font-size: 0; }
-#vencordsettings-tab div:last-of-type > [class*="sectionTitle_"] h2::before { content: "Ordinary Unmodified Discord Notifications"; font-size: 12px; }
-#vencordsettings-tab div:last-of-type > [class*="sectionTitle_"] h2 { font-size: 0; }
-.vc-settings-card a[href="https://betterdiscord.app/themes"]::before { content: "CompletelyNormalDiscord Themes"; font-size: 16px; }
-.vc-settings-card a[href="https://betterdiscord.app/themes"] { font-size: 0; }
-[aria-label="Click to copy version"] > [class*="info_"] > span:nth-child(2)::before { content: "Ordinary Unmodified Discord 0fd76ab (Standalone)"; font-size: 12px; }
-[aria-label="Click to copy version"] > [class*="info_"] > span:nth-child(2) { font-size: 0; }
-/* credits */
-[aria-label="Click to copy version"] > [class*="info_"]:before {
-    content: "DTM-18 Public V2.1.62\a\"Good Bits\" edit by prodzpod\aRevision 250205\a\a";
+[data-settings-sidebar-item="vencord_updater_panel"],
+[data-settings-sidebar-item="vencord_cloud_panel"],
+[data-settings-sidebar-item="vencord_backup_restore_panel"] { display: none !important; } /* hide vencord specific tabs */
+
+/* maintab */
+[data-settings-sidebar-item="vencord_main_panel"] div[data-text-variant="text-md/medium"] { font-size: 0 !important; margin: 0; }
+[data-settings-sidebar-item="vencord_main_panel"] div[data-text-variant="text-md/medium"]::before { content: "Ordinary Unmodified Discord" !important; font-size: 13px; }
+[class*="-contentHeader"]:has(+ div .vc-settings-tab) h1 { font-size: 0; margin: 0; }
+[class*="-contentHeader"]:has(+ div .vc-settings-tab) h1::before { 
+    content: "Ordinary Unmodified Discord Settings" !important; 
+    font-size: 16px;
+}
+.vc-special-card h5, .vc-special-card h5 ~ p { font-size: 0; }
+.vc-special-card-special h5::before { content: "what is this animal doing here"; font-size: 16px; }
+.vc-special-card h5 ~ button { font-size: 0; }
+.vc-special-card h5 ~ button::before { content: " ?"; font-size: 16px; }
+.vc-settings-quickActions-card { grid-template-columns: repeat(3, 1fr) !important; font-size: 13px; }
+section.vc-settings-tab > section:last-child > p { display: none; }
+/* themes */
+.vc-card-base > div:has(a[href="https://betterdiscord.app/themes"]) + p { display: none; }
+.vc-card-base a[href="https://betterdiscord.app/themes"]::before { content: "CompletelyNormalDiscord Themes"; font-size: 16px; }
+.vc-card-base a[href="https://betterdiscord.app/themes"] { font-size: 0; }
+/* bottom */
+[data-list-id="settings-sidebar"] > nav + div > [class*="-clickable"] > span:nth-child(2)::before { content: "Ordinary Unmodified Discord 1234567 (Standalone)" !important; font-size: 10px; }
+[data-list-id="settings-sidebar"] > nav + div > [class*="-clickable"] > span:nth-child(2) { font-size: 0 !important; }
+[data-list-id="settings-sidebar"] > nav + div > [class*="-clickable"]::before {
+    content: "DTM-18 Public V2.1.62\a\"Good Bits\" edit by prodzpod\aRevision 251219\a\a";
+    font-size: 10px;
     color: var(--text-muted);
+    margin-bottom: -4px;
 }

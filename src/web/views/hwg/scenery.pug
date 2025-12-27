@@ -1,0 +1,100 @@
+extends ./base.pugtemplate
+block premain
+    canvas.layer#outline
+    canvas.layer#cardboard
+    canvas.layer#canvas
+block data
+    img#sprite-cardboard(src="//prod.kr/images/hwg/cardboard.jpg")
+block script
+    script.
+        let ctxOutline, ctxCardboard, ctxMain;
+        ON_START = () => {
+            ctxOutline = e("outline").getContext("2d");
+            ctxCardboard = e("cardboard").getContext("2d");
+            ctxMain = e("canvas").getContext("2d");
+        }
+        ON_RESIZE = () => {
+            const w = Math.max(1, window.innerWidth);
+            const h = Math.max(1, window.innerHeight);
+            e("cardboard").width = w;
+            e("cardboard").height = h;
+            e("canvas").width = w;
+            e("canvas").height = h;
+            e("outline").width = w;
+            e("outline").height = h;
+        }
+        const PAINT_SECOND = 30;
+        let paintRemaining = 0;
+        let previousTime = null;
+        ON_CONTROL = async (message) => {
+            if (message.action !== "paint") return;
+            for (const c of [ctxCardboard, ctxMain, ctxOutline]) c.clearRect(0, 0, 1920, 1080);
+            paintRemaining = PAINT_SECOND * 1000;
+            previousTime = Date.now();
+        }
+        ON_DRAW = () => {
+            if (previousTime === null) return;
+            let time = Date.now();
+            let delta = time - previousTime;
+            paintRemaining -= delta;
+            if (paintRemaining > 0) {
+                if ((PAINT_SECOND * 1000) - paintRemaining < 3000) {
+                    ctx.fillStyle = "rgba(0, 255, 255, 0.5)"; 
+                    ctx.beginPath();
+                    ctx.rect(0, 0, 1920, 1080);
+                    ctx.fill();
+                    ctx.font = "72px sans-serif";
+                    ctx.fillStyle = "white"; 
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "bottom";
+                    ctx.fillText(`Draw a thing!!`, 960, 540 - 16);
+                    ctx.font = "48px sans-serif";
+                    ctx.textBaseline = "top";
+                    ctx.fillText(`Click and drag on the screen (or touch the panel) to draw!`, 960, 540 - 16);
+                }
+                ctx.font = "48px sans-serif";
+                ctx.fillStyle = "white"; 
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(Math.floor(paintRemaining / 1000), 960, 128);
+                previousTime = time;
+            }
+            else previousTime = null;
+        }
+        let lastPoint = {};
+        const THICKNESS = 4, OUTLINE = 64, OUTLINE_BORDER = 8;
+        ON_MESSAGE = async (message) => {
+            if (paintRemaining <= 0 || message.type === "hover" || (!lastPoint[message.id] && message.type !== "click")) return;
+            if (!DEBUG && MODS.includes(message.id)) {
+                if (message.type === "click") for (const c of [ctxCardboard, ctxMain, ctxOutline]) c.clearRect(0, 0, 1920, 1080);
+            }
+            // "source-over": default, "destination-out": erase mode
+            ctxCardboard.globalCompositeOperation = "source-over";
+            // draw end circles (smooth tip)
+            for (const ct of [[ctxCardboard, OUTLINE], [ctxMain, THICKNESS], [ctxOutline, OUTLINE + OUTLINE_BORDER]]) {
+                const [c, t] = ct;
+                c.fillStyle = c === ctxOutline ? "black" : message.color;
+                c.beginPath();
+                c.arc(message.x, message.y, t / 2, 0, 2 * Math.PI);
+                c.fill();
+            }
+            // draw line
+            if (message.type === "release" || message.type === "drag") {
+                ctxCardboard.lineWidth = OUTLINE;
+                ctxMain.lineWidth = THICKNESS;
+                ctxOutline.lineWidth = OUTLINE + OUTLINE_BORDER;
+                for (const c of [ctxCardboard, ctxMain, ctxOutline]) {
+                    c.strokeStyle = c === ctxOutline ? "black" : message.color;
+                    c.beginPath();
+                    c.moveTo(lastPoint[message.id].x, lastPoint[message.id].y);
+                    c.lineTo(message.x, message.y);
+                    c.stroke();
+                }
+            }
+            // set lastPoint
+            if (message.type === "click" || message.type === "drag") lastPoint[message.id] = { x: message.x, y: message.y };  
+            if (message.type === "release") delete lastPoint[message.id];
+            // cardboard!!!!!!!!!!!!!!!!!!
+            ctxCardboard.globalCompositeOperation = "source-in";
+            ctxCardboard.drawImage(getSprite("sprite-cardboard"), 0, 0);
+        }

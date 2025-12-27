@@ -53,7 +53,11 @@ namespace Gizmo.StreamOverlay.Elements.Entities
         {
             base.OnUpdate(ref self, deltaTime);
             if (!OnTopOfChat && !Is2D) { self.Angle = 0; self.Gravity = Vector2.Zero; }
-            if (OnTopOfChat) self.Position.Y = MathP.SExp(self.Position.Y - (Commands.Windows.Chat.Bounds.Y + MainRoom.Chat.Position.Y) * .75f, .01f, deltaTime) + (Commands.Windows.Chat.Bounds.Y + MainRoom.Chat.Position.Y) * .75f;
+            if (OnTopOfChat)
+            {
+                self.Position.X = MainRoom.Chat.Position.X;
+                self.Position.Y = Commands.Windows.Chat.Bounds.Y + MainRoom.Chat.Position.Y * .75f;
+            }
             if (OnTopOfChat && Is2D) self.Frame = 4;
             if (OnTopOfChat) ModelHandler.Pose = Pose;
             else

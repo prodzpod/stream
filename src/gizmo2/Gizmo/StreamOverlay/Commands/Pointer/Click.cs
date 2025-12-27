@@ -30,9 +30,11 @@ namespace Gizmo.StreamOverlay.Commands.Pointer
                 if (HitboxP.Check(instance, new PointHitbox(new Vector2(x.Value, y.Value))))
                 {
                     var temp = StreamOverlay.ClickedInstance;
+                    var temp2 = StreamOverlay.ClickedPosition;
                     ((GameElement)instance.Element).OnClick(ref instance, new(x.Value, y.Value));
                     instance.Rotation = MathP.Lerp(instance.Rotation, -instance.Angle * 5, .5f);
                     StreamOverlay.ClickedInstance = temp;
+                    StreamOverlay.ClickedPosition = temp2;
                     if (instance.Element is Prod && !Prod.Is2D)
                     {
                         Instance.New(nameof(Explosion), StreamOverlay.Prod.Position);
@@ -45,6 +47,9 @@ namespace Gizmo.StreamOverlay.Commands.Pointer
             }
             Elements.Gizmos.Pointer.New(new((float)x, (float)y), icon, 1, author, color);
             Audio.Play("screen/click_me");
+            BRB.Colors[author] = color;
+            if (BRB.Leaderboard.ContainsKey(author)) BRB.Leaderboard[author] += 1;
+            else BRB.Leaderboard[author] = 1;
             return null;
         }
     }

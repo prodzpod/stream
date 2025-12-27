@@ -103,8 +103,10 @@ block postbody
             for (let _data of DATA[number - 1].credit) {
                 if (loadingNumber !== number) return;
                 let name = _data[0]; let reason = _data[1] ?? "Appears on this card!";
+                let profile = (await (await fetch(`https://prod.kr/api/user?select=twitch.profile_image&where=twitch.login=${name.toLowerCase()}`)).json());
+                if (!profile[0]) continue;
                 let par = insertElement("a", "body", "cell hlist hard").with("href", "https://twitch.tv/" + name).with("style", "text-decoration: none"); 
-                insertElement("img", insertElement("div", par, "shoutout"), "portrait").with("src", (await (await fetch(`https://prod.kr/api/user?select=twitch.profile_image&where=twitch.login=${name.toLowerCase()}`)).json())[0].twitch.profile_image);
+                insertElement("img", insertElement("div", par, "shoutout"), "portrait").with("src", profile[0].twitch.profile_image);
                 let texts = insertElement("div", par, "vlist").with("style", "flex: 1 1 auto; padding-left: 32px");
                 insertElement("h3", texts, null, name); 
                 insertElement("c", insertElement("p", texts), null, (await (await fetch (`https://prod.kr/api/user?select=twitch.description&where=twitch.login=${name.toLowerCase()}`)).json())[0].twitch.description);
@@ -159,7 +161,7 @@ block postbody
             { rarity: "R", name: "Jesus is Lit promotion poster", credit: [["archible", "\"Jesus is Lit\" Director and Actor"], ["saladforrest", "\"Jesus is Lit\" MC"], ["ratcousin", "\"Jesus is Lit\" POV"], ["nilboglive", "\"Jesus is Lit\" POV"], ["bugvt", "\"Jesus is Lit\" POV and Actor"], ["mechamozie", "\"Jesus is Lit\" Art Lead and Actor"], ["kinskyunplugged", "\"Jesus is Lit\" Tech Lead and Actor"], ["lala_amanita", "\"Jesus is Lit\" Actor"], ["gyoglep", "\"Jesus is Lit\" Actor"], ["inarireiju", "\"Jesus is Lit\" Actor"], ["entitymorp", "\"Jesus is Lit\" Actor"], ["ericplaysbass", "\"Jesus is Lit\" Guest Appearance"], ["westernstyleguy", "\"Jesus is Lit\" Guest Appearance"], ["666pvzuzu666", "\"Jesus is Lit\" Guest Appearance"], ["lcolonq", "\"Jesus is Lit\" Guest Appearance"], ["modclonk", "\"Jesus is Lit\" Guest Appearance"], ["yongestation", "\"Jesus is Lit\" Guest Appearance"], ["thisisgob", "\"Jesus is Lit\" Former POV"]] },
             { rarity: "R", name: "AI Shrimp Jesus", credit: [["bugvt"]] },
             { rarity: "R", name: "2kki tour 250119", credit: [["lala_amanita", "Drew this image for me! (also the green cat)"], ["brightermalphon", "Appears on this card! (the blue cat)"]] },
-            { rarity: "R", name: "2kki week promotion poster", credit: [["digi_shell", "Participated in the 2kki Week Event!"], ["rotsuki", "Participated in the 2kki Week Event!"]] },
+            { rarity: "R", name: "2kki week promotion poster", credit: [["digiko", "Participated in the 2kki Week Event!"], ["rotxp", "Participated in the 2kki Week Event!"]] },
             { rarity: "R", name: "prodzpod 1-year", credit: [] },
             { rarity: "R", name: "\"this is a thumbnail for sure\"", credit: [] },
             { rarity: "R", name: "interview poster (front)", credit: [["saladforrest", "Drew this poster for their interview with me!"]] },
@@ -185,7 +187,7 @@ block postbody
             { rarity: "SR", name: "back to Business", credit: [] },
             { rarity: "SR", name: "space traveler", credit: [] },
             { rarity: "SR", name: "2024 Cirno day special", credit: [] },
-            { rarity: "SR", name: "cat in the Rain", credit: [["digi_shell", "designed the juice box!"]] },
+            { rarity: "SR", name: "cat in the Rain", credit: [["digiko", "designed the juice box!"]] },
             { rarity: "SR", name: "cooked in 3 minutes", credit: [] },
             { rarity: "SR", name: "Kitchen Revolutionary", credit: [] },
             { rarity: "SR", name: "Chroma Cat", credit: [] },
@@ -209,15 +211,15 @@ block postbody
             { rarity: "SR", name: "the Bitcoin 2 video", credit: [["lcolonq", "this is from a highlight video I edited for his channel!"]] },
             { rarity: "SR", name: "Risk of Rain Restoration Project", credit: [] },
             { rarity: "SR", name: "/malphon/startingsoon", credit: [["brightermalphon"]] },
-            { rarity: "SSR", name: "Something of this Nature", credit: [["digi_shell"], ["lcolonq"]] },
+            { rarity: "SSR", name: "Something of this Nature", credit: [["digiko"], ["lcolonq"]] },
             { rarity: "SSR", name: "worm VS bug", credit: [["bigbookofbug"]] },
             { rarity: "SSR", name: "THE WIRES", credit: [] },
-            { rarity: "SSR", name: "Tealcircle", credit: [["yukievt"], ["mickynoon"], ["venorrak"], ["kryptickralo"], ["digi_shell"], ["rotsuki"], ["brightermalphon"], ["lala_amanita"], ["saladforrest"], ["novaliminal"], ["kinskyunplugged"], ["joobijooni"], ["bugvt"], ["gyoglep"], ["mechamozie"], ["agumiisdungeon"], ["spellcrafter_geltaran"]] },
+            { rarity: "SSR", name: "Tealcircle", credit: [["yukievt"], ["mickynoon"], ["venorrak"], ["kryptickralo"], ["digiko"], ["rotxp"], ["brightermalphon"], ["lala_amanita"], ["saladforrest"], ["novaliminal"], ["kinskyunplugged"], ["joobijooni"], ["bugvt"], ["gyoglep"], ["mechamozie"], ["agumiisdungeon"], ["spellcrafter_geltaran"]] },
             { rarity: "SSR", name: "Impressions", credit: [["lcolonq", "Appears on this card (as impersonations!)"], ["jakecreatesstuff", "Appears on this card (as impersonations!)"], ["yellowberryhn", "Appears on this card (as impersonations!)"], ["saladforrest", "Appears on this card (as impersonations!)"]] },
             { rarity: "SR", name: "True or Rubbish", credit: [["lcolonq", "Created \"The Effort Post\"!"]] },
-            { rarity: "SR", name: "Floating City Raid", credit: [["digi_shell", "Participated in the 2kki Week Event!"], ["rotsuki", "Participated in the 2kki Week Event!"]] },
+            { rarity: "SR", name: "Floating City Raid", credit: [["digiko", "Participated in the 2kki Week Event!"], ["rotxp", "Participated in the 2kki Week Event!"]] },
             { rarity: "SR", name: "!tranquility", credit: [["lcolonq", "Created \"Mental Clarity\"!"]] },
-            { rarity: "SR", name: "thosewhoGrow", credit: [["xorxavier", "Created \"thosewhogrow\"!"], ["rotsuki", "we were there when we made this"]] },
+            { rarity: "SR", name: "thosewhoGrow", credit: [["xorxavier", "Created \"thosewhogrow\"!"], ["rotxp", "we were there when we made this"]] },
             { rarity: "SR", name: "i am Rectangular", credit: [] },
             { rarity: "SR", name: "My Wife", credit: [["lala_amanita"]] },
             { rarity: "SR", name: "automatic Petting device", credit: [["asquared31415"]] },

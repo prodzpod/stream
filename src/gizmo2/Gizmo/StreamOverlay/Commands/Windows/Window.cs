@@ -23,14 +23,14 @@ namespace Gizmo.StreamOverlay.Commands.Windows
 
         public static Instance SpawnWindow(float x, float y, string title, string _content, float type = 0)
         {
-            Text content = Text.Compile(_content, "arcaoblique", 26, Game.Room.Camera.Z, -Vector2.One, ColorP.BLACK);
+            Text content = Text.Compile(_content, "arcaoblique", 26, Game.Room.Camera.Z, -Vector2.One, StreamOverlay.DefaultTextColor);
             Instance i;
             if (type == 1) i = Elements.Windows.OKWindow.New(new(x, y), title, _content);
             else if (type == 2) i = Elements.Windows.YesNoWindow.New(new(x, y), title, _content, () => { });
             else i = Elements.Windows.Window.New(new(x, y), title, content.Size, content);
             i.Set("content", _content);
             var size = i.Get<Vector2>("size");
-            NineSlice? ns = Resource.NineSlices["window/window"];
+            NineSlice? ns = Resource.NineSlices["window_" + StreamOverlay.Theme + "/window"];
             var children = i.Get<Instance[]>("children");
             children[1].Position = new(-size.X / 2 + ns.innerLeft + OFFSET, -size.Y / 2 + ns.innerTop + OFFSET * 1.5f);
             // if (Elements.Windows.DrawWindow.IsTetris) i.Alpha = 0.1f;

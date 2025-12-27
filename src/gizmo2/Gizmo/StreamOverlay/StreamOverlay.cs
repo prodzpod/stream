@@ -17,6 +17,8 @@ namespace Gizmo.StreamOverlay
 {
     public class StreamOverlay : Game, Overlay
     {
+        public static string Theme = "blue"; // offwhite, blue, green
+        public static ColorP DefaultTextColor = ColorP.WHITE; // black or white depending on theme
         public override string InitialRoom => nameof(MainRoom);
         public override string WorkingDirectory => "../../../StreamOverlay";
         public static Instance? ClickedInstance = null;
@@ -81,11 +83,12 @@ namespace Gizmo.StreamOverlay
                 BackupP._backupTime += BackupP.BackupTime;
             }
             // 
-            if (InputP.KeyReleased(0x64)) StreamWebSocket.Send("specialbutton", "veadotube", "left");
-            if (InputP.KeyReleased(0x65)) StreamWebSocket.Send("specialbutton", "veadotube", "right");
-            if (InputP.KeyReleased(0x67)) StreamWebSocket.Send("specialbutton", "veadotube", "leftmost");
-            if (InputP.KeyReleased(0x68)) StreamWebSocket.Send("specialbutton", "veadotube", "rightmost");
-            if (InputP.KeyReleased(0x69)) StreamWebSocket.Send("specialbutton", "veadotube", "madmoney");
+            //if (InputP.KeyReleased(0x64)) StreamWebSocket.Send("specialbutton", "veadotube", "left");
+            //if (InputP.KeyReleased(0x65)) StreamWebSocket.Send("specialbutton", "veadotube", "right");
+            //if (InputP.KeyReleased(0x67)) StreamWebSocket.Send("specialbutton", "veadotube", "leftmost");
+            //if (InputP.KeyReleased(0x68)) StreamWebSocket.Send("specialbutton", "veadotube", "rightmost");
+            //if (InputP.KeyReleased(0x69)) StreamWebSocket.Send("specialbutton", "veadotube", "madmoney");
+            if (InputP.KeyReleased(0x60)) IntroSlides.NextSlide();
         }
 
         public static List<KeyValuePair<Image, Action<Texture2D>>> DrawResolve = [];

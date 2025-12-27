@@ -8,7 +8,7 @@ namespace Gizmo.StreamOverlay.Elements.Gizmos
 {
     public class AntiFan: Squareish
     {
-        public override string Sprite => "window/fan";
+        public override string Sprite => "window_" + StreamOverlay.Theme + "/fan";
         public override IHitbox? Hitbox => new RectangleHitbox(new(2, 256), 0);
         public override string[] InteractsWith => [nameof(Shimeji), nameof(Mouse)];
         public override bool Immortal => false;

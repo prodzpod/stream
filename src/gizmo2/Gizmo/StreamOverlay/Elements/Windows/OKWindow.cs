@@ -10,10 +10,10 @@ namespace Gizmo.StreamOverlay.Elements.Windows
     {
         public static Instance New(Vector2 pos, string title, string _content)
         {
-            NineSlice? nsWindow = Resource.NineSlices["window/window"];
-            NineSlice? nsButton = Resource.NineSlices["window/button"];
-            Text content = Text.Compile(_content, "arcaoblique", 26, Game.Room.Camera.Z, -Vector2.One, ColorP.BLACK);
-            Text yesText = Text.Compile("OK", "arcaoblique", 26, Game.Room.Camera.Z, -Vector2.UnitY, ColorP.BLACK);
+            NineSlice? nsWindow = Resource.NineSlices["window_" + StreamOverlay.Theme + "/window"];
+            NineSlice? nsButton = Resource.NineSlices["window_" + StreamOverlay.Theme + "/button"];
+            Text content = Text.Compile(_content, "arcaoblique", 26, Game.Room.Camera.Z, -Vector2.One, StreamOverlay.DefaultTextColor);
+            Text yesText = Text.Compile("OK", "arcaoblique", 26, Game.Room.Camera.Z, -Vector2.UnitY, StreamOverlay.DefaultTextColor);
             float sizeX = MathP.Max(content.Size.X, yesText.Size.X + 4);
             float sizeY = content.Size.Y + yesText.Size.Y + 4;
             var i = New(nameof(OKWindow), pos, title, new(sizeX, sizeY), content, nsButton, yesText);

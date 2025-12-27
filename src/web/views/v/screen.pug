@@ -349,7 +349,7 @@ block postbody
             kill: () => { addGenericPointerScreen("Click on the element you want to kill.", "kill"); },
             spawnwindow: () => {
                 showIU();
-                addGenericPointerScreen("Fill the textboxes and click on the position you want to spawn this window at.", "window");
+                addGenericPointerScreen("Fill the textboxes and click on the position you want to spawn this window at.", "spawnwindow");
                 const input = insertElement("div", "screen", "overlay bottom left right vlist").with("style", "margin: 0 160px; border-radius: 64px").with("onclick", "event?.stopPropagation();");
                 insertElement("input", input).with("id", "title").with("placeholder", "title...").with("style", "border-radius: 64px; padding: 16px; height: 64px; margin: 16px;");
                 insertElement("textarea", input).with("id", "contents").with("placeholder", "contents...").with("style", "border-radius: 64px; padding: 16px; height: 64px; margin: 16px;");
@@ -523,7 +523,7 @@ block postbody
             draw2: (x, y) => { send("draw", temp.x, temp.y, x, y); setState("draw"); },
             pin: (x, y) => { sendGenericXY("pin", x, y); },
             kill: (x, y) => { sendGenericXY("close", x, y); },
-            window: (x, y) => { if (e("title").value.trim() === "" || e("contents").value.trim() === "") { error("Some textboxes are blank."); return; } send("window", x, y, e("title").value, e("contents").value, e("type").value); },
+            spawnwindow: (x, y) => { if (e("title").value.trim() === "" || e("contents").value.trim() === "") { error("Some textboxes are blank."); return; } send("window", x, y, e("title").value, e("contents").value, e("type").value); },
             spawndrawwindow: (x, y) => { temp = {x: x, y: y}; setState("spawndrawwindow2"); },
             spawndrawwindow2: (x, y) => { send("drawwindow", (x + temp.x) / 2, (y + temp.y) / 2, Math.abs(x - temp.x), Math.abs(y - temp.y)); setState("draw"); },
             spawnfan: (x, y) => { temp = {x: x, y: y}; setState("spawnfan2"); },

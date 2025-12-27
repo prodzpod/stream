@@ -78,7 +78,7 @@ namespace Gizmo.StreamOverlay.Elements.Windows
                                 var g = Graphic.New(Instance, Text.Compile(s, "iosevka", 16, color));
                                 g.Position = new(
                                     MathP.Lerp(-WINDOW_WIDTH / 2, WINDOW_WIDTH / 2, pos.X * GRANULARITY / CHARACTER_WIDTH), 
-                                    MathP.Lerp(-WINDOW_HEIGHT / 2, WINDOW_HEIGHT / 2, pos.Y * GRANULARITY / CHARACTER_HEIGHT) + (Resource.NineSlices["window/window"].innerTop / 2));
+                                    MathP.Lerp(-WINDOW_HEIGHT / 2, WINDOW_HEIGHT / 2, pos.Y * GRANULARITY / CHARACTER_HEIGHT) + (Resource.NineSlices["window_" + StreamOverlay.Theme + "/window"].innerTop / 2));
                                 Letters.Add(g);
                                 chars.Add(pos);
                             }

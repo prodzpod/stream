@@ -1,0 +1,79 @@
+extends ./base.pugtemplate
+block script
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js")
+    script.
+        const COARSENESS = 24;
+        let heatmap, maxHeat, totalHeat;
+        ON_START = () => {
+            resetHeatmap();
+            send("heatmap-request");
+        }
+        function resetHeatmap() {
+            heatmap = [];
+            for (let x = 0; x < (1920 / COARSENESS); x++) {
+                let row = [];
+                for (let y = 0; y < (1080 / COARSENESS); y++) row.push(0);
+                heatmap.push(row);
+            }
+            maxHeat = 0;
+            totalHeat = 0;
+        }
+        const CLICK_HRADIUS = 256;
+        const DRAG_HRADIUS = 128;
+        ON_MESSAGE = async (message) => {
+            if (message.type === "hover" || message.type === "release") return;
+            let radius = message.type === "click" ? CLICK_HRADIUS : DRAG_HRADIUS;
+            let size = Math.ceil(radius / COARSENESS) * 2 + 2;
+            let xStart = ((message.x - (message.x % COARSENESS)) / COARSENESS) - (size / 2 - 1);
+            let yStart = ((message.y - (message.y % COARSENESS)) / COARSENESS) - (size / 2 - 1);
+            for (let _x = 0; _x < size; _x++) for (let _y = 0; _y < size; _y++) {
+                let x = xStart + _x; let y = yStart + _y;
+                if (0 > x || x >= heatmap.length || 0 > y || y >= heatmap[0].length) continue;
+                let power = radius - Math.hypot(((x + 0.5) * COARSENESS) - message.x, ((y + 0.5) * COARSENESS) - message.y);
+                if (power <= 0) continue;
+                heatmap[x][y] += power;
+                if (heatmap[x][y] > maxHeat) maxHeat = heatmap[x][y];
+            }
+            totalHeat += 1;
+        }
+        ON_CONTROL = async (message) => {
+            if (message.action === "heatmap-reset") resetHeatmap();
+            if (message.action === "heatmap-load") load(message.heatmap);
+        }
+        const UPDATE_SECONDS = 5;
+        let timeForUpdate = 0;
+        let previousTime = Date.now();
+        ON_DRAW = () => {
+            let time = Date.now();
+            timeForUpdate -= time - previousTime;
+            if (timeForUpdate <= 0) {
+                timeForUpdate = UPDATE_SECONDS * 1000;
+                save();
+            }
+            previousTime = time;
+            if (!heatmap) return;
+            for (let x = 0; x < heatmap.length; x++) for (let y = 0; y < heatmap[x].length; y++) {
+                const heat = heatmap[x][y] / maxHeat;
+                ctx.fillStyle = `rgb(${heat < 0.5 ? 255 : Math.lerp(255, 0, heat - 0.5)}, ${heat > 0.5 ? 255 : Math.lerp(0, 255, heat * 2)}, 0)`;
+                ctx.beginPath();
+                ctx.rect(x * COARSENESS, y * COARSENESS, x * COARSENESS + COARSENESS, y * COARSENESS + COARSENESS);
+                ctx.fill();
+            }
+        }
+
+        function save() {
+            if (!heatmap) return;
+            const res = LZString.compressToEncodedURIComponent(JSON.stringify(heatmap));
+            console.log("save:", res);
+            send("heatmap-save", res);
+        }
+
+        function load(res) {
+            try {
+                let txt = LZString.decompressFromEncodedURIComponent(res);
+                if (!txt) return;
+                heatmap = JSON.parse(txt);
+                totalHeat = 0;
+                maxHeat = Math.max(...heatmap.flat());
+            } catch { }
+        }

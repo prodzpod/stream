@@ -35,25 +35,28 @@ namespace Gizmo.StreamOverlay.Commands.System
                 var res = MathP.Min(MathP.Abs(i.Scale * ch.Size / sprite.Size));
                 sprite.Draw(i.Frame, i.Position + MathP.Rotate(ch.Position, i.Angle) * i.Scale + offset, Vector2.One * res, i.Angle + ch.Angle, i.Blend * i.Alpha);
             };
-            Image i;
-            int frames = 1;
-            Dictionary<int, float> loop = null;
-            if (path.EndsWith(".gif"))
+            if (!Emotes.ContainsKey(path))
             {
-                i = Image.LoadAnim(path, out frames);
-                i.Height *= frames;
-                loop = new(FileP.Slurp(path + ".properties").Split('\n').Select(x =>
+                Image i;
+                int frames = 1;
+                Dictionary<int, float> loop = null;
+                if (path.EndsWith(".gif"))
                 {
-                    var z = x.Trim().Split('=');
-                    return new KeyValuePair<int, float>(int.Parse(z[0]), MathP.SafeParse(z[1]) * MetaP.TargetFPS);
+                    i = Image.LoadAnim(path, out frames);
+                    i.Height *= frames;
+                    loop = new(FileP.Slurp(path + ".properties").Split('\n').Select(x =>
+                    {
+                        var z = x.Trim().Split('=');
+                        return new KeyValuePair<int, float>(int.Parse(z[0]), MathP.SafeParse(z[1]) * MetaP.TargetFPS);
+                    }));
+                }
+                else i = Image.Load(path);
+                StreamOverlay.DrawResolve.Add(new(i, texture =>
+                {
+                    if (frames == 1) Emotes[path] = new Sprite() { Image = texture, Size = new Vector2(texture.Width, texture.Height), Subimages = Vector2.One };
+                    else Emotes[path] = VariableSpeedSprite.Load(texture, 1, frames, loop);
                 }));
             }
-            else i = Image.Load(path);
-            StreamOverlay.DrawResolve.Add(new(i, texture =>
-            {
-                if (frames == 1) Emotes[path] = new Sprite() { Image = texture, Size = new Vector2(texture.Width, texture.Height), Subimages = Vector2.One };
-                else Emotes[path] = VariableSpeedSprite.Load(texture, 1, frames, loop);
-            }));
             currentLine.Add(ch);
             conductor.Pen += conductor.Size;
             return conductor;

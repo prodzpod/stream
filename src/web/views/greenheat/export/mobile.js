@@ -33,7 +33,7 @@ function initWS() {
     ws = new WebSocket("wss://heat.prod.kr/" + login + "/extension");
     ws.onclose = () => {
         console.log("Websocket Disconnected, reconnecting...");
-        setTimeout(initWS, 5000);
+        setTimeout(initWS, 500);
     }
 }
 
@@ -44,6 +44,7 @@ function getData(event) {
     if (ratio < 1) x /= ratio;
     else y /= ratio;
     return {
+        mobile: true,
         id: user,
         x: x,
         y: y,
@@ -63,7 +64,7 @@ function clickScreen(event) {
     pressed = true;
     lastCoord = [data.x, data.y];
     data.type = "click";
-    ws.send(data);
+    send(data);
     let dot = insertElement("div", "overlay", "clickdot").with("style", `left: ${event.changedTouches[0].pageX}px; top: ${event.changedTouches[0].pageY}px;`);
     setTimeout(() => { removeElement(dot); }, 500);
 }
@@ -73,7 +74,7 @@ function releaseScreen(event) {
     pressed = false;
     lastCoord = [data.x, data.y];
     data.type = "release";
-    ws.send(data);
+    send(data);
     let dot = insertElement("div", "overlay", "clickdot release").with("style", `left: ${event.changedTouches[0].pageX}px; top: ${event.changedTouches[0].pageY}px;`);
     setTimeout(() => { removeElement(dot); }, 500);
 }
@@ -85,7 +86,7 @@ function hoverScreen(event) {
     if (Math.hypot((coord[0] - lastCoord[0]) * 1920, (coord[1] - lastCoord[1]) * 1080) >= config.sensitivity[1]) {
         lastCoord = coord;
         data.type = "drag";
-        ws.send(data);
+        send(data);
         let dot = insertElement("div", "overlay", "clickdot drag").with("style", `left: ${event.changedTouches[0].pageX}px; top: ${event.changedTouches[0].pageY}px;`);
         setTimeout(() => { removeElement(dot); }, 500);
     }

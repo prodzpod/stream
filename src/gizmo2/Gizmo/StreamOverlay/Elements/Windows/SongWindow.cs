@@ -14,9 +14,9 @@ namespace Gizmo.StreamOverlay.Elements.Windows
         public static Instance New(Vector2 pos, string _title, Note[] notes)
         {
             if (notes.Length == 0) return Instance.New(nameof(Graphic), pos);
-            NineSlice? ns = Resource.NineSlices["window/window"];
-            Sprite s1 = Resource.Sprites["window/song_1"];
-            Instance ret = New(nameof(SongWindow), pos, _title, s1.Size, s1, Resource.Sprites["window/song_2"]);
+            NineSlice? ns = Resource.NineSlices["window_" + StreamOverlay.Theme + "/window"];
+            Sprite s1 = Resource.Sprites["window_" + StreamOverlay.Theme + "/song_1"];
+            Instance ret = New(nameof(SongWindow), pos, _title, s1.Size, s1, Resource.Sprites["window_" + StreamOverlay.Theme + "/song_2"]);
             var children = ret.Get<Instance[]>("children");
             children[2].Position = new(-s1.Size.X / 2 + 8, ns.innerTop / 2 - 13);
             ret.Set("notes", notes);
@@ -48,7 +48,7 @@ namespace Gizmo.StreamOverlay.Elements.Windows
             }
             if (life != 0)
             {
-                Sprite s1 = Resource.Sprites["window/song_1"];
+                Sprite s1 = Resource.Sprites["window_" + StreamOverlay.Theme + "/song_1"];
                 var children = self.Get<Instance[]>("children");
                 children[2].Position.X = MathP.Lerp(-s1.Size.X / 2 + 8, s1.Size.X / 2 - 7, self.Life / life);
             }

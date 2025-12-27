@@ -1,6 +1,7 @@
 ﻿using Gizmo.Engine;
 using Gizmo.Engine.Data;
 using Gizmo.Engine.Util;
+using Gizmo.StreamOverlay;
 using Gizmo.StreamOverlay.Elements.Entities;
 using ProdModel.Puppet;
 using Raylib_CSharp.Images;
@@ -20,7 +21,7 @@ namespace ProdModel.Object.Sprite
         public static bool Ready = false;
         public static List<string> PreviousAccessories = [];
         public static List<string> FixedAccessories = ["skirt_default", "bandage_1", "bandage_2", "bandage_3", "bandage_4", "bandage_5", "bandage_6", "bandage_7"];
-        public static List<string> Accessories = [.. FixedAccessories];
+        public static List<string> Accessories = [.. FixedAccessories, "star", "moon", "halo", "earcloud", "bunny", "glasses"];
         public static List<ColorP> PreviousColor = [];
         public static Dictionary<ColorP, ColorP> ColorReplace = [];
         public static bool YieldIfLowFPS = true;

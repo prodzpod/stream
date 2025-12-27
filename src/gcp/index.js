@@ -21,6 +21,7 @@ async function gcp() {
 }
 
 async function gcp2() {
+    return;
     const gcp2Token = await fetch("https://gcp2.net/js/data/api_token.js?2.0.2")
     if (gcp2Token.status === 200) {
         const token = (await gcp2Token.text()).match(/(Bearer \d+\|\w+)/)[1];

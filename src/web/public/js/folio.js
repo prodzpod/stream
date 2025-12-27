@@ -202,17 +202,17 @@ function engineInit() {
 }
 
 function engineUpdate() {
-    function getEnd(start) { return PORTFOLIO.slice(start).findIndex(x => !nullish(x.title)) + start; }
-    circle(0x00, getEnd(0x00), 1024,  256, 200, 100,   5, 0.2 , 0.15 , "orange" ); //  0 ~ 10 (stream, stell, looksy, ghabi, chambers)
-    circle(0x10, getEnd(0x10), 1024,  512, 400, 100, -10, 0.4 , 0.2  , "cyan"   ); // 10 ~ 20 (hacknet, secretdoctah, xau, rorg, corekeeper, urobot, ccrots, pa, gheat)
-    circle(0x20, getEnd(0x20), 1024,  825, 500, 100,   4, 0.5 , 0.075           ); // 20 ~ 40 (ch, minor gizmos, standalone web pages)
-    circle(0x40, getEnd(0x40), 1024, 1175, 700,  50, -14, 0.4 , 0.2  , "#006fff"); // 40 ~ 50 sammi extensions
-    circle(0x50, getEnd(0x50), 1024, 1450, 800, 100, - 5, 0.7 , 0.125           ); // 50 ~ 70 (risk of rain (original))
-    circle(0x70, getEnd(0x70), 1024, 1650, 700, 100,   7, 0.3 , 0.1             ); // 70 ~ 90 (risk of rain (contrib/port) )
-    circle(0x90, getEnd(0x90), 1024, 2100, 650, 100,  23, 0.3 , 0.175, "yellow" ); // 90 ~ B0 (music)
-    circle(0xB0, getEnd(0xB0), 1024, 2200, 500, 100, -12, 0.1 , 0.1  , "lime"   ); // B0 ~ D0 (other (video, etc))
-    circle(0xD0, getEnd(0xD0), 1024, 2600, 420, 100,   0, 0.05, 0.1  , "magenta"); // D0 ~ F0 (rd/adofai)
-    circle(0xF0, getEnd(0xF0), 1024, 2950, 250, 100,  19, 0.05, 0.075           ); // F0 ~ FF (1d1ps, le)
+    function getEnd(start, limit = -1) { let ret = PORTFOLIO.slice(start).findIndex(x => !nullish(x.title)) + start; return limit === -1 ? ret : Math.min(ret, limit); }
+    circle(0x00, getEnd(0x00, 0x10), 1024,  256, 200, 100,   5, 0.2 , 0.15 , "orange" ); //  0 ~ 10 (stream, stell, looksy, ghabi, chambers)
+    circle(0x10, getEnd(0x10, 0x20), 1024,  512, 400, 100, -10, 0.4 , 0.2  , "cyan"   ); // 10 ~ 20 (hacknet, secretdoctah, xau, rorg, corekeeper, urobot, ccrots, pa, gheat)
+    circle(0x20, getEnd(0x20, 0x40), 1024,  850, 600, 100,  12, 0.5 , 0.075           ); // 20 ~ 40 (ch, minor gizmos, standalone web pages)
+    circle(0x40, getEnd(0x40, 0x50), 1024, 1175, 250,  50, -14, 0.4 , 0.2  , "#006fff"); // 40 ~ 50 sammi extensions
+    circle(0x50, getEnd(0x50, 0x70), 1024, 1450, 800, 100, - 5, 0.7 , 0.125           ); // 50 ~ 70 (risk of rain (original))
+    circle(0x70, getEnd(0x70, 0x90), 1024, 1650, 700, 100,   7, 0.3 , 0.1             ); // 70 ~ 90 (risk of rain (contrib/port) )
+    circle(0x90, getEnd(0x90, 0xB0), 1024, 2100, 650, 100,  23, 0.3 , 0.175, "yellow" ); // 90 ~ B0 (music)
+    circle(0xB0, getEnd(0xB0, 0xD0), 1024, 2200, 500, 100, -12, 0.1 , 0.1  , "lime"   ); // B0 ~ D0 (other (video, etc))
+    circle(0xD0, getEnd(0xD0, 0xF0), 1024, 2600, 420, 100,   0, 0.05, 0.1  , "magenta"); // D0 ~ F0 (rd/adofai)
+    circle(0xF0, getEnd(0xF0, 0x100), 1024, 2950, 250, 100,  19, 0.05, 0.075           ); // F0 ~ FF (1d1ps, le)
 }
 
 function updateHover(_hovered) {

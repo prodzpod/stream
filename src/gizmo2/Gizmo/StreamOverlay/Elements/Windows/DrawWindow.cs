@@ -26,7 +26,7 @@ namespace Gizmo.StreamOverlay.Elements.Windows
                 var pos = self.GetRelativePosition(InputP.MousePosition);
                 if (lineInProgress == null)
                 {
-                    lineInProgress = new Line() { a = pos, b = pos, color = ColorP.BLACK };
+                    lineInProgress = new Line() { a = pos, b = pos, color = StreamOverlay.DefaultTextColor };
                     self.Get<List<Line>>("lines").Add(lineInProgress);
                 }
                 else

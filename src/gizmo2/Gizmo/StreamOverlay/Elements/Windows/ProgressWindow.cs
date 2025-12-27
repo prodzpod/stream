@@ -15,13 +15,13 @@ namespace Gizmo.StreamOverlay.Elements.Windows
         public static Dictionary<string, Instance> ProgressWindows = [];
         public static Instance New(Vector2 pos, string title, string _content, string id)
         {
-            NineSlice? nsWindow = Resource.NineSlices["window/window"];
-            Sprite? nsProgress = Resource.Sprites["window/progress"];
+            NineSlice? nsWindow = Resource.NineSlices["window_" + StreamOverlay.Theme + "/window"];
+            Sprite? nsProgress = Resource.Sprites["window_" + StreamOverlay.Theme + "/progress"];
             float sizeX = nsProgress.Size.X + 256 + Commands.Windows.Window.OFFSET + 8;
-            Text content = Text.Compile(_content, "arcaoblique", 26, sizeX, -Vector2.One, ColorP.BLACK);
-            Text placeholder = Text.Compile("1", "arcaoblique", 26, sizeX, Vector2.Zero, ColorP.BLACK);
+            Text content = Text.Compile(_content, "arcaoblique", 26, sizeX, -Vector2.One, StreamOverlay.DefaultTextColor);
+            Text placeholder = Text.Compile("1", "arcaoblique", 26, sizeX, Vector2.Zero, StreamOverlay.DefaultTextColor);
             float sizeY = content.Size.Y + nsProgress.Size.Y + placeholder.Size.Y + Commands.Windows.Window.OFFSET + 8;
-            var i = New(nameof(ProgressWindow), pos, title, new(sizeX, sizeY), content, Resource.Sprites["window/progress"], Resource.NineSlices["window/progress_inner"], placeholder);
+            var i = New(nameof(ProgressWindow), pos, title, new(sizeX, sizeY), content, Resource.Sprites["window_" + StreamOverlay.Theme + "/progress"], Resource.NineSlices["window_" + StreamOverlay.Theme + "/progress_inner"], placeholder);
             i.Set("content", _content);
             i.Set("value", 1f);
             i.Set("maxvalue", 1f);
@@ -35,15 +35,15 @@ namespace Gizmo.StreamOverlay.Elements.Windows
         }
         public static Instance UpdateProgress(string id, string title, string content, float _max, float _value)
         {
-            NineSlice? nsWindow = Resource.NineSlices["window/window"];
-            Sprite? nsProgress = Resource.Sprites["window/progress"];
+            NineSlice? nsWindow = Resource.NineSlices["window_" + StreamOverlay.Theme + "/window"];
+            Sprite? nsProgress = Resource.Sprites["window_" + StreamOverlay.Theme + "/progress"];
             float sizeX = nsProgress.Size.X + 256 + Commands.Windows.Window.OFFSET + 8;
             Instance i;
             if (ProgressWindows.ContainsKey(id)) i = ProgressWindows[id];
             else i = New(Game.Room.Camera.XY(), title, content, id);
             i.Set("value", _value);
             i.Set("maxvalue", _max);
-            Text value = Text.Compile(_value.ToString() + "/" + _max.ToString(), "arcaoblique", 26, sizeX, Vector2.Zero, ColorP.BLACK);
+            Text value = Text.Compile(_value.ToString() + "/" + _max.ToString(), "arcaoblique", 26, sizeX, Vector2.Zero, StreamOverlay.DefaultTextColor);
             var children = i.Get<Instance[]>("children");
             // reposition & retext
             children[3].Position = new(nsProgress.Size.X * (-0.5f + _value / _max / 2), children[2].Position.Y);

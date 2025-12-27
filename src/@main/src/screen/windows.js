@@ -84,6 +84,16 @@ let RULE = {
         name: "%NAME%:Engine:Godot_v4.4.1-stable_win64.exe",
         window: null,
     },
+    warudo: {
+        rule: name => name.startsWith("Warudo Editor - "),
+        name: "%NAME%:Chrome_WidgetWin_1:warudo-client-electron.exe",
+        window: null,
+    },
+    streamerbot: {
+        rule: name => name.startsWith("Streamer.bot - "),
+        name: "%NAME%:HwndWrapper[Streamer.bot.exe;UI;4c09cd8f-2cd0-41a5-ab73-74baaa6f42f6]:Streamer.bot.exe",
+        window: null,
+    },
     // art
     aseprite: {
         rule: name => name.includes("Aseprite"),
@@ -235,6 +245,16 @@ let RULE = {
     nikki: {
         rule: name => name === "YUME NIKKI",
         name: "%NAME%:TFormLcfGameMain:RPG_RT.exe",
+        window: null,
+    },
+    roblox: {
+        rule: name => name === "Roblox",
+        name: "%NAME%:WINDOWSCLIENT:RobloxPlayerBeta.exe",
+        window: null,
+    },
+    roblox: {
+        rule: name => name === "Beatblock",
+        name: "%NAME%:SDL_app:Beatblock.exe",
         window: null,
     }
 };

@@ -50,7 +50,7 @@ block content
                     big_static: `https://cdn.7tv.app/emote/${x.id}/3x.avif`,
                 }
             }));
-            // (await new Picture().init("bg", 960, 540, null)).setDepth(-1000);
+            //- (await new Picture().init("bg", 960, 540, null)).setDepth(-1000);
             (await new Picture().init("author", 1600, 250, null, null, null, outlinedText(550, "", 200))).setDepth(-1000).rotate(5).addClass("chat");
             (await new Picture().init("content", 1650, 300, null, null, null, outlinedText(500, "", 200))).setDepth(-1000).rotate(3).addClass("chat");
             (await new Picture().init("fg", 960, 540, null)).setDepth(-1000);

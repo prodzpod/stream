@@ -8,7 +8,7 @@ namespace Gizmo.StreamOverlay.Elements.Windows
 {
     public class Window : Squareish
     {
-        public override string Sprite => "window/window";
+        public override string Sprite => "window_" + StreamOverlay.Theme + "/window";
         public override float Drag(Instance i) => .9f;
         public override void OnInit(ref Instance self)
         {
@@ -45,7 +45,7 @@ namespace Gizmo.StreamOverlay.Elements.Windows
         {
             const float OFFSET = 16;
             Text title = Text.Compile(_title, "arcaoblique", 26, Game.Room.Camera.Z, -Vector2.One);
-            NineSlice? ns = Resource.NineSlices["window/window"];
+            NineSlice? ns = Resource.NineSlices["window_" + StreamOverlay.Theme + "/window"];
             float w = MathP.Max(
                 title.Size.X + ns.innerLeft + ns.innerRight,
                 contentSize.X + ns.innerLeft * 2) + OFFSET * 2;

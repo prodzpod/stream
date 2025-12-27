@@ -1,0 +1,48 @@
+doctype html
+head
+    // OPENGRAPH
+    meta(http-equiv='Content-Type' content='text/html; charset=utf-8')
+    meta(name='author' content='prodzpod')
+    meta(name='robots' content='nosnippet')
+    meta(property='og:type' content='website')
+    meta(property='og:url' content='https://prod.kr/')
+    meta(property='og:image:type' content='image/png')
+    meta(name='theme-color' content='#FFB0FF')
+    // ICON
+    link(rel='icon' href='https://heat.prod.kr/images/favicon.png')
+    meta(property='og:image' content='https://heat.prod.kr/images/favicon.png')
+    // TITLE
+    title HWG Gizmo
+    meta(property='og:title' content='HWG Gizmo')
+    meta(name='twitter:title' content='HWG Gizmo')
+    // CSS
+    link(href='/css/reset.css' rel='stylesheet')
+    link(href='/css/base.css' rel='stylesheet')
+    link(href='/css/hwg.css' rel='stylesheet')
+    // JS
+    script. 
+        !{client}
+    script(src='/js/base.js')
+    script(src='/js/hwg.js')
+    block js
+body
+    img.layer#bg(src="//prod.kr/images/hwg/bg.png")
+    block premain
+    canvas.layer#main
+    block postmain
+    // DATA
+    div(style='display: none;')
+        img#sprite-cursor(src='//heat.prod.kr/images/cursor.png')
+        block data
+    // MASTODON
+    a(rel='me' href='https://mastodon.gamedev.place/@prod' style='display: none;') Mastodon
+    a(rel='me' href='https://mas.to/@prod' style='display: none;') Mastodon 2
+    block script
+    style.
+        body { background-color: transparent; }
+        .layer {
+            position: absolute;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+        }

@@ -42,7 +42,7 @@ function initWS() {
     ws = new WebSocket("wss://heat.prod.kr/" + login + "/extension");
     ws.onclose = () => {
         console.log("Websocket Disconnected, reconnecting...");
-        setTimeout(initWS, 5000);
+        setTimeout(initWS, 500);
     }
 }
 
@@ -50,6 +50,7 @@ function getData(event) {
     let x = event.layerX / e("heat").clientWidth;
     let y = event.layerY / e("heat").clientHeight;
     return {
+        mobile: false,
         id: user,
         x: x,
         y: y,

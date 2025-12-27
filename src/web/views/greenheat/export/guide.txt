@@ -1,4 +1,10 @@
 Changelog: 
+0.0.7
+- improved mobile ui
+- fixed mobile sending garbage data
+- made desktop opt-in text less obtrusive
+0.0.6
+- reduced reconnect time from 5s to 0.5s (server is more stable)
 0.0.5
 - added color customization for click dots
 - added better visualization for hover/drag/release

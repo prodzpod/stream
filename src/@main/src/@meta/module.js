@@ -12,7 +12,7 @@ module.exports.start = async (dir, logStdOut=false, isExternal=false) => {
         logs[dir].end();
         info("Module Restarted:", dir, res);
     } else info("Module Started:", dir);
-    fs.renameSync(path(mainDirectory, dir, "latest.log"), path(mainDirectory, dir, "last.log"));
+    if (fs.existsSync(path(mainDirectory, dir, "latest.log"))) fs.renameSync(path(mainDirectory, dir, "latest.log"), path(mainDirectory, dir, "last.log"));
     modules[dir] = exec(fs.readFileSync(path(mainDirectory, dir, "index.bat")).toString(), { cwd: path(mainDirectory, dir) });
     logs[dir] = fs.createWriteStream(path(mainDirectory, dir, "latest.log"));
     modules[dir].stdout.pipe(logs[dir]); modules[dir].stderr.pipe(logs[dir]);

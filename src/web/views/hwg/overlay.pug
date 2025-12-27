@@ -1,0 +1,345 @@
+extends ./base.pugtemplate
+block data
+    img#sprite-basket-tomato(src="//prod.kr/images/hwg/basket_tomato.png")
+    img#sprite-basket-flower(src="//prod.kr/images/hwg/basket_flower.png")
+    img#sprite-flower1(src="//prod.kr/images/hwg/flower1.png")
+    img#sprite-flower2(src="//prod.kr/images/hwg/flower2.png")
+    img#sprite-flower3(src="//prod.kr/images/hwg/flower3.png")
+    img#sprite-flower4(src="//prod.kr/images/hwg/flower4.png")
+    img#sprite-flower5(src="//prod.kr/images/hwg/flower5.png")
+    img#sprite-flower6(src="//prod.kr/images/hwg/flower6.png")
+    img#sprite-flower7(src="//prod.kr/images/hwg/flower7.png")
+    img#sprite-flower8(src="//prod.kr/images/hwg/flower8.png")
+    img#sprite-flower9(src="//prod.kr/images/hwg/flower9.png")
+    img#sprite-tomato1(src="//prod.kr/images/hwg/tomato1.png")
+    img#sprite-tomato2(src="//prod.kr/images/hwg/tomato2.png")
+    img#sprite-splat1(src="//prod.kr/images/hwg/splat1.png")
+    img#sprite-splat2(src="//prod.kr/images/hwg/splat2.png")
+    img#sprite-splat3(src="//prod.kr/images/hwg/splat3.png")
+    img#sprite-splat4(src="//prod.kr/images/hwg/splat4.png")
+    img#sprite-splat5(src="//prod.kr/images/hwg/splat5.png")
+    img#sprite-splat6(src="//prod.kr/images/hwg/splat6.png")
+block script
+    script.
+        // main
+        let PIANO_ACTIVE = false;
+        let ACTORSWAP_ACTIVE = false;
+        let THROW_ACTIVE = false;
+        ON_CONTROL = async (message) => {
+            if (message.action === "piano-on") { PIANO_ACTIVE = true; LAST_PRESSED = {}; }
+            if (message.action === "piano-off") PIANO_ACTIVE = false;
+            if (message.action === "actorswap") { 
+                ACTORSWAP_ACTIVE = true; 
+                actorswapTime = ACTORSWAP_TIME; 
+                clicksLeft = clicksRequired; 
+                // send kinsky: started
+            }
+            if (message.action === "actorswap-reset") { ACTORSWAP_ACTIVE = false; clicksRequired = 10; }
+            if (message.action === "throw") {
+                THROW_ACTIVE = true;
+                throwTime = THROW_TIME;
+                throwObject = message.object;
+                // send kinsky: started
+                fetch("https://kinsky.mom/HardWhitegirl/throwstart", { method: "POST", body: JSON.stringify({ object: message.object }) });
+            } 
+            if (message.action === "throw-hit") { TO_SPLAT.push(message.id); }
+        }
+        ON_MESSAGE = async (message) => {
+            if (PIANO_ACTIVE) checkPiano(message);
+            if (THROW_ACTIVE) checkThrow(message);
+            if (ACTORSWAP_ACTIVE) checkActorSwap(message);
+        }
+        let previousTick = 0;
+        let delta;
+        ON_DRAW = () => {
+            let tick = Date.now();
+            delta = tick - previousTick;
+            drawPiano();
+            drawActorSwap();
+            drawThrow();
+            previousTick = tick;
+        }
+
+        // #region piano
+        const STARTING_NOTE = "C";
+        const STARTING_OCTAVE = 4;
+        const WHITE_WIDTH = 88;
+        const WHITE_MARGIN = 4; 
+        const BLACK_WIDTH = 66;
+        const WHITE_HEIGHT = 381;
+        const BLACK_HEIGHT = 318;
+        let transition_height = 0;
+        const NOTE = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+        let WHITE_KEYS = [], BLACK_KEYS = [];
+        function getNotes() {
+            WHITE_KEYS = []; BLACK_KEYS = [];
+            let note = NOTE.indexOf(STARTING_NOTE); let octave = STARTING_OCTAVE;
+            transition_height = Math.lerp(transition_height, PIANO_ACTIVE ? WHITE_HEIGHT : 0, 0.1);
+            for (let x = WHITE_MARGIN / 2; x < 1920; x += WHITE_WIDTH) {
+                WHITE_KEYS.push({ note: NOTE[note], octave: octave, 
+                    x: x, y: 1080 - transition_height, w: WHITE_WIDTH - WHITE_MARGIN, h: WHITE_HEIGHT });
+                note += 1; if (note === NOTE.length) { octave += 1; note = 0; }
+                if (NOTE[note].endsWith("#")) {
+                    BLACK_KEYS.push({ note: NOTE[note], octave: octave, 
+                        x: x + WHITE_WIDTH - (WHITE_MARGIN + BLACK_WIDTH) / 2, y: 1080 - transition_height, w: BLACK_WIDTH, h: BLACK_HEIGHT });
+                    note += 1;
+                }
+            }
+        }
+        function drawPiano() {
+            getNotes();
+            ctx.fillStyle = "black"; 
+            ctx.beginPath();
+            ctx.rect(0, 1080, 1920, -transition_height - WHITE_MARGIN);
+            ctx.fill();
+            ctx.fillStyle = "white"; 
+            for (const key of WHITE_KEYS) {
+                ctx.beginPath();
+                ctx.rect(key.x, key.y, key.w, key.h);
+                ctx.fill();
+            }
+            ctx.fillStyle = "black"; 
+            for (const key of BLACK_KEYS) {
+                ctx.beginPath();
+                ctx.rect(key.x, key.y, key.w, key.h);
+                ctx.fill();
+            }
+            ctx.font = "24px sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            for (const key of WHITE_KEYS) ctx.fillText(key.note, key.x + key.w / 2, key.y + key.h - 32);
+            ctx.fillStyle = "white"; 
+            for (const key of BLACK_KEYS) ctx.fillText(key.note, key.x + key.w / 2, key.y + key.h - 32);
+        }
+        let LAST_PRESSED = {};
+        function checkPiano(message) {
+            if (message.type === "release") delete LAST_PRESSED[message.id];
+            if (message.type === "hover" || message.type === "release") return;
+            for (const key of [...BLACK_KEYS, ...WHITE_KEYS]) {
+                let note = key.note + key.octave;
+                if (key.x <= message.x && message.x < key.x + key.w
+                        && key.y <= message.y && message.y < key.y + key.h) { 
+                    if (LAST_PRESSED[message.id] !== note) playNote(note); 
+                    LAST_PRESSED[message.id] = note;
+                    break;
+                }
+            }
+        }
+        let oscs = new Array();
+        const audio_ctx = new(window.AudioContext || window.webkitAudioContext)();
+        const playNote = note => {
+            if (Array.isArray(note)) { note.map(x => playNote(x)); return; }
+            let osc = make_oscillator();
+            osc.frequency.value = note_to_frequency(note);
+            osc.start();
+            oscs.push(osc);
+            setTimeout(() => {
+                oscs.splice(oscs.indexOf(osc), 1);
+                osc.stop();
+            }, 15000 / 75);
+        };
+        function make_oscillator() {
+            let oscillator = audio_ctx.createOscillator();
+            let gain_node = audio_ctx.createGain();
+
+            gain_node.gain.value = 0.01;
+            oscillator.type = "square";
+            oscillator.connect(gain_node);
+            gain_node.connect(audio_ctx.destination);
+            return oscillator;
+        }
+        function note_to_frequency(note) {
+            const step = note_to_half_step(note);
+            return 440 * Math.pow(2, step / 12);
+        }
+        function note_to_half_step(note) {
+            const re = /\d+$/.exec(note);
+            const octave = re ? Number(re[0]) : 4; const symbol = re ? note.slice(0, -re[0].length) : note;
+            const chromatic = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+            return chromatic.indexOf(symbol.toUpperCase()) - 9 + 12 * (octave - 4);
+        }
+        function half_step_to_note(step) {
+            const chromatic = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+            return chromatic[((step % 12) + 24 - 3) % 12] + (Math.floor((step - 3) / 12) + 5);
+        }
+        // #endregion
+        // #region actorswap
+        const ACTORSWAP_TIME = 15000;
+        const ACTORSWAP_AFTER_TIME = 3000;
+        let actorswapTime = 0;
+        let clicksRequired = 10;
+        let clicksLeft = 10;
+        function checkActorSwap(message) {
+            if (message.type !== "click") return;
+            clicksLeft -= 1;
+            if (clicksLeft <= 0) {
+                ACTORSWAP_ACTIVE = false;
+                actorswapSuccess = ACTORSWAP_AFTER_TIME;
+                // send kinsky: success
+                fetch("https://kinsky.mom/MusicalBot/actorswap", {method: "POST"});
+                clicksRequired *= 2;
+            }
+        }
+        let actorswapSuccess = 0;
+        let actorswapFailure = 0;
+        function drawActorSwap() {
+            if (ACTORSWAP_ACTIVE) {
+                actorswapTime -= delta;
+                if (actorswapTime <= 0) {
+                    ACTORSWAP_ACTIVE = false;
+                    actorswapFailure = ACTORSWAP_AFTER_TIME;
+                    // send kinsky: failure
+                }
+                ctx.fillStyle = `rgba(255, 255, 0, 0.5)`;
+                ctx.beginPath();
+                ctx.rect(0, 0, 1920, 1080);
+                ctx.fill();
+                ctx.textAlign = "center";
+                ctx.fillStyle = "white";
+                ctx.font = "48px sans-serif"; 
+                ctx.textBaseline = "bottom";
+                ctx.fillText("SPAM THE SCREEN !!", 960, 540 - 8);
+                ctx.fillText(Math.ceil(actorswapTime / 1000), 960, 64);
+                ctx.font = "24px sans-serif"; 
+                ctx.textBaseline = "top";
+                ctx.fillText(`Clicks left until actor swap: ${clicksLeft}`, 960, 540 + 8);
+            }
+            if (actorswapSuccess > 0) {
+                actorswapSuccess -= delta;
+                ctx.fillStyle = `rgba(0, 255, 0, ${0.5 * (actorswapSuccess / ACTORSWAP_AFTER_TIME)})`;
+                ctx.beginPath();
+                ctx.rect(0, 0, 1920, 1080);
+                ctx.fill();
+            }
+            if (actorswapFailure > 0) {
+                actorswapFailure -= delta;
+                ctx.fillStyle = `rgba(255, 0, 0, ${0.5 * (actorswapFailure / ACTORSWAP_AFTER_TIME)})`;
+                ctx.beginPath();
+                ctx.rect(0, 0, 1920, 1080);
+                ctx.fill();
+            }
+        }
+        // #endregion
+        // #region throw!!
+        const THROW_TIME = 15000;
+        let throwTime = 0;
+        let throwObject = "";
+        let transition_height2 = 0;
+        let lastPoint = {};
+        const FORCE_LIMIT = 200;
+        let MAX_ID = 0;
+        function checkThrow(message) {
+            if (message.type === "hover" || (!lastPoint[message.id] && message.type !== "click")) return;
+            if (lastPoint[message.id] && lastPoint[message.id].y > 1080 - BASKET_HEIGHT && message.y <= 1080 - BASKET_HEIGHT) {
+                const r = Math.hypot(message.x - lastPoint[message.id].x, message.y - lastPoint[message.id].y);
+                const a = Math.atan2(message.y - lastPoint[message.id].y, message.x - lastPoint[message.id].x);
+                const rx = r / FORCE_LIMIT * (1080 - BASKET_HEIGHT);
+                const pos = {x: lastPoint[message.id].x + rx * Math.cos(a), y: lastPoint[message.id].y + rx * Math.sin(a)};
+                // send kinsky: hit
+                let oid = MAX_ID;
+                fetch("https://kinsky.mom/HardWhitegirl/throwcheck", {
+                    method: "POST",
+                    headers: ({ "Content-Type": "application/json" }),
+                    body: JSON.stringify({start: [lastPoint[message.id].x / 1920, lastPoint[message.id].y / 1080], end: [pos.x / 1920, pos.y / 1080]})
+                }).then(async res => { if ((await res.text()) === true) TO_SPLAT.push(oid); });
+                const size = Math.lerp(100, 300, Math.random());
+                const yspeed = pos.y - lastPoint[message.id].y;
+                const subimg = Math.floor(random(1, (throwObject === "tomato" ? 2 : 9) + 1));
+                OBJECTS.push({
+                    id: MAX_ID,
+                    sprite: throwObject + subimg,
+                    subimg: subimg,
+                    x: lastPoint[message.id].x,
+                    y: lastPoint[message.id].y,
+                    xspeed: pos.x - lastPoint[message.id].x,
+                    yspeed: yspeed * 2,
+                    gravity: yspeed * -2,
+                    angle: 0, aspeed: Math.lerp(-3000, 3000, Math.random()),
+                    size: size * 2, sspeed: -size,
+                    opacity: 1, ospeed: 0,
+                    life: 2
+                });
+                MAX_ID += 1;
+            }
+            // set lastPoint
+            if (message.type === "click" || message.type === "drag") lastPoint[message.id] = { x: message.x, y: message.y };  
+            if (message.type === "release") delete lastPoint[message.id];
+        }
+        let BASKET_HEIGHT = 350;
+        let OBJECTS = [];
+        let TO_SPLAT = [];
+        function drawThrow() {
+            transition_height2 = Math.lerp(transition_height2, THROW_ACTIVE ? BASKET_HEIGHT : 0, 0.1);
+            if (THROW_ACTIVE) {
+                throwTime -= delta;
+                if (THROW_TIME - throwTime)
+                if (throwTime <= 0) {
+                    THROW_ACTIVE = false;
+                    // send kinsky: ended
+                    fetch("https://kinsky.mom/HardWhitegirl/throwend", { method: "POST" });
+                }
+                ctx.drawImage(getSprite(`sprite-basket-${throwObject}`), 0, 1080 - transition_height2, 1920, BASKET_HEIGHT);
+            }
+            let _delta = delta / 1000;
+            for (const o of [...OBJECTS]) {
+                o.x += o.xspeed * _delta; o.y += o.yspeed * _delta; o.yspeed += o.gravity * _delta;
+                o.angle += o.aspeed * _delta; o.size += o.sspeed * _delta; o.opacity += o.ospeed * _delta;
+                o.life -= _delta;
+                // draw image
+                ctx.save();
+                ctx.translate(o.x, o.y);
+                ctx.rotate((o.angle * Math.PI) / 180);
+                ctx.translate(-o.x, -o.y);
+                ctx.filter = `opacity(${o.opacity * 100}%)`;
+                ctx.drawImage(getSprite("sprite-" + o.sprite), o.x - (o.size / 2), o.y - (o.size / 2), o.size, o.size);
+                ctx.restore();
+                // end
+                if (o.life < 1 && TO_SPLAT.includes(o.id)) {
+                    TO_SPLAT = remove(TO_SPLAT, o.id);
+                    if (throwObject === "tomato") {
+                        const subimg = (random([0, 2, 4]) + o.subimg);
+                        OBJECTS.push({
+                            id: MAX_ID,
+                            sprite: "splat" + subimg,
+                            subimg: subimg,
+                            x: o.x, y: o.y, xspeed: 0, yspeed: 0, gravity: 0, angle: o.angle, aspeed: 0,
+                            size: o.size, sspeed: 0, opacity: 1, ospeed: -1, life: 1
+                        });
+                    } else {
+                        OBJECTS.push({
+                            id: MAX_ID,
+                            sprite: o.sprite,
+                            subimg: o.subimg,
+                            x: o.x, y: o.y, xspeed: random(-300, 300), yspeed: random(0, -200), gravity: o.gravity, angle: o.angle, aspeed: o.aspeed * random(-1, 1),
+                            size: o.size, sspeed: 0, opacity: 1, ospeed: -1, life: 1
+                        });
+                    }
+                    OBJECTS = remove(OBJECTS, o);
+                }
+                MAX_ID += 1;
+                if (o.life <= 0) { OBJECTS = remove(OBJECTS, o); }
+            }
+            ctx.filter = "none";
+            if (THROW_ACTIVE) {
+                if (THROW_TIME - throwTime < 3000) {
+                    ctx.fillStyle = `rgba(0, 0, 0, 0.5)`;
+                    ctx.beginPath();
+                    ctx.rect(0, 0, 1920, 1080);
+                    ctx.fill();
+                    ctx.font = "72px sans-serif"; 
+                    ctx.textBaseline = "bottom";
+                    ctx.textAlign = "center";
+                    ctx.fillStyle = "white";
+                    ctx.fillText("Throw Objects!", 960, 540 - 8);
+                    ctx.font = "24px sans-serif"; 
+                    ctx.textBaseline = "top";
+                    ctx.fillText(`Swipe from bottom to top towards the direction you want to throw!`, 960, 540 + 8);
+                }
+                ctx.font = "48px sans-serif"; 
+                ctx.textBaseline = "bottom";
+                ctx.textAlign = "center";
+                ctx.fillStyle = "white";
+                ctx.fillText(Math.ceil(throwTime / 1000), 960, 64);
+            }
+        }
+        // #endregion

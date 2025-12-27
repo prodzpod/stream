@@ -179,11 +179,11 @@ module.exports.reaction = async (from, chatter, message, text, emote, reply) => 
 
 module.exports.chat = async (from, chatter, message, text, emote, reply, r) => {
     if (!chatter) return [chatter, null];
-    if (from?.from !== "blessscript" && ((message.twitch && message.twitch.channel != "140410053") ||
+    if (from?.from !== "blessscript" && ((message.twitch && (message.twitch.channel != "140410053" /*&& message.twitch.channel != "108372992"*/)) ||
         (message.discord && message.discord.channel != "1219954701726912586"))) return [chatter, null];
     const name = chatter.twitch?.name ?? Object.values(chatter).find(x => x.name).name;
     let source = Object.keys(message)[0] ?? "";
-    if (!(from?.from !== "blessscript" && message.twitch && message.twitch.channel == "140410053") && from !== "witsend") {
+    if (!(from?.from !== "blessscript" && message.twitch && (message.twitch.channel == "140410053" /*|| message.twitch.channel == "108372992"*/)) && from !== "witsend") {
         let meta = module.exports.handleMeta(source, "twitch", text, emote);
         meta[1] = meta[1].map(x => { x.position += `@${name}: `.length; return x; });
         let res = (await send("twitch", "send", null, `@${name}: ${meta[0]}`, meta[1], reply?.twitch?.id));;

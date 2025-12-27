@@ -40,11 +40,12 @@ namespace Gizmo.StreamOverlay.Commands.Windows
             float fontSize = isEmote ? 52 : 26;
             ColorP color = new(_color);
             Text author = Text.Compile(_author, "arcaoblique", 26, Bounds.Z - 32 - OFFSET * 3 - 13, -Vector2.One, color);
-            Text content = Text.Compile(_content, "arcaoblique", fontSize, Bounds.Z - 32 - OFFSET * 3 - fontSize / 2, -Vector2.One, ColorP.BLACK);
+            Text content = Text.Compile(_content, "arcaoblique", fontSize, Bounds.Z - 32 - OFFSET * 3 - fontSize / 2, -Vector2.One, StreamOverlay.DefaultTextColor);
             Sprite[] icons = [.. _icon.Select(x => Resource.Sprites[x])];
             float h = author.Size.Y + content.Size.Y + OFFSET * 3;
             foreach (var x in Game.INSTANCES.Where(y => y.Element is Elements.Gizmos.Chat && y.Get<bool>("racked")))
             {
+                x.Set("y", x.Get<float>("y") - h);
                 x.Position.Y -= h;
                 var size = x.Get<Vector2>("size");
                 if (x.Position.Y - size.Y / 2 < Bounds.Y + MainRoom.Chat.Position.Y) x.Destroy();
@@ -60,6 +61,7 @@ namespace Gizmo.StreamOverlay.Commands.Windows
             i.Set("content", _content);
             i.Set("racked", !isFirstMessage);
             i.Set("follow", isFirstMessage);
+            i.Set("y", - h / 2);
             var children = i.Get<Instance[]>("children");
             children[0].Position = new(-Bounds.Z / 2 + 32 + OFFSET * 2 + 13, -h / 2 + OFFSET + 13);
             children[1].Position = new(-Bounds.Z / 2 + 32 + OFFSET * 2 + fontSize / 2, -h / 2 + author.Size.Y + OFFSET * 2 + fontSize / 2);

@@ -19,4 +19,5 @@ module.exports.NILBOG_ID = "1003351110";
 module.exports.GOB_ID = "951678700";
 module.exports.ELLG_ID = "4484765";
 module.exports.KINSKY_ID = "439183333";
+module.exports.TYUMICI_ID = "51932032";
 module.exports.BOT_ID = "g584kjzcj1tr15ouxg0fko2ybnckxh";

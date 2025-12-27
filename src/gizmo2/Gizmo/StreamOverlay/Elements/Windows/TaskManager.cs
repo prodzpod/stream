@@ -25,9 +25,9 @@ namespace Gizmo.StreamOverlay.Elements.Windows
         public static Instance New(Vector2 pos)
         {
             var l0 = Resource.NineSlices["WHITE"];
-            var l1 = Resource.Sprites["window/taskmanager_1"];
-            var l2 = Resource.Sprites["window/taskmanager_2"];
-            var l3 = Resource.Sprites["window/taskmanager_3"];
+            var l1 = Resource.Sprites["window_" + StreamOverlay.Theme + "/taskmanager_1"];
+            var l2 = Resource.Sprites["window_" + StreamOverlay.Theme + "/taskmanager_2"];
+            var l3 = Resource.Sprites["window_" + StreamOverlay.Theme + "/taskmanager_3"];
             var size = l2.Size;
             Graph = Image.GenColor((int)size.X, (int)size.Y, ColorP.TRANSPARENT);
             var i = New(nameof(TaskManager), pos, size, l0, l1, new Sprite() { Image = Texture2D.LoadFromImage(Graph.Value), Size = size, Subimages = Vector2.One}, l2, l0, l0, l3, l0, l0, l0);
@@ -119,7 +119,7 @@ namespace Gizmo.StreamOverlay.Elements.Windows
         {
             if (Instance == null) return;
             var children = Instance.Get<Instance[]>("children");
-            children[9].Sprite = Text.Compile(NumWindows.ToString(), "arcaoblique", 13, -Vector2.One, ColorP.BLACK);
+            children[9].Sprite = Text.Compile(NumWindows.ToString(), "arcaoblique", 13, -Vector2.One, StreamOverlay.DefaultTextColor);
         }
 
         public override string Serialize(ref Instance self) => "";

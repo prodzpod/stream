@@ -42,7 +42,7 @@ button:hover { background-color: var(--hover); }
     background-color: var(--text);
 }
 .active .checkbox { background-color: var(--em); }
-input {
+input, select {
     background-color: var(--text);
     color: var(--background);
     padding: 8px;

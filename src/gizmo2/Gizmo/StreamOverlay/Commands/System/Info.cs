@@ -16,14 +16,14 @@ namespace Gizmo.StreamOverlay.Commands.System
             float phase = WASD.Assert<float>(args[1]);
             string game = WASD.Assert<string>(args[2]);
             if (subject == null) return null;
-            var text = Text.Compile($"\"{subject}\"", "arcaoblique", 26, -Vector2.One, ColorP.BLACK);
-            var ns = Resource.NineSlices["window/making"];
+            var text = Text.Compile($"\"{subject}\"", "arcaoblique", 26, -Vector2.One, StreamOverlay.DefaultTextColor);
+            var ns = Resource.NineSlices["window_" + StreamOverlay.Theme + "/making"];
             MainRoom.MakingText.Sprite = text;
             var x = ns.innerLeft + text.Size.X + ns.innerRight;
             MainRoom.Making.Set("size", new Vector2(x, 44));
             MainRoom.Making.Position = new(748 + (MainRoom.LALA_MODE ? 90 : 0) + x / 2, 1056);
-            MainRoom.MakingText.Position = new((Resource.NineSlices["window/making"].innerLeft - text.Size.X) / 2, 4);
-            MainRoom.Phase.Sprite = Text.Compile(phase.ToString().PadLeft(2, '0'), "arcaoblique", 26, -Vector2.One, ColorP.BLACK);
+            MainRoom.MakingText.Position = new((Resource.NineSlices["window_" + StreamOverlay.Theme + "/making"].innerLeft - text.Size.X) / 2, 4);
+            MainRoom.Phase.Sprite = Text.Compile(phase.ToString().PadLeft(2, '0'), "arcaoblique", 26, -Vector2.One, StreamOverlay.DefaultTextColor);
             string[] full = ["Linux for PlayStation 2", "Software and Game Development", "Special Events", "Just Chatting"];
             DrawWindow.IsTetris = !full.Contains(game);
             if (!StreamOverlay.BackupCalled)

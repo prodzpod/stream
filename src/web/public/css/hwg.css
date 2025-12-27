@@ -1,0 +1,7 @@
+.left, .right {
+    float: unset !important;
+}
+
+#settings {
+    opacity: 0;
+}
